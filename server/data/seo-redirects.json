@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "fromPath": "/old-gallery",
+    "toPath": "/gallery",
+    "redirectType": 301,
+    "isActive": true,
+    "description": "Legacy gallery URL redirect",
+    "hitCount": 0,
+    "createdAt": "2025-07-29T14:00:00.000Z",
+    "updatedAt": "2025-07-29T14:00:00.000Z",
+    "lastHit": null
+  }
+]

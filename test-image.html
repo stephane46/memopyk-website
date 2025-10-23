@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Cache Test</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+</head>
+<body style="font-family: Arial;">
+    <h1>CROPPED IMAGE TEST</h1>
+    <p>If cropping worked, you should see the Pom image positioned 5.2% from the top</p>
+    
+    <h2>Current Database Image:</h2>
+    <img id="current-image" style="border: 2px solid red; max-width: 400px;" alt="Current cropped image">
+    
+    <h2>Direct URL Test:</h2>
+    <img src="https://supabase.memopyk.org/storage/v1/object/public/memopyk-videos/static_en_1754460885132.jpg?force=1&t=123456" 
+         style="border: 2px solid blue; max-width: 400px;" alt="Direct cropped image">
+    
+    <script>
+        // Fetch current image URL from API
+        fetch('/api/gallery')
+            .then(r => r.json())
+            .then(data => {
+                const imageUrl = data[0].static_image_url_en + '?force=' + Date.now();
+                document.getElementById('current-image').src = imageUrl;
+                console.log('Loading image:', imageUrl);
+            });
+    </script>
+</body>
+</html>

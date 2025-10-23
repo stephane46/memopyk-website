@@ -1,0 +1,20 @@
+[
+  {
+    "id": "exclusion_test_figeac",
+    "ip_cidr": "109.17.150.48",
+    "label": "Capdenac home network",
+    "active": true,
+    "created_at": "2025-09-10T20:02:00.000Z",
+    "updated_at": "2025-09-14T10:28:29.451Z",
+    "user_agent": ""
+  },
+  {
+    "ip_cidr": "66.249.70.130",
+    "label": "Google",
+    "user_agent": null,
+    "active": true,
+    "id": "exclusion_1758537231862_jff9d67rx",
+    "created_at": "2025-09-22T10:33:51.862Z",
+    "updated_at": "2025-09-22T10:33:51.862Z"
+  }
+]

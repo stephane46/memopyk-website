@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Crop Test</title>
+</head>
+<body>
+    <h1>Testing Crop Save Flow</h1>
+    <button onclick="testCropSave()">Test Crop Save</button>
+    <div id="log"></div>
+
+    <script>
+    function log(msg) {
+        console.log(msg);
+        document.getElementById('log').innerHTML += '<div>' + msg + '</div>';
+    }
+
+    async function testCropSave() {
+        log('🚀 STARTING TEST');
+        
+        try {
+            // Step 1: Create test blob
+            log('📤 Creating test blob...');
+            const canvas = document.createElement('canvas');
+            canvas.width = 300;
+            canvas.height = 200;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#D67C4A';
+            ctx.fillRect(0, 0, 300, 200);
+            
+            const blob = await new Promise((resolve) => {
+                canvas.toBlob((blob) => {
+                    resolve(blob);
+                }, 'image/jpeg', 0.8);
+            });
+            log('✅ Blob created: ' + blob.size + ' bytes');
+            
+            // Step 2: Create FormData
+            log('📋 Creating FormData...');
+            const formData = new FormData();
+            const filename = 'test_crop_' + Date.now() + '.jpg';
+            formData.append('file', blob, filename);
+            formData.append('language', 'en');
+            log('✅ FormData created with filename: ' + filename);
+            
+            // Step 3: Upload
+            log('📤 Uploading to /api/upload/image...');
+            const uploadResponse = await fetch('/api/upload/image', {
+                method: 'POST',
+                body: formData
+            });
+            log('📡 Upload response status: ' + uploadResponse.status);
+            
+            if (!uploadResponse.ok) {
+                throw new Error('Upload failed: ' + uploadResponse.status);
+            }
+            
+            const uploadResult = await uploadResponse.json();
+            log('✅ Upload success: ' + uploadResult.url);
+            
+            // Step 4: Update database
+            log('📝 Updating database...');
+            const updateData = {
+                static_image_url_en: uploadResult.url,
+                cropSettings: {
+                    method: 'triple-layer-white-bg',
+                    position: { x: 50, y: 50 },
+                    dimensions: { width: 300, height: 200 },
+                    format: 'JPEG',
+                    quality: 1.0,
+                    devicePixelRatio: 1
+                },
+                language: 'en'
+            };
+            
+            const updateResponse = await fetch('/api/gallery/fe696b9e-6fd5-4c54-bf73-018439c95999', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updateData)
+            });
+            log('📡 Database update response status: ' + updateResponse.status);
+            
+            if (!updateResponse.ok) {
+                throw new Error('Database update failed: ' + updateResponse.status);
+            }
+            
+            const updateResult = await updateResponse.json();
+            log('✅ Database update success: ' + JSON.stringify(updateResult));
+            
+            log('🎉 ALL STEPS COMPLETED SUCCESSFULLY!');
+            
+        } catch (error) {
+            log('❌ ERROR: ' + error.message);
+            console.error('Full error:', error);
+        }
+    }
+    </script>
+</body>
+</html>

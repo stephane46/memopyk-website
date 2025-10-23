@@ -1,0 +1,10 @@
+{
+  "version": "1.0.11",
+  "timestamp": "2025-08-25T19:02:38.773Z",
+  "fix": "Gallery video underscore to space conversion",
+  "changes": [
+    "Gallery videos with underscores now convert to spaces for Supabase URLs",
+    "Example: gallery_Our_vitamin_sea_rework_2_compressed.mp4 → gallery Our vitamin sea rework 2 compressed.mp4",
+    "Matches actual Supabase storage filenames"
+  ]
+}

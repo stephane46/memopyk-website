@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reframing Success - MEMOPYK</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        h1 {
+            color: #155724;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .success-banner {
+            background: #d4edda;
+            border: 3px solid #c3e6cb;
+            color: #155724;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .image-section {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .section-title {
+            color: #2A4759;
+            font-weight: bold;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .image-container {
+            text-align: center;
+            margin: 15px 0;
+        }
+        .image-container img {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+        }
+        .original-image {
+            max-height: 250px;
+        }
+        .reframed-image {
+            width: 300px;
+            height: 200px;
+            background: white;
+        }
+        .image-details {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        .status-check {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+    </style>
+    <script>
+        async function loadReframingStatus() {
+            try {
+                const response = await fetch('/api/gallery');
+                const items = await response.json();
+                const item = items[0]; // "Our Vitamin Sea 2"
+                
+                const statusDiv = document.getElementById('status-check');
+                
+                if (item.static_image_url && item.static_image_url.trim() && item.static_image_url !== "") {
+                    // Success case
+                    document.getElementById('success-banner').style.display = 'block';
+                    document.getElementById('pending-banner').style.display = 'none';
+                    
+                    const reframedImg = document.getElementById('reframed-image');
+                    reframedImg.src = item.static_image_url + '?t=' + Date.now();
+                    reframedImg.style.display = 'block';
+                    document.getElementById('placeholder').style.display = 'none';
+                    
+                    document.getElementById('reframed-details').innerHTML = `
+                        <strong>File:</strong> ${item.static_image_url.split('/').pop()}<br>
+                        <strong>Dimensions:</strong> 300×200 pixels<br>
+                        <strong>Format:</strong> ${item.static_image_url.includes('.png') ? 'PNG' : 'JPEG'} with solid white background<br>
+                        <strong>Status:</strong> ✅ Successfully created<br>
+                        ${item.crop_settings ? `<strong>Crop Method:</strong> ${item.crop_settings.method}<br>` : ''}
+                        ${item.crop_settings?.position ? `<strong>Position:</strong> X: ${item.crop_settings.position.x.toFixed(2)}, Y: ${item.crop_settings.position.y.toFixed(2)}<br>` : ''}
+                        ${item.crop_settings?.devicePixelRatio ? `<strong>Device Pixel Ratio:</strong> ${item.crop_settings.devicePixelRatio}<br>` : ''}
+                    `;
+                    
+                    statusDiv.innerHTML = `
+✅ REFRAMING SUCCESSFUL
+static_image_url: "${item.static_image_url}"
+crop_settings: ${item.crop_settings ? JSON.stringify(item.crop_settings, null, 2) : 'null'}
+                    `;
+                    statusDiv.style.background = '#d4edda';
+                    statusDiv.style.color = '#155724';
+                    
+                } else {
+                    // Still pending/failed case
+                    document.getElementById('success-banner').style.display = 'none';
+                    document.getElementById('pending-banner').style.display = 'block';
+                    
+                    statusDiv.innerHTML = `
+⚠️ REFRAMING INCOMPLETE
+static_image_url: "${item.static_image_url || 'null'}"
+crop_settings: ${item.crop_settings ? JSON.stringify(item.crop_settings, null, 2) : 'null'}
+                    `;
+                    statusDiv.style.background = '#fff3cd';
+                    statusDiv.style.color = '#856404';
+                }
+                
+            } catch (error) {
+                console.error('Error loading status:', error);
+                document.getElementById('status-check').innerHTML = 'Error loading reframing status';
+            }
+        }
+        
+        window.onload = loadReframingStatus;
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Fresh Reframing Result - MEMOPYK</h1>
+        <p class="subtitle">Real-time status of your English image reframing attempt</p>
+
+        <div id="success-banner" class="success-banner" style="display: none;">
+            ✅ REFRAMING SUCCESSFUL! Your English image has been converted to a 300×200 pixel thumbnail with solid white background.
+        </div>
+        
+        <div id="pending-banner" class="success-banner" style="background: #fff3cd; border-color: #ffeaa7; color: #856404; display: none;">
+            ⚠️ Reframing process is still pending or incomplete. Please try again if needed.
+        </div>
+
+        <div class="status-check" id="status-check">
+            Loading current reframing status...
+        </div>
+
+        <div class="comparison-grid">
+            <div class="image-section">
+                <div class="section-title">BEFORE - Original Source</div>
+                <div class="image-container">
+                    <h4>English Image</h4>
+                    <img src="https://supabase.memopyk.org/storage/v1/object/public/memopyk-videos/Image%20(7).jpg" 
+                         alt="Original English image"
+                         class="original-image">
+                    <div class="image-details">
+                        <strong>File:</strong> Image (7).jpg<br>
+                        <strong>Dimensions:</strong> 4032×3024 pixels<br>
+                        <strong>Format:</strong> JPEG<br>
+                        <strong>Source:</strong> Original upload
+                    </div>
+                </div>
+            </div>
+
+            <div class="image-section">
+                <div class="section-title">AFTER - Reframed Result</div>
+                <div class="image-container">
+                    <h4>Static Thumbnail</h4>
+                    <img id="reframed-image" 
+                         alt="Reframed static image"
+                         class="reframed-image"
+                         style="display: none;">
+                    <div style="width: 300px; height: 200px; background: #f8f9fa; border: 2px dashed #dee2e6; display: flex; align-items: center; justify-content: center; margin: 0 auto; border-radius: 8px;" id="placeholder">
+                        <div style="text-align: center; color: #6c757d;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">🔄</div>
+                            <div>Loading result...</div>
+                        </div>
+                    </div>
+                    <div class="image-details" id="reframed-details">
+                        Checking reframing status...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

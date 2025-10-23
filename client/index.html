@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>MEMOPYK</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    
+    <!-- GA4 - Only load on non-admin pages (GTM KILLSWITCH ENABLED) -->
+    <script>
+      // Check if current path is admin page
+      var isAdmin = location.pathname.startsWith('/fr-FR/admin') || location.pathname.startsWith('/en-US/admin') || location.pathname.startsWith('/admin');
+      
+      // GTM KILLSWITCH: Skip GA4 loading if disabled via query parameter (env var handled in build)
+      var gtmDisabled = location.search.includes('nogtm=1');
+      
+      if (!isAdmin && !gtmDisabled) {
+        // Load GA4 script
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-JLRWHE1HV4';
+        document.head.appendChild(script);
+        
+        // Initialize GA4
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        window.gtag = gtag;
+        gtag('js', new Date());
+
+        // Check for developer mode and mark traffic accordingly
+        (function () {
+          var isDev = /[?#&]ga_dev=1\b/.test(location.href) || localStorage.getItem('ga_dev') === '1';
+          window.GA_DEV = isDev;
+          gtag('config', 'G-JLRWHE1HV4', {
+            send_page_view: true,
+            debug_mode: isDev
+          });
+          
+          // Show visual indicator when in test mode - matches bookmarklet styling
+          if (isDev) {
+            var banner = document.createElement('div');
+            banner.id = 'ga-test-banner';
+            banner.textContent = '🧪 GA TEST MODE ACTIVE';
+            banner.style.cssText = 'position:fixed;bottom:12px;right:12px;background:#ff9800;color:#fff;padding:8px 12px;font:600 13px/1.2 system-ui,Segoe UI,Roboto,Arial;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.2);z-index:2147483647;';
+            if (document.body) {
+              document.body.appendChild(banner);
+            } else {
+              console.error('document.body not available for GA test banner');
+            }
+          }
+        })();
+      } else {
+        if (isAdmin) {
+          console.log('🚫 GA4 disabled on admin pages');
+        } else if (gtmDisabled) {
+          console.log('🚫 GA4 disabled by GTM killswitch (VITE_ENABLE_GTM != true OR ?nogtm=1)');
+        }
+      }
+    </script>
+
+    <!-- Microsoft Clarity - Only load on non-admin pages -->
+    <script type="text/javascript">
+        // Check if current path is admin page  
+        var isAdmin = location.pathname.startsWith('/fr-FR/admin') || location.pathname.startsWith('/en-US/admin') || location.pathname.startsWith('/admin');
+        
+        if (!isAdmin) {
+            (function(c,l,a,r,i,t,y){
+                c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+            })(window, document, "clarity", "script", "t3uv5yndxl");
+
+            // Simple consent call that triggers after Clarity is loaded
+            window.addEventListener('load', function() {
+                // Wait for Clarity to be fully loaded before granting consent
+                var checkClarity = setInterval(function() {
+                    if (window.clarity && typeof window.clarity === 'function') {
+                        clearInterval(checkClarity);
+                        // Use the correct Clarity Consent API v2 format
+                        window.clarity('consent', {
+                            analytics_storage: 'granted',
+                            ad_storage: 'denied'
+                        });
+                        
+                        // Also try the older legacy format for backward compatibility
+                        window.clarity('consent', true);
+                    }
+                }, 100);
+            });
+        } else {
+            console.log('🚫 Clarity disabled on admin pages');
+        }
+    </script>
+
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
+    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
+  </body>
+</html>

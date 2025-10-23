@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "imageUrl": "/assets/hero-bg.jpg",
+    "altTextEn": "Romantic wedding couple in cinematic lighting",
+    "altTextFr": "Couple de mariage romantique dans un éclairage cinématographique",
+    "titleEn": "Wedding Cinematography Hero Image",
+    "titleFr": "Image Héros de Cinématographie de Mariage",
+    "caption": "Professional wedding videography showcase",
+    "isLazyLoaded": true,
+    "compressionLevel": 80,
+    "width": 1920,
+    "height": 1080,
+    "fileSize": 245000,
+    "format": "JPEG",
+    "seoFriendlyName": "wedding-cinematography-hero-memopyk",
+    "createdAt": "2025-07-29T14:00:00.000Z",
+    "updatedAt": "2025-07-29T14:00:00.000Z"
+  }
+]

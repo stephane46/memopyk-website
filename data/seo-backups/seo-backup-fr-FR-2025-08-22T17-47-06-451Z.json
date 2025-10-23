@@ -1,0 +1,22 @@
+{
+  "lang": "fr-FR",
+  "title": "MEMOPYK FINAL TEST - Films souvenirs personnalisés",
+  "description": "Description complète pour test de mapping des champs Supabase. TEST",
+  "canonical": "https://memopyk.com/fr-FR",
+  "keywords": "memopyk, films, souvenirs, personnalisés, test",
+  "robotsIndex": true,
+  "robotsFollow": true,
+  "robotsNoArchive": false,
+  "robotsNoSnippet": false,
+  "openGraph": {
+    "type": "website",
+    "url": "https://memopyk.com/fr-FR"
+  },
+  "twitter": {
+    "card": "summary_large_image"
+  },
+  "hreflang": [],
+  "extras": [],
+  "backupCreatedAt": "2025-08-22T17:47:06.451Z",
+  "backupCreatedBy": "admin"
+}

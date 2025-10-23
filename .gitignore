@@ -1,0 +1,49 @@
+node_modules
+dist
+.DS_Store
+server/public
+vite.config.ts.*
+*.tar.gz
+
+# Security: Prevent accidental secret commits
+attached_assets/
+*.env*
+.env
+.env.local
+.env.production
+.env.development
+server/*.log
+*.log
+server_debug.log
+server.log
+test-server.js
+
+# Temporary files that might contain secrets
+tmp/
+temp/
+logs/
+cache/
+.cache/
+
+# Replit auto-generated files that might contain secrets
+**/Pasted-*
+**/Pasted--SESSION-SECRET*
+**/Pasted--DATABASE*
+**/Pasted--SUPABASE*
+**/Pasted--API*
+**/image_*
+
+# Any file with secret-like patterns
+*SECRET*
+*TOKEN*
+*KEY*
+*PASSWORD*
+
+# Deployment markers - track directory but not the marker files
+.deployment_markers/*.txt
+!.deployment_markers/.gitkeep
+
+# Legacy deployment files (can be cleaned up later)
+FORCE_CLEAN_DEPLOYMENT_*.txt
+DEPLOYMENT_MARKER*.json
+*DEPLOYMENT*.md

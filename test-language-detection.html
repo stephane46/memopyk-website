@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Detection Test</title>
+</head>
+<body>
+    <h1>MEMOPYK Language Detection Test</h1>
+    
+    <div id="results"></div>
+    
+    <script>
+        // Test the same logic as LanguageContext.tsx
+        function detectBrowserLanguage() {
+            // Get browser language preferences
+            const browserLanguages = navigator.languages || [navigator.language];
+            
+            console.log('Browser languages detected:', browserLanguages);
+            
+            for (const lang of browserLanguages) {
+                console.log(`Checking language: ${lang}`);
+                // Check for French variants
+                if (lang.toLowerCase().startsWith('fr')) {
+                    console.log(`French detected: ${lang} -> returning fr-FR`);
+                    return 'fr-FR';
+                }
+            }
+            
+            // If French is NOT detected, show English
+            console.log('No French detected -> returning en-US');
+            return 'en-US';
+        }
+        
+        // Test current browser settings
+        const detectedLanguage = detectBrowserLanguage();
+        
+        const results = document.getElementById('results');
+        results.innerHTML = `
+            <h2>Test Results:</h2>
+            <p><strong>Browser Languages:</strong> ${JSON.stringify(navigator.languages || [navigator.language])}</p>
+            <p><strong>Primary Language:</strong> ${navigator.language}</p>
+            <p><strong>Detected MEMOPYK Language:</strong> <span style="color: ${detectedLanguage === 'en-US' ? 'green' : 'blue'}; font-weight: bold;">${detectedLanguage}</span></p>
+            
+            <h3>Expected Behavior:</h3>
+            <ul>
+                <li><strong>French browsers</strong> (fr, fr-FR, fr-CA) → Show French site (fr-FR)</li>
+                <li><strong>All other languages</strong> (en, de, es, it, etc.) → Show English site (en-US)</li>
+            </ul>
+            
+            <h3>Test Scenarios:</h3>
+            <div style="background: #f0f0f0; padding: 10px; margin: 10px 0;">
+                <strong>Current Result:</strong> ${detectedLanguage === 'en-US' ? '✅ ENGLISH (Correct for non-French)' : '🇫🇷 FRENCH (Only correct if browser is French)'}
+            </div>
+        `;
+        
+        // Log for debugging
+        console.log('=== MEMOPYK Language Detection Test ===');
+        console.log('Navigator languages:', navigator.languages);
+        console.log('Navigator language:', navigator.language);
+        console.log('Detected language for MEMOPYK:', detectedLanguage);
+    </script>
+</body>
+</html>

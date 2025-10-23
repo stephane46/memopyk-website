@@ -1,0 +1,13 @@
+{
+  "lang": "fr-FR",
+  "title": "Test de SEO francais",
+  "description": "Test description francaise",
+  "canonical": "https://memopyk.com/fr-FR",
+  "keywords": "test, seo, francais",
+  "robotsIndex": true,
+  "robotsFollow": true,
+  "robotsNoArchive": false,
+  "robotsNoSnippet": false,
+  "backupCreatedAt": "2025-08-22T20:09:50.988Z",
+  "backupCreatedBy": "admin"
+}

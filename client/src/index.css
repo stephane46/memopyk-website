@@ -1,0 +1,1387 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hide fullscreen button from video controls */
+video::-webkit-media-controls-fullscreen-button {
+  display: none !important;
+}
+
+video::-moz-media-controls-fullscreen-button {
+  display: none !important;
+}
+
+/* Hide picture-in-picture button */
+video::-webkit-media-controls-picture-in-picture-button {
+  display: none !important;
+}
+
+/* MEMOPYK Official Brand Colors */
+:root {
+  --memopyk-navy: #011526;        /* Navy - Primary brand color (RGB 1,21,38) */
+  --memopyk-dark-blue: #2A4759;   /* Dark Blue - Secondary brand (RGB 42,71,89) */
+  --memopyk-sky-blue: #89BAD9;    /* Sky Blue - Light accent (RGB 137,186,217) */
+  --memopyk-blue-gray: #8D9FA6;   /* Blue Gray - Subtle accent (RGB 141,159,166) */
+  --memopyk-cream: #F2EBDC;       /* Cream - Background warmth (RGB 242,235,220) */
+  --memopyk-orange: #D67C4A;      /* Orange - Action/highlight color (RGB 214,124,74) */
+
+  /* HSL versions for Tailwind compatibility */
+  --navy: 202 97% 9%;          /* #011526 */
+  --dark-blue: 202 37% 26%;    /* #2A4759 */
+  --sky-blue: 201 56% 60%;     /* #89BAD9 */
+  --blue-gray: 195 27% 60%;    /* #8D9FA6 */
+  --cream: 39 35% 91%;         /* #F2EBDC */
+  --orange: 22 59% 57%;        /* #D67C4A */
+}
+
+/* Base Styles with Poppins as primary font */
+html, body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #FFFFFF;
+  color: var(--memopyk-navy);
+  /* Prevent horizontal scroll and fix mobile overflow issues */
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Global fix for mobile overflow issues */
+* {
+  box-sizing: border-box;
+}
+
+/* Performance optimization for react-simple-maps event handling */
+.rsm-geography, .rsm-geographies, .rsm-zoomable-group {
+  touch-action: manipulation;
+  will-change: transform;
+}
+
+/* Card Back Orange Background Fix - Following Modal Transparency Solution Pattern */
+.card-back-orange {
+  background-color: #D67C4A !important;
+  background: #D67C4A !important;
+  background-image: none !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  isolation: isolate !important;
+  will-change: auto !important;
+  backface-visibility: hidden !important;
+  mix-blend-mode: normal !important;
+}
+
+/* Cookie Banner Button Fix - MEMOPYK Orange with !important */
+.cookie-accept-btn {
+  background-color: #D67C4A !important;
+  background: #D67C4A !important;
+  background-image: none !important;
+  border-color: #D67C4A !important;
+  color: white !important;
+}
+
+.cookie-accept-btn:hover {
+  background-color: #B8663F !important;
+  background: #B8663F !important;
+  background-image: none !important;
+  border-color: #B8663F !important;
+  color: white !important;
+}
+
+/* REMOVED - Previous IP icon override was causing issues */
+
+/* Card Back Gradient Background Fix - Following Modal Transparency Solution Pattern */
+.card-back-gradient {
+  background: linear-gradient(to bottom right, rgba(42, 71, 89, 0.85), rgba(1, 21, 38, 0.9), rgba(42, 71, 89, 0.85)) !important;
+  background-color: #2A4759 !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  isolation: isolate !important;
+  will-change: auto !important;
+  backface-visibility: hidden !important;
+  mix-blend-mode: normal !important;
+}
+
+/* Ensure all containers respect viewport width */
+.container {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+
+/* Fix for any elements that might cause horizontal overflow */
+img, video, iframe, canvas, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Typography Classes */
+.font-playfair {
+  font-family: 'Playfair Display', serif;
+}
+
+.font-poppins {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Gallery Section Slide-in Animations */
+@keyframes slideInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Tailwind animation utilities */
+.animate-slideInLeft {
+  animation: slideInLeft 1s ease-out forwards;
+}
+
+.animate-slideInRight {
+  animation: slideInRight 1s ease-out 1.5s forwards;
+  opacity: 0; /* Start hidden for delayed animation */
+}
+
+
+/* SEO Management Admin Styles - Force active states with !important */
+.seo-language-btn-active {
+  background-color: #D67C4A !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.seo-language-btn-inactive {
+  background-color: white !important;
+  color: #374151 !important;
+  font-weight: 600 !important;
+}
+
+.seo-language-btn-inactive:hover {
+  background-color: #f3f4f6 !important;
+}
+
+/* Tab active states */
+.seo-tab[data-state="active"] {
+  background-color: #D67C4A !important;
+  color: white !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Cookie Settings Button Styles - Force MEMOPYK orange color */
+.cookie-settings-save-btn {
+  background-color: #D67C4A !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.cookie-settings-save-btn:hover {
+  background-color: #bf6d42 !important;
+}
+
+.seo-tab[data-state="inactive"] {
+  background-color: transparent !important;
+  color: #374151 !important;
+}
+
+.seo-tab[data-state="inactive"]:hover {
+  background-color: #e5e7eb !important;
+}
+
+/* Analytics Dashboard Tab States - Subtle blue styling */
+.analytics-tab[data-state="active"] {
+  background-color: #dbeafe !important;
+  color: #1e40af !important;
+  border-color: #93c5fd !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Switch Orange Styling - Force override like tabs */
+.switch-orange[data-state="checked"] {
+  background-color: #D67C4A !important;
+  border-color: #D67C4A !important;
+}
+
+.switch-orange[data-state="checked"] > span {
+  background-color: white !important;
+}
+
+.analytics-tab[data-state="inactive"] {
+  background-color: transparent !important;
+  color: #6b7280 !important;
+  border-color: transparent !important;
+}
+
+.analytics-tab[data-state="inactive"]:hover {
+  background-color: #f9fafb !important;
+  color: #374151 !important;
+}
+
+/* Quick Time Range Buttons - Force proper contrast */
+.time-range-btn-active {
+  background-color: #D67C4A !important;
+  color: white !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.time-range-btn-inactive {
+  background-color: transparent !important;
+  color: #374151 !important;
+}
+
+.time-range-btn-inactive:hover {
+  background-color: #e5e7eb !important;
+}
+
+/* Device Filter Buttons */
+.device-btn-active {
+  background-color: #D67C4A !important;
+  color: white !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.device-btn-inactive {
+  background-color: transparent !important;
+  color: #374151 !important;
+}
+
+.device-btn-inactive:hover {
+  background-color: #e5e7eb !important;
+}
+
+/* Language Filter Buttons */
+.language-btn-active {
+  background-color: #D67C4A !important;
+  color: white !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.language-btn-inactive {
+  background-color: transparent !important;
+  color: #374151 !important;
+}
+
+.language-btn-inactive:hover {
+  background-color: #e5e7eb !important;
+}
+
+/* Custom Date Input Styling */
+.date-input-selected {
+  border: 2px solid #D67C4A !important;
+  box-shadow: 0 0 0 2px rgba(214, 124, 74, 0.2) !important;
+}
+
+.date-input-default {
+  border: 1px solid #d1d5db !important;
+}
+
+/* Source Filter Buttons */
+.source-btn-active {
+  background-color: #D67C4A !important;
+  color: white !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.source-btn-inactive {
+  background-color: transparent !important;
+  color: #374151 !important;
+}
+
+.source-btn-inactive:hover {
+  background-color: #e5e7eb !important;
+}
+
+/* Action button styles */
+.seo-btn-preview {
+  border: 2px solid #93c5fd !important;
+  color: #1d4ed8 !important;
+  background-color: white !important;
+}
+
+.seo-btn-preview:hover {
+  background-color: #dbeafe !important;
+  border-color: #60a5fa !important;
+}
+
+.seo-btn-history {
+  border: 2px solid #c4b5fd !important;
+  color: #7c3aed !important;
+  background-color: white !important;
+}
+
+.seo-btn-history:hover {
+  background-color: #ede9fe !important;
+  border-color: #a78bfa !important;
+}
+
+.seo-btn-publish {
+  background-color: #16a34a !important;
+  color: white !important;
+  border: 2px solid #16a34a !important;
+}
+
+.seo-btn-publish:hover {
+  background-color: #15803d !important;
+  border-color: #15803d !important;
+}
+
+.seo-btn-save {
+  background-color: #D67C4A !important;
+  color: white !important;
+  border: 2px solid #D67C4A !important;
+  font-weight: 700 !important;
+  font-size: 18px !important;
+  padding: 12px 32px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.seo-btn-save:hover:not(:disabled) {
+  background-color: #c2693c !important;
+  border-color: #c2693c !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.seo-btn-save:disabled {
+  background-color: #9ca3af !important;
+  border-color: #9ca3af !important;
+  cursor: not-allowed !important;
+}
+
+/* Target ONLY Radix UI dialog content elements, NOT custom VideoOverlay */
+[data-radix-dialog-content],
+.modal-force-white {
+  background: white !important;
+  background-color: white !important;
+  background-image: none !important;
+  opacity: 1 !important;
+  --tw-bg-opacity: 1 !important;
+}
+
+/* Ensure dialog overlay stays dark */
+[data-radix-dialog-overlay] {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  backdrop-filter: blur(0px) !important;
+}
+
+/* Keep code sections with dark theme - be very specific */
+.bg-gray-900,
+.bg-gray-900.text-green-400 {
+  background-color: #111827 !important;
+  background: #111827 !important;
+}
+
+/* Override any potential shadcn/ui dialog styling */
+.bg-background,
+.bg-card,
+.bg-popover {
+  background: white !important;
+  background-color: white !important;
+}
+
+/* Country Select active styling (beats bg-background override) */
+[data-testid="filter-country"],
+[data-testid="filter-country"][data-state="open"],
+[data-testid="filter-country"].country-active,
+[data-testid="filter-country"].country-active[data-state="open"] {
+  background-color: #D67C4A !important;
+  border-color: #D67C4A !important;
+  color: #fff !important;
+}
+[data-testid="filter-country"]:hover,
+[data-testid="filter-country"].country-active:hover {
+  background-color: #bf6d42 !important;
+}
+[data-testid="filter-country"]:focus,
+[data-testid="filter-country"].country-active:focus {
+  box-shadow: 0 0 0 2px rgba(214,124,74,0.3) !important;
+}
+/* Ensure inner value/icon are visible */
+[data-testid="filter-country"].country-active span,
+[data-testid="filter-country"].country-active svg {
+  color: #fff !important;
+  fill: #fff !important;
+}
+
+/* Force Globe icons to be visible */
+.country-select-trigger .lucide {
+  color: #011526 !important;
+  stroke: #011526 !important;
+}
+
+/* Remove conflicting dropdown overrides - let Radix handle positioning */
+
+/* Custom modal content class - precise targeting */
+.modal-force-white {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  opacity: 1 !important;
+  --tw-bg-opacity: 1 !important;
+}
+
+/* Preserve dark theme for code sections */
+.modal-force-white .bg-gray-900 {
+  background: #111827 !important;
+  background-color: #111827 !important;
+}
+
+/* Custom button for How It Works page - force dark blue background */
+.button-dark-blue-forced {
+  background-color: #2A4759 !important;
+  color: #ffffff !important;
+  border-color: #2A4759 !important;
+}
+
+.button-dark-blue-forced:hover {
+  background-color: #ffffff !important;
+  color: #2A4759 !important;
+  border-color: #2A4759 !important;
+}
+
+/* Language Switcher Forced Styles - Override everything */
+.language-button-active {
+  background-color: #f97316 !important;
+  color: #ffffff !important;
+  border: 2px solid #f97316 !important;
+  opacity: 1 !important;
+  font-weight: bold !important;
+  text-decoration: none !important;
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2) !important;
+}
+
+.language-button-inactive {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #d1d5db !important;
+  opacity: 1 !important;
+  font-weight: bold !important;
+  text-decoration: none !important;
+}
+
+.language-button-inactive:hover {
+  background-color: #f5f5f5 !important;
+  color: #000000 !important;
+  border: 2px solid #f97316 !important;
+}
+
+/* Clear switch styles - remove conflicting CSS completely */
+
+/* How It Works Cards - Scrollable text areas with subtle styling */
+.how-it-works-text {
+  line-height: 1.2 !important;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  white-space: normal;
+  /* NOTE: .hero-text-mobile uses !important to override this global rule */
+}
+
+/* Custom scrollbar for How It Works text areas */
+.how-it-works-text::-webkit-scrollbar {
+  width: 4px;
+}
+
+.how-it-works-text::-webkit-scrollbar-track {
+  background: rgba(242, 235, 220, 0.1);
+  border-radius: 2px;
+}
+
+.how-it-works-text::-webkit-scrollbar-thumb {
+  background: rgba(242, 235, 220, 0.5);
+  border-radius: 2px;
+}
+
+.how-it-works-text::-webkit-scrollbar-thumb:hover {
+  background: rgba(242, 235, 220, 0.7);
+}
+
+/* Firefox scrollbar styling */
+.how-it-works-text {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(242, 235, 220, 0.3) transparent;
+}
+
+/* Legal Document Tight Spacing Override - Balanced */
+.legal-document-tight * {
+  line-height: 1.3 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0.2rem !important;
+}
+
+.legal-document-tight {
+  line-height: 1.3 !important;
+}
+
+.legal-document-tight p,
+.legal-document-tight div {
+  margin-bottom: 0.2rem !important;
+  line-height: 1.3 !important;
+  margin-top: 0 !important;
+}
+
+.legal-document-tight br {
+  line-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.legal-document-tight h1,
+.legal-document-tight h2,
+.legal-document-tight h3,
+.legal-document-tight h4,
+.legal-document-tight h5,
+.legal-document-tight h6 {
+  margin-bottom: 0.4rem !important;
+  margin-top: 0 !important;
+  line-height: 1.4 !important;
+}
+
+.legal-document-tight ul,
+.legal-document-tight ol,
+.legal-document-tight blockquote {
+  margin-bottom: 0.2rem !important;
+  margin-top: 0 !important;
+}
+
+/* MEMOPYK Animation */
+@keyframes pulse-elegant {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 1; }
+}
+
+.animate-pulse-elegant {
+  animation: pulse-elegant 2s ease-in-out infinite;
+}
+
+/* Custom Gradient Backgrounds */
+.bg-gradient-memopyk {
+  background: linear-gradient(135deg, var(--memopyk-navy) 0%, var(--memopyk-dark-blue) 100%);
+}
+
+.bg-gradient-cream {
+  background: linear-gradient(135deg, var(--memopyk-cream) 0%, #FFFFFF 100%);
+}
+
+/* Glass Morphism Card Effects */
+.glass-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Dialog Visibility Fix - Force solid backgrounds for most dialogs */
+[data-radix-dialog-overlay] {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Default white background for most dialog content */
+[data-radix-dialog-content] {
+  background-color: white !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+
+
+.dark [data-radix-dialog-content] {
+  background-color: #111827 !important;
+  border-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+/* Select Dropdown Visibility Fix - Force solid backgrounds */
+[data-radix-select-content],
+.ui-select-content,
+[data-state="open"][data-side] {
+  background-color: white !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  z-index: 50 !important;
+}
+
+.dark [data-radix-select-content],
+.dark .ui-select-content,
+.dark [data-state="open"][data-side] {
+  background-color: #111827 !important;
+  border-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+[data-radix-select-item],
+.ui-select-item {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+[data-radix-select-item]:hover,
+[data-radix-select-item][data-highlighted],
+.ui-select-item:hover,
+[data-highlighted] {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+.dark [data-radix-select-item]:hover,
+.dark [data-radix-select-item][data-highlighted],
+.dark .ui-select-item:hover,
+.dark [data-highlighted] {
+  background-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+/* Additional shadcn/ui specific targeting */
+[data-radix-popper-content-wrapper] {
+  z-index: 50 !important;
+}
+
+/* Analytics Modal Pure White Background Fix */
+.analytics-modal-content {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+}
+
+/* Ultra-specific targeting for analytics modal white background */
+div[style*="backgroundColor: 'rgba(0, 0, 0, 0.8)"] > div.analytics-modal-content,
+div[style*="background-color: rgba(0, 0, 0, 0.8)"] > div.analytics-modal-content {
+  background-color: white !important;
+  background: white !important;
+  background-image: none !important;
+}
+
+/* Target the exact modal by its structure */
+div[style*="position: fixed"][style*="top: 0"][style*="left: 0"] > div[style*="borderRadius: '12px'"] {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+}
+
+/* FORCE OPAQUE WHITE BACKGROUND FOR ANALYTICS MODAL AND TOOLTIPS */
+.analytics-modal-content,
+div.analytics-modal-content,
+[data-testid="analytics-visitor-modal"],
+.recharts-tooltip-wrapper,
+.recharts-default-tooltip,
+[data-radix-tooltip-content],
+[data-radix-dialog-content] {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  background-image: none !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  transform: none !important;
+  isolation: isolate !important;
+  will-change: auto !important;
+  /* Force the element to be on its own layer */
+  backface-visibility: hidden !important;
+  /* Prevent any inheritance of transparency */
+  mix-blend-mode: normal !important;
+  /* Add border and shadow for better visibility */
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-radix-popper-content-wrapper] > div {
+  background-color: white !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark [data-radix-popper-content-wrapper] > div {
+  background-color: #111827 !important;
+  border-color: #374151 !important;
+}
+
+/* Mobile Performance Optimizations */
+@media (max-width: 768px) {
+  /* Exclude flip cards from mobile performance restrictions */
+  *:not(.card-flip-inner):not(.card-front):not(.card-back) {
+    /* Reduce animations on mobile for better performance */
+    animation-duration: 0.2s !important;
+    transition-duration: 0.2s !important;
+  }
+  
+  /* Improve touch scrolling */
+  body {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+}
+
+/* Shimmer animation for lazy loading */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Fix grey square background behind play button arrow */
+button, .play-button, .play-icon {
+  background: transparent !important;
+}
+
+/* Ensure no background is applied to text/icon elements */
+.text-xl, .text-2xl, div[style*="color"] {
+  background: transparent !important;
+}
+
+/* Network-aware loading states */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Card Flip Animation */
+.card-flip-container {
+  perspective: 1000px;
+}
+
+.card-flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+
+.card-flip-container.flipped .card-flip-inner {
+  transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+  width: 100%;
+  min-height: 400px;
+  backface-visibility: hidden;
+  border-radius: 1rem;
+}
+
+.card-flip-container .card-front {
+  position: relative;
+  z-index: 2;
+  backface-visibility: hidden;
+}
+
+.card-flip-container .card-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  backface-visibility: hidden;
+}
+
+/* Sliding animations for thumbnail overlays */
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.4s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.4s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+.animation-delay-100 {
+  animation-delay: 0.1s;
+  opacity: 0;
+}
+
+.animation-delay-200 {
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+.animation-delay-300 {
+  animation-delay: 0.3s;
+  opacity: 0;
+}
+
+.card-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(135deg, #D67C4A 0%, #2A4759 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* Orange price badge - force orange background */
+.price-badge-orange {
+  background-color: #D67C4A !important;
+  background: #D67C4A !important;
+  color: white !important;
+}
+
+/* Force zero spacing for flip card text but allow custom margins */
+.flip-card-text-zero-spacing p {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.4 !important;
+}
+
+/* Allow specific margin-bottom for sentence spacing */
+.flip-card-text-zero-spacing p[style*="margin-bottom"] {
+  margin-bottom: revert !important;
+}
+
+.flip-card-text-zero-spacing {
+  margin: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-bottom: 0 !important;
+  /* Allow paddingTop to be set via inline styles */
+}
+
+/* Orange pulsing animation for video play buttons - DESKTOP ONLY */
+@media (min-width: 768px) {
+  @keyframes pulse-orange {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+  }
+
+  @-webkit-keyframes pulse-orange {
+    0%, 100% {
+      opacity: 1;
+      -webkit-transform: scale(1);
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      -webkit-transform: scale(1.05);
+      transform: scale(1.05);
+    }
+  }
+
+  .animate-pulse-orange {
+    -webkit-animation: pulse-orange 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    animation: pulse-orange 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+/* Slower pulse animation for mobile buttons */
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.02);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* 🔄 ALT+TAB SCROLL FIX v1.0.116 - Prevent unwanted scroll behaviors (targeted) */
+html, body {
+  scroll-behavior: auto !important;
+}
+
+/* Prevent React focus-related scroll jumps */
+*:focus, *:focus-visible {
+  scroll-margin: 0 !important;
+  scroll-padding: 0 !important;
+}
+
+/* Disable smooth scrolling and anchoring only in admin areas to prevent Alt+Tab issues */
+.admin-container * {
+  scroll-behavior: auto !important;
+  overflow-anchor: none !important;
+}
+
+/* Double Bounce Animation - Exactly 2 clean bounces for navigation highlights */
+@keyframes double-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  15% {
+    transform: translateY(-10px);
+  }
+  30% {
+    transform: translateY(0);
+  }
+  60% {
+    transform: translateY(-6px);
+  }
+  75% {
+    transform: translateY(0);
+  }
+}
+
+.animate-double-bounce {
+  animation: double-bounce 1s ease-out;
+}
+
+
+/* === MEMOPYK HERO: Clean mobile text solution === */
+
+.hero-text-mobile {
+  font-size: 40px; /* Match JSON fallback desktop size exactly */
+  max-width: 100%;
+  line-height: 1.2;
+  white-space: normal;
+  text-align: center;
+  display: block;
+}
+
+.hero-text-mobile .hero-line {
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin: 0;
+}
+
+/* Desktop */
+@media (min-width: 640px) {
+  .hero-text-mobile {
+    white-space: pre-line;
+    line-height: 1.25;
+    font-size: 40px; /* Match JSON desktop size exactly */
+  }
+}
+
+/* DESKTOP: Fixed hero text styling */
+.hero-text-desktop {
+  font-size: 40px !important;
+  line-height: 1.1 !important;
+  white-space: normal;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero-text-desktop .hero-line {
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+/* MOBILE: EXTREME FORCE - Nuclear approach */
+@media (max-width: 639px) {
+  .hero-text-mobile,
+  .hero-text-mobile *,
+  .hero-text-mobile .hero-line,
+  h1.hero-text-mobile,
+  h1.hero-text-mobile .hero-line {
+    font-size: 18px !important; /* Updated admin config: mobile 18px */
+    line-height: 1.0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    word-break: break-word !important;
+  }
+}
+
+/* Kill any leftover border-triangle corner fallbacks and black elements */
+.w-0.h-0[style*="border-width"],
+.peel-test-corner,
+.flip-arrow-animation,
+.peel-corner-triangle,
+[style*="border-width: 0 0"][style*="solid"],
+.card-front::before,
+.card-front::after,
+.card-flip-container::before,
+.card-flip-container::after,
+.card-flip-inner::before,
+.card-flip-inner::after {
+  display: none !important;
+}
+
+/* Kill any absolutely positioned black elements in bottom-right */
+.card-front > *[style*="background: black"],
+.card-front > *[style*="background-color: black"],
+.card-front > *[style*="background:#000"],
+.card-front > *[style*="border-color:#000"],
+.absolute[style*="bottom"][style*="right"][style*="black"],
+.card-front *[style*="background: #000"],
+.card-front *[style*="background-color: #000"],
+.card-front *[style*="background:#000000"],
+.card-front .absolute[style*="bottom"][style*="right"],
+.card-front div[style*="transform: rotate(45deg)"],
+.card-front div[style*="skew"],
+.card-front div[class*="triangle"],
+.card-front div[class*="corner"],
+.card-front div[class*="peel"]:not([data-peel]) {
+  display: none !important;
+}
+
+/* Orange Triangle Flip Arrow Animation */
+.flip-arrow-animation {
+  animation: flipArrowFloat 2s ease-in-out infinite;
+}
+
+@keyframes flipArrowFloat {
+  0%, 100% { 
+    transform: translate(-1px, -1px) scale(1);
+    opacity: 0.9;
+  }
+  50% { 
+    transform: translate(-3px, -3px) scale(1.1);
+    opacity: 1;
+  }
+}
+
+/* Temporary guard: wipe any corner pseudo-elements on HowItWorks cards */
+.card::before,
+.card::after,
+.card-front::before,
+.card-front::after,
+.card-flip-container::before,
+.card-flip-container::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Analytics Geo Legend Square Color Fix - Force background colors */
+.legend-square {
+  background-image: none !important;
+}
+
+/* Individual legend square color classes */
+.legend-square-0 {
+  background-color: #bfdbfe !important;
+  background: #bfdbfe !important;
+  background-image: none !important;
+}
+
+.legend-square-1 {
+  background-color: #93c5fd !important;
+  background: #93c5fd !important;
+  background-image: none !important;
+}
+
+.legend-square-2 {
+  background-color: #60a5fa !important;
+  background: #60a5fa !important;
+  background-image: none !important;
+}
+
+.legend-square-3 {
+  background-color: #2563eb !important;
+  background: #2563eb !important;
+  background-image: none !important;
+}
+
+.legend-square-4 {
+  background-color: #1e40af !important;
+  background: #1e40af !important;
+  background-image: none !important;
+}
+
+/* MEMOPYK Switch – global orange override for all admin areas */
+button[role="switch"][data-state="checked"] { 
+  background-color: #D67C4A !important; 
+  border-color: #D67C4A !important; 
+}
+button[role="switch"][data-state="unchecked"] { 
+  background-color: #e5e7eb !important; 
+}
+button[role="switch"] > span { 
+  background-color: #ffffff !important; 
+}
+button[role="switch"]:focus-visible { 
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #D67C4A !important; 
+}
+
+/* Blog Post Inline Images - Responsive and Centered */
+[data-testid="post-content"] img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1rem auto;
+  border-radius: 0.5rem;
+}
+
+/* Prose Content Images from WYSIWYG (body_html) */
+.prose img {
+  max-width: 100% !important;
+  height: auto !important;
+  display: block;
+  margin: 1.5rem auto;
+  border-radius: 0.5rem;
+}
+
+/* Partner Directory List - Custom Scrollbar */
+.partner-list-scrollbar {
+  scrollbar-width: auto; /* Firefox */
+  scrollbar-color: #D67C4A #f3f4f6; /* Firefox: thumb and track colors */
+}
+
+/* WebKit browsers (Chrome, Safari, Edge) */
+.partner-list-scrollbar::-webkit-scrollbar {
+  width: 64px; /* Double width scrollbar (was 32px visible, now 64px) */
+}
+
+.partner-list-scrollbar::-webkit-scrollbar-track {
+  background: #F2EBDC; /* Cream track to match page background */
+  border-radius: 10px;
+}
+
+.partner-list-scrollbar::-webkit-scrollbar-thumb {
+  background: #D67C4A; /* MEMOPYK orange */
+  border-radius: 10px;
+  border: none; /* No border - full width orange thumb */
+}
+
+.partner-list-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #c5703e; /* Darker orange on hover */
+}
+
+/* Leaflet Marker Cluster Styling - Display number ON pin markers */
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+  background-image: url('https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 25px !important;
+  height: 41px !important;
+  margin-left: -12px !important;
+  margin-top: -41px !important;
+}
+
+.marker-cluster-small div,
+.marker-cluster-medium div,
+.marker-cluster-large div {
+  background: #3388ff;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: -2px;
+  right: -8px;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+
+/* Blog Content Section Controls - Block Shadow, Image Shadow, Caption Positioning */
+.bcs {
+  position: relative;
+}
+
+.bcs--shadow {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+/* Image shadows */
+.tile--shadow {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Caption base styles */
+.bcs-caption {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.75);
+  margin-top: 8px;
+}
+
+/* Caption alignment */
+.bcs-caption--left {
+  text-align: left;
+}
+
+.bcs-caption--center {
+  text-align: center;
+}
+
+.bcs-caption--right {
+  text-align: right;
+}
+
+/* Caption positioning */
+.bcs-caption--above {
+  margin-bottom: 8px;
+  margin-top: 0;
+}
+
+.bcs-caption--below {
+  margin-top: 8px;
+}
+
+/* Overlay caption - positioned over image */
+.bcs-caption--overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 12px 14px;
+  color: white;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+  margin: 0;
+}
+
+/* Background variants for overlay */
+.bcs-caption--bg-dark {
+  /* dark scrim to improve contrast on bright images */
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+.bcs-caption--bg-light {
+  /* light scrim for very dark images; change text to dark for contrast */
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.65) 100%);
+  color: #111;
+  text-shadow: none;
+}
+
+/* Image wrapper for overlay support */
+.bcs .img-wrap {
+  position: relative;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+/* Tile image sizing classes for image_fit control */
+.tile {
+  width: 100%;
+  display: block;
+  border-radius: var(--radius, 12px);
+}
+
+.tile--cover {
+  height: var(--tile-h, 400px);
+  object-fit: cover;
+}
+
+.tile--contain {
+  height: var(--tile-h, 400px);
+  object-fit: contain;
+  background: #f6f6f6;
+}
+
+.tile--natural {
+  height: auto;
+  object-fit: initial;
+}
+
+/* Markdown GFM Table Styles - Responsive & Professional */
+.md-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  display: block;
+  overflow-x: auto;
+}
+
+.md-content th,
+.md-content td {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.md-content thead th {
+  background: #f8fafc;
+  font-weight: 600;
+}
+
+.md-content tbody tr:nth-child(odd) {
+  background: #fafafa;
+}
+
+/* Also apply to prose tables (for rich text blocks) */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  display: block;
+  overflow-x: auto;
+}
+
+.prose th,
+.prose td {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose thead th {
+  background: #f8fafc;
+  font-weight: 600;
+}
+
+.prose tbody tr:nth-child(odd) {
+  background: #fafafa;
+}

@@ -1,0 +1,525 @@
+[
+  {
+    "name": "Lebolabo",
+    "city": "Bordeaux",
+    "country": "France",
+    "lat": 44.831897557776564,
+    "lng": -0.5678587426661484,
+    "services": [
+      "Photo"
+    ],
+    "formats": {
+      "photo": [
+        "Prints",
+        "Albums"
+      ],
+      "film": [],
+      "video": []
+    },
+    "website": "https://lebolabo.com/",
+    "phone": "+33 6 51 33 12",
+    "phone_public": true,
+    "email": "test@lebolabo.com",
+    "email_public": true,
+    "public_description": "Lebolabo réalise des numérisations photo par lot en basse résolution afin que vous puissiez visualiser vos images facilement sur un appareil numérique tel qu’un écran d’ordinateur, une tablette ou un smartphone (IPhone ou Android) et à moindre coût.\nLebolabo réalise des numérisations photo par lot en basse résolution afin que vous puissiez visualiser vos images facilement sur un appareil numérique tel qu’un écran d’ordinateur, une tablette ou un smartphone (IPhone ou Android) et à moindre coût.",
+    "slug": "lebolabo",
+    "address": "48 Rue Bergeret",
+    "address_line2": "",
+    "postal_code": "33000",
+    "delivery": [
+      "USB"
+    ],
+    "other_photo": "",
+    "other_film": "",
+    "other_video": "",
+    "other_delivery": "",
+    "status": "Approved",
+    "is_active": true,
+    "show_on_map": true
+  },
+  {
+    "name": "Swiss Memory Lab",
+    "city": "Geneva",
+    "country": "Switzerland",
+    "lat": 46.2044,
+    "lng": 6.1432,
+    "services": [
+      "Photo",
+      "Film",
+      "Video"
+    ],
+    "formats": {
+      "photo": [
+        "Prints",
+        "Negatives 35mm",
+        "Slides 35mm"
+      ],
+      "film": [
+        "Super 8",
+        "16mm"
+      ],
+      "video": [
+        "VHS",
+        "MiniDV"
+      ]
+    },
+    "website": "swissmemorylab.ch",
+    "phone": "+41 22 345 6789",
+    "phone_public": true,
+    "email": "contact@swissmemorylab.ch",
+    "email_public": true,
+    "public_description": "Spécialiste de la numérisation de médias depuis 1995. Nous offrons des services professionnels de haute qualité pour préserver vos souvenirs les plus précieux.",
+    "slug": "swiss-memory-lab",
+    "address": "Rue du Rhône 45",
+    "address_line2": "",
+    "postal_code": "1204",
+    "delivery": [
+      "In-person",
+      "Mail"
+    ],
+    "other_photo": "",
+    "other_film": "",
+    "other_video": "",
+    "other_delivery": "",
+    "status": "Approved",
+    "is_active": true,
+    "show_on_map": true
+  },
+  {
+    "name": "Zurich Digital Archives",
+    "city": "Zurich",
+    "country": "Switzerland",
+    "lat": 47.3769,
+    "lng": 8.5417,
+    "services": [
+      "Photo",
+      "Film",
+      "Video"
+    ],
+    "formats": {
+      "photo": [
+        "Prints",
+        "Albums",
+        "Negatives 35mm"
+      ],
+      "film": [
+        "8mm",
+        "Super 8"
+      ],
+      "video": [
+        "VHS",
+        "Betamax",
+        "MiniDV"
+      ]
+    },
+    "website": "zurichdigital.ch",
+    "phone": "+41 44 123 4567",
+    "phone_public": false,
+    "email": "info@zurichdigital.ch",
+    "email_public": true,
+    "public_description": "Service de numérisation professionnel au cœur de Zurich. Technologie de pointe pour des résultats exceptionnels.",
+    "slug": "zurich-digital-archives",
+    "address": "Bahnhofstrasse 100",
+    "address_line2": "",
+    "postal_code": "8001",
+    "delivery": [
+      "In-person",
+      "Digital download"
+    ],
+    "other_photo": "",
+    "other_film": "",
+    "other_video": "",
+    "other_delivery": "",
+    "status": "Approved",
+    "is_active": true,
+    "show_on_map": true
+  },
+  {
+    "name": "Lausanne Photo Scan",
+    "city": "Lausanne",
+    "country": "Switzerland",
+    "lat": 46.5197,
+    "lng": 6.6323,
+    "services": [
+      "Photo",
+      "Film"
+    ],
+    "formats": {
+      "photo": [
+        "Prints",
+        "Slides 35mm"
+      ],
+      "film": [
+        "Super 8"
+      ],
+      "video": []
+    },
+    "website": "lausannephotoscan.ch",
+    "phone": "+41 21 987 6543",
+    "phone_public": true,
+    "email": "contact@lausannephotoscan.ch",
+    "email_public": true,
+    "public_description": "Expert en numérisation de photos et films argentiques. Service rapide et soigné pour tous vos projets de préservation.",
+    "slug": "lausanne-photo-scan",
+    "address": "Avenue de la Gare 15",
+    "address_line2": "",
+    "postal_code": "1003",
+    "delivery": [
+      "Mail",
+      "Digital download"
+    ],
+    "other_photo": "",
+    "other_film": "",
+    "other_video": "",
+    "other_delivery": "",
+    "status": "Approved",
+    "is_active": true,
+    "show_on_map": true
+  },
+  {
+    "name": "Brussels Heritage Digital",
+    "city": "Brussels",
+    "country": "Belgium",
+    "lat": 50.8503,
+    "lng": 4.3517,
+    "services": [
+      "Photo",
+      "Film",
+      "Video"
+    ],
+    "formats": {
+      "photo": [
+        "Prints",
+        "Albums",
+        "Negatives 35mm",
+        "Slides 35mm"
+      ],
+      "film": [
+        "8mm",
+        "Super 8",
+        "16mm"
+      ],
+      "video": [
+        "VHS",
+        "VHS-C",
+        "MiniDV"
+      ]
+    },
+    "website": "brusselsheritage.be",
+    "phone": "+32 2 555 1234",
+    "phone_public": true,
+    "email": "info@brusselsheritage.be",
+    "email_public": true,
+    "public_description": "Centre de numérisation professionnel à Bruxelles. Plus de 20 ans d expertise dans la préservation de vos souvenirs familiaux.",
+    "slug": "brussels-heritage-digital",
+    "address": "Boulevard Anspach 50",
+    "address_line2": "",
+    "postal_code": "1000",
+    "delivery": [
+      "In-person",
+      "Mail",
+      "Digital download"
+    ],
+    "other_photo": "",
+    "other_film": "",
+    "other_video": "",
+    "other_delivery": "",
+    "status": "Approved",
+    "is_active": true,
+    "show_on_map": true
+  },
+  {
+    "name": "Antwerp Media Transfer",
+    "city": "Antwerp",
+    "country": "Belgium",
+    "lat": 51.2194,
+    "lng": 4.4025,
+    "services": [
+      "Photo",
+      "Film",
+      "Video"
+    ],
+    "formats": {
+      "photo": [
+        "Prints",
+        "Negatives 35mm"
+      ],
+      "film": [
+        "Super 8"
+      ],
+      "video": [
+        "VHS",
+        "Betamax",
+        "Digital8"
+      ]
+    },
+    "website": "antwerpmt.be",
+    "phone": "+32 3 789 4561",
+    "phone_public": true,
+    "email": "",
+    "email_public": false,
+    "public_description": "Spécialiste de la conversion vidéo et photo à Anvers. Qualité professionnelle garantie pour tous vos médias anciens.",
+    "slug": "antwerp-media-transfer",
+    "address": "Meir 85",
+    "address_line2": "",
+    "postal_code": "2000",
+    "delivery": [
+      "In-person",
+      "Mail"
+    ],
+    "other_photo": "",
+    "other_film": "",
+    "other_video": "",
+    "other_delivery": "",
+    "status": "Approved",
+    "is_active": true,
+    "show_on_map": true
+  },
+  {
+    "name": "Lyon Mémoire Numérique",
+    "city": "Lyon",
+    "country": "France",
+    "lat": 45.764,
+    "lng": 4.8357,
+    "services": [
+      "Photo",
+      "Film",
+      "Video"
+    ],
+    "formats": {
+      "photo": [
+        "Prints",
+        "Albums",
+        "Negatives 35mm",
+        "Slides 35mm"
+      ],
+      "film": [
+        "8mm",
+        "Super 8"
+      ],
+      "video": [
+        "VHS",
+        "MiniDV"
+      ]
+    },
+    "website": "lyonmemoire.fr",
+    "phone": "+33 4 78 56 34 12",
+    "phone_public": true,
+    "email": "contact@lyonmemoire.fr",
+    "email_public": true,
+    "public_description": "Votre expert en numérisation à Lyon. Service personnalisé et professionnel pour préserver vos précieux souvenirs de famille.",
+    "slug": "lyon-memoire-numerique",
+    "address": "Place Bellecour 12",
+    "address_line2": "",
+    "postal_code": "69002",
+    "delivery": [
+      "In-person",
+      "Mail",
+      "Digital download"
+    ],
+    "other_photo": "",
+    "other_film": "",
+    "other_video": "",
+    "other_delivery": "",
+    "status": "Approved",
+    "is_active": true,
+    "show_on_map": true
+  },
+  {
+    "name": "Marseille Photo Lab",
+    "city": "Marseille",
+    "country": "France",
+    "lat": 43.2965,
+    "lng": 5.3698,
+    "services": [
+      "Photo",
+      "Film",
+      "Video"
+    ],
+    "formats": {
+      "photo": [
+        "Prints",
+        "Negatives 35mm",
+        "Slides 35mm"
+      ],
+      "film": [
+        "Super 8",
+        "16mm"
+      ],
+      "video": [
+        "VHS"
+      ]
+    },
+    "website": "marseillephotolab.fr",
+    "phone": "+33 4 91 23 45 67",
+    "phone_public": false,
+    "email": "info@marseillephotolab.fr",
+    "email_public": true,
+    "public_description": "Laboratoire photo professionnel au cœur de Marseille. Numérisation haute résolution de vos photos, négatifs et films.",
+    "slug": "marseille-photo-lab",
+    "address": "Vieux-Port, Quai du Port 30",
+    "address_line2": "",
+    "postal_code": "13002",
+    "delivery": [
+      "In-person",
+      "Digital download"
+    ],
+    "other_photo": "",
+    "other_film": "",
+    "other_video": "",
+    "other_delivery": "",
+    "status": "Approved",
+    "is_active": true,
+    "show_on_map": true
+  },
+  {
+    "name": "Nice Riviera Scan",
+    "city": "Nice",
+    "country": "France",
+    "lat": 43.7102,
+    "lng": 7.262,
+    "services": [
+      "Photo",
+      "Film",
+      "Video"
+    ],
+    "formats": {
+      "photo": [
+        "Prints",
+        "Albums"
+      ],
+      "film": [
+        "8mm",
+        "Super 8"
+      ],
+      "video": [
+        "VHS",
+        "MiniDV",
+        "Digital8"
+      ]
+    },
+    "website": "nicerivierascan.fr",
+    "phone": "+33 4 93 87 65 43",
+    "phone_public": true,
+    "email": "contact@nicerivierascan.fr",
+    "email_public": true,
+    "public_description": "Service de numérisation sur la Côte d Azur. Qualité premium pour vos films et photos de vacances et souvenirs familiaux.",
+    "slug": "nice-riviera-scan",
+    "address": "Promenade des Anglais 45",
+    "address_line2": "",
+    "postal_code": "06000",
+    "delivery": [
+      "Mail",
+      "Digital download"
+    ],
+    "other_photo": "",
+    "other_film": "",
+    "other_video": "",
+    "other_delivery": "",
+    "status": "Approved",
+    "is_active": true,
+    "show_on_map": true
+  },
+  {
+    "name": "Montréal Film & Photo",
+    "city": "Montreal",
+    "country": "Canada",
+    "lat": 45.5017,
+    "lng": -73.5673,
+    "services": [
+      "Photo",
+      "Film",
+      "Video"
+    ],
+    "formats": {
+      "photo": [
+        "Prints",
+        "Albums",
+        "Negatives 35mm",
+        "Slides 35mm"
+      ],
+      "film": [
+        "8mm",
+        "Super 8",
+        "16mm"
+      ],
+      "video": [
+        "VHS",
+        "VHS-C",
+        "Betamax",
+        "MiniDV"
+      ]
+    },
+    "website": "montrealfilm.ca",
+    "phone": "+1 514 555 1234",
+    "phone_public": true,
+    "email": "info@montrealfilm.ca",
+    "email_public": true,
+    "public_description": "Expert en numérisation à Montréal depuis 15 ans. Service bilingue pour vos photos, films et vidéos de famille.",
+    "slug": "montreal-film-photo",
+    "address": "Rue Sainte-Catherine 1500",
+    "address_line2": "",
+    "postal_code": "H3G 1M8",
+    "delivery": [
+      "In-person",
+      "Mail",
+      "Digital download"
+    ],
+    "other_photo": "",
+    "other_film": "",
+    "other_video": "",
+    "other_delivery": "",
+    "status": "Approved",
+    "is_active": true,
+    "show_on_map": true
+  },
+  {
+    "name": "Toronto Memory Preservation",
+    "city": "Toronto",
+    "country": "Canada",
+    "lat": 43.6532,
+    "lng": -79.3832,
+    "services": [
+      "Photo",
+      "Film",
+      "Video"
+    ],
+    "formats": {
+      "photo": [
+        "Prints",
+        "Negatives 35mm",
+        "Slides 35mm"
+      ],
+      "film": [
+        "Super 8"
+      ],
+      "video": [
+        "VHS",
+        "MiniDV",
+        "Digital8"
+      ]
+    },
+    "website": "torontomemory.ca",
+    "phone": "+1 416 555 7890",
+    "phone_public": true,
+    "email": "contact@torontomemory.ca",
+    "email_public": true,
+    "public_description": "Professional digitization services in Toronto. We preserve your family memories with state-of-the-art technology and care.",
+    "slug": "toronto-memory-preservation",
+    "address": "Yonge Street 789",
+    "address_line2": "",
+    "postal_code": "M5B 1Y8",
+    "delivery": [
+      "In-person",
+      "Mail",
+      "Digital download"
+    ],
+    "other_photo": "",
+    "other_film": "",
+    "other_video": "",
+    "other_delivery": "",
+    "status": "Approved",
+    "is_active": true,
+    "show_on_map": true
+  }
+]

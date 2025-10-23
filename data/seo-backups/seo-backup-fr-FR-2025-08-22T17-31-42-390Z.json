@@ -1,0 +1,11 @@
+{
+  "lang": "fr-FR",
+  "title": "MEMOPYK Test - Films souvenirs personnalisés",
+  "description": "Test de la sauvegarde SEO avec intégration Supabase.",
+  "robotsIndex": true,
+  "robotsFollow": true,
+  "robotsNoArchive": false,
+  "robotsNoSnippet": false,
+  "backupCreatedAt": "2025-08-22T17:31:42.390Z",
+  "backupCreatedBy": "admin"
+}

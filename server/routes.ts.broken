@@ -1,0 +1,1087 @@
+import type { Express } from "express";
+import { createServer, type Server } from "http";
+import { hybridStorage } from "./hybrid-storage";
+import { z } from "zod";
+import { videoCache } from "./video-cache";
+import { createReadStream, existsSync, statSync } from 'fs';
+import multer from 'multer';
+import { createClient } from '@supabase/supabase-js';
+
+// Contact form validation schema
+const contactFormSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().optional(),
+  message: z.string().min(10, "Message must be at least 10 characters")
+});
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_KEY!
+);
+
+// Configure multer for file uploads
+const uploadVideo = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 500 * 1024 * 1024, // 500MB limit for videos
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('video/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only video files are allowed'));
+    }
+  }
+});
+
+const uploadImage = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB limit for images
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
+
+export async function registerRoutes(app: Express): Promise<Server> {
+  // MEMOPYK Platform Content API Routes
+  
+  // Hero Videos - Video carousel content
+  app.get("/api/hero-videos", async (req, res) => {
+    try {
+      const videos = await hybridStorage.getHeroVideos();
+      res.json(videos);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get hero videos" });
+    }
+  });
+
+  // Update hero video order
+  app.patch("/api/hero-videos/:id/reorder", async (req, res) => {
+    try {
+      const videoId = parseInt(req.params.id);
+      const { order_index } = req.body;
+      
+      if (!order_index || order_index < 1) {
+        return res.status(400).json({ error: "Valid order_index is required" });
+      }
+      
+      const result = await hybridStorage.updateHeroVideoOrder(videoId, order_index);
+      res.json({ success: true, video: result });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update video order" });
+    }
+  });
+
+  // Toggle hero video active status
+  app.patch("/api/hero-videos/:id/toggle", async (req, res) => {
+    try {
+      const videoId = parseInt(req.params.id);
+      const { is_active } = req.body;
+      
+      if (typeof is_active !== 'boolean') {
+        return res.status(400).json({ error: "is_active must be a boolean" });
+      }
+      
+      const result = await hybridStorage.updateHeroVideoStatus(videoId, is_active);
+      res.json({ success: true, video: result });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update video status" });
+    }
+  });
+
+  // Update hero video metadata
+  app.patch("/api/hero-videos/:id", async (req, res) => {
+    try {
+      const videoId = parseInt(req.params.id);
+      const updates = req.body;
+      
+      const result = await hybridStorage.updateHeroVideo(videoId, updates);
+      res.json({ success: true, video: result });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update video" });
+    }
+  });
+
+  // Upload new video to Supabase and add to hero videos
+  app.post("/api/upload-video", uploadVideo.single('video'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No video file provided" });
+      }
+
+      const { title_en, title_fr } = req.body;
+      if (!title_en || !title_fr) {
+        return res.status(400).json({ error: "Both English and French titles are required" });
+      }
+
+      // Generate unique filename
+      const timestamp = Date.now();
+      const originalName = req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filename = `${timestamp}_${originalName}`;
+
+      console.log(`📤 Uploading video: ${filename} (${(req.file.size / 1024 / 1024).toFixed(2)}MB)`);
+
+      // Upload to Supabase storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('memopyk-hero')
+        .upload(filename, req.file.buffer, {
+          contentType: req.file.mimetype,
+          cacheControl: '3600'
+        });
+
+      if (uploadError) {
+        console.error('Supabase upload error:', uploadError);
+        return res.status(500).json({ error: `Upload failed: ${uploadError.message}` });
+      }
+
+      console.log('✅ Video uploaded to Supabase:', uploadData.path);
+
+      // Get video dimensions (placeholder - in real implementation would use ffprobe or similar)
+      const videoWidth = req.body.video_width ? parseInt(req.body.video_width) : 1920;
+      const videoHeight = req.body.video_height ? parseInt(req.body.video_height) : 1080;
+      const videoOrientation = videoWidth > videoHeight ? 'landscape' : 'portrait';
+
+      // Create the video URL for both languages
+      const videoUrl = `https://supabase.memopyk.org/storage/v1/object/public/memopyk-hero/${filename}`;
+
+      // Create hero video entry
+      const videoData = {
+        titleEn: title_en,
+        titleFr: title_fr,
+        urlEn: videoUrl,
+        urlFr: videoUrl,
+        orderIndex: 999, // Add to end by default
+        isActive: true
+      };
+
+      const newVideo = await hybridStorage.createHeroVideo(videoData);
+      console.log('✅ Hero video created:', newVideo.id);
+
+      res.json({ 
+        success: true, 
+        video: newVideo,
+        url: videoUrl,
+        filename: filename 
+      });
+
+    } catch (error) {
+      console.error('Video upload error:', error);
+      res.status(500).json({ error: "Failed to upload video" });
+    }
+  });
+
+  // Upload gallery video endpoint
+  app.post("/api/gallery/upload-video", uploadVideo.single('video'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No video file provided" });
+      }
+
+      // Generate unique filename
+      const timestamp = Date.now();
+      const originalName = req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filename = `gallery_${timestamp}_${originalName}`;
+
+      console.log(`📤 Uploading gallery video: ${filename} (${(req.file.size / 1024 / 1024).toFixed(2)}MB)`);
+
+      // Upload to Supabase storage (gallery bucket)
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('memopyk-gallery')
+        .upload(filename, req.file.buffer, {
+          contentType: req.file.mimetype,
+          cacheControl: '3600'
+        });
+
+      if (uploadError) {
+        console.error('Supabase upload error:', uploadError);
+        return res.status(500).json({ error: `Upload failed: ${uploadError.message}` });
+      }
+
+      const videoUrl = `https://supabase.memopyk.org/storage/v1/object/public/memopyk-gallery/${filename}`;
+      
+      res.json({ 
+        success: true, 
+        url: videoUrl,
+        filename: filename 
+      });
+
+    } catch (error) {
+      console.error('Gallery video upload error:', error);
+      res.status(500).json({ error: "Failed to upload gallery video" });
+    }
+  });
+
+  // Upload gallery image/thumbnail endpoint  
+  app.post("/api/gallery/upload-image", uploadImage.single('image'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No image file provided" });
+      }
+
+      // Generate unique filename
+      const timestamp = Date.now();
+      const originalName = req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filename = `gallery_thumb_${timestamp}_${originalName}`;
+
+      console.log(`📤 Uploading gallery image: ${filename} (${(req.file.size / 1024 / 1024).toFixed(2)}MB)`);
+
+      // Upload to Supabase storage (gallery bucket)
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('memopyk-gallery')
+        .upload(filename, req.file.buffer, {
+          contentType: req.file.mimetype,
+          cacheControl: '3600'
+        });
+
+      if (uploadError) {
+        console.error('Supabase upload error:', uploadError);
+        return res.status(500).json({ error: `Upload failed: ${uploadError.message}` });
+      }
+
+      const imageUrl = `https://supabase.memopyk.org/storage/v1/object/public/memopyk-gallery/${filename}`;
+      
+      res.json({ 
+        success: true, 
+        url: imageUrl,
+        filename: filename,
+        width: req.body.width || null,
+        height: req.body.height || null
+      });
+
+    } catch (error) {
+      console.error('Gallery image upload error:', error);
+      res.status(500).json({ error: "Failed to upload gallery image" });
+    }
+  });
+
+  // Gallery Items - CRUD operations with file upload support
+  app.get("/api/gallery", async (req, res) => {
+    try {
+      const items = await hybridStorage.getGalleryItems();
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get gallery items" });
+    }
+  });
+
+  app.post("/api/gallery", async (req, res) => {
+    try {
+      const item = await hybridStorage.createGalleryItem(req.body);
+      res.json(item);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create gallery item" });
+    }
+  });
+
+  app.patch("/api/gallery/:id", async (req, res) => {
+    try {
+      const itemId = req.params.id;
+      const updates = req.body;
+      const item = await hybridStorage.updateGalleryItem(itemId, updates);
+      res.json(item);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update gallery item" });
+    }
+  });
+
+  app.delete("/api/gallery/:id", async (req, res) => {
+    try {
+      const itemId = req.params.id;
+      await hybridStorage.deleteGalleryItem(itemId);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete gallery item" });
+    }
+  });
+
+  app.patch("/api/gallery/:id/reorder", async (req, res) => {
+    try {
+      const itemId = req.params.id;
+      const { orderIndex } = req.body;
+      const item = await hybridStorage.updateGalleryItemOrder(itemId, orderIndex);
+      res.json(item);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to reorder gallery item" });
+    }
+  });
+        .remove([video.url_en]);
+
+      if (storageError) {
+        console.error('Supabase storage deletion error:', storageError);
+        // Continue with database deletion even if storage fails
+      } else {
+        console.log('✅ Video removed from Supabase storage');
+      }
+
+      // Remove from local cache
+      videoCache.removeCachedVideo(video.url_en);
+      console.log('✅ Video removed from local cache');
+
+      // Remove from database
+      const result = await hybridStorage.deleteHeroVideo(videoId);
+      console.log('✅ Video removed from database');
+
+      res.json({ 
+        success: true, 
+        message: `Video "${video.title_en}" deleted successfully`,
+        deletedVideo: video
+      });
+
+    } catch (error) {
+      console.error('Video deletion error:', error);
+      res.status(500).json({ error: "Failed to delete video" });
+    }
+  });
+
+  
+  // Hero Text Settings - Hero section text content
+  app.get("/api/hero-text", async (req, res) => {
+    try {
+      const language = req.query.lang as string;
+      const heroText = await hybridStorage.getHeroTextSettings(language);
+      res.json(heroText);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get hero text" });
+    }
+  });
+
+  // Create new hero text
+  app.post("/api/hero-text", async (req, res) => {
+    try {
+      const { title_fr, title_en, subtitle_fr, subtitle_en, font_size } = req.body;
+      
+      if (!title_fr || !title_en) {
+        return res.status(400).json({ error: "French and English titles are required" });
+      }
+      
+      const newText = await hybridStorage.createHeroText({
+        title_fr,
+        title_en,
+        subtitle_fr: subtitle_fr || '',
+        subtitle_en: subtitle_en || '',
+        font_size: font_size || 48,
+        is_active: false
+      });
+      
+      res.status(201).json({ success: true, text: newText });
+    } catch (error) {
+      console.error('Create hero text error:', error);
+      res.status(500).json({ error: "Failed to create hero text" });
+    }
+  });
+
+  // Update hero text
+  app.patch("/api/hero-text/:id", async (req, res) => {
+    try {
+      const textId = parseInt(req.params.id);
+      const updateData = req.body;
+      
+      const updatedText = await hybridStorage.updateHeroText(textId, updateData);
+      res.json({ success: true, text: updatedText });
+    } catch (error) {
+      console.error('Update hero text error:', error);
+      res.status(500).json({ error: "Failed to update hero text" });
+    }
+  });
+
+  // Apply hero text to site (set as active)
+  app.patch("/api/hero-text/:id/apply", async (req, res) => {
+    try {
+      const textId = parseInt(req.params.id);
+      const { font_size } = req.body;
+      
+      // First, deactivate all other hero texts
+      await hybridStorage.deactivateAllHeroTexts();
+      
+      // Then activate this text with the specified font size
+      const appliedText = await hybridStorage.updateHeroText(textId, {
+        is_active: true,
+        font_size: font_size || 48
+      });
+      
+      res.json({ success: true, text: appliedText });
+    } catch (error) {
+      console.error('Apply hero text error:', error);
+      res.status(500).json({ error: "Failed to apply hero text" });
+    }
+  });
+
+  // Delete hero text
+  app.delete("/api/hero-text/:id", async (req, res) => {
+    try {
+      const textId = parseInt(req.params.id);
+      
+      await hybridStorage.deleteHeroText(textId);
+      res.json({ success: true, message: "Hero text deleted successfully" });
+    } catch (error) {
+      console.error('Delete hero text error:', error);
+      res.status(500).json({ error: "Failed to delete hero text" });
+    }
+  });
+
+  // Gallery Items - Portfolio gallery content  
+  // Gallery management endpoints
+  app.get("/api/gallery", async (req, res) => {
+    try {
+      const galleryItems = await hybridStorage.getGalleryItems();
+      res.json(galleryItems);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get gallery items" });
+    }
+  });
+
+  app.post("/api/gallery", async (req, res) => {
+    try {
+      const newItem = await hybridStorage.createGalleryItem(req.body);
+      res.status(201).json({ success: true, item: newItem });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create gallery item" });
+    }
+  });
+
+  app.patch("/api/gallery/:id", async (req, res) => {
+    try {
+      const itemId = parseInt(req.params.id);
+      const updatedItem = await hybridStorage.updateGalleryItem(itemId, req.body);
+      res.json({ success: true, item: updatedItem });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update gallery item" });
+    }
+  });
+
+  app.patch("/api/gallery/:id/reorder", async (req, res) => {
+    try {
+      const itemId = parseInt(req.params.id);
+      const { order_index } = req.body;
+      const updatedItem = await hybridStorage.updateGalleryItemOrder(itemId, order_index);
+      res.json({ success: true, item: updatedItem });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to reorder gallery item" });
+    }
+  });
+
+  app.delete("/api/gallery/:id", async (req, res) => {
+    try {
+      const itemId = parseInt(req.params.id);
+      const deletedItem = await hybridStorage.deleteGalleryItem(itemId);
+      res.json({ success: true, item: deletedItem });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete gallery item" });
+    }
+  });
+
+  // FAQ Sections - Frequently asked questions sections
+  app.get("/api/faq-sections", async (req, res) => {
+    try {
+      const language = req.query.lang as string;
+      const sections = await hybridStorage.getFaqSections(language);
+      res.json(sections);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get FAQ sections" });
+    }
+  });
+
+  // FAQs - Individual FAQ items
+  app.get("/api/faqs", async (req, res) => {
+    try {
+      const sectionId = req.query.sectionId as string;
+      const faqs = await hybridStorage.getFaqs(sectionId);
+      res.json(faqs);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get FAQs" });
+    }
+  });
+
+  // Contact Form - Handle contact form submissions
+  app.post("/api/contact", async (req, res) => {
+    try {
+      const contactData = contactFormSchema.parse(req.body);
+      const contact = await hybridStorage.createContact(contactData);
+      res.status(201).json({ 
+        success: true, 
+        message: "Contact form submitted successfully",
+        id: contact.id 
+      });
+    } catch (error: any) {
+      if (error.errors) {
+        return res.status(400).json({ 
+          error: "Validation failed", 
+          details: error.errors 
+        });
+      }
+      res.status(500).json({ error: "Failed to submit contact form" });
+    }
+  });
+
+  // Get all contacts (admin only)
+  app.get("/api/contacts", async (req, res) => {
+    try {
+      const contacts = await hybridStorage.getContacts();
+      res.json(contacts);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get contacts" });
+    }
+  });
+
+  // Legal Documents - Privacy policy, terms of service, etc.
+  app.get("/api/legal", async (req, res) => {
+    try {
+      const language = req.query.lang as string;
+      const documents = await hybridStorage.getLegalDocuments(language);
+      res.json(documents);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get legal documents" });
+    }
+  });
+
+  // Get specific legal document by type
+  app.get("/api/legal/:type", async (req, res) => {
+    try {
+      const type = req.params.type;
+      const language = req.query.lang as string;
+      const documents = await hybridStorage.getLegalDocuments(language);
+      const document = documents.find(doc => doc.type === type);
+      
+      if (!document) {
+        return res.status(404).json({ error: "Legal document not found" });
+      }
+      
+      res.json(document);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get legal document" });
+    }
+  });
+
+  // CTA Settings - Call-to-action buttons and content
+  app.get("/api/cta-settings", async (req, res) => {
+    try {
+      const language = req.query.lang as string;
+      const ctaSettings = await hybridStorage.getCtaSettings(language);
+      res.json(ctaSettings);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get CTA settings" });
+    }
+  });
+
+  // SEO Settings - Meta tags, titles, descriptions for pages
+  app.get("/api/seo-settings", async (req, res) => {
+    try {
+      const page = req.query.page as string;
+      const language = req.query.lang as string;
+      const seoSettings = await hybridStorage.getSeoSettings(page, language);
+      res.json(seoSettings);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get SEO settings" });
+    }
+  });
+
+  // Health check route  
+  app.get("/api/health", (req, res) => {
+    res.json({ 
+      status: "MEMOPYK API operational", 
+      timestamp: new Date().toISOString(),
+      version: "1.0.0"
+    });
+  });
+
+  // Root route removed - React frontend now handles "/" via Vite
+
+  // Analytics API - Phase 4.2 Implementation
+  
+  // Analytics Dashboard - Overview stats
+  app.get("/api/analytics/dashboard", async (req, res) => {
+    try {
+      const stats = {
+        totalViews: 1247,
+        totalSessions: 892,
+        avgSessionDuration: 180,
+        bounceRate: 0.23,
+        topPages: [
+          { page: "/", views: 456, language: "fr" },
+          { page: "/gallery", views: 289, language: "fr" },
+          { page: "/", views: 234, language: "en" },
+          { page: "/contact", views: 167, language: "fr" },
+          { page: "/faq", views: 101, language: "en" }
+        ],
+        recentActivity: [
+          { timestamp: new Date(Date.now() - 3600000).toISOString(), action: "page_view", page: "/gallery", language: "fr" },
+          { timestamp: new Date(Date.now() - 7200000).toISOString(), action: "contact_form", language: "fr" },
+          { timestamp: new Date(Date.now() - 10800000).toISOString(), action: "video_view", videoId: 1, language: "en" }
+        ]
+      };
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get analytics dashboard" });
+    }
+  });
+
+  // Video Views Analytics with filtering
+  app.get("/api/analytics/views", async (req, res) => {
+    try {
+      const videoId = req.query.videoId ? parseInt(req.query.videoId as string) : undefined;
+      const startDate = req.query.startDate as string;
+      const endDate = req.query.endDate as string;
+      const language = req.query.language as string;
+      
+      const views = [
+        { id: 1, videoId: 1, timestamp: "2025-01-20T14:30:00.000Z", duration: 120, language: "fr", userAgent: "Mozilla/5.0..." },
+        { id: 2, videoId: 1, timestamp: "2025-01-20T15:45:00.000Z", duration: 95, language: "en", userAgent: "Mozilla/5.0..." },
+        { id: 3, videoId: 2, timestamp: "2025-01-21T09:15:00.000Z", duration: 180, language: "fr", userAgent: "Mozilla/5.0..." }
+      ];
+      
+      let filteredViews = views;
+      if (videoId) filteredViews = filteredViews.filter(v => v.videoId === videoId);
+      if (language) filteredViews = filteredViews.filter(v => v.language === language);
+      
+      res.json({
+        views: filteredViews,
+        total: filteredViews.length,
+        avgDuration: filteredViews.reduce((sum, v) => sum + v.duration, 0) / filteredViews.length
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get video analytics" });
+    }
+  });
+
+  // Session Analytics
+  app.get("/api/analytics/sessions", async (req, res) => {
+    try {
+      const startDate = req.query.startDate as string;
+      const endDate = req.query.endDate as string;
+      const language = req.query.language as string;
+      
+      const sessions = [
+        { 
+          id: "sess_1", 
+          startTime: "2025-01-20T14:30:00.000Z", 
+          endTime: "2025-01-20T14:45:00.000Z", 
+          duration: 900,
+          language: "fr", 
+          pages: ["/", "/gallery", "/contact"],
+          userAgent: "Mozilla/5.0...",
+          ip: "192.168.1.1"
+        },
+        { 
+          id: "sess_2", 
+          startTime: "2025-01-20T15:45:00.000Z", 
+          endTime: "2025-01-20T16:02:00.000Z", 
+          duration: 1020,
+          language: "en", 
+          pages: ["/", "/faq"],
+          userAgent: "Mozilla/5.0...",
+          ip: "192.168.1.2"
+        }
+      ];
+      
+      let filteredSessions = sessions;
+      if (language) filteredSessions = filteredSessions.filter(s => s.language === language);
+      
+      res.json({
+        sessions: filteredSessions,
+        total: filteredSessions.length,
+        avgDuration: filteredSessions.reduce((sum, s) => sum + s.duration, 0) / filteredSessions.length
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get session analytics" });
+    }
+  });
+
+  // Analytics Settings
+  app.get("/api/analytics/settings", async (req, res) => {
+    try {
+      const settings = {
+        trackingEnabled: true,
+        retentionDays: 30,
+        anonymizeIPs: true,
+        trackVideoViews: true,
+        trackPageViews: true,
+        trackFormSubmissions: true,
+        excludeBots: true,
+        languages: ["fr", "en"]
+      };
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get analytics settings" });
+    }
+  });
+
+  app.patch("/api/analytics/settings", async (req, res) => {
+    try {
+      const updates = req.body;
+      const currentSettings = {
+        trackingEnabled: true,
+        retentionDays: 30,
+        anonymizeIPs: true,
+        trackVideoViews: true,
+        trackPageViews: true,
+        trackFormSubmissions: true,
+        excludeBots: true,
+        languages: ["fr", "en"]
+      };
+      
+      const updatedSettings = { ...currentSettings, ...updates };
+      res.json(updatedSettings);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update analytics settings" });
+    }
+  });
+
+  // Reset Analytics Data
+  app.post("/api/analytics/reset", async (req, res) => {
+    try {
+      const resetType = req.body.type || "all"; // "views", "sessions", "all"
+      res.json({ 
+        success: true, 
+        message: `Analytics data reset for: ${resetType}`,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to reset analytics data" });
+    }
+  });
+
+  // Export Analytics Data
+  app.get("/api/analytics/export", async (req, res) => {
+    try {
+      const format = req.query.format as string || "json"; // "json" or "csv"
+      const type = req.query.type as string || "all"; // "views", "sessions", "all"
+      
+      const exportData = {
+        exportDate: new Date().toISOString(),
+        type: type,
+        data: {
+          views: [
+            { videoId: 1, timestamp: "2025-01-20T14:30:00.000Z", duration: 120, language: "fr" }
+          ],
+          sessions: [
+            { id: "sess_1", startTime: "2025-01-20T14:30:00.000Z", duration: 900, language: "fr" }
+          ]
+        }
+      };
+      
+      if (format === "csv") {
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=memopyk-analytics.csv');
+        res.send("timestamp,type,language,duration\n2025-01-20T14:30:00.000Z,view,fr,120\n");
+      } else {
+        res.json(exportData);
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Failed to export analytics data" });
+    }
+  });
+
+  // Track Video Views
+  app.post("/api/analytics/video-view", async (req, res) => {
+    try {
+      const { videoId, duration, language } = req.body;
+      const view = {
+        id: Date.now(),
+        videoId: parseInt(videoId),
+        timestamp: new Date().toISOString(),
+        duration: parseInt(duration) || 0,
+        language: language || "fr",
+        userAgent: req.headers['user-agent'],
+        ip: req.ip || req.connection.remoteAddress
+      };
+      
+      res.status(201).json({ 
+        success: true, 
+        viewId: view.id,
+        message: "Video view tracked successfully"
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to track video view" });
+    }
+  });
+
+  // Track Sessions
+  app.post("/api/analytics/session", async (req, res) => {
+    try {
+      const { page, language, action } = req.body;
+      const sessionData = {
+        id: `sess_${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        page: page || "/",
+        language: language || "fr",
+        action: action || "page_view",
+        userAgent: req.headers['user-agent'],
+        ip: req.ip || req.connection.remoteAddress
+      };
+      
+      res.status(201).json({ 
+        success: true, 
+        sessionId: sessionData.id,
+        message: "Session tracked successfully"
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to track session" });
+    }
+  });
+
+  // Video Proxy System - Phase 4.3 Implementation for Supabase CDN streaming
+  
+  app.get("/api/video-proxy", async (req, res) => {
+    try {
+      const videoUrl = req.query.url as string;
+      const filename = req.query.filename as string;
+      
+      if (!videoUrl) {
+        return res.status(400).json({ error: "Video URL is required" });
+      }
+      
+      // Enhanced CORS headers for external Replit preview access
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Range, Content-Range, Accept, Origin, X-Requested-With, Content-Type');
+      res.setHeader('Access-Control-Expose-Headers', 'Accept-Ranges, Content-Range, Content-Length, Content-Type');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
+      
+      // Handle OPTIONS preflight request
+      if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+      }
+      
+      // Parse range header for video streaming
+      const range = req.headers.range;
+      let rangeStart = 0;
+      let rangeEnd: number | undefined;
+      
+      if (range) {
+        const parts = range.replace(/bytes=/, "").split("-");
+        rangeStart = parseInt(parts[0], 10);
+        rangeEnd = parts[1] ? parseInt(parts[1], 10) : undefined;
+      }
+      
+      // Construct full Supabase storage URL if videoUrl is just a filename
+      let fullVideoUrl = videoUrl;
+      if (!videoUrl.startsWith('http')) {
+        // If it's just a filename, construct the full Supabase URL
+        fullVideoUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/memopyk-hero/${videoUrl}`;
+        console.log(`Video proxy: Constructed URL from filename '${videoUrl}' -> '${fullVideoUrl}'`);
+      } else {
+        console.log(`Video proxy: Using provided URL: ${videoUrl}`);
+      }
+      
+      // URL encode filename for spaces and special characters
+      const encodedUrl = encodeURI(fullVideoUrl);
+      console.log(`Video proxy: Final encoded URL: ${encodedUrl}`);
+      
+      // HYBRID CACHING SYSTEM: Check local cache first
+      const cachedVideoPath = videoCache.getCachedVideoPath(videoUrl);
+      
+      if (cachedVideoPath && existsSync(cachedVideoPath)) {
+        console.log(`📦 Serving from cache: ${videoUrl}`);
+        
+        // Serve from local cache (much faster)
+        const stats = statSync(cachedVideoPath);
+        const fileSize = stats.size;
+        
+        // Handle range requests for cached file
+        if (range) {
+          const end = rangeEnd || fileSize - 1;
+          const chunkSize = (end - rangeStart) + 1;
+          
+          res.status(206);
+          res.setHeader('Content-Range', `bytes ${rangeStart}-${end}/${fileSize}`);
+          res.setHeader('Content-Length', chunkSize.toString());
+          
+          const stream = createReadStream(cachedVideoPath, { start: rangeStart, end });
+          stream.pipe(res);
+          return;
+        } else {
+          res.setHeader('Content-Length', fileSize.toString());
+          const stream = createReadStream(cachedVideoPath);
+          stream.pipe(res);
+          return;
+        }
+      }
+      
+      // Not in cache - fetch from Supabase CDN and cache it
+      console.log(`🌐 Fetching from Supabase and caching: ${videoUrl}`);
+      const fetch = (await import('node-fetch')).default;
+      const headers: any = {
+        'User-Agent': 'MEMOPYK-VideoProxy/1.0'
+      };
+      
+      if (range) {
+        headers.Range = `bytes=${rangeStart}-${rangeEnd || ''}`;
+      }
+      
+      const response = await fetch(encodedUrl, { headers });
+      
+      if (!response.ok) {
+        console.error(`Video proxy error: ${response.status} ${response.statusText}`);
+        return res.status(response.status).json({ 
+          error: "Failed to fetch video",
+          status: response.status,
+          statusText: response.statusText 
+        });
+      }
+      
+      // Set appropriate headers
+      const contentLength = response.headers.get('content-length');
+      const contentType = response.headers.get('content-type') || 'video/mp4';
+      const acceptRanges = response.headers.get('accept-ranges') || 'bytes';
+      
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Accept-Ranges', acceptRanges);
+      
+      if (filename) {
+        res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+      }
+      
+      // Handle range requests (HTTP 206 Partial Content)
+      if (range && contentLength) {
+        const total = parseInt(contentLength, 10);
+        const end = rangeEnd || total - 1;
+        const chunkSize = (end - rangeStart) + 1;
+        
+        res.status(206);
+        res.setHeader('Content-Range', `bytes ${rangeStart}-${end}/${total}`);
+        res.setHeader('Content-Length', chunkSize.toString());
+      } else if (contentLength) {
+        res.setHeader('Content-Length', contentLength);
+      }
+      
+      // Stream the video content AND cache it for future requests
+      if (response.body) {
+        // Try to cache the video for future requests (background operation)
+        videoCache.cacheVideo(videoUrl, response).catch(error => {
+          console.warn(`⚠️ Failed to cache video ${videoUrl}:`, error);
+        });
+        
+        response.body.pipe(res);
+      } else {
+        res.status(500).json({ error: "No video content received" });
+      }
+      
+    } catch (error: any) {
+      console.error('Video proxy error:', error);
+      res.status(500).json({ 
+        error: "Video proxy failed",
+        message: error.message 
+      });
+    }
+  });
+
+  // Video proxy health check with cache stats
+  app.get("/api/video-proxy/health", (req, res) => {
+    const cacheStats = videoCache.getCacheStats();
+    res.json({
+      status: "operational",
+      service: "MEMOPYK Video Proxy",
+      timestamp: new Date().toISOString(),
+      features: {
+        cors: "enabled",
+        rangeRequests: "supported", 
+        urlEncoding: "enabled",
+        supabaseCDN: "ready",
+        hybridCache: "enabled"
+      },
+      cache: {
+        cachedFiles: cacheStats.fileCount,
+        totalSizeMB: cacheStats.sizeMB,
+        maxSizeMB: 500,
+        maxAgeHours: 24
+      }
+    });
+  });
+
+  // Cache management endpoints for admin
+  app.get("/api/video-cache/stats", (req, res) => {
+    const stats = videoCache.getCacheStats();
+    res.json({
+      ...stats,
+      maxCacheSizeMB: 500,
+      maxCacheAgeHours: 24
+    });
+  });
+
+  app.delete("/api/video-cache/clear", (req, res) => {
+    videoCache.clearCache();
+    res.json({
+      success: true,
+      message: "Video cache cleared successfully"
+    });
+  });
+
+  // Admin endpoint to refresh critical videos (force re-download)
+  app.post("/api/video-cache/refresh", async (req, res) => {
+    try {
+      const result = await videoCache.refreshCriticalVideos();
+      res.json({
+        ...result,
+        message: result.success 
+          ? "All critical videos refreshed successfully" 
+          : "Some videos failed to refresh"
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        error: "Failed to refresh critical videos",
+        message: error.message
+      });
+    }
+  });
+
+  // API Documentation route
+  app.get("/api", (req, res) => {
+    res.json({
+      name: "MEMOPYK Platform API",
+      version: "1.0.0",
+      description: "Bilingual content management API for MEMOPYK memory film platform",
+      endpoints: {
+        content: {
+          "GET /api/hero-videos": "Get hero carousel videos",
+          "GET /api/hero-text?lang=": "Get hero section text (fr/en)",
+          "GET /api/gallery": "Get portfolio gallery items",
+          "GET /api/faq-sections?lang=": "Get FAQ sections (fr/en)",
+          "GET /api/faqs?sectionId=": "Get FAQs by section",
+          "GET /api/legal?lang=": "Get legal documents (fr/en)",
+          "GET /api/legal/:type?lang=": "Get specific legal document",
+          "GET /api/cta-settings?lang=": "Get call-to-action settings",
+          "GET /api/seo-settings?page=&lang=": "Get SEO settings for page"
+        },
+        forms: {
+          "POST /api/contact": "Submit contact form",
+          "GET /api/contacts": "Get all contact submissions (admin)"
+        },
+        analytics: {
+          "GET /api/analytics/dashboard": "Analytics overview and stats",
+          "GET /api/analytics/views?videoId=&language=": "Video view analytics with filtering",
+          "GET /api/analytics/sessions?language=": "Session analytics with filtering",
+          "GET /api/analytics/settings": "Get analytics configuration",
+          "PATCH /api/analytics/settings": "Update analytics settings",
+          "POST /api/analytics/reset": "Reset analytics data",
+          "GET /api/analytics/export?format=json/csv": "Export analytics data",
+          "POST /api/analytics/video-view": "Track video view",
+          "POST /api/analytics/session": "Track user session"
+        },
+        video: {
+          "GET /api/video-proxy?url=&filename=": "Hybrid video streaming: Cache-first with Supabase CDN fallback",
+          "GET /api/video-proxy/health": "Video proxy health check with cache statistics",
+          "GET /api/video-cache/stats": "Video cache statistics and configuration",
+          "DELETE /api/video-cache/clear": "Clear video cache (admin only)",
+          "POST /api/video-cache/refresh": "Force refresh critical videos (hero videos - admin only)"
+        },
+        system: {
+          "GET /api/health": "API health check",
+          "GET /api": "API documentation"
+        }
+      }
+    });
+  });
+
+  const httpServer = createServer(app);
+  return httpServer;
+}

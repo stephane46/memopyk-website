@@ -1,0 +1,90 @@
+[
+  {
+    "id": 1,
+    "pageId": "homepage",
+    "action": "created",
+    "field": "all",
+    "oldValue": null,
+    "newValue": "SEO settings initialized",
+    "adminUser": "system",
+    "changeReason": "Initial SEO setup",
+    "createdAt": "2025-07-29T14:00:00.000Z"
+  },
+  {
+    "id": 1,
+    "pageId": "42e1a653-9d2d-43bc-a1cb-3244d7abb501",
+    "action": "created",
+    "field": "all",
+    "oldValue": null,
+    "newValue": "SEO settings created",
+    "adminUser": "system",
+    "changeReason": "New SEO page created",
+    "createdAt": "2025-07-29T15:14:48.284Z"
+  },
+  {
+    "id": 2,
+    "pageId": "42e1a653-9d2d-43bc-a1cb-3244d7abb501",
+    "action": "updated",
+    "field": "metaTitleFr",
+    "oldValue": null,
+    "newValue": "MEMOPYK – Films & albums souvenirs à partir de vos photos et vidéos",
+    "adminUser": "admin",
+    "changeReason": "SEO optimization update",
+    "createdAt": "2025-08-22T13:34:38.370Z"
+  },
+  {
+    "id": 3,
+    "pageId": "42e1a653-9d2d-43bc-a1cb-3244d7abb501",
+    "action": "updated",
+    "field": "metaTitleEn",
+    "oldValue": null,
+    "newValue": "MEMOPYK – Unique memory films & albums from your photos and videos",
+    "adminUser": "admin",
+    "changeReason": "SEO optimization update",
+    "createdAt": "2025-08-22T13:34:38.460Z"
+  },
+  {
+    "id": 4,
+    "pageId": "42e1a653-9d2d-43bc-a1cb-3244d7abb501",
+    "action": "updated",
+    "field": "metaDescriptionFr",
+    "oldValue": null,
+    "newValue": "MEMOPYK transforme vos photos et vidéos en albums et films souvenirs uniques. Un service 100 % humain, créatif et inspirant.",
+    "adminUser": "admin",
+    "changeReason": "SEO optimization update",
+    "createdAt": "2025-08-22T13:34:38.533Z"
+  },
+  {
+    "id": 5,
+    "pageId": "42e1a653-9d2d-43bc-a1cb-3244d7abb501",
+    "action": "updated",
+    "field": "metaDescriptionEn",
+    "oldValue": null,
+    "newValue": "MEMOPYK turns your photos and videos into unique souvenir films and albums. A fully human, creative, and inspiring service.",
+    "adminUser": "admin",
+    "changeReason": "SEO optimization update",
+    "createdAt": "2025-08-22T13:34:38.607Z"
+  },
+  {
+    "id": 10,
+    "pageId": "a6aaf10e-fec7-4c54-b22f-85e53e58c8d7",
+    "action": "created",
+    "field": "all",
+    "oldValue": null,
+    "newValue": "SEO settings created",
+    "adminUser": "system",
+    "changeReason": "New SEO page created",
+    "createdAt": "2025-08-22T17:48:13.436Z"
+  },
+  {
+    "id": 11,
+    "pageId": "83502cc6-179b-4303-9bee-bae1ebf0b8f2",
+    "action": "created",
+    "field": "all",
+    "oldValue": null,
+    "newValue": "SEO settings created",
+    "adminUser": "system",
+    "changeReason": "New SEO page created",
+    "createdAt": "2025-08-22T17:49:24.072Z"
+  }
+]

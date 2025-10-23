@@ -1,0 +1,88 @@
+{
+  "kpis": {
+    "sessions": {
+      "value": 1240,
+      "trend": [
+        { "date": "2025-08-27", "value": 160 },
+        { "date": "2025-08-28", "value": 180 },
+        { "date": "2025-08-29", "value": 200 },
+        { "date": "2025-08-30", "value": 170 },
+        { "date": "2025-08-31", "value": 210 },
+        { "date": "2025-09-01", "value": 160 },
+        { "date": "2025-09-02", "value": 160 }
+      ]
+    },
+    "plays": {
+      "value": 920,
+      "trend": [
+        { "date": "2025-08-27", "value": 120 },
+        { "date": "2025-08-28", "value": 130 },
+        { "date": "2025-08-29", "value": 140 },
+        { "date": "2025-08-30", "value": 110 },
+        { "date": "2025-08-31", "value": 150 },
+        { "date": "2025-09-01", "value": 130 },
+        { "date": "2025-09-02", "value": 140 }
+      ]
+    },
+    "completions": {
+      "value": 460,
+      "trend": [
+        { "date": "2025-08-27", "value": 60 },
+        { "date": "2025-08-28", "value": 70 },
+        { "date": "2025-08-29", "value": 80 },
+        { "date": "2025-08-30", "value": 50 },
+        { "date": "2025-08-31", "value": 90 },
+        { "date": "2025-09-01", "value": 55 },
+        { "date": "2025-09-02", "value": 55 }
+      ]
+    },
+    "avgWatch": {
+      "value": 87,
+      "trend": [
+        { "date": "2025-08-27", "value": 82 },
+        { "date": "2025-08-28", "value": 95 },
+        { "date": "2025-08-29", "value": 89 },
+        { "date": "2025-08-30", "value": 78 },
+        { "date": "2025-08-31", "value": 92 },
+        { "date": "2025-09-01", "value": 85 },
+        { "date": "2025-09-02", "value": 90 }
+      ]
+    }
+  },
+  "topVideos": [
+    {
+      "videoId": "vid001",
+      "title": "Birthday Highlights",
+      "plays": 320,
+      "completions": 160,
+      "completionRate": 50,
+      "avgEngagement": 95
+    },
+    {
+      "videoId": "vid002",
+      "title": "Wedding Film",
+      "plays": 280,
+      "completions": 170,
+      "completionRate": 61,
+      "avgEngagement": 110
+    },
+    {
+      "videoId": "vid003",
+      "title": "Travel Memories",
+      "plays": 200,
+      "completions": 90,
+      "completionRate": 45,
+      "avgEngagement": 80
+    }
+  ],
+  "videoFunnel": {
+    "videoId": "vid002",
+    "funnel": [
+      { "bucket": 10, "count": 280 },
+      { "bucket": 25, "count": 220 },
+      { "bucket": 50, "count": 160 },
+      { "bucket": 75, "count": 120 },
+      { "bucket": 90, "count": 170 }
+    ]
+  }
+}

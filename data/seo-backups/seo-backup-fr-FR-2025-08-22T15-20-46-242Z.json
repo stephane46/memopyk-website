@@ -1,0 +1,34 @@
+{
+  "lang": "fr-FR",
+  "title": "MEMOPYK – Films & albums souvenirs à partir de vos photos et vidéos",
+  "description": "MEMOPYK transforme vos photos et vidéos en albums et films souvenirs uniques. Un service 100 % humain, créatif et inspirant.",
+  "canonical": "https://memopyk.com/fr-FR",
+  "robotsIndex": true,
+  "robotsFollow": true,
+  "robotsNoArchive": false,
+  "robotsNoSnippet": false,
+  "jsonLd": "{\"@context\":\"https://schema.org\",\"@type\":\"Organization\",\"name\":\"MEMOPYK\",\"url\":\"https://memopyk.com\",\"logo\":\"https://memopyk.com/logo.png\",\"sameAs\":[]}",
+  "openGraph": {
+    "type": "website"
+  },
+  "twitter": {
+    "card": "summary_large_image"
+  },
+  "hreflang": [
+    {
+      "lang": "fr-FR",
+      "href": "https://memopyk.com/fr-FR"
+    },
+    {
+      "lang": "en-US",
+      "href": "https://memopyk.com/en-US"
+    },
+    {
+      "lang": "x-default",
+      "href": "https://memopyk.com/en-US"
+    }
+  ],
+  "extras": [],
+  "backupCreatedAt": "2025-08-22T15:20:46.242Z",
+  "backupCreatedBy": "admin"
+}

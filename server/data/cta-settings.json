@@ -1,0 +1,22 @@
+[
+  {
+    "id": "book_call",
+    "buttonTextFr": "Consultation gratuite",
+    "buttonTextEn": "Free consultation", 
+    "buttonUrlFr": "https://cal.memopyk.com/#/memopykfr",
+    "buttonUrlEn": "https://cal.memopyk.com/#/memopyk1",
+    "isActive": true,
+    "createdAt": "2025-07-27T10:17:52.450881Z",
+    "updatedAt": "2025-08-08T17:54:53.577Z"
+  },
+  {
+    "id": "quick_quote",
+    "buttonTextFr": "Devis gratuit",
+    "buttonTextEn": "Free quote",
+    "buttonUrlFr": "https://zfrmz.eu/RdtLOFOuH2XDmFB1yXzG", 
+    "buttonUrlEn": "https://zfrmz.eu/hQvcUay58hWLza3hc6qM",
+    "isActive": true,
+    "createdAt": "2025-07-27T10:17:52.450881Z",
+    "updatedAt": "2025-08-08T20:09:10.653Z"
+  }
+]

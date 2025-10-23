@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEMOPYK Language Detection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-card {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-title {
+            color: #2A4759;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .result {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .result.french {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+        .result.english {
+            background: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+        }
+        button {
+            background: #D67C4A;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #c56a38;
+        }
+        .code {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="color: #2A4759;">MEMOPYK Language Detection Test Suite</h1>
+    
+    <div class="test-card">
+        <div class="test-title">Current Browser Settings</div>
+        <div class="code" id="current-settings"></div>
+    </div>
+
+    <div class="test-card">
+        <div class="test-title">Test Scenarios</div>
+        <button onclick="testLanguageDetection('fr-FR')">Test French Browser</button>
+        <button onclick="testLanguageDetection('en-US')">Test English Browser</button>
+        <button onclick="testLanguageDetection('en-GB')">Test British English</button>
+        <button onclick="testLanguageDetection('fr-CA')">Test Canadian French</button>
+        <button onclick="testLanguageDetection('de-DE')">Test German Browser</button>
+        <button onclick="testLanguageDetection('es-ES')">Test Spanish Browser</button>
+        <button onclick="clearStorage()">Clear Storage</button>
+    </div>
+
+    <div id="test-results"></div>
+
+    <script>
+        // Show current browser settings
+        function showCurrentSettings() {
+            const settings = {
+                'navigator.language': navigator.language,
+                'navigator.languages': navigator.languages,
+                'localStorage preference': localStorage.getItem('memopyk-language'),
+                'document.documentElement.lang': document.documentElement.lang
+            };
+            
+            document.getElementById('current-settings').innerHTML = 
+                Object.entries(settings).map(([key, value]) => 
+                    `${key}: ${JSON.stringify(value)}`
+                ).join('<br>');
+        }
+
+        // Simulate the MEMOPYK language detection logic
+        function detectBrowserLanguage(mockLanguages = null) {
+            // Check for stored preference first
+            const storedLanguage = localStorage.getItem('memopyk-language');
+            if (storedLanguage && ['fr-FR', 'en-US'].includes(storedLanguage)) {
+                return { detected: storedLanguage, reason: 'Stored preference' };
+            }
+
+            // Get browser language preferences (use mock if provided)
+            const browserLanguages = mockLanguages || navigator.languages || [navigator.language];
+            
+            for (const lang of browserLanguages) {
+                // Check for French variants - if French IS detected, show French
+                if (lang.toLowerCase().startsWith('fr')) {
+                    return { detected: 'fr-FR', reason: `French browser language detected: ${lang}` };
+                }
+            }
+            
+            // If French is NOT detected, show English (all other languages get English)
+            return { detected: 'en-US', reason: 'French not detected - serving English version' };
+        }
+
+        function testLanguageDetection(mockLanguage) {
+            // Clear existing preference to test fresh detection
+            const originalPreference = localStorage.getItem('memopyk-language');
+            localStorage.removeItem('memopyk-language');
+            
+            // Test with mock browser language
+            const result = detectBrowserLanguage([mockLanguage]);
+            
+            // Create result display
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'test-card';
+            resultDiv.innerHTML = `
+                <div class="test-title">Test: Browser Language "${mockLanguage}"</div>
+                <div class="result ${result.detected === 'fr-FR' ? 'french' : 'english'}">
+                    <strong>Detected Language:</strong> ${result.detected}<br>
+                    <strong>Reason:</strong> ${result.reason}<br>
+                    <strong>Would redirect to:</strong> /${result.detected}/
+                </div>
+            `;
+            
+            const resultsContainer = document.getElementById('test-results');
+            resultsContainer.insertBefore(resultDiv, resultsContainer.firstChild);
+            
+            // Restore original preference
+            if (originalPreference) {
+                localStorage.setItem('memopyk-language', originalPreference);
+            }
+        }
+
+        function clearStorage() {
+            localStorage.removeItem('memopyk-language');
+            showCurrentSettings();
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'test-card';
+            resultDiv.innerHTML = `
+                <div class="test-title">Storage Cleared</div>
+                <div class="result">
+                    localStorage preference cleared. Next detection will use browser language.
+                </div>
+            `;
+            
+            const resultsContainer = document.getElementById('test-results');
+            resultsContainer.insertBefore(resultDiv, resultsContainer.firstChild);
+        }
+
+        // Initialize
+        showCurrentSettings();
+        
+        // Test with current browser settings
+        window.onload = function() {
+            const currentResult = detectBrowserLanguage();
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'test-card';
+            resultDiv.innerHTML = `
+                <div class="test-title">Your Current Browser Detection</div>
+                <div class="result ${currentResult.detected === 'fr-FR' ? 'french' : 'english'}">
+                    <strong>Detected Language:</strong> ${currentResult.detected}<br>
+                    <strong>Reason:</strong> ${currentResult.reason}<br>
+                    <strong>MEMOPYK would serve:</strong> /${currentResult.detected}/ version
+                </div>
+            `;
+            document.getElementById('test-results').appendChild(resultDiv);
+        };
+    </script>
+</body>
+</html>

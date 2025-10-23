@@ -1,0 +1,172 @@
+[
+  {
+    "id": "1993f317-0b46-436e-8462-d6c6871dc6c7",
+    "section_id": "general",
+    "question_en": "First, what is a MEMOPYK souvenir film?",
+    "question_fr": "Qu’est-ce qu’un film souvenir MEMOPYK ?",
+    "answer_en": "It is a customized video that MEMOPYK creates uniquely for you, by using your own personal photos and videos as “source materials.” Through professional editing techniques, the film tells a story of your choice and allows you to relive your cherished memories of your life or your loved one’s.",
+    "answer_fr": "C’est une vidéo personnalisée créée spécialement pour vous par MEMOPYK, à partir de vos propres photos et vidéos. Grâce au montage, le film raconte une histoire autour d’un thème de votre choix et vous permet de revivre les souvenirs précieux de votre vie ou de celle d’un proche.",
+    "order_index": 0,
+    "is_active": true
+  },
+  {
+    "id": "d70378b5-d49b-4d3a-82ff-32c3cf30db2d",
+    "section_id": "pricing",
+    "question_en": "How do I send you my photos and videos?",
+    "question_fr": "Comment vous envoyer mes photos et vidéos ?",
+    "answer_en": "<p><a href=\"https://memopyk.zohobookings.eu/#/memopyk1\" rel=\"noopener noreferrer\" target=\"_blank\">Book a session</a>&nbsp;or&nbsp;<a href=\"https://forms.zoho.eu/memopyk1/form/MemoryfilmQuestionnaire\" rel=\"noopener noreferrer\" target=\"_blank\">fill the questionnaire</a>; our system will then email you secure upload instructions immediately.</p>",
+    "answer_fr": "<p><a href=\"https://memopyk.zohobookings.eu/#/memopykfr\" rel=\"noopener noreferrer\" target=\"_blank\">Prenez rendez-vous</a>&nbsp;ou&nbsp;<a href=\"https://forms.zoho.eu/memopyk1/form/FicheClientBriefMEMOPYK\" rel=\"noopener noreferrer\" target=\"_blank\">complétez le questionnaire</a>&nbsp;; notre <a href=\"mailto:stephane@photall.com\" rel=\"noopener noreferrer\" target=\"_blank\">système </a>vous enverra immédiatement les instructions de téléversement sécurisé par email.</p>",
+    "order_index": 0,
+    "is_active": true
+  },
+  {
+    "id": "1d0d60e4-1359-4c5a-b064-14a70357ac2c",
+    "section_id": "getting-started",
+    "question_en": "You wonder if we use Artificial Intelligence?",
+    "question_fr": "Vous vous demandez si nous utilisons l'Intelligence Artificielle ?",
+    "answer_en": "<p>Each image is created by hand by our teams: no robots or AI.</p>",
+    "answer_fr": "<p>Chaque image est <u>réalisée </u>à la <em>main</em> par nos <strong>équipes </strong>: pas de <a href=\"https://cnn.com\" rel=\"noopener noreferrer\" target=\"_blank\">robots </a><a href=\"mailto:stephane@photall.com\" rel=\"noopener noreferrer\" target=\"_blank\">ni</a> d'IA.</p><p><br></p><h3>Chaque image est réalisée à la main par nos équipes : pas de robots ni d'IA.</h3><p><br></p><p>Chaque <a href=\"www.cnn.com\" rel=\"noopener noreferrer\" target=\"_blank\">image</a> est réalisée à la main par nos équipes : pas de robots ni d'IA.</p><p><br></p><p class=\"ql-indent-1\">Chaque image est réalisée à la main par nos équipes : pas de robots ni d'IA.</p><p class=\"ql-indent-1\"><br></p><ul><li>aa</li><li>bb</li><li>cc</li></ul><p><br></p><ol><li>dd</li><li>ee</li><li>ff</li></ol>",
+    "order_index": 0,
+    "is_active": false
+  },
+  {
+    "id": "1c146cf9-52e0-4861-a4dc-5fa4650bb4ee",
+    "section_id": "general",
+    "question_en": "I don’t have a clear idea or vision of how my film should be, is that a problem?",
+    "question_fr": "Je n’ai pas d’idée précise, est-ce un problème ?",
+    "answer_en": "Not at all. We will make recommendations, create the story arc that is best adapted to your photos and videos, and take care of every detail to avoid decision fatigue while delivering the most exciting result possible. We also recommend you book a session with one of our experts to guide you through the next steps.",
+    "answer_fr": "Aucun souci. Nous vous ferons des propositions adaptées, construirons une narration cohérente à partir de vos fichiers et prendrons en charge tous les détails pour éviter la fatigue décisionnelle. Nous vous recommandons aussi de prendre rendez-vous avec un expert MEMOPYK pour vous guider.",
+    "order_index": 0,
+    "is_active": true
+  },
+  {
+    "id": "3f73b621-b2a6-4e20-91f9-95c060200e06",
+    "section_id": "getting-started",
+    "question_en": "How secure are my files and personal data?",
+    "question_fr": "Mes fichiers et données sont-ils en sécurité ?",
+    "answer_en": "<p>We fully comply with GDPR:</p><ul><li>No publishing without your written consent</li><li>Editors don’t retain your personal info</li><li>All files live in encrypted, password-protected folders</li><li>Data are purged two months after your final sign-off</li></ul><p><br></p>",
+    "answer_fr": "<p>Nous respectons scrupuleusement le RGPD :</p><ul><li>Jamais de diffusion sans votre accord écrit</li><li>Aucune conservation de vos informations personnelles par nos monteurs</li><li>Tous les fichiers sont protégés par mot de passe et chiffrés</li><li>Les données sont supprimées deux mois après votre validation finale</li></ul><p><br></p>",
+    "order_index": 1,
+    "is_active": true
+  },
+  {
+    "id": "acfefc4e-76a6-480a-a44f-9ca7bd06c385",
+    "section_id": "pricing",
+    "question_en": "What is your payment process?",
+    "question_fr": "Comment se déroule le paiement ?",
+    "answer_en": "<ul><li>50% deposit on quotation approval (we start to make your film)</li><li>Remaining 50% on final approval (delivery of the watermark-free version of your film)</li></ul>",
+    "answer_fr": "<ul><li>50 % d’acompte à la validation du devis (démarrage de la création de votre film)</li><li>50 % restants à la validation finale (livraison sans filigrane)</li></ul>",
+    "order_index": 2,
+    "is_active": true
+  },
+  {
+    "id": "a52dabf5-5ee7-44d6-a0ab-b134b0ed2c12",
+    "section_id": "general",
+    "question_en": "My photos and videos are a mess. Must I sort them before sending?",
+    "question_fr": "Mes photos et vidéos sont en désordre. Dois-je trier ?",
+    "answer_en": "<p>Absolutely not! Messy libraries are normal, and time-consuming to sort. We’re here to help. Feel free to remove any truly private or off-topic items, then send the rest our way.</p>",
+    "answer_fr": "<p>Absolument pas ! Les bibliothèques désorganisées sont courantes, et fastidieuses à classer. Nous nous en occupons. Supprimez juste les éléments trop privés ou hors sujet, et envoyez-nous le reste.</p>",
+    "order_index": 2,
+    "is_active": true
+  },
+  {
+    "id": "4e3cf86e-bb7b-4955-81a7-a9e65300948b",
+    "section_id": "pricing",
+    "question_en": "Why is your service by quotation only? What am I paying for?",
+    "question_fr": "Pourquoi un devis personnalisé ? Que paye-t-on exactement ?",
+    "answer_en": "<p>Each project is unique, so we quote individually to simplify things for you. To gauge your budget, please review our sample films (with pricing details) for reference.</p>",
+    "answer_fr": "<p>Chaque projet étant unique, nous établissons des devis individuels pour vous simplifier la tâche. Pour évaluer votre budget, veuillez consulter nos exemples de films (avec les détails des prix) à titre de référence.</p>",
+    "order_index": 3,
+    "is_active": true
+  },
+  {
+    "id": "05b73a14-57dd-4ab0-b036-300da03696a3",
+    "section_id": "pricing",
+    "question_en": "I received my film but want changes. What’s your revision policy?",
+    "question_fr": "J’ai reçu mon film mais souhaite des modifications. Comment ça marche ?",
+    "answer_en": "<p>We include two free revision rounds. After that, or for entirely new requests, a fee applies. If feedback comes more than two months after delivery, some files may be archived. Contact us to work out the details.</p>",
+    "answer_fr": "<p>Deux séries de modifications sont incluses. Ensuite, ou pour toute demande nouvelle, un supplément est appliqué. Si vos retours interviennent plus de deux mois après la livraison, certains fichiers peuvent avoir été archivés. Contactez-nous pour en discuter.</p>",
+    "order_index": 4,
+    "is_active": true
+  },
+  {
+    "id": "8312c30c-4de4-4863-b9fd-20481231fbae",
+    "section_id": "general",
+    "question_en": "What theme can my souvenir film be about?",
+    "question_fr": "Quels thèmes sont possibles pour mon film souvenir ?",
+    "answer_en": "<p>Our service adapts to any theme you choose. Think about all the photos and videos that you accumulate, and really feel what topics excite (or frustrate because it’s been so long that you wanted to do something about it!) you the most:</p><ul><li>a travel trip with your family or your friends</li><li>the first year of your baby, or of your pet</li><li>a special event such as a marriage, an anniversary celebration</li><li>the recap of someone’s life</li><li>the recap of a personal project such as a house renovation</li></ul>",
+    "answer_fr": "<p>Notre service s’adapte à tous les thèmes qui vous tiennent à cœur. Pensez à toutes les photos et vidéos que vous avez accumulées, et identifiez les sujets qui vous touchent (ou vous frustrent car vous rêvez de les valoriser depuis longtemps) :</p><ul><li>un voyage en famille ou entre amis</li><li>la première année de votre bébé ou de votre animal</li><li>un événement spécial comme un mariage ou un anniversaire</li><li>la rétrospective d’une vie</li><li>le suivi d’un projet personnel (ex. : rénovation de maison)</li></ul>",
+    "order_index": 4,
+    "is_active": true
+  },
+  {
+    "id": "0e866853-d4a4-44f8-ae6c-005223e7538d",
+    "section_id": "pricing",
+    "question_en": "How long do I have to review my film?",
+    "question_fr": "Combien de temps ai-je pour visionner et donner mon retour ?",
+    "answer_en": "<p>From the day that we deliver you the film, you have a two-week window to send us your feedback if any. If you give us your feedback beyond that window, a nominal weekly fee applies to cover storage and access.</p>",
+    "answer_fr": "<p>A compter du jour de la livraison du film, vous disposez d'un délai de deux semaines pour nous faire parvenir vos commentaires. Si vos commentaires arrivent au-delà de ce délai, des frais hebdomadaires minimes s'appliquent pour couvrir les frais de stockage et d'accès.</p>",
+    "order_index": 5,
+    "is_active": true
+  },
+  {
+    "id": "a0cc7a21-f987-4e04-9791-72a2a87d6372",
+    "section_id": "general",
+    "question_en": "Can I give you specific requirements (music, titles, effects, ...)?",
+    "question_fr": "Puis-je donner des consignes (musique, titres, effets…) ?",
+    "answer_en": "<p>Of course! Our detailed questionnaire has a dedicated section for all your creative notes. We respect every request and advise where needed to ensure the best possible film.</p>",
+    "answer_fr": "<p>Bien sûr ! Le questionnaire détaillé vous permet d’ajouter toutes vos préférences créatives. Nous respectons chaque demande et vous conseillons si besoin pour obtenir le meilleur rendu. OUI</p>",
+    "order_index": 5,
+    "is_active": true
+  },
+  {
+    "id": "bcb47ac6-b96d-4c08-8dac-97354a429266",
+    "section_id": "pricing",
+    "question_en": "What payment methods do you accept?",
+    "question_fr": "Quels moyens de paiement acceptez-vous ?",
+    "answer_en": "<ul><li>Bank transfer</li><li>Stripe (credit card)</li><li>PayPal</li></ul>",
+    "answer_fr": "<ul><li>Virement bancaire</li><li>Carte bancaire (via Stripe)</li><li>PayPal</li></ul>",
+    "order_index": 6,
+    "is_active": true
+  },
+  {
+    "id": "f7eb528b-b3da-4260-82cb-57a6aaa1e51c",
+    "section_id": "general",
+    "question_en": "Some clips or moments are extra important. Can I flag them?",
+    "question_fr": "Certains moments sont particulièrement importants. Je peux les signaler ?",
+    "answer_en": "<p>Yes! Just highlight those in the questionnaire (for example, baby’s first steps, a funny travel moment, etc.), and we’ll treat them accordingly.</p>",
+    "answer_fr": "<p>Oui ! Indiquez-les dans le questionnaire (ex. : les premiers pas de bébé, un moment drôle en voyage, etc.), et nous leur accorderons une attention spéciale.</p>",
+    "order_index": 6,
+    "is_active": false
+  },
+  {
+    "id": "af9e6454-fe0c-4370-8963-548ef56fec1b",
+    "section_id": "general",
+    "question_en": "I am afraid that the quality of my videos/photos are not good enough to create a high-quality souvenir film. Is it a problem?",
+    "question_fr": "Je crains que mes vidéos/photos ne soient pas de bonne qualité. Pouvez-vous encore réaliser un bon film ?",
+    "answer_en": "<p>Fear not. We specialize in enhancing low-quality sources and using editing techniques to preserve the emotion, even if the files aren’t perfect.</p>",
+    "answer_fr": "<p>Ne craignez rien. Nous sommes spécialisés dans l'amélioration des sources de faible qualité et dans l'utilisation de techniques d'édition pour préserver l'émotion, même si les fichiers ne sont pas parfaits.</p>",
+    "order_index": 7,
+    "is_active": true
+  },
+  {
+    "id": "ef290e36-4f62-4fb2-b780-221e6d3db1f0",
+    "section_id": "general",
+    "question_en": "I have physical media (prints, DVD, VHS, etc.). Do you offer digitization?",
+    "question_fr": "J’ai des supports physiques (tirages, DVD, VHS, ...). Proposez-vous la numérisation ?",
+    "answer_en": "<p>We partner with expert digitization services.&nbsp;<a href=\"mailto:info@memopyk.com\" rel=\"noopener noreferrer\" target=\"_blank\">Contact us</a>&nbsp;so we can recommend the right provider and workflow for your needs.</p>",
+    "answer_fr": "<p>Nous collaborons avec des prestataires de confiance pour la numérisation.&nbsp;<a href=\"mailto:info@memopyk.com\" rel=\"noopener noreferrer\" target=\"_blank\">Contactez-nous</a>&nbsp;pour recevoir une recommandation adaptée.</p>",
+    "order_index": 9,
+    "is_active": true
+  },
+  {
+    "id": "1f6f3636-a61a-4657-af9c-f3591e949e4b",
+    "section_id": "general",
+    "question_en": "Do you use Artificial Intelligence to create the films?",
+    "question_fr": "Utilisez-vous de l’Intelligence Artificielle pour créer les films souvenir ?",
+    "answer_en": "<p>Each image is created by hand by our teams: no robots or AI.</p>",
+    "answer_fr": "<p>Chaque image est réalisée à la main par nos équipes : pas de robots ni d'IA.</p>",
+    "order_index": 10,
+    "is_active": true
+  }
+]

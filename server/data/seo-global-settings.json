@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "robotsTxt": "User-agent: *\nDisallow: /admin\nAllow: /\n\nSitemap: https://memopyk.com/sitemap.xml\n",
+    "sitemapEnabled": true,
+    "sitemapFrequency": "daily",
+    "defaultMetaTitle": null,
+    "defaultMetaDescription": null,
+    "defaultOgImage": null,
+    "googleAnalyticsId": null,
+    "googleSearchConsoleCode": null,
+    "bingWebmasterCode": null,
+    "facebookPixelId": null,
+    "isMaintenanceMode": false,
+    "createdAt": "2025-07-29T15:26:56.769Z",
+    "updatedAt": "2025-07-29T15:59:30.592Z"
+  }
+]

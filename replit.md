@@ -1,0 +1,119 @@
+# MEMOPYK - Replit Project Documentation
+
+## Overview
+MEMOPYK is a full-stack memory film platform that transforms personal photos and videos into cinematic memory films. Its purpose is to provide a seamless and intuitive experience for creating and managing cherished video memories, targeting a niche market for personalized, high-quality video memories with significant market potential. Key capabilities include a bilingual (French/English) CMS, professional video lightbox, robust gallery management with reliable video streaming, language-specific upload functionality, advanced image reframing, and real-time preview.
+
+## User Preferences
+Preferred communication style: Simple, everyday language.
+Visual consistency priority: Extremely detail-oriented about spacing and formatting consistency between admin interface and published pages.
+Analytics interface: Expects all three filter buttons (7d, 30d, 90d) to be visible with proper orange highlighting for active states.
+Language detection priority: Fixed primary browser language detection with console testing capability. Enhanced cross-device compatibility prevents English users overseas from seeing French content by checking ONLY the first browser language preference.
+Accessibility priority: High contrast text is essential - white text on gray backgrounds is completely unreadable and must be avoided throughout admin interface.
+Modal styling: Requires solid white modal backgrounds with dark overlays for proper floating appearance. Framework components like Radix UI need precise CSS targeting to avoid affecting backdrop elements.
+
+### Critical Code Investigation Protocol
+**NEVER remove or modify existing code without understanding its purpose first.**
+
+**Required Investigation Process:**
+1. **Read and understand** existing code before making changes
+2. **Ask the user** if unsure about code purpose or if it seems redundant
+3. **Investigate git history** or documentation for context
+4. **Test functionality** before and after changes
+5. **Assume existing code exists for a reason** until proven otherwise
+
+**Never assume code is:**
+- Redundant without investigation
+- Outdated without checking
+- Unnecessary without user confirmation
+
+**CRITICAL: Always read replit.md documentation FIRST before making any changes to understand the existing architecture and avoid breaking working systems.**
+
+## System Architecture
+
+### Frontend
+- **Framework**: React 18 with TypeScript and Vite.
+- **UI Library**: shadcn/ui (built on Radix UI).
+- **Styling**: Tailwind CSS with CSS custom properties.
+- **State Management**: TanStack Query.
+- **Form Handling**: React Hook Form with Zod validation.
+- **UI/UX Decisions**:
+    - **Typography**: Poppins, Playfair Display.
+    - **Color Scheme**: MEMOPYK brand palette (Dark Blue #2A4759, Orange #D67C4A, Navy #011526, Cream #F2EBDC, Sky Blue #89BAD9).
+    - **Responsive Design**: Adaptive to all screen sizes, mobile optimizations, PWA features.
+    - **Navigation**: Customer journey-focused anchor-based scrolling on homepage; logo acts as home button with language routing.
+    - **Image Cropping**: Inline drag-and-reposition interface with real-time visual feedback.
+    - **Video Display**: Minimal controls for gallery videos, 2/3 screen size lightbox. Hero videos use cache, gallery videos stream from CDN.
+    - **Admin Interface**: Streamlined content management, professional field labeling, responsive font size, real-time preview.
+    - **Silent Loading Experience**: Eliminated all loading states.
+    - **Instant Thumbnail-to-Video System**: Professional YouTube/Netflix-style loading.
+
+### Backend
+- **Runtime**: Node.js with Express.js.
+- **Language**: TypeScript with ES modules.
+- **Database ORM**: Drizzle ORM with PostgreSQL dialect.
+- **Database Provider**: Hybrid system with Supabase PostgreSQL (VPS) as primary and JSON fallback.
+- **Session Management**: Express sessions with PostgreSQL store.
+
+### Key Architectural Decisions
+- **Hybrid Storage System**: JSON fallback for most data, complementing PostgreSQL; gallery data from Supabase VPS only.
+- **Universal Video Proxy**: Manages video serving, range requests, local caching, and Supabase CDN fallback.
+- **Image Proxy**: Handles image loading, resolves CORS, prioritizes static cropped images.
+- **Cache Management**: Smart caching for hero videos (preload), direct CDN streaming for gallery videos. Persistent caching for GA4 endpoints with auto-cleanup and 24-hour retention.
+- **Bilingual Support**: Comprehensive French/English content management for UI, data, SEO with primary-language-first detection.
+- **Modular API Design**: RESTful API for content types (hero videos, gallery, FAQs, legal docs, analytics).
+- **Static Image Generation**: Automated Sharp-based cropping and generation of static images for gallery thumbnails upon upload.
+- **Unified Analytics Architecture**: Dual-stream system combining direct Supabase tracking with automated GA4 BigQuery sync for enriched data. Real-time dashboard loading from Supabase.
+- **Google Analytics Integration**: GA4 JavaScript tracking and automated BigQuery export sync to Supabase for enriched data.
+- **Bundle Optimization System**: Reduced bundle size through dependency cleanup.
+- **Direct Supabase Upload System**: Facilitates large file uploads.
+- **SEO Management System**: Comprehensive interface for page-level meta tags, keywords, redirects, image SEO, and global settings, integrated with hybrid storage and audit logging.
+- **Deployment Optimizations**: Fast health checks, production video cache preloading, error handling, routing priorities.
+- **Visitor Classification & Analytics Accuracy**: 30-second session deduplication, proper new/returning visitor classification. Video analytics track watch duration and completion, excluding admin views. All analytics (session, video, blog) exclude development/preview environments (replit.dev, localhost) to ensure only production traffic is tracked.
+- **Professional Flag System**: 255-country SVG flag solution with dynamic mapping and three-tier fallback.
+- **OpenReplay Integration**: Session recording and user behavior analytics.
+- **Partner Intake System**: Bilingual partner directory with Zoho CRM integration (Account, Contact, Partner records). Uses OAuth refresh-token flow, rate limiting, CSRF, and reCAPTCHA stub.
+- **Directus Blog CMS Integration**: Headless CMS for bilingual blog content. Fetches posts with M2A blocks (rich text, headings, galleries, content sections) and maps fields. Language normalization helpers for consistent filtering. Supports `block_heading`, `block_richtext`, `block_gallery`, and `block_content_section` (flexible layouts, Markdown rendering with GFM tables).
+- **Blog Markdown Rendering System**: 
+  - **GFM Support**: GitHub Flavored Markdown enabled via `marked.setOptions({ gfm: true })` for tables, strikethrough, and enhanced syntax
+  - **Table Styling**: Professional responsive tables with zebra striping, subtle borders, header backgrounds, and horizontal scroll on mobile devices
+  - **CSS Classes**: All markdown content wrapped in `.md-content` class for consistent styling across all 5 content section layouts (text-only, image-full, two-images, three-images, image-left/right)
+  - **Sanitization**: DOMPurify sanitizes all rendered HTML before display for security
+  - **Prose Integration**: TailwindCSS `@tailwindcss/typography` prose classes for beautiful typography alongside custom table styles
+- **Blog Analytics System**: Tracks blog post views with hybrid storage pattern (Supabase primary + JSON fallback). Excludes admin IP addresses. Admin dashboard "Blog" tab shows popular posts ranked by views with language filtering and time period selection (7d/30d/90d).
+
+## External Dependencies
+
+### Database
+- **Supabase PostgreSQL**: Primary production database.
+- **Neon Database**: Development/staging database.
+- **Supabase Storage**: For video and image storage (CDN).
+
+### UI Components
+- **Radix UI**: Unstyled, accessible component primitives.
+- **Lucide React**: Icon library.
+- **Tailwind CSS**: Utility-first CSS framework.
+- **svg-country-flags**: Professional country flag library.
+
+### Development Tools
+- **Vite**: Frontend build tool.
+- **Express.js**: Backend web framework.
+- **Drizzle ORM**: Type-safe database ORM.
+- **Zod**: Schema validation library.
+- **React-Quill**: Rich text editor.
+- **DOMPurify**: HTML sanitization library.
+- **Crypto-js**: Client-side MD5 hashing.
+- **Multer**: Node.js middleware for file uploads.
+- **Sharp**: Image processing library for static image generation.
+- **marked**: Fast Markdown parser with GFM (GitHub Flavored Markdown) enabled for tables, strikethrough, and enhanced syntax support.
+
+### Content Management
+- **Directus CMS**: Headless CMS for blog content management (https://cms-blog.memopyk.org).
+- **@directus/sdk**: Official Directus JavaScript SDK.
+- **@directus/visual-editing**: Live visual editing support for Directus content.
+
+### CRM Integration
+- **Zoho CRM**: Partner intake system integration.
+
+### Analytics
+- **Google Analytics 4 (GA4)**: JavaScript tracking and BigQuery export.
+- **OpenReplay**: Session recording and user behavior analytics.

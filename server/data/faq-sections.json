@@ -1,0 +1,23 @@
+[
+  {
+    "id": "general",
+    "title_en": "CREATE YOUR SOUVENIR FILM",
+    "title_fr": "CRÉER VOTRE FILM SOUVENIR",
+    "order_index": 0,
+    "is_active": true
+  },
+  {
+    "id": "pricing",
+    "title_en": "ORDERS AND PAYMENT",
+    "title_fr": "COMMANDES ET PAIEMENT",
+    "order_index": 1,
+    "is_active": true
+  },
+  {
+    "id": "getting-started",
+    "title_en": "OTHERS",
+    "title_fr": "AUTRES",
+    "order_index": 4,
+    "is_active": true
+  }
+]

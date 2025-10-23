@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEMOPYK Flag System Test</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #2A4759;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .flag-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .flag-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        .flag-item img {
+            width: 24px;
+            height: 18px;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+        .country-name {
+            font-weight: 500;
+            color: #333;
+        }
+        .test-section {
+            margin-bottom: 40px;
+        }
+        .test-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2A4759;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #D67C4A;
+            padding-bottom: 5px;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .summary {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🏁 MEMOPYK Professional Flag System Test</h1>
+        
+        <div class="summary">
+            <h3>System Status</h3>
+            <p><strong>Professional Flag System (v1.0.178):</strong> Complete replacement of limited 15-country system with comprehensive 255-country solution using hampusborgos/country-flags repository.</p>
+            <p><strong>Features:</strong> Professional SVG flags, dynamic country mapping, three-tier fallback system (SVG → Unicode → Globe)</p>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🌍 Major Countries Test</div>
+            <div class="flag-grid">
+                <div class="flag-item">
+                    <img src="/flags/us.svg" alt="USA" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMTgiIHZpZXdCb3g9IjAgMCAyNCAxOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMjQiIGhlaWdodD0iMTgiIGZpbGw9IiNCMjIyMzQiLz4KICA8cmVjdCB5PSIxLjM4NDYiIHdpZHRoPSIyNCIgaGVpZ2h0PSIxLjM4NDYiIGZpbGw9IndoaXRlIi8+CiAgPHJlY3QgeT0iNC4xNTM4IiB3aWR0aD0iMjQiIGhlaWdodD0iMS4zODQ2IiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHk9IjYuOTIzMSIgd2lkdGg9IjI0IiBoZWlnaHQ9IjEuMzg0NiIgZmlsbD0id2hpdGUiLz4KICA8cmVjdCB5PSI5LjY5MjMiIHdpZHRoPSIyNCIgaGVpZ2h0PSIxLjM4NDYiIGZpbGw9IndoaXRlIi8+CiAgPHJlY3QgeT0iMTIuNDYxNSIgd2lkdGg9IjI0IiBoZWlnaHQ9IjEuMzg0NiIgZmlsbD0id2hpdGUiLz4KICA8cmVjdCB5PSIxNS4yMzA4IiB3aWR0aD0iMjQiIGhlaWdodD0iMS4zODQ2IiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHdpZHRoPSI5LjYiIGhlaWdodD0iOS42OTIzIiBmaWxsPSIjM0MzQjZFIi8+Cjwvc3ZnPgo=';"/>
+                    <span class="country-name">United States</span>
+                    <span class="status success">✓</span>
+                </div>
+                <div class="flag-item">
+                    <img src="/flags/dk.svg" alt="Denmark" onerror="this.style.display='none'; this.nextElementSibling.innerHTML='🇩🇰';"/>
+                    <span style="display:none;">🇩🇰</span>
+                    <span class="country-name">Denmark</span>
+                    <span class="status success">✓</span>
+                </div>
+                <div class="flag-item">
+                    <img src="/flags/fr.svg" alt="France"/>
+                    <span class="country-name">France</span>
+                    <span class="status success">✓</span>
+                </div>
+                <div class="flag-item">
+                    <img src="/flags/de.svg" alt="Germany"/>
+                    <span class="country-name">Germany</span>
+                    <span class="status success">✓</span>
+                </div>
+                <div class="flag-item">
+                    <img src="/flags/gb.svg" alt="United Kingdom"/>
+                    <span class="country-name">United Kingdom</span>
+                    <span class="status success">✓</span>
+                </div>
+                <div class="flag-item">
+                    <img src="/flags/es.svg" alt="Spain"/>
+                    <span class="country-name">Spain</span>
+                    <span class="status success">✓</span>
+                </div>
+                <div class="flag-item">
+                    <img src="/flags/it.svg" alt="Italy"/>
+                    <span class="country-name">Italy</span>
+                    <span class="status success">✓</span>
+                </div>
+                <div class="flag-item">
+                    <img src="/flags/ca.svg" alt="Canada"/>
+                    <span class="country-name">Canada</span>
+                    <span class="status success">✓</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🎯 Edge Cases Test</div>
+            <div class="flag-grid">
+                <div class="flag-item">
+                    <img src="/flags/va.svg" alt="Vatican" onerror="this.style.display='none'; this.nextElementSibling.innerHTML='🇻🇦'; this.nextElementSibling.style.display='inline';"/>
+                    <span style="display:none;">🇻🇦</span>
+                    <span class="country-name">Vatican City</span>
+                    <span class="status success">✓</span>
+                </div>
+                <div class="flag-item">
+                    <img src="/flags/mc.svg" alt="Monaco" onerror="this.style.display='none'; this.nextElementSibling.innerHTML='🇲🇨'; this.nextElementSibling.style.display='inline';"/>
+                    <span style="display:none;">🇲🇨</span>
+                    <span class="country-name">Monaco</span>
+                    <span class="status success">✓</span>
+                </div>
+                <div class="flag-item">
+                    <img src="/flags/li.svg" alt="Liechtenstein" onerror="this.style.display='none'; this.nextElementSibling.innerHTML='🇱🇮'; this.nextElementSibling.style.display='inline';"/>
+                    <span style="display:none;">🇱🇮</span>
+                    <span class="country-name">Liechtenstein</span>
+                    <span class="status success">✓</span>
+                </div>
+                <div class="flag-item">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="#6B7280" stroke-width="2"/>
+                        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke="#6B7280" stroke-width="2"/>
+                    </svg>
+                    <span class="country-name">Unknown</span>
+                    <span class="status warning">Globe</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📊 Analytics Dashboard Integration</div>
+            <p>The professional flag system is now integrated into the analytics dashboard at <strong>/admin</strong></p>
+            <p>✓ FlipCard component updated to use CountryFlag component</p>
+            <p>✓ Three-tier fallback system implemented</p>
+            <p>✓ 255+ countries supported</p>
+            <p>✓ No more question marks for legitimate country data</p>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🔧 Technical Implementation</div>
+            <ul style="line-height: 1.6;">
+                <li><strong>CountryFlag Component:</strong> <code>/client/src/components/admin/CountryFlag.tsx</code></li>
+                <li><strong>Flag Assets:</strong> <code>/public/flags/</code> (255 SVG flags)</li>
+                <li><strong>Country Mapping:</strong> <code>/public/flags/countries.json</code></li>
+                <li><strong>NPM Package:</strong> svg-country-flags from hampusborgos/country-flags</li>
+                <li><strong>FlipCard Integration:</strong> Updated to use professional system</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Test flag loading and provide fallback
+        document.addEventListener('DOMContentLoaded', function() {
+            const flagImages = document.querySelectorAll('.flag-item img');
+            let loadedCount = 0;
+            let totalFlags = flagImages.length;
+
+            flagImages.forEach(img => {
+                img.addEventListener('load', function() {
+                    loadedCount++;
+                    this.nextElementSibling.nextElementSibling.classList.remove('warning');
+                    this.nextElementSibling.nextElementSibling.classList.add('success');
+                });
+
+                img.addEventListener('error', function() {
+                    loadedCount++;
+                    this.nextElementSibling.nextElementSibling.classList.remove('success');
+                    this.nextElementSibling.nextElementSibling.classList.add('warning');
+                    this.nextElementSibling.nextElementSibling.innerHTML = 'Fallback';
+                });
+            });
+
+            // Update summary after all flags are processed
+            setTimeout(() => {
+                const summary = document.querySelector('.summary');
+                const successCount = document.querySelectorAll('.status.success').length;
+                summary.innerHTML += `<p><strong>Test Result:</strong> ${successCount}/${totalFlags} flags loaded successfully. Fallback system active for others.</p>`;
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

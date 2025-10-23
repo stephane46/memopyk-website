@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fresh Reframing Status - MEMOPYK</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        h1 {
+            color: #2A4759;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .status-section {
+            border: 3px solid #ffc107;
+            background: #fff3cd;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .status-title {
+            color: #856404;
+            font-weight: bold;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+        .status-details {
+            color: #856404;
+            line-height: 1.6;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .image-section {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .section-title {
+            color: #2A4759;
+            font-weight: bold;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .image-container {
+            text-align: center;
+            margin: 15px 0;
+        }
+        .image-container img {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+        }
+        .image-details {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        .troubleshoot {
+            background: #e7f3ff;
+            border: 2px solid #007bff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .troubleshoot h3 {
+            color: #007bff;
+            margin-top: 0;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Fresh Reframing Status - MEMOPYK</h1>
+        <p class="subtitle">Status check after your fresh English image reframing attempt</p>
+
+        <div class="status-section">
+            <div class="status-title">⚠️ Reframing Process Status</div>
+            <div class="status-details">
+                <strong>Item:</strong> "Our Vitamin Sea 2"<br>
+                <strong>Attempted:</strong> Fresh English image reframing<br>
+                <strong>Result:</strong> Process was initiated but did not complete successfully<br><br>
+                
+                <strong>Current Database State:</strong><br>
+                • <code>static_image_url:</code> "" (empty string - should contain URL to new reframed image)<br>
+                • <code>crop_settings:</code> null (should contain crop position and settings)<br><br>
+                
+                <strong>What This Means:</strong><br>
+                The image cropper interface was used, but the save operation did not complete properly. 
+                The reframed image was not successfully uploaded to storage or the database was not updated.
+            </div>
+        </div>
+
+        <div class="comparison-grid">
+            <div class="image-section">
+                <div class="section-title">📸 Source Available</div>
+                <div class="image-container">
+                    <h4>🇺🇸 English Original</h4>
+                    <img src="https://supabase.memopyk.org/storage/v1/object/public/memopyk-videos/Image%20(7).jpg" 
+                         alt="Original English image ready for reframing">
+                    <div class="image-details">
+                        <strong>File:</strong> Image (7).jpg<br>
+                        <strong>Status:</strong> ✅ Available for reframing<br>
+                        <strong>Dimensions:</strong> 4032×3024 pixels<br>
+                        <strong>Format:</strong> JPEG
+                    </div>
+                </div>
+            </div>
+
+            <div class="image-section">
+                <div class="section-title">❌ Expected Result</div>
+                <div class="image-container">
+                    <h4>🎯 Reframed Image (Missing)</h4>
+                    <div style="width: 300px; height: 200px; background: #f8f9fa; border: 2px dashed #dee2e6; display: flex; align-items: center; justify-content: center; margin: 0 auto; border-radius: 8px;">
+                        <div style="text-align: center; color: #6c757d;">
+                            <div style="font-size: 3em; margin-bottom: 10px;">📷</div>
+                            <div>Reframed image should appear here</div>
+                            <div style="font-size: 0.8em; margin-top: 5px;">300×200 pixels with solid white background</div>
+                        </div>
+                    </div>
+                    <div class="image-details">
+                        <strong>Expected:</strong> static_[timestamp].jpg<br>
+                        <strong>Status:</strong> ❌ Not created<br>
+                        <strong>Dimensions:</strong> 300×200 pixels<br>
+                        <strong>Format:</strong> JPEG with white background
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="troubleshoot">
+            <h3>🔧 Next Steps</h3>
+            <p><strong>To complete the reframing process:</strong></p>
+            <ol>
+                <li>Go back to the admin panel at <code>/admin</code></li>
+                <li>Find the "Our Vitamin Sea 2" gallery item</li>
+                <li>Click "Recadrer EN" (Reframe English) again</li>
+                <li>Position the image as desired in the cropping interface</li>
+                <li>Click the save button and wait for the success confirmation</li>
+                <li>Verify the reframed image appears in the preview</li>
+            </ol>
+            
+            <p><strong>The reframing system is ready and waiting for another attempt.</strong></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "blog_view_1761069267870_pjv30i3um",
+    "post_slug": "test-post-1",
+    "post_title": "Test Post 1",
+    "language": "en-US",
+    "session_id": "test_session_123",
+    "ip_address": "127.0.0.1",
+    "created_at": "2025-10-21T17:54:27.870Z"
+  },
+  {
+    "id": "blog_view_1761069269056_sajkgo2qh",
+    "post_slug": "test-post-1",
+    "post_title": "Test Post 1",
+    "language": "en-US",
+    "session_id": "test_session_456",
+    "ip_address": "127.0.0.1",
+    "created_at": "2025-10-21T17:54:29.056Z"
+  },
+  {
+    "id": "blog_view_1761069270224_zp4wit5w9",
+    "post_slug": "test-post-2",
+    "post_title": "Another Great Post",
+    "language": "fr-FR",
+    "session_id": "test_session_789",
+    "ip_address": "127.0.0.1",
+    "created_at": "2025-10-21T17:54:30.224Z"
+  },
+  {
+    "id": "blog_view_1761069376552_pn616od7i",
+    "post_slug": "the-ultimate-guide-to-digitizing-old-photos-in-2025",
+    "post_title": "The Ultimate Guide to Digitizing Old Photos in 2025",
+    "language": "en-US",
+    "session_id": "session_1756910821388_wht3pler0_elgjgnce3",
+    "ip_address": "172.31.93.130",
+    "created_at": "2025-10-21T17:56:16.552Z"
+  },
+  {
+    "id": "blog_view_1761069465853_xvrmbyvmz",
+    "post_slug": "the-ultimate-guide-to-digitizing-old-photos-in-2025",
+    "post_title": "The Ultimate Guide to Digitizing Old Photos in 2025",
+    "language": "en-US",
+    "session_id": "session_1756910821388_wht3pler0_elgjgnce3",
+    "ip_address": "172.31.93.130",
+    "created_at": "2025-10-21T17:57:45.853Z"
+  },
+  {
+    "id": "blog_view_1761069739510_vb4bviox0",
+    "post_slug": "TEST-mock-post-1",
+    "post_title": "[TEST] Mock Blog Post Alpha",
+    "language": "en-US",
+    "session_id": "test_mock_session_001",
+    "ip_address": "127.0.0.1",
+    "created_at": "2025-10-21T18:02:19.510Z"
+  },
+  {
+    "id": "blog_view_1761069740772_nh8cpm0nv",
+    "post_slug": "TEST-mock-post-1",
+    "post_title": "[TEST] Mock Blog Post Alpha",
+    "language": "en-US",
+    "session_id": "test_mock_session_002",
+    "ip_address": "127.0.0.1",
+    "created_at": "2025-10-21T18:02:20.772Z"
+  },
+  {
+    "id": "blog_view_1761069741932_6wsa8r6go",
+    "post_slug": "TEST-mock-post-2",
+    "post_title": "[TEST] Mock Blog Post Beta",
+    "language": "fr-FR",
+    "session_id": "test_mock_session_003",
+    "ip_address": "127.0.0.1",
+    "created_at": "2025-10-21T18:02:21.932Z"
+  }
+]

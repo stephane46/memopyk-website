@@ -1,0 +1,12 @@
+{
+  "lang": "fr-FR",
+  "title": "MEMOPYK Field Mapping Test - Films souvenirs",
+  "description": "Test complet de mapping des champs avec Supabase - tous les champs doivent être sauvegardés.",
+  "keywords": "memopyk, films, souvenirs, test",
+  "robotsIndex": true,
+  "robotsFollow": true,
+  "robotsNoArchive": false,
+  "robotsNoSnippet": false,
+  "backupCreatedAt": "2025-08-22T17:35:03.789Z",
+  "backupCreatedBy": "admin"
+}

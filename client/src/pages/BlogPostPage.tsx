@@ -1,0 +1,525 @@
+import { useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useLocation, Link, useParams } from 'wouter';
+import { Helmet } from 'react-helmet-async';
+import { setAttr } from '@directus/visual-editing';
+import { BlockRenderer } from '@/components/blog/BlockRenderer';
+import PostBlocks from '@/components/blog/PostBlocks';
+import NewsletterSignup from '@/components/blog/NewsletterSignup';
+import { DEFAULT_OG, DEFAULT_OG_FR } from '@/constants/seo';
+import { directusAsset, getPostWithBlocks } from '@/constants/directus';
+import { rewriteBodyImages } from '@/lib/imageUtils';
+import DOMPurify from 'dompurify';
+import { Calendar, Clock, User, Share2, Twitter, Facebook, Linkedin, Link as LinkIcon } from 'lucide-react';
+
+interface Author {
+  id: string;
+  first_name?: string;
+  last_name?: string;
+  name?: string;
+  avatar?: string;
+  bio?: string;
+  email?: string;
+}
+
+interface PostContent {
+  blocks?: Array<{
+    type: string;
+    content?: string | any;
+    level?: number;
+    url?: string;
+    alt?: string;
+    caption?: string;
+    items?: string[];
+  }>;
+}
+
+interface Post {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  description?: string;
+  content: string | PostContent;
+  body_html?: string;
+  language: string;
+  author?: Author;
+  status: string;
+  publish_date: string;
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string;
+  canonical_url?: string;
+  og_image_url?: string;
+  og_description?: string;
+  featured_image_url?: string;
+  featured_image_alt?: string;
+  reading_time_minutes?: number;
+  blocks?: Array<{
+    collection: string;
+    item: any;
+  }>;
+}
+
+export default function BlogPostPage() {
+  const [location] = useLocation();
+  const params = useParams<{ slug: string }>();
+  const slug = params.slug;
+  const languageCode = location.includes('/fr-FR') ? 'fr-FR' : 'en-US';
+  const language = languageCode === 'fr-FR' ? 'fr' : 'en';
+  const [readingProgress, setReadingProgress] = useState(0);
+
+  const { data: post, isLoading } = useQuery<Post | null>({
+    queryKey: ['/api/blog/post', slug, languageCode],
+    queryFn: async () => {
+      const directusPost = await getPostWithBlocks(slug!, languageCode);
+      if (directusPost && directusPost.blocks && directusPost.blocks.length > 0) {
+        // Client-side guard: verify language matches
+        if (directusPost.language !== languageCode) {
+          console.warn(`⚠️ Language mismatch for post ${slug}: expected ${languageCode}, got ${directusPost.language}`);
+          return null;
+        }
+        return directusPost;
+      }
+      
+      const response = await fetch(`/api/blog/posts/${slug}?language=${languageCode}`);
+      if (response.status === 404) return null;
+      if (!response.ok) throw new Error('Failed to fetch post');
+      const data = await response.json();
+      
+      // Client-side guard: verify language matches
+      if (data && data.language !== languageCode) {
+        console.warn(`⚠️ Language mismatch for post ${slug}: expected ${languageCode}, got ${data.language}`);
+        return null;
+      }
+      
+      return data;
+    }
+  });
+
+  const inVisualEditingMode = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return window.location.search.includes('ve=1');
+  }, [location]);
+
+  useEffect(() => {
+    if (!inVisualEditingMode || !post) return;
+    
+    import('@directus/visual-editing').then(async ({ apply }) => {
+      await apply({ directusUrl: 'https://cms-blog.memopyk.org' });
+    });
+  }, [inVisualEditingMode, post]);
+
+  // Track blog post view for analytics (exclude admin and development)
+  useEffect(() => {
+    if (!post || !slug) return;
+    
+    // Don't track if in admin mode
+    const isAdmin = window.location.pathname.includes('/admin');
+    if (isAdmin) return;
+    
+    // Don't track if in development/preview environment
+    const isDevelopment = window.location.hostname.includes('replit.dev') || 
+                         window.location.hostname.includes('localhost') ||
+                         window.location.hostname === '127.0.0.1';
+    if (isDevelopment) {
+      console.log('📊 Blog view tracking skipped: development environment');
+      return;
+    }
+    
+    // Get or create session ID
+    let baseSessionId = localStorage.getItem('memopyk-base-session-id');
+    if (!baseSessionId) {
+      baseSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem('memopyk-base-session-id', baseSessionId);
+    }
+    
+    let tabId = sessionStorage.getItem('memopyk-tab-id');
+    if (!tabId) {
+      tabId = Math.random().toString(36).substr(2, 9);
+      sessionStorage.setItem('memopyk-tab-id', tabId);
+    }
+    
+    const sessionId = `${baseSessionId}_${tabId}`;
+    
+    // Track view
+    fetch('/api/analytics/blog/view', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        post_slug: slug,
+        post_title: post.title,
+        language: languageCode,
+        session_id: sessionId
+      })
+    }).catch(err => console.warn('Blog view tracking failed:', err));
+  }, [post, slug, languageCode]);
+
+  // Reading progress tracker
+  useEffect(() => {
+    const handleScroll = () => {
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      const scrollTop = window.scrollY;
+      const trackLength = documentHeight - windowHeight;
+      const progress = (scrollTop / trackLength) * 100;
+      setReadingProgress(Math.min(Math.max(progress, 0), 100));
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const getDirectusAttr = (fields: string, mode: 'popover' | 'drawer' = 'popover') => {
+    if (!inVisualEditingMode || !post) return {};
+    return {
+      'data-directus': setAttr({
+        collection: 'posts',
+        item: String(post.id),
+        fields,
+        mode
+      })
+    };
+  };
+
+  const t = {
+    'fr-FR': {
+      backToBlog: 'Retour au blog',
+      notFound: 'Article non trouvé',
+      notFoundDescription: 'L\'article que vous recherchez n\'existe pas ou a été supprimé.',
+      readingTime: 'min de lecture',
+      by: 'Par',
+      share: 'Partager',
+      copyLink: 'Copier le lien',
+      linkCopied: 'Lien copié !',
+    },
+    'en-US': {
+      backToBlog: 'Back to blog',
+      notFound: 'Article not found',
+      notFoundDescription: 'The article you are looking for does not exist or has been removed.',
+      readingTime: 'min read',
+      by: 'By',
+      share: 'Share',
+      copyLink: 'Copy link',
+      linkCopied: 'Link copied!',
+    }
+  }[languageCode];
+
+  const blogRoute = language === 'fr' ? '/fr-FR/blog' : '/en-US/blog';
+
+  const getAuthorName = (author?: Author) => {
+    if (!author) return null;
+    if (author.name) return author.name;
+    if (author.first_name && author.last_name) {
+      return `${author.first_name} ${author.last_name}`;
+    }
+    return author.first_name || author.last_name || null;
+  };
+
+  const handleShare = async (platform: string) => {
+    const url = window.location.href;
+    const title = post?.title || '';
+    
+    const shareUrls: Record<string, string> = {
+      twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+    };
+    
+    if (platform === 'copy') {
+      await navigator.clipboard.writeText(url);
+      alert(t.linkCopied);
+    } else if (shareUrls[platform]) {
+      window.open(shareUrls[platform], '_blank', 'width=600,height=400');
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[#F2EBDC] to-white">
+        <div className="h-2 bg-gray-200 sticky top-0 z-50">
+          <div className="h-full bg-[#D67C4A]" style={{ width: '0%' }}></div>
+        </div>
+        <div className="relative h-96 bg-gray-300 animate-pulse"></div>
+        <div className="container mx-auto px-4 max-w-4xl -mt-20 relative z-10">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 animate-pulse">
+            <div className="h-12 bg-gray-300 rounded mb-6 max-w-2xl"></div>
+            <div className="h-6 bg-gray-300 rounded mb-8 max-w-xs"></div>
+            <div className="space-y-4">
+              <div className="h-4 bg-gray-300 rounded"></div>
+              <div className="h-4 bg-gray-300 rounded"></div>
+              <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!post) {
+    return (
+      <>
+        <Helmet>
+          <title>{t.notFound} | MEMOPYK</title>
+        </Helmet>
+        <div className="min-h-screen bg-gradient-to-b from-[#F2EBDC] to-white">
+          <header className="bg-gradient-to-br from-[#2A4759] via-[#2A4759] to-[#1a2d38] text-white py-6">
+            <div className="container mx-auto px-4">
+              <Link href={blogRoute} data-testid="link-back-to-blog">
+                <span className="inline-flex items-center text-[#D67C4A] hover:text-[#F2EBDC] transition-colors cursor-pointer font-medium group">
+                  <svg className="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  {t.backToBlog}
+                </span>
+              </Link>
+            </div>
+          </header>
+          <main className="container mx-auto px-4 py-20 text-center">
+            <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-12">
+              <svg className="w-24 h-24 mx-auto mb-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h1 className="text-4xl font-['Playfair_Display'] text-[#2A4759] mb-4 font-semibold" data-testid="text-not-found-title">
+                {t.notFound}
+              </h1>
+              <p className="text-gray-600 text-lg" data-testid="text-not-found-description">{t.notFoundDescription}</p>
+            </div>
+          </main>
+        </div>
+      </>
+    );
+  }
+
+  const defaultOg = languageCode === 'fr-FR' ? DEFAULT_OG_FR : DEFAULT_OG;
+  
+  const seoTitle = post.meta_title || post.title;
+  const seoDescription = post.meta_description || post.description || post.excerpt || "";
+  const seoKeywords = post.meta_keywords;
+  
+  function resolveHero(raw?: string | null, width?: number) {
+    if (!raw) return null;
+    if (raw.includes('REPLACE') || raw.startsWith('[')) return null;
+    return directusAsset(raw, { ...(width ? { width } : {}), quality: 82, fit: 'inside' });
+  }
+
+  const heroUrl =
+    resolveHero(post.featured_image_url) ??
+    resolveHero(post.og_image_url) ??
+    defaultOg.url;
+
+  const heroSrcSet = post.featured_image_url || post.og_image_url
+    ? [640, 828, 1200, 1920]
+        .map(w => `${resolveHero(post.featured_image_url || post.og_image_url, w)} ${w}w`)
+        .join(', ')
+    : undefined;
+
+  const ogUrl =
+    resolveHero(post.og_image_url) ??
+    resolveHero(post.featured_image_url) ??
+    defaultOg.url;
+
+  return (
+    <>
+      <Helmet>
+        <title>{seoTitle} | MEMOPYK</title>
+        <meta name="description" content={seoDescription} />
+        {seoKeywords && <meta name="keywords" content={seoKeywords} />}
+        {post.canonical_url && <link rel="canonical" href={post.canonical_url} />}
+        
+        <meta property="og:title" content={seoTitle} />
+        <meta property="og:description" content={post.og_description || seoDescription} />
+        <meta property="og:image" content={ogUrl} />
+        <meta property="og:image:width" content={String(defaultOg.width)} />
+        <meta property="og:image:height" content={String(defaultOg.height)} />
+        <meta property="og:type" content="article" />
+        <meta property="article:published_time" content={post.publish_date} />
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={seoTitle} />
+        <meta name="twitter:description" content={post.og_description || seoDescription} />
+        <meta name="twitter:image" content={ogUrl} />
+      </Helmet>
+
+      <div className="min-h-screen bg-gradient-to-b from-[#F2EBDC] to-white">
+        {/* Reading Progress Bar */}
+        <div className="h-2 bg-gray-200 sticky top-0 z-50">
+          <div 
+            className="h-full bg-gradient-to-r from-[#D67C4A] to-[#89BAD9] transition-all duration-150"
+            style={{ width: `${readingProgress}%` }}
+          ></div>
+        </div>
+
+        {/* Hero Section with Overlay */}
+        {heroUrl && (
+          <div className="relative h-96 md:h-[32rem] overflow-hidden bg-[#2A4759]">
+            <img
+              src={heroUrl}
+              srcSet={heroSrcSet}
+              sizes="100vw"
+              alt={post.featured_image_alt || post.title}
+              loading="eager"
+              decoding="async"
+              className="w-full h-full object-cover"
+              data-testid="img-post-hero"
+              {...getDirectusAttr('featured_image_url', 'popover')}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+            
+            {/* Back Button Overlay */}
+            <div className="absolute top-6 left-0 right-0 z-10">
+              <div className="container mx-auto px-4">
+                <Link href={blogRoute} data-testid="link-back-to-blog">
+                  <span className="inline-flex items-center text-white hover:text-[#D67C4A] transition-colors cursor-pointer font-medium group bg-black/30 backdrop-blur-sm px-4 py-2 rounded-full">
+                    <svg className="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    {t.backToBlog}
+                  </span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Article Container with Overlap */}
+        <article className="container mx-auto px-4 max-w-4xl -mt-20 md:-mt-32 relative z-10 pb-20">
+          {/* Main Content Card */}
+          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+            {/* Article Header */}
+            <header className="p-8 md:p-12 border-b border-gray-100">
+              <h1
+                className="text-4xl md:text-5xl lg:text-6xl font-['Playfair_Display'] text-[#2A4759] mb-6 leading-tight"
+                data-testid="text-post-title"
+                {...getDirectusAttr('title', 'popover')}
+              >
+                {post.title}
+              </h1>
+              
+              {/* Metadata */}
+              <div className="flex flex-wrap items-center gap-4 text-gray-600 mb-6">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-[#D67C4A]" />
+                  <time dateTime={post.publish_date} data-testid="text-post-date" className="text-sm">
+                    {new Date(post.publish_date).toLocaleDateString(
+                      languageCode === 'fr-FR' ? 'fr-FR' : 'en-US',
+                      { year: 'numeric', month: 'long', day: 'numeric' }
+                    )}
+                  </time>
+                </div>
+                {post.reading_time_minutes && (
+                  <>
+                    <span className="text-gray-300">•</span>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-[#D67C4A]" />
+                      <span data-testid="text-reading-time" className="text-sm">
+                        {post.reading_time_minutes} {t.readingTime}
+                      </span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </header>
+
+            {/* Article Content */}
+            <div className="p-8 md:p-12" data-testid="post-content">
+              {post.blocks && post.blocks.length > 0 ? (
+                <div {...getDirectusAttr('blocks', 'drawer')}>
+                  {(() => {
+                    console.log('📦 Blog blocks:', post.blocks.map(b => ({ collection: b.collection, hasItem: !!b.item })));
+                    return <PostBlocks blocks={post.blocks} />;
+                  })()}
+                </div>
+              ) : post.body_html ? (
+                <article
+                  className="prose prose-lg max-w-none
+                    prose-headings:font-['Playfair_Display'] prose-headings:text-[#2A4759] prose-headings:scroll-mt-24
+                    prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6
+                    prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4
+                    prose-p:text-gray-700 prose-p:leading-relaxed prose-p:text-lg prose-p:mb-6
+                    prose-a:text-[#D67C4A] prose-a:no-underline prose-a:font-medium hover:prose-a:underline
+                    prose-strong:text-[#2A4759] prose-strong:font-semibold
+                    prose-ul:my-6 prose-ol:my-6 prose-li:text-gray-700 prose-li:my-2
+                    prose-img:rounded-xl prose-img:shadow-2xl prose-img:max-w-full prose-img:h-auto prose-img:my-8
+                    prose-blockquote:border-l-4 prose-blockquote:border-[#D67C4A] prose-blockquote:italic prose-blockquote:bg-[#F2EBDC]/30 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:my-8
+                    prose-code:text-[#D67C4A] prose-code:bg-gray-100 prose-code:px-2 prose-code:py-1 prose-code:rounded"
+                  {...getDirectusAttr('body_html', 'drawer')}
+                  dangerouslySetInnerHTML={{ __html: rewriteBodyImages(DOMPurify.sanitize(post.body_html)) }}
+                />
+              ) : typeof post.content === 'object' && post.content.blocks ? (
+                <div {...getDirectusAttr('content', 'drawer')}>
+                  <BlockRenderer blocks={post.content.blocks} />
+                </div>
+              ) : (
+                <div
+                  className="prose prose-lg max-w-none
+                    prose-headings:font-['Playfair_Display'] prose-headings:text-[#2A4759]
+                    prose-p:text-gray-700 prose-p:leading-relaxed prose-p:text-lg
+                    prose-a:text-[#D67C4A] prose-a:no-underline hover:prose-a:underline
+                    prose-strong:text-[#2A4759]
+                    prose-img:rounded-xl prose-img:shadow-2xl
+                    prose-blockquote:border-l-4 prose-blockquote:border-[#D67C4A] prose-blockquote:italic prose-blockquote:bg-[#F2EBDC]/30 prose-blockquote:py-4 prose-blockquote:px-6"
+                  {...getDirectusAttr('content', 'drawer')}
+                  dangerouslySetInnerHTML={{ __html: typeof post.content === 'string' ? post.content : '' }}
+                />
+              )}
+
+              {/* Share Buttons */}
+              <div className="flex items-center justify-center gap-3 mt-12 pt-8 border-t border-gray-100">
+                <span className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <Share2 className="w-4 h-4" />
+                  {t.share}:
+                </span>
+                <button
+                  onClick={() => handleShare('twitter')}
+                  className="p-2 rounded-full hover:bg-blue-50 text-gray-600 hover:text-blue-600 transition-colors"
+                  aria-label="Share on Twitter"
+                >
+                  <Twitter className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => handleShare('facebook')}
+                  className="p-2 rounded-full hover:bg-blue-50 text-gray-600 hover:text-blue-700 transition-colors"
+                  aria-label="Share on Facebook"
+                >
+                  <Facebook className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => handleShare('linkedin')}
+                  className="p-2 rounded-full hover:bg-blue-50 text-gray-600 hover:text-blue-600 transition-colors"
+                  aria-label="Share on LinkedIn"
+                >
+                  <Linkedin className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => handleShare('copy')}
+                  className="p-2 rounded-full hover:bg-gray-100 text-gray-600 hover:text-[#D67C4A] transition-colors"
+                  aria-label={t.copyLink}
+                >
+                  <LinkIcon className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Newsletter Signup */}
+            <div className="px-8 md:px-12 pb-8 md:pb-12">
+              <NewsletterSignup language={languageCode} />
+            </div>
+          </div>
+
+          {/* Back to Blog CTA */}
+          <div className="mt-12 text-center">
+            <Link href={blogRoute}>
+              <span className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#2A4759] to-[#1a2d38] text-white rounded-full hover:shadow-xl transition-all cursor-pointer group font-semibold">
+                <svg className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                {t.backToBlog}
+              </span>
+            </Link>
+          </div>
+        </article>
+      </div>
+    </>
+  );
+}
