@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation, Link, useParams } from 'wouter';
 import { Helmet } from 'react-helmet-async';
@@ -14,6 +14,7 @@ import { DEFAULT_OG, DEFAULT_OG_FR } from '@/constants/seo';
 import { directusAsset } from '@/constants/directus';
 import { Calendar, Clock, User, Share2, Twitter, Facebook, Linkedin, Link as LinkIcon, Star, Hash } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { ScrollTracker, trackShare } from '@/utils/analytics';
 
 interface Author {
   id: string;
@@ -69,6 +70,7 @@ export default function BlogPostPage() {
   const languageCode = location.includes('/fr-FR') ? 'fr-FR' : 'en-US';
   const language = languageCode === 'fr-FR' ? 'fr' : 'en';
   const [readingProgress, setReadingProgress] = useState(0);
+  const scrollTrackerRef = useRef<ScrollTracker | null>(null);
 
   const { data: post, isLoading } = useQuery<Post | null>({
     queryKey: ['/api/blog/post', slug, languageCode],
@@ -146,7 +148,7 @@ export default function BlogPostPage() {
     }).catch(err => console.warn('Blog view tracking failed:', err));
   }, [post, slug, languageCode]);
 
-  // Reading progress tracker
+  // Reading progress tracker + GA4 scroll engagement tracking
   useEffect(() => {
     const handleScroll = () => {
       const windowHeight = window.innerHeight;
@@ -158,8 +160,23 @@ export default function BlogPostPage() {
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    
+    // Initialize GA4 scroll engagement tracking
+    if (post) {
+      const pageName = `Blog: ${post.title}`;
+      scrollTrackerRef.current = new ScrollTracker(pageName);
+      scrollTrackerRef.current.init();
+    }
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      // Clean up scroll tracker
+      if (scrollTrackerRef.current) {
+        scrollTrackerRef.current.destroy();
+        scrollTrackerRef.current = null;
+      }
+    };
+  }, [post]);
 
   const getDirectusAttr = (fields: string, mode: 'popover' | 'drawer' = 'popover') => {
     if (!inVisualEditingMode || !post) return {};
@@ -210,6 +227,10 @@ export default function BlogPostPage() {
   const handleShare = async (platform: string) => {
     const url = window.location.href;
     const title = post?.title || '';
+    const pageName = `Blog: ${title}`;
+    
+    // Track share event to GA4
+    trackShare(platform, url, pageName);
     
     const shareUrls: Record<string, string> = {
       twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
