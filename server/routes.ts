@@ -8904,40 +8904,14 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
-  // Blog Routes - Proxy to Directus CMS with Authentication
-  let directusToken: string | null = null;
-  let tokenExpiry = 0;
-
-  async function getDirectusToken() {
-    const now = Date.now();
-    if (directusToken && now < tokenExpiry) {
-      return directusToken;
+  // Blog Routes - Proxy to Directus CMS with Static Token Authentication
+  function getDirectusToken() {
+    // Simple CMS migration: Use static token instead of email/password login
+    const token = process.env.DIRECTUS_TOKEN;
+    if (!token) {
+      throw new Error('DIRECTUS_TOKEN environment variable not set');
     }
-
-    try {
-      const response = await fetch('https://cms-blog.memopyk.org/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: process.env.DIRECTUS_EMAIL,
-          password: process.env.DIRECTUS_PASSWORD
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Directus auth failed: ${response.status}`);
-      }
-
-      const { data } = await response.json();
-      directusToken = data.access_token;
-      tokenExpiry = now + (data.expires || 900000); // Default 15min
-      
-      console.log('✅ Directus authenticated successfully');
-      return directusToken;
-    } catch (error) {
-      console.error('❌ Directus authentication error:', error);
-      throw error;
-    }
+    return token;
   }
 
   // Debug endpoint to diagnose block_content_section permissions
