@@ -122,6 +122,68 @@ router.post('/daily-summary', async (req: Request, res: Response) => {
 });
 
 /**
+ * POST /api/analytics/performance
+ * Receive performance metrics from frontend and log to database
+ */
+router.post('/performance', async (req: Request, res: Response) => {
+  try {
+    const performanceData = req.body;
+
+    // Validate required fields
+    if (!performanceData.page_path) {
+      return res.status(400).json({
+        success: false,
+        error: 'page_path is required'
+      });
+    }
+
+    // Enrich with request metadata
+    const enrichedData = {
+      ...performanceData,
+      user_agent: req.headers['user-agent'] || null,
+    };
+
+    // Log to Supabase database (async, non-blocking)
+    analyticsDBService.logPerformanceMetric(enrichedData).catch((err: any) => {
+      console.error('Background error logging performance metric:', err);
+    });
+
+    // Respond immediately to avoid blocking frontend
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Performance metrics endpoint error:', err);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to process performance metrics'
+    });
+  }
+});
+
+/**
+ * POST /api/analytics/performance-summary
+ * Manually trigger daily performance summary update
+ */
+router.post('/performance-summary', async (req: Request, res: Response) => {
+  try {
+    const { date } = req.body;
+    
+    const result = await analyticsDBService.updateDailyPerformanceSummary(date);
+    
+    res.json({
+      success: true,
+      message: 'Daily performance summary updated',
+      data: result
+    });
+  } catch (err) {
+    console.error('Performance summary endpoint error:', err);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update performance summary'
+    });
+  }
+});
+
+/**
  * GET /api/analytics/health
  * Check if analytics database service is ready
  */

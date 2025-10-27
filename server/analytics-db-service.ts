@@ -255,6 +255,81 @@ class AnalyticsDBService {
   }
 
   /**
+   * Log performance metrics to the performance_metrics table
+   */
+  async logPerformanceMetric(performanceData: any): Promise<any> {
+    if (!this.isEnabled || !this.supabase) {
+      return null;
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('performance_metrics')
+        .insert([{
+          page_name: performanceData.page_name || null,
+          page_path: performanceData.page_path || null,
+          lcp_value: performanceData.lcp_value || null,
+          lcp_rating: performanceData.lcp_rating || null,
+          cls_value: performanceData.cls_value || null,
+          cls_rating: performanceData.cls_rating || null,
+          inp_value: performanceData.inp_value || null,
+          inp_rating: performanceData.inp_rating || null,
+          fid_value: performanceData.fid_value || null,
+          fid_rating: performanceData.fid_rating || null,
+          dns_time: performanceData.dns_time || null,
+          tcp_time: performanceData.tcp_time || null,
+          ttfb: performanceData.ttfb || null,
+          dom_interactive: performanceData.dom_interactive || null,
+          dom_complete: performanceData.dom_complete || null,
+          page_load_time: performanceData.page_load_time || null,
+          resource_count: performanceData.resource_count || null,
+          transfer_size: performanceData.transfer_size || null,
+          device_type: performanceData.device_type || null,
+          browser_name: performanceData.browser_name || null,
+          connection_type: performanceData.connection_type || null
+        }]);
+
+      if (error) {
+        console.error('Analytics DB: Performance metric logging failed:', error.message);
+        return null;
+      }
+
+      return data;
+    } catch (err) {
+      console.error('Analytics DB: Unexpected error logging performance metric:', err);
+      return null;
+    }
+  }
+
+  /**
+   * Update daily performance summary for a specific date
+   */
+  async updateDailyPerformanceSummary(summaryDate?: string): Promise<any> {
+    if (!this.isEnabled || !this.supabase) {
+      return null;
+    }
+
+    const dateToSummarize = summaryDate || new Date().toISOString().split('T')[0];
+
+    try {
+      const { data, error } = await this.supabase.rpc('update_daily_performance', {
+        p_date: dateToSummarize
+      });
+
+      if (error) {
+        console.error('Analytics DB: Daily performance summary update failed:', error.message);
+        return null;
+      }
+
+      console.log(`✅ Analytics DB: Daily performance summary updated for ${dateToSummarize}`);
+      return data;
+    } catch (err) {
+      console.error('Analytics DB: Unexpected error updating daily performance summary:', err);
+      return null;
+    }
+  }
+
+  /**
    * Check if the service is enabled and ready
    */
   isReady(): boolean {

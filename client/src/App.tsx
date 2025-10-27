@@ -29,6 +29,7 @@ import { useEffect } from 'react';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { initGA4, trackPageView } from '@/config/ga4.config';
 import { initTestMode } from '@/lib/analytics';
+import { initPerformanceMonitoring, trackPageLoadMetrics } from '@/utils/performance';
 
 // Routes configured for gallery
 // Language-specific upload system v1.0.82 ready
@@ -127,6 +128,10 @@ function App() {
       if (isTestMode) {
         console.log('🔍 Test mode active - all GA4 events will include debug_mode=true');
       }
+      
+      // Initialize performance monitoring (Core Web Vitals)
+      initPerformanceMonitoring();
+      trackPageLoadMetrics();
       
       console.log('✅ GA4 Analytics initialized with enhanced geographic tracking');
     } else {
