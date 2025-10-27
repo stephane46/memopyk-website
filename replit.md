@@ -72,13 +72,14 @@ Modal styling: Requires solid white modal backgrounds with dark overlays for pro
 - **Professional Flag System**: 255-country SVG flag solution with dynamic mapping and three-tier fallback.
 - **OpenReplay Integration**: Session recording and user behavior analytics.
 - **Partner Intake System**: Bilingual partner directory with Zoho CRM integration (Account, Contact, Partner records). Uses OAuth refresh-token flow, rate limiting, CSRF, and reCAPTCHA stub.
-- **Directus Blog CMS Integration**: Headless CMS for bilingual blog content. Fetches posts with M2A blocks (rich text, headings, galleries, content sections) and maps fields. Language normalization helpers for consistent filtering. Supports `block_heading`, `block_richtext`, `block_gallery`, and `block_content_section` (flexible layouts, Markdown rendering with GFM tables).
-- **Blog Markdown Rendering System**: 
-  - **GFM Support**: GitHub Flavored Markdown enabled via `marked.setOptions({ gfm: true })` for tables, strikethrough, and enhanced syntax
-  - **Table Styling**: Professional responsive tables with zebra striping, subtle borders, header backgrounds, and horizontal scroll on mobile devices
-  - **CSS Classes**: All markdown content wrapped in `.md-content` class for consistent styling across all 5 content section layouts (text-only, image-full, two-images, three-images, image-left/right)
-  - **Sanitization**: DOMPurify sanitizes all rendered HTML before display for security
-  - **Prose Integration**: TailwindCSS `@tailwindcss/typography` prose classes for beautiful typography alongside custom table styles
+- **Directus Blog CMS Integration**: Headless CMS for bilingual blog content using Simple CMS template. Posts use a single `content` TEXT field containing sanitized HTML instead of M2A blocks for easier content management. Language normalization helpers for consistent filtering. Backend uses static token authentication (DIRECTUS_TOKEN) instead of email/password login.
+- **Blog Content Rendering System**: 
+  - **Simple HTML Content**: Posts contain a single `content` field with pre-formatted HTML
+  - **Security**: DOMPurify sanitizes all rendered HTML before display for XSS protection
+  - **Image Rewriting**: Body images automatically rewritten to use proxy endpoint for CORS resolution
+  - **Typography**: TailwindCSS `@tailwindcss/typography` prose classes provide professional styling for headings, paragraphs, lists, blockquotes, code, and tables
+  - **Table Styling**: Responsive tables with zebra striping, subtle borders, and horizontal scroll on mobile
+  - **Visual Editing**: Directus Visual Editing SDK integration for in-context content editing
 - **Blog Analytics System**: Tracks blog post views with hybrid storage pattern (Supabase primary + JSON fallback). Excludes admin IP addresses. Admin dashboard "Blog" tab shows popular posts ranked by views with language filtering and time period selection (7d/30d/90d).
 
 ## External Dependencies
@@ -107,7 +108,7 @@ Modal styling: Requires solid white modal backgrounds with dark overlays for pro
 - **marked**: Fast Markdown parser with GFM (GitHub Flavored Markdown) enabled for tables, strikethrough, and enhanced syntax support.
 
 ### Content Management
-- **Directus CMS**: Headless CMS for blog content management (https://cms-blog.memopyk.org).
+- **Directus CMS**: Headless CMS for blog content management (https://cms.memopyk.com). Uses Simple CMS template with single content field.
 - **@directus/sdk**: Official Directus JavaScript SDK.
 - **@directus/visual-editing**: Live visual editing support for Directus content.
 
