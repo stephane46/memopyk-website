@@ -15,6 +15,7 @@ import GV2Page from './pages/GV2Page';
 import NotFoundPage from './pages/not-found';
 import BlogIndexPage from './pages/BlogIndexPage';
 import BlogPostPage from './pages/BlogPostPage';
+import SearchResultsPage from './pages/SearchResultsPage';
 import PartnerIntakeFR from './pages/PartnerIntakeFR';
 import PartnerIntakeEN from './pages/PartnerIntakeEN';
 import PartnerDirectoryFR from './pages/PartnerDirectoryFR';
@@ -81,6 +82,8 @@ function AnalyticsRouter() {
         <Route path="/en-US/legal/:docType" component={LegalDocumentPage} />
         
         {/* Blog Routes */}
+        <Route path="/fr-FR/blog/search" component={SearchResultsPage} />
+        <Route path="/en-US/blog/search" component={SearchResultsPage} />
         <Route path="/fr-FR/blog/:slug" component={BlogPostPage} />
         <Route path="/en-US/blog/:slug" component={BlogPostPage} />
         <Route path="/fr-FR/blog" component={BlogIndexPage} />

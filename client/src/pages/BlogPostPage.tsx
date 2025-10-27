@@ -5,9 +5,15 @@ import { Helmet } from 'react-helmet-async';
 import { setAttr } from '@directus/visual-editing';
 import PostBlocks from '@/components/blog/PostBlocks';
 import NewsletterSignup from '@/components/blog/NewsletterSignup';
+import TagCloud from '@/components/blog/TagCloud';
+import GalleryComponent from '@/components/blog/GalleryComponent';
+import RelatedPostsSection from '@/components/blog/RelatedPostsSection';
+import CommentsSection from '@/components/blog/CommentsSection';
+import FeaturedPostsSection from '@/components/blog/FeaturedPostsSection';
 import { DEFAULT_OG, DEFAULT_OG_FR } from '@/constants/seo';
 import { directusAsset } from '@/constants/directus';
-import { Calendar, Clock, User, Share2, Twitter, Facebook, Linkedin, Link as LinkIcon } from 'lucide-react';
+import { Calendar, Clock, User, Share2, Twitter, Facebook, Linkedin, Link as LinkIcon, Star, Hash } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface Author {
   id: string;
@@ -17,6 +23,14 @@ interface Author {
   avatar?: string;
   bio?: string;
   email?: string;
+}
+
+interface Tag {
+  id: string;
+  name: string;
+  slug: string;
+  color?: string;
+  icon?: string;
 }
 
 interface Post {
@@ -39,6 +53,13 @@ interface Post {
   featured_image_url?: string;
   featured_image_alt?: string;
   reading_time_minutes?: number;
+  is_featured?: boolean;
+  featured_order?: number;
+  hero_caption?: string;
+  read_time_minutes?: number;
+  comments_enabled?: boolean;
+  disqus_thread_id?: string;
+  tags?: Tag[];
 }
 
 export default function BlogPostPage() {
@@ -368,6 +389,15 @@ export default function BlogPostPage() {
               
               {/* Metadata */}
               <div className="flex flex-wrap items-center gap-4 text-gray-600 mb-6">
+                {post.is_featured && (
+                  <>
+                    <Badge className="bg-[#D67C4A] hover:bg-[#D67C4A]/90" data-testid="badge-featured">
+                      <Star className="h-3 w-3 mr-1 fill-current" />
+                      {languageCode === 'fr-FR' ? 'En vedette' : 'Featured'}
+                    </Badge>
+                    <span className="text-gray-300">•</span>
+                  </>
+                )}
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-[#D67C4A]" />
                   <time dateTime={post.publish_date} data-testid="text-post-date" className="text-sm">
@@ -377,18 +407,47 @@ export default function BlogPostPage() {
                     )}
                   </time>
                 </div>
-                {post.reading_time_minutes && (
+                {(post.reading_time_minutes || post.read_time_minutes) && (
                   <>
                     <span className="text-gray-300">•</span>
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-[#D67C4A]" />
                       <span data-testid="text-reading-time" className="text-sm">
-                        {post.reading_time_minutes} {t.readingTime}
+                        {post.reading_time_minutes || post.read_time_minutes} {t.readingTime}
                       </span>
                     </div>
                   </>
                 )}
               </div>
+
+              {/* Tags Section */}
+              {post.tags && post.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-6" data-testid="post-tags">
+                  {post.tags.map((tag) => (
+                    <Link key={tag.id} href={`/${languageCode}/blog?tag=${tag.slug}&language=${languageCode}`}>
+                      <Badge 
+                        variant="outline" 
+                        className="cursor-pointer hover:shadow-md transition-all border-2"
+                        style={{ 
+                          borderColor: tag.color || '#D67C4A',
+                          color: tag.color || '#D67C4A'
+                        }}
+                        data-testid={`tag-badge-${tag.slug}`}
+                      >
+                        {tag.icon && <Hash className="h-3 w-3 mr-1" />}
+                        {tag.name}
+                      </Badge>
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              {/* Hero Caption */}
+              {post.hero_caption && (
+                <p className="text-lg text-gray-600 italic border-l-4 border-[#D67C4A] pl-4 mb-6" data-testid="text-hero-caption">
+                  {post.hero_caption}
+                </p>
+              )}
             </header>
 
             {/* Article Content */}
@@ -435,10 +494,40 @@ export default function BlogPostPage() {
               </div>
             </div>
 
+            {/* Galleries Section */}
+            <div className="px-8 md:px-12 pb-8" data-testid="post-galleries">
+              <GalleryComponent slug={slug} language={languageCode} />
+            </div>
+
             {/* Newsletter Signup */}
             <div className="px-8 md:px-12 pb-8 md:pb-12">
               <NewsletterSignup language={languageCode} />
             </div>
+          </div>
+
+          {/* Related Posts Section */}
+          <div className="mt-12">
+            <RelatedPostsSection slug={slug} language={languageCode} limit={3} />
+          </div>
+
+          {/* Comments Section */}
+          <div className="mt-12">
+            <CommentsSection
+              slug={slug}
+              title={post.title}
+              url={typeof window !== 'undefined' ? window.location.href : ''}
+              commentsEnabled={post.comments_enabled ?? true}
+              disqusShortname="memopyk"
+              language={languageCode}
+            />
+          </div>
+
+          {/* Featured Posts CTA */}
+          <div className="mt-12 bg-white rounded-2xl shadow-xl p-8">
+            <h3 className="text-2xl font-['Playfair_Display'] font-bold text-[#2A4759] mb-6 text-center">
+              {languageCode === 'fr-FR' ? 'Articles en vedette' : 'Featured Articles'}
+            </h3>
+            <FeaturedPostsSection language={languageCode} limit={3} autoPlay={true} autoPlayInterval={6000} />
           </div>
 
           {/* Back to Blog CTA */}
