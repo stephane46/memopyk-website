@@ -11,6 +11,7 @@ import { LazyImage } from "@/components/ui/LazyImage";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { useDeviceOrientation } from "@/hooks/useDeviceOrientation";
 import { trackCtaClick } from "@/lib/analytics";
+import { trackEvent } from "@/utils/analytics";
 // Removed useVideoAnalytics import - not used in GallerySection, causing unnecessary re-renders
 
 // Gallery item interface using camelCase (transformed from API snake_case)
@@ -513,10 +514,19 @@ export default function GallerySection() {
     e.stopPropagation();
     
     const hasVideoResult = hasVideo(item, index);
+    const itemTitle = getItemTitle(item);
     
     if (hasVideoResult) {
       // Close any flipped cards when opening a video
       setFlippedCards(new Set());
+      
+      // Track gallery video click to GA4
+      trackEvent('video_interaction', {
+        action: 'lightbox_open',
+        video_title: itemTitle,
+        video_index: index,
+        page_location: 'gallery'
+      });
       
       // Analytics tracking moved to VideoOverlay for actual watch time tracking
       const videoFilename = item.videoFilename || '';
@@ -547,6 +557,14 @@ export default function GallerySection() {
       // Prevent body scrolling when lightbox is open
       document.body.style.overflow = 'hidden';
     } else {
+      // Track card flip to GA4
+      trackEvent('card_interaction', {
+        action: 'card_flip',
+        item_title: itemTitle,
+        item_index: index,
+        page_location: 'gallery'
+      });
+      
       // Flip card to show sorry message for items without video
       setFlippedCards(prev => {
         const newSet = new Set(prev);

@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { PartnerIntakeSchema, type PartnerIntake } from "@shared/partnerSchema";
 import { PHOTO_FORMATS, FILM_FORMATS, VIDEO_CASSETTES, DELIVERY } from "@shared/partnerFormats";
 import { apiRequest } from "@/lib/queryClient";
+import { trackEvent } from "@/utils/analytics";
 import {
   Form,
   FormControl,
@@ -109,6 +110,14 @@ export default function PartnerIntakeEN() {
   const onSubmit = async (data: PartnerIntake) => {
     try {
       await apiRequest("/api/partners/intake", "POST", data);
+
+      // Track form submission to GA4
+      trackEvent('form_submit', {
+        form_name: 'partner_intake',
+        form_language: 'en',
+        partner_country: data.address.country,
+        services: data.services.join(',')
+      });
 
       setIsSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
