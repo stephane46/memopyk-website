@@ -103,7 +103,7 @@ export class ScrollTracker {
   private tracked25 = false;
   private tracked50 = false;
   private tracked75 = false;
-  private tracked100 = false;
+  private tracked90 = false;
   private pageName: string;
   private listener: (() => void) | null = null;
 
@@ -130,14 +130,18 @@ export class ScrollTracker {
   }
 
   private handleScroll(): void {
-    const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+    const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+    // Guard against zero-length pages
+    if (scrollHeight <= 0) return;
+    
+    const scrollPercent = (window.scrollY / scrollHeight) * 100;
 
-    if (scrollPercent >= 100 && !this.tracked100) {
+    if (scrollPercent >= 90 && !this.tracked90) {
       trackEvent('scroll_engagement', {
-        scroll_percent: 100,
+        scroll_percent: 90,
         page_name: this.pageName,
       });
-      this.tracked100 = true;
+      this.tracked90 = true;
     } else if (scrollPercent >= 75 && !this.tracked75) {
       trackEvent('scroll_engagement', {
         scroll_percent: 75,
