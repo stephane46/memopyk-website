@@ -5,7 +5,7 @@
 
 import { Router, Request, Response } from 'express';
 import analyticsDBService from '../analytics-db-service';
-import analyticsService from '../analytics-service';
+import { analyticsService } from '../analytics-service';
 
 const router = Router();
 
@@ -30,12 +30,12 @@ router.post('/event', async (req: Request, res: Response) => {
       ...eventData,
       user_agent: req.headers['user-agent'] || null,
       referrer: req.headers.referer || req.headers.referrer || null,
-      // Generate or use existing session ID from client
-      session_id: eventData.session_id || req.sessionID || null,
+      // Use session ID from client (session management handled by client)
+      session_id: eventData.session_id || null,
     };
 
     // Log to Supabase database (async, non-blocking)
-    analyticsDBService.logEvent(enrichedEventData).catch(err => {
+    analyticsDBService.logEvent(enrichedEventData).catch((err: any) => {
       console.error('Background error logging event to database:', err);
     });
 
@@ -48,7 +48,7 @@ router.post('/event', async (req: Request, res: Response) => {
         currency: eventData.currency || 'EUR',
         user_id: enrichedEventData.user_id,
         session_id: enrichedEventData.session_id
-      }).catch(err => {
+      }).catch((err: any) => {
         console.error('Background error sending conversion to GA4:', err);
       });
     }

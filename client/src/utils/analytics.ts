@@ -9,7 +9,7 @@
 type EventParams = Record<string, string | number | boolean>;
 
 /**
- * Track a custom event to Google Analytics 4
+ * Track a custom event to Google Analytics 4 and backend database
  * @param eventName - Name of the event (e.g., 'button_click', 'form_submit')
  * @param params - Additional event parameters
  */
@@ -27,7 +27,7 @@ export const trackEvent = (eventName: string, params: EventParams = {}): void =>
     return;
   }
 
-  // Send event to GA4
+  // Send event to GA4 (frontend tracking)
   try {
     (window as any).gtag('event', eventName, {
       ...params,
@@ -36,6 +36,48 @@ export const trackEvent = (eventName: string, params: EventParams = {}): void =>
     console.log(`📊 [Analytics] Event tracked: ${eventName}`, params);
   } catch (error) {
     console.error(`[Analytics] Error tracking event "${eventName}":`, error);
+  }
+
+  // Also send to backend for database logging (async, non-blocking)
+  sendEventToBackend(eventName, params);
+};
+
+/**
+ * Send event to backend API for database logging
+ * This runs asynchronously and doesn't block the user experience
+ */
+const sendEventToBackend = async (eventName: string, params: EventParams): Promise<void> => {
+  try {
+    // Prepare enriched event data
+    const eventData = {
+      event_name: eventName,
+      event_value: params.value as number || 0,
+      currency: params.currency as string || 'EUR',
+      page_path: window.location.pathname,
+      page_title: document.title,
+      referrer: document.referrer || null,
+      user_language: navigator.language || null,
+      user_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || null,
+      // Spread all other params
+      ...params,
+    };
+
+    // Send to backend (don't await to avoid blocking)
+    fetch('/api/analytics/event', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(eventData),
+      // Use keepalive to ensure request completes even if user navigates away
+      keepalive: true,
+    }).catch((err) => {
+      // Silently fail - backend logging is supplementary to GA4
+      console.debug('[Analytics] Backend logging failed (non-critical):', err);
+    });
+  } catch (error) {
+    // Silently catch any errors to avoid disrupting user experience
+    console.debug('[Analytics] Error sending event to backend:', error);
   }
 };
 
