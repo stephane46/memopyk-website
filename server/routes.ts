@@ -8917,7 +8917,7 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   app.get("/api/blog/posts", async (req, res) => {
     try {
-      const { language } = req.query;
+      const { language, limit = 24, offset = 0 } = req.query;
       
       // Validate language parameter
       if (!language || (language !== 'en-US' && language !== 'fr-FR')) {
@@ -8926,15 +8926,19 @@ export async function registerRoutes(app: Express): Promise<void> {
       
       const token = getDirectusToken();
       
-      // Simple CMS: Query basic fields only (no blocks)
-      const fieldsQuery = 'id,title,slug,status,published_at,language,description,image.id,author.*,seo';
+      // Phase 2: Enhanced fields with tags, galleries, featured status
+      const fieldsQuery = 'id,title,slug,status,published_at,language,description,image.id,author.*,seo,' +
+        'is_featured,featured_order,hero_caption,read_time_minutes,comments_enabled,disqus_thread_id,' +
+        'tags.tags_id.id,tags.tags_id.name,tags.tags_id.slug,tags.tags_id.color,tags.tags_id.icon,' +
+        'galleries.id,galleries.title,galleries.description,galleries.layout_type,galleries.display_order,' +
+        'galleries.gallery_images.id,galleries.gallery_images.caption,galleries.gallery_images.alt_text,' +
+        'galleries.gallery_images.image,galleries.gallery_images.display_order';
       
       // Filter by status, published_at <= now, AND exact language match
       const now = new Date().toISOString();
-      const url = `https://cms.memopyk.com/items/posts?filter[status][_eq]=published&filter[published_at][_lte]=${now}&filter[language][_eq]=${language}&sort=-published_at&fields=${fieldsQuery}&limit=24`;
+      const url = `https://cms.memopyk.com/items/posts?filter[status][_eq]=published&filter[published_at][_lte]=${now}&filter[language][_eq]=${language}&sort=-featured_order,-published_at&fields=${fieldsQuery}&limit=${limit}&offset=${offset}`;
       
       console.log(`🔍 Fetching blog posts with filter: language=${language}, published_at<=${now}`);
-      console.log(`🔍 Query URL: ${url}`);
       
       const response = await fetch(url, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -8943,22 +8947,17 @@ export async function registerRoutes(app: Express): Promise<void> {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('❌ Directus API error:', response.status, errorText);
-        console.error('❌ Failed URL:', url);
         throw new Error(`Directus API error: ${response.status}`);
       }
 
       const result = await response.json();
       const posts = result.data || [];
       
-      console.log(`📝 Directus returned ${posts.length} posts:`);
-      posts.forEach((post: any) => {
-        console.log(`   - "${post.title}" (${post.slug}) | Status: ${post.status} | Lang: ${post.language} | Published: ${post.published_at}`);
-      });
+      console.log(`📝 Directus returned ${posts.length} posts`);
       
       // Map Directus fields to frontend expectations
       const mappedPosts = posts
         .filter((post: any) => {
-          // Double-check language matches (belt & suspenders approach)
           if (post.language !== language) {
             console.warn(`⚠️ Language mismatch: expected ${language}, got ${post.language} for post ${post.slug}`);
             return false;
@@ -8966,17 +8965,19 @@ export async function registerRoutes(app: Express): Promise<void> {
           return true;
         })
         .map((post: any) => {
-          // Map published_at → publish_date for frontend
           const mapped = {
             ...post,
             publish_date: post.published_at,
-            language: post.language
+            language: post.language,
+            featured_image_url: post.image?.id ? `https://cms.memopyk.com/assets/${post.image.id}` : undefined,
+            galleries: post.galleries?.map((gallery: any) => ({
+              ...gallery,
+              gallery_images: gallery.gallery_images?.map((gi: any) => ({
+                ...gi,
+                image_url: gi.image?.id ? `https://cms.memopyk.com/assets/${gi.image.id}` : null
+              }))
+            }))
           };
-          
-          // Map Directus image field to featured_image_url
-          if (post.image?.id && !mapped.featured_image_url) {
-            mapped.featured_image_url = `https://cms.memopyk.com/assets/${post.image.id}`;
-          }
           
           return mapped;
         });
@@ -8987,10 +8988,220 @@ export async function registerRoutes(app: Express): Promise<void> {
       res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
       res.set('Pragma', 'no-cache');
       res.set('Expires', '0');
-      res.json(mappedPosts);
+      res.json({
+        success: true,
+        data: mappedPosts,
+        total: result.meta?.filter_count || mappedPosts.length,
+        limit: parseInt(limit as string),
+        offset: parseInt(offset as string)
+      });
     } catch (error) {
       console.error('❌ Error fetching blog posts:', error);
-      res.status(500).json({ error: 'Failed to fetch blog posts' });
+      res.status(500).json({ success: false, error: 'Failed to fetch blog posts' });
+    }
+  });
+
+  // ===== Phase 2 Endpoints: All specific routes MUST be before :slug =====
+  
+  // Phase 2: Full-text search for blog posts
+  app.get('/api/blog/posts/search', async (req, res) => {
+    try {
+      const { q, language = 'en-US', limit = 10, offset = 0 } = req.query;
+      
+      if (!q) {
+        return res.status(400).json({ success: false, error: 'Search query (q) is required' });
+      }
+      
+      const token = getDirectusToken();
+      const now = new Date().toISOString();
+      
+      // Search across title, description, and content
+      const url = `https://cms.memopyk.com/items/posts?` +
+        `fields=id,title,slug,description,image.id,published_at,read_time_minutes&` +
+        `filter[_or][0][title][_icontains]=${encodeURIComponent(q as string)}&` +
+        `filter[_or][1][description][_icontains]=${encodeURIComponent(q as string)}&` +
+        `filter[_or][2][content][_icontains]=${encodeURIComponent(q as string)}&` +
+        `filter[language][_eq]=${language}&` +
+        `filter[status][_eq]=published&` +
+        `filter[published_at][_lte]=${now}&` +
+        `sort=-published_at&` +
+        `limit=${limit}&` +
+        `offset=${offset}`;
+      
+      const response = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Directus API error: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      // Transform and add relevance scoring
+      const posts = result.data.map((post: any) => ({
+        ...post,
+        featured_image_url: post.image?.id ? `https://cms.memopyk.com/assets/${post.image.id}` : null,
+        relevance_score: post.title?.toLowerCase().includes((q as string)?.toLowerCase()) ? 1.0 : 0.8
+      })).sort((a: any, b: any) => b.relevance_score - a.relevance_score);
+      
+      res.json({
+        success: true,
+        data: posts,
+        total: result.meta?.filter_count || posts.length,
+        limit: parseInt(limit as string),
+        offset: parseInt(offset as string)
+      });
+    } catch (error) {
+      console.error('Error searching posts:', error);
+      res.status(500).json({ success: false, error: (error as Error).message });
+    }
+  });
+
+  // Phase 2: Get related posts by tag matching
+  app.get('/api/blog/posts/:slug/related', async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const { language = 'en-US', limit = 5 } = req.query;
+      const token = getDirectusToken();
+      const now = new Date().toISOString();
+      
+      // Step 1: Get the original post to find its tags
+      const postResponse = await fetch(
+        `https://cms.memopyk.com/items/posts?` +
+        `fields=id,tags.tags_id.id&` +
+        `filter[slug][_eq]=${slug}&` +
+        `filter[language][_eq]=${language}`,
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+      
+      if (!postResponse.ok) {
+        throw new Error(`Post not found: ${slug}`);
+      }
+      
+      const postData = await postResponse.json();
+      
+      if (postData.data.length === 0) {
+        return res.status(404).json({ success: false, error: 'Post not found' });
+      }
+      
+      const originalPost = postData.data[0];
+      const tagIds = originalPost.tags?.map((t: any) => t.tags_id.id) || [];
+      
+      if (tagIds.length === 0) {
+        return res.json({
+          success: true,
+          data: [],
+          total: 0
+        });
+      }
+      
+      // Step 2: Find other posts with the same tags
+      const relatedResponse = await fetch(
+        `https://cms.memopyk.com/items/posts?` +
+        `fields=id,title,slug,description,image.id,published_at,read_time_minutes,tags.tags_id.id&` +
+        `filter[slug][_neq]=${slug}&` +
+        `filter[language][_eq]=${language}&` +
+        `filter[status][_eq]=published&` +
+        `filter[published_at][_lte]=${now}`,
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+      
+      const relatedData = await relatedResponse.json();
+      
+      // Step 3: Score posts by tag matches
+      const scoredPosts = relatedData.data.map((post: any) => {
+        const matchingTags = post.tags?.filter((t: any) => 
+          tagIds.includes(t.tags_id.id)
+        ).length || 0;
+        
+        return {
+          ...post,
+          featured_image_url: post.image?.id ? `https://cms.memopyk.com/assets/${post.image.id}` : null,
+          matching_tags: matchingTags
+        };
+      }).filter((post: any) => post.matching_tags > 0);
+      
+      // Step 4: Sort by matching tags and publish date
+      scoredPosts.sort((a: any, b: any) => {
+        if (b.matching_tags !== a.matching_tags) {
+          return b.matching_tags - a.matching_tags;
+        }
+        return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
+      });
+      
+      const topRelated = scoredPosts.slice(0, parseInt(limit as string));
+      
+      res.json({
+        success: true,
+        data: topRelated,
+        total: topRelated.length
+      });
+    } catch (error) {
+      console.error('Error fetching related posts:', error);
+      res.status(500).json({ success: false, error: (error as Error).message });
+    }
+  });
+
+  // Phase 2: Get galleries for a specific post
+  app.get('/api/blog/posts/:slug/gallery', async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const { language = 'en-US' } = req.query;
+      const token = getDirectusToken();
+      
+      // Get post with its galleries
+      const postResponse = await fetch(
+        `https://cms.memopyk.com/items/posts?` +
+        `fields=id,galleries.galleries_id.*,galleries.galleries_id.gallery_images.directus_files_id.*&` +
+        `filter[slug][_eq]=${slug}&` +
+        `filter[language][_eq]=${language}`,
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+      
+      if (!postResponse.ok) {
+        throw new Error(`Post not found: ${slug}`);
+      }
+      
+      const postData = await postResponse.json();
+      
+      if (postData.data.length === 0) {
+        return res.status(404).json({ success: false, error: 'Post not found' });
+      }
+      
+      const post = postData.data[0];
+      const galleries = post.galleries?.map((g: any) => {
+        const gallery = g.galleries_id;
+        return {
+          id: gallery.id,
+          name: gallery.name,
+          description: gallery.description,
+          images: gallery.gallery_images?.map((img: any) => ({
+            id: img.directus_files_id.id,
+            filename: img.directus_files_id.filename_download,
+            title: img.directus_files_id.title,
+            description: img.directus_files_id.description,
+            width: img.directus_files_id.width,
+            height: img.directus_files_id.height,
+            url: `https://cms.memopyk.com/assets/${img.directus_files_id.id}`
+          })) || []
+        };
+      }) || [];
+      
+      res.json({
+        success: true,
+        data: galleries,
+        total: galleries.length
+      });
+    } catch (error) {
+      console.error('Error fetching post galleries:', error);
+      res.status(500).json({ success: false, error: (error as Error).message });
     }
   });
 
@@ -9062,6 +9273,107 @@ export async function registerRoutes(app: Express): Promise<void> {
     } catch (error) {
       console.error('❌ Error fetching blog post:', error);
       res.status(500).json({ error: 'Failed to fetch blog post' });
+    }
+  });
+
+  // Phase 2: Get featured posts for homepage
+  app.get('/api/blog/featured', async (req, res) => {
+    try {
+      const { language = 'en-US', limit = 3 } = req.query;
+      const token = getDirectusToken();
+      const now = new Date().toISOString();
+      
+      const url = `https://cms.memopyk.com/items/posts?` +
+        `fields=id,title,slug,description,image.id,hero_caption,featured_order,published_at,read_time_minutes,` +
+        `tags.tags_id.name,tags.tags_id.slug,tags.tags_id.color,tags.tags_id.icon&` +
+        `filter[is_featured][_eq]=true&` +
+        `filter[language][_eq]=${language}&` +
+        `filter[status][_eq]=published&` +
+        `filter[published_at][_lte]=${now}&` +
+        `sort=featured_order,-published_at&` +
+        `limit=${limit}`;
+      
+      const response = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Directus API error: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      const posts = result.data.map((post: any) => ({
+        ...post,
+        featured_image_url: post.image?.id ? `https://cms.memopyk.com/assets/${post.image.id}` : null
+      }));
+      
+      res.json({
+        success: true,
+        data: posts,
+        total: posts.length
+      });
+    } catch (error) {
+      console.error('Error fetching featured posts:', error);
+      res.status(500).json({ success: false, error: (error as Error).message });
+    }
+  });
+
+  // Phase 2: Get all tags with post counts
+  app.get('/api/blog/tags', async (req, res) => {
+    try {
+      const { limit = 50 } = req.query;
+      const token = getDirectusToken();
+      
+      // Get all tags
+      const tagsResponse = await fetch(
+        `https://cms.memopyk.com/items/tags?` +
+        `fields=id,name,slug,description,color,icon&` +
+        `limit=${limit}`,
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+      
+      if (!tagsResponse.ok) {
+        throw new Error(`Directus API error: ${tagsResponse.status}`);
+      }
+      
+      const tagsData = await tagsResponse.json();
+      
+      // For each tag, count posts
+      const tagsWithCounts = await Promise.all(
+        tagsData.data.map(async (tag: any) => {
+          const postsResponse = await fetch(
+            `https://cms.memopyk.com/items/post_tags?` +
+            `fields=post_id&` +
+            `filter[tags_id][_eq]=${tag.id}&` +
+            `meta=filter_count`,
+            {
+              headers: { 'Authorization': `Bearer ${token}` }
+            }
+          );
+          
+          const postsData = await postsResponse.json();
+          
+          return {
+            ...tag,
+            post_count: postsData.meta?.filter_count || 0
+          };
+        })
+      );
+      
+      // Sort by post count (descending)
+      tagsWithCounts.sort((a: any, b: any) => b.post_count - a.post_count);
+      
+      res.json({
+        success: true,
+        data: tagsWithCounts,
+        total: tagsWithCounts.length
+      });
+    } catch (error) {
+      console.error('Error fetching tags:', error);
+      res.status(500).json({ success: false, error: (error as Error).message });
     }
   });
 
