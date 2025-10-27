@@ -27,9 +27,8 @@ import GallerySectionWrapper from './components/sections/GallerySectionWrapper';
 import ClarityRouteListener from './components/ClarityRouteListener';
 import { useEffect } from 'react';
 import { useAnalytics } from '@/hooks/use-analytics';
-import { initTestMode, initGA } from '@/lib/analytics';
-import { initGA as initDirectGA } from '@/analytics/ga';
-import { readGa4Ids } from '@/lib/readGa4';
+import { initGA4, trackPageView } from '@/config/ga4.config';
+import { initTestMode } from '@/lib/analytics';
 
 // Routes configured for gallery
 // Language-specific upload system v1.0.82 ready
@@ -117,19 +116,19 @@ function App() {
     window.addEventListener('unhandledrejection', handleUnhandledRejection);
     
     if (!isAdminPage) {
-      // Initialize GA4 only for public pages
-      initGA();
+      // Initialize GA4 only for public pages using centralized config
+      initGA4();
       
-      // Initialize direct GA4 for video events (bypasses GTM)
-      initDirectGA(import.meta.env.VITE_GA_MEASUREMENT_ID || "G-JLRWHE1HV4", { debug: true });
+      // Track initial page view
+      trackPageView();
       
-      // Analytics initialization complete
-      
-      // Then initialize test mode  
+      // Initialize test mode  
       const isTestMode = initTestMode();
       if (isTestMode) {
         console.log('🔍 Test mode active - all GA4 events will include debug_mode=true');
       }
+      
+      console.log('✅ GA4 Analytics initialized with enhanced geographic tracking');
     } else {
       // Check if this is the analytics dashboard which needs GA4 for data fetching
       const urlParams = new URLSearchParams(window.location.search);
@@ -145,8 +144,8 @@ function App() {
       if (isAnalyticsDashboard) {
         console.log('📊 Analytics dashboard detected - enabling GA4 for data access');
         // Initialize GA4 for analytics dashboard data access
-        initGA();
-        initDirectGA(import.meta.env.VITE_GA_MEASUREMENT_ID || "G-JLRWHE1HV4", { debug: true });
+        initGA4();
+        trackPageView();
         
         const isTestMode = initTestMode();
         if (isTestMode) {
