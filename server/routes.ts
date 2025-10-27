@@ -47,6 +47,7 @@ import { geoResolver } from './geoResolver';
 import ga4MpRouter from './routes/ga4Mp';
 import { getRealtimeTopVideos, getRealtimeVideoProgress } from './routes/ga4Realtime';
 import partnersRoute from './routes/partners';
+import analyticsEventsRouter from './routes/analytics-events';
 import crypto from 'crypto';
 import { sameLang, toBase } from './helpers/lang';
 
@@ -280,6 +281,9 @@ export async function registerRoutes(app: Express): Promise<void> {
   
   // Partner intake route
   app.use(partnersRoute);
+  
+  // Analytics events route
+  app.use('/api/analytics', analyticsEventsRouter);
   
   // MEMOPYK Platform Content API Routes
   
