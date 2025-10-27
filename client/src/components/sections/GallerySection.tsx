@@ -525,7 +525,9 @@ export default function GallerySection() {
         action: 'lightbox_open',
         video_title: itemTitle,
         video_index: index,
-        page_location: 'gallery'
+        page_location: 'gallery',
+        value: 10,
+        currency: 'EUR'
       });
       
       // Analytics tracking moved to VideoOverlay for actual watch time tracking
@@ -562,7 +564,9 @@ export default function GallerySection() {
         action: 'card_flip',
         item_title: itemTitle,
         item_index: index,
-        page_location: 'gallery'
+        page_location: 'gallery',
+        value: 8,
+        currency: 'EUR'
       });
       
       // Flip card to show sorry message for items without video

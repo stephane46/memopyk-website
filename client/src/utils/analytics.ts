@@ -140,6 +140,8 @@ export class ScrollTracker {
       trackEvent('scroll_engagement', {
         scroll_percent: 90,
         page_name: this.pageName,
+        value: 25,
+        currency: 'EUR'
       });
       this.tracked90 = true;
     } else if (scrollPercent >= 75 && !this.tracked75) {
@@ -175,6 +177,8 @@ export const trackShare = (platform: string, shareUrl: string, pageName: string)
     share_platform: platform,
     share_url: shareUrl,
     page_name: pageName,
+    value: 5,
+    currency: 'EUR'
   });
 };
 

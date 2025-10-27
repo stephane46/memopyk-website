@@ -116,7 +116,9 @@ export default function PartnerIntakeEN() {
         form_name: 'partner_intake',
         form_language: 'en',
         partner_country: data.address.country,
-        services: data.services.join(',')
+        services: data.services.join(','),
+        value: 50,
+        currency: 'EUR'
       });
 
       setIsSubmitted(true);

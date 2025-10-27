@@ -195,6 +195,8 @@ export const trackCtaClick = (ctaId: string, pagePath?: string, locale?: string)
     cta_id: ctaId,
     page_path: pagePath || window.location.pathname,
     locale: locale || 'fr-FR',
+    value: 15,
+    currency: 'EUR',
     debug_mode: isGaDev()
   });
 };
