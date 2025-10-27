@@ -145,18 +145,18 @@ app.use((req, res, next) => {
   
   // Build frame-ancestors directive for Directus Visual Editor
   const frameAncestors = isDev 
-    ? "frame-ancestors 'self' https://cms.memopyk.org https://*.replit.dev" 
-    : "frame-ancestors 'self' https://cms.memopyk.org";
+    ? "frame-ancestors 'self' https://cms.memopyk.com https://cms.memopyk.org https://*.replit.dev" 
+    : "frame-ancestors 'self' https://cms.memopyk.com https://cms.memopyk.org";
   
   res.setHeader('Content-Security-Policy', 
     "default-src 'self'; " +
     "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://replit.com https://www.clarity.ms https://scripts.clarity.ms; " +
-    "connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://analytics.google.com https://stats.g.doubleclick.net https://cdn.jsdelivr.net https://supabase.memopyk.org wss://supabase.memopyk.org https://api.ipapi.co https://cms.memopyk.org https://cms-blog.memopyk.org wss: ws:; " +
-    "img-src 'self' data: blob: https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://supabase.memopyk.org http://supabase.memopyk.org:8001 https://cdn.jsdelivr.net https://flagcdn.com https://cms.memopyk.org https://cms-blog.memopyk.org https://a.tile.openstreetmap.org https://b.tile.openstreetmap.org https://c.tile.openstreetmap.org https://unpkg.com; " +
+    "connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://analytics.google.com https://stats.g.doubleclick.net https://cdn.jsdelivr.net https://supabase.memopyk.org wss://supabase.memopyk.org https://api.ipapi.co https://cms.memopyk.com https://cms.memopyk.org https://cms-blog.memopyk.org wss: ws:; " +
+    "img-src 'self' data: blob: https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://supabase.memopyk.org http://supabase.memopyk.org:8001 https://cdn.jsdelivr.net https://flagcdn.com https://cms.memopyk.com https://cms.memopyk.org https://cms-blog.memopyk.org https://a.tile.openstreetmap.org https://b.tile.openstreetmap.org https://c.tile.openstreetmap.org https://unpkg.com; " +
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; " +
     "font-src 'self' data: https://fonts.gstatic.com https://unpkg.com; " +
     "frame-src 'self' https://www.googletagmanager.com; " +
-    "media-src 'self' https://supabase.memopyk.org http://supabase.memopyk.org:8001 https://cms.memopyk.org https://cms-blog.memopyk.org; " +
+    "media-src 'self' https://supabase.memopyk.org http://supabase.memopyk.org:8001 https://cms.memopyk.com https://cms.memopyk.org https://cms-blog.memopyk.org; " +
     frameAncestors + ";"
   );
   next();
