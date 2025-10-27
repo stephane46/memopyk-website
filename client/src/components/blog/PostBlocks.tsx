@@ -7,8 +7,11 @@ interface PostBlocksProps {
 
 export default function PostBlocks({ content }: PostBlocksProps) {
   // Simple CMS migration: Render single content field as HTML instead of mapping through M2A blocks
+  console.log('📝 PostBlocks - Raw content length:', content?.length || 0);
   const sanitized = DOMPurify.sanitize(content || '');
+  console.log('📝 PostBlocks - Sanitized length:', sanitized.length);
   const html = rewriteBodyImages(sanitized);
+  console.log('📝 PostBlocks - Final HTML length:', html.length);
 
   return (
     <article
