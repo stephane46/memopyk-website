@@ -1803,6 +1803,26 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
+  // Public SEO Config endpoint - uses SeoService with timeout and fallback
+  app.get("/api/seo-config", async (req, res) => {
+    try {
+      const lang = (req.query.lang as 'fr-FR' | 'en-US') || 'en-US';
+      
+      if (!['fr-FR', 'en-US'].includes(lang)) {
+        return res.status(400).json({ error: 'Invalid lang parameter. Use fr-FR or en-US' });
+      }
+
+      // Lazy load seoService to avoid circular dependencies
+      const { seoService } = await import('./seo-service');
+      const seoData = await seoService.getSeoSettings(lang);
+      
+      res.json(seoData || {});
+    } catch (error) {
+      console.error('Error fetching SEO config:', error);
+      res.status(500).json({ error: "Failed to get SEO configuration" });
+    }
+  });
+
   // FAQ Sections - GET all sections (KEEP ONLY THIS ONE)
   app.get("/api/faq-sections", async (req, res) => {
     try {

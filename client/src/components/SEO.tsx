@@ -7,61 +7,91 @@ interface SEOProps {
   page?: string;
 }
 
+interface SeoData {
+  lang: 'fr-FR' | 'en-US';
+  title?: string;
+  description?: string;
+  canonical?: string;
+  keywords?: string;
+  robotsIndex?: boolean;
+  robotsFollow?: boolean;
+  robotsNoArchive?: boolean;
+  robotsNoSnippet?: boolean;
+  jsonLd?: string | object;
+  openGraph?: {
+    title?: string;
+    description?: string;
+    image?: string;
+    type?: string;
+    url?: string;
+  };
+  twitter?: {
+    card?: string;
+    title?: string;
+    description?: string;
+    image?: string;
+  };
+  hreflang?: Array<{
+    lang: string;
+    href: string;
+  }>;
+  extras?: Array<{
+    name: string;
+    content: string;
+  }>;
+}
+
 export function SEO({ page = 'homepage' }: SEOProps) {
   const { language } = useLanguage();
   
-  // Fetch SEO settings from admin panel - using the correct API endpoint
-  const { data: seoData } = useQuery({
-    queryKey: ['/api/seo'],
-    queryFn: () => apiRequest('/api/seo', 'GET'),
+  // Fetch SEO configuration using the new seo-config endpoint with language parameter
+  const { data: seoData } = useQuery<SeoData>({
+    queryKey: ['/api/seo-config', language],
+    queryFn: async () => {
+      const response = await apiRequest(`/api/seo-config?lang=${language}`, 'GET');
+      return response as unknown as SeoData;
+    },
   });
-
-  // Find the settings for the current page
-  const seoSettings = Array.isArray(seoData) ? 
-    seoData.find((item: any) => item.page === page) : 
-    null;
 
   // If no data is available, don't render anything yet (loading state)
   if (!seoData) {
     return null;
   }
 
-  const isEnglish = language === 'en-US';
-  const langCode = isEnglish ? 'En' : 'Fr';
-  
   // Default fallback values
-  const defaultTitle = isEnglish ? 
+  const defaultTitle = language === 'en-US' ? 
     'MEMOPYK – Unique memory films & albums from your photos and videos' :
     'MEMOPYK – Films & albums souvenirs à partir de vos photos et vidéos';
-  const defaultDescription = isEnglish ?
+  const defaultDescription = language === 'en-US' ?
     'MEMOPYK turns your photos and videos into unique souvenir films and albums. A fully human, creative, and inspiring service.' :
     'MEMOPYK transforme vos photos et vidéos en albums et films souvenirs uniques. Un service 100 % humain, créatif et inspirant.';
   
-  // Get content based on language from the actual API response
-  const title = seoSettings?.[`metaTitle${langCode}`] || defaultTitle;
-  const description = seoSettings?.[`metaDescription${langCode}`] || defaultDescription;
-  const keywords = seoSettings?.[`metaKeywords${langCode}`] || '';
-  const ogTitle = seoSettings?.[`ogTitle${langCode}`] || title;
-  const ogDescription = seoSettings?.[`ogDescription${langCode}`] || description;
-  const ogImage = seoSettings?.ogImageUrl || 'https://memopyk.com/logo.svg';
-  const ogType = seoSettings?.ogType || 'website';
-  const twitterCard = seoSettings?.twitterCard || 'summary_large_image';
-  const twitterTitle = seoSettings?.[`twitterTitle${langCode}`] || title;
-  const twitterDescription = seoSettings?.[`twitterDescription${langCode}`] || description;
-  const twitterImage = seoSettings?.twitterImageUrl || ogImage;
-  const canonicalUrl = seoSettings?.canonicalUrl || `https://memopyk.com/${language}`;
+  // Get content from the SeoService response (already language-specific)
+  const title = seoData.title || defaultTitle;
+  const description = seoData.description || defaultDescription;
+  const keywords = seoData.keywords || '';
+  const ogTitle = seoData.openGraph?.title || title;
+  const ogDescription = seoData.openGraph?.description || description;
+  const ogImage = seoData.openGraph?.image || 'https://memopyk.com/logo.svg';
+  const ogType = seoData.openGraph?.type || 'website';
+  const ogUrl = seoData.openGraph?.url || `https://memopyk.com/${language}`;
+  const twitterCard = seoData.twitter?.card || 'summary_large_image';
+  const twitterTitle = seoData.twitter?.title || title;
+  const twitterDescription = seoData.twitter?.description || description;
+  const twitterImage = seoData.twitter?.image || ogImage;
+  const canonicalUrl = seoData.canonical || `https://memopyk.com/${language}`;
   
   // Robots meta
   const robotsContent = [];
-  if (seoSettings?.robotsIndex !== false) robotsContent.push('index');
+  if (seoData.robotsIndex !== false) robotsContent.push('index');
   else robotsContent.push('noindex');
-  if (seoSettings?.robotsFollow !== false) robotsContent.push('follow');
+  if (seoData.robotsFollow !== false) robotsContent.push('follow');
   else robotsContent.push('nofollow');
-  if (seoSettings?.robotsNoArchive) robotsContent.push('noarchive');
-  if (seoSettings?.robotsNoSnippet) robotsContent.push('nosnippet');
+  if (seoData.robotsNoArchive) robotsContent.push('noarchive');
+  if (seoData.robotsNoSnippet) robotsContent.push('nosnippet');
 
-  // Structured data
-  const structuredData = seoSettings?.structuredData || seoSettings?.jsonLd || {
+  // Structured data - parse if it's a string
+  let structuredData = {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "MEMOPYK",
@@ -70,6 +100,23 @@ export function SEO({ page = 'homepage' }: SEOProps) {
     "description": description,
     "sameAs": []
   };
+  
+  if (seoData.jsonLd) {
+    try {
+      structuredData = typeof seoData.jsonLd === 'string' 
+        ? JSON.parse(seoData.jsonLd) 
+        : seoData.jsonLd;
+    } catch (e) {
+      console.warn('Failed to parse structured data:', e);
+    }
+  }
+  
+  // Get hreflang links
+  const hreflangLinks = seoData.hreflang || [
+    { lang: 'fr-FR', href: 'https://memopyk.com/fr-FR' },
+    { lang: 'en-US', href: 'https://memopyk.com/en-US' },
+    { lang: 'x-default', href: 'https://memopyk.com/en-US' }
+  ];
 
   return (
     <Helmet>
@@ -81,14 +128,14 @@ export function SEO({ page = 'homepage' }: SEOProps) {
       <meta name="robots" content={robotsContent.join(', ')} />
 
       {/* Hreflang */}
-      <link rel="alternate" hrefLang="fr-FR" href="https://memopyk.com/fr-FR" />
-      <link rel="alternate" hrefLang="en-US" href="https://memopyk.com/en-US" />
-      <link rel="alternate" hrefLang="x-default" href="https://memopyk.com/en-US" />
+      {hreflangLinks.map((link) => (
+        <link key={link.lang} rel="alternate" hrefLang={link.lang} href={link.href} />
+      ))}
 
       {/* Open Graph */}
       <meta property="og:title" content={ogTitle} />
       <meta property="og:description" content={ogDescription} />
-      <meta property="og:url" content={canonicalUrl} />
+      <meta property="og:url" content={ogUrl} />
       <meta property="og:type" content={ogType} />
       <meta property="og:site_name" content="MEMOPYK" />
       <meta property="og:image" content={ogImage} />
@@ -107,11 +154,9 @@ export function SEO({ page = 'homepage' }: SEOProps) {
       )}
 
       {/* Custom Meta Tags */}
-      {seoSettings?.customMetaTags && 
-        Object.entries(seoSettings.customMetaTags).map(([key, value]) => (
-          <meta key={key} name={key} content={String(value)} />
-        ))
-      }
+      {seoData.extras && seoData.extras.map((extra) => (
+        <meta key={extra.name} name={extra.name} content={extra.content} />
+      ))}
     </Helmet>
   );
 }
