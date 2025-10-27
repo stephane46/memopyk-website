@@ -177,10 +177,10 @@ export default function BlockContentSection({ item, index = 0 }: BlockContentSec
       return directusAsset(fileId, { width, quality: 80, format: 'webp' });
     } else if (imageFit === 'cover') {
       // Build URL manually for cover with height
-      return `https://cms-blog.memopyk.org/assets/${fileId}?width=${width}&height=${imageHeight}&fit=cover&quality=80&format=webp`;
+      return `https://cms.memopyk.com/assets/${fileId}?width=${width}&height=${imageHeight}&fit=cover&quality=80&format=webp`;
     } else if (imageFit === 'contain') {
       // Build URL manually for contain with height
-      return `https://cms-blog.memopyk.org/assets/${fileId}?width=${width}&height=${imageHeight}&fit=inside&quality=80&format=webp`;
+      return `https://cms.memopyk.com/assets/${fileId}?width=${width}&height=${imageHeight}&fit=inside&quality=80&format=webp`;
     }
     return directusAsset(fileId, { width, quality: 80, format: 'webp' });
   };

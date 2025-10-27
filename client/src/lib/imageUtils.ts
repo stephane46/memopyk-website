@@ -4,11 +4,12 @@ export function rewriteBodyImages(html: string): string {
 
   div.querySelectorAll('img').forEach((img) => {
     const src = img.getAttribute('src') || '';
-    const m = src.match(/https?:\/\/cms\.memopyk\.org\/assets\/([a-f0-9-]+)/i);
+    // Match Directus asset URLs with or without query parameters
+    const m = src.match(/https?:\/\/cms\.memopyk\.com\/assets\/([a-f0-9-]+)(?:\.[a-z]+)?/i);
     if (!m) return;
     
     const id = m[1];
-    const base = `https://cms.memopyk.org/assets/${id}`;
+    const base = `https://cms.memopyk.com/assets/${id}`;
     const mk = (w: number) => `${base}?width=${w}&fit=inside&quality=82&format=webp`;
 
     img.setAttribute('src', mk(828));
