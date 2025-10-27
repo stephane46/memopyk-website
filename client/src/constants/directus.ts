@@ -1,4 +1,4 @@
-export const DIRECTUS_URL = "https://cms-blog.memopyk.org";
+export const DIRECTUS_URL = "https://cms.memopyk.com";
 
 export function directusAsset(
   raw: string,

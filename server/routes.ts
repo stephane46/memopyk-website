@@ -8914,139 +8914,6 @@ export async function registerRoutes(app: Express): Promise<void> {
     return token;
   }
 
-  // Debug endpoint to diagnose block_content_section permissions
-  app.get("/api/debug/directus-blocks", async (req, res) => {
-    try {
-      const token = await getDirectusToken();
-      const postId = 'c85a9734-ed79-436a-a206-55f34caa8b4e';
-      
-      // Test 1: Without expansion (should show item: "1")
-      const test1Url = `https://cms-blog.memopyk.org/items/posts_blocks?filter[posts_id][_eq]=${postId}&filter[collection][_eq]=block_content_section&fields=id,collection,item,sort&sort=sort`;
-      const test1Res = await fetch(test1Url, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const test1Data = await test1Res.json();
-      
-      // Test 2: With expansion (likely shows item: null due to permissions)
-      const test2Url = `https://cms-blog.memopyk.org/items/posts_blocks?filter[posts_id][_eq]=${postId}&filter[collection][_eq]=block_content_section&fields=id,collection,item.*,sort&sort=sort`;
-      const test2Res = await fetch(test2Url, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const test2Data = await test2Res.json();
-      
-      // Test 3: Direct fetch of block_content_section collection
-      const test3Url = `https://cms-blog.memopyk.org/items/block_content_section`;
-      const test3Res = await fetch(test3Url, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const test3Data = await test3Res.json();
-      
-      // Test 4: ALL blocks with item.* expansion to compare permissions
-      const test4Url = `https://cms-blog.memopyk.org/items/posts_blocks?filter[posts_id][_eq]=${postId}&fields=collection,item,sort,item.*&sort=sort`;
-      const test4Res = await fetch(test4Url, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const test4Data = await test4Res.json();
-      
-      res.json({
-        test1_without_expansion: test1Data,
-        test2_with_expansion: test2Data,
-        test3_direct_collection: test3Data,
-        test4_all_blocks_with_expansion: test4Data,
-        diagnosis: {
-          hasBlockLink: test1Data?.data?.length > 0,
-          itemIdFromTest1: test1Data?.data?.[0]?.item,
-          itemDataFromTest2: test2Data?.data?.[0]?.item,
-          permissionsIssue: test1Data?.data?.[0]?.item && !test2Data?.data?.[0]?.item,
-          allBlocksComparison: test4Data?.data?.map((b: any) => ({
-            collection: b.collection,
-            hasItemData: b.item !== null,
-            itemType: typeof b.item
-          }))
-        }
-      });
-    } catch (error) {
-      console.error('❌ Directus debug error:', error);
-      res.status(500).json({ error: String(error) });
-    }
-  });
-
-  // DIAGNOSTIC ENDPOINT - Fetch specific post by ID
-  app.get("/api/blog/posts-debug/:postId", async (req, res) => {
-    try {
-      const { postId } = req.params;
-      const token = await getDirectusToken();
-      
-      const url = `https://cms-blog.memopyk.org/items/posts/${postId}`;
-      
-      console.log(`🔍 DIAGNOSTIC: Fetching post ${postId} directly`);
-      console.log(`🔍 DIAGNOSTIC URL: ${url}`);
-      
-      const response = await fetch(url, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Directus API error: ${response.status} - ${errorText}`);
-      }
-
-      const result = await response.json();
-      
-      console.log(`🔍 DIAGNOSTIC: Post found:`, JSON.stringify(result.data, null, 2));
-      
-      res.json(result.data);
-    } catch (error) {
-      console.error('❌ Diagnostic error:', error);
-      res.status(500).json({ error: String(error) });
-    }
-  });
-
-  // DIAGNOSTIC ENDPOINT - See ALL posts regardless of language
-  app.get("/api/blog/posts-debug", async (req, res) => {
-    try {
-      const token = await getDirectusToken();
-      const now = new Date().toISOString();
-      
-      // Fetch ALL posts with just status and published_at filters (NO language filter)
-      const url = `https://cms-blog.memopyk.org/items/posts?filter[status][_eq]=published&filter[published_at][_lte]=${now}&sort=-published_at&fields=id,title,slug,status,published_at,language&limit=24`;
-      
-      console.log(`🔍 DIAGNOSTIC: Fetching ALL posts without language filter`);
-      console.log(`🔍 DIAGNOSTIC URL: ${url}`);
-      
-      const response = await fetch(url, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (!response.ok) {
-        throw new Error(`Directus API error: ${response.status}`);
-      }
-
-      const result = await response.json();
-      const posts = result.data || [];
-      
-      console.log(`🔍 DIAGNOSTIC: Directus returned ${posts.length} posts total (all languages)`);
-      posts.forEach((post: any) => {
-        console.log(`   📄 "${post.title}" | Language value: "${post.language}" | Status: ${post.status}`);
-      });
-      
-      res.json({
-        count: posts.length,
-        posts: posts.map((p: any) => ({
-          id: p.id,
-          title: p.title,
-          slug: p.slug,
-          language: p.language,
-          language_type: typeof p.language,
-          status: p.status,
-          published_at: p.published_at
-        }))
-      });
-    } catch (error) {
-      console.error('❌ Diagnostic error:', error);
-      res.status(500).json({ error: String(error) });
-    }
-  });
 
   app.get("/api/blog/posts", async (req, res) => {
     try {
@@ -9057,14 +8924,14 @@ export async function registerRoutes(app: Express): Promise<void> {
         return res.status(400).json({ error: 'Invalid or missing language parameter. Must be en-US or fr-FR' });
       }
       
-      const token = await getDirectusToken();
+      const token = getDirectusToken();
       
-      // Request specific fields as per schema
-      const fieldsQuery = 'id,title,slug,status,published_at,language,description,image.*,author.*,seo';
+      // Simple CMS: Query basic fields only (no blocks)
+      const fieldsQuery = 'id,title,slug,status,published_at,language,description,image.id,author.*,seo';
       
       // Filter by status, published_at <= now, AND exact language match
       const now = new Date().toISOString();
-      const url = `https://cms-blog.memopyk.org/items/posts?filter[status][_eq]=published&filter[published_at][_lte]=${now}&filter[language][_eq]=${language}&sort=-published_at&fields=${fieldsQuery}&limit=24`;
+      const url = `https://cms.memopyk.com/items/posts?filter[status][_eq]=published&filter[published_at][_lte]=${now}&filter[language][_eq]=${language}&sort=-published_at&fields=${fieldsQuery}&limit=24`;
       
       console.log(`🔍 Fetching blog posts with filter: language=${language}, published_at<=${now}`);
       console.log(`🔍 Query URL: ${url}`);
@@ -9108,7 +8975,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           
           // Map Directus image field to featured_image_url
           if (post.image?.id && !mapped.featured_image_url) {
-            mapped.featured_image_url = `https://cms-blog.memopyk.org/assets/${post.image.id}`;
+            mapped.featured_image_url = `https://cms.memopyk.com/assets/${post.image.id}`;
           }
           
           return mapped;
@@ -9137,47 +9004,17 @@ export async function registerRoutes(app: Express): Promise<void> {
         return res.status(400).json({ error: 'Invalid or missing language parameter. Must be en-US or fr-FR' });
       }
       
-      const token = await getDirectusToken();
+      const token = getDirectusToken();
       
-      // Fetch post with nested M2A blocks - as per schema
-      // NOTE: Only fetch file IDs (not nested metadata) to avoid 403 errors with Blog Reader token
-      // Images are publicly accessible via /assets/{id} endpoint without /files permission
-      const fieldsQuery = [
-        'id,title,slug,status,published_at,language,description,seo',
-        'image.id',
-        'author.id,author.first_name,author.last_name,author.email',
-        'blocks.collection',
-        'blocks.item:block_heading.id,blocks.item:block_heading.text,blocks.item:block_heading.level,blocks.item:block_heading.align',
-        'blocks.item:block_richtext.id,blocks.item:block_richtext.content,blocks.item:block_richtext.headline,blocks.item:block_richtext.tagline',
-        'blocks.item:block_gallery.id,blocks.item:block_gallery.headline,blocks.item:block_gallery.tagline',
-        'blocks.item:block_gallery.items.id,blocks.item:block_gallery.items.sort,blocks.item:block_gallery.items.directus_file.id',
-        'blocks.item:block_content_section.id,blocks.item:block_content_section.layout,blocks.item:block_content_section.text',
-        'blocks.item:block_content_section.media_width,blocks.item:block_content_section.media_align',
-        'blocks.item:block_content_section.max_width,blocks.item:block_content_section.spacing_top,blocks.item:block_content_section.spacing_bottom',
-        'blocks.item:block_content_section.background,blocks.item:block_content_section.caption,blocks.item:block_content_section.alt',
-        'blocks.item:block_content_section.caption_primary,blocks.item:block_content_section.caption_secondary,blocks.item:block_content_section.caption_third',
-        'blocks.item:block_content_section.alt_primary,blocks.item:block_content_section.alt_secondary,blocks.item:block_content_section.alt_third',
-        'blocks.item:block_content_section.image_primary.id',
-        'blocks.item:block_content_section.image_secondary.id',
-        'blocks.item:block_content_section.image_third.id',
-        'blocks.item:block_content_section_v3.id,blocks.item:block_content_section_v3.layout,blocks.item:block_content_section_v3.text',
-        'blocks.item:block_content_section_v3.media_width,blocks.item:block_content_section_v3.media_align',
-        'blocks.item:block_content_section_v3.max_width,blocks.item:block_content_section_v3.spacing_top,blocks.item:block_content_section_v3.spacing_bottom',
-        'blocks.item:block_content_section_v3.background,blocks.item:block_content_section_v3.caption,blocks.item:block_content_section_v3.alt',
-        'blocks.item:block_content_section_v3.image_fit,blocks.item:block_content_section_v3.image_height',
-        'blocks.item:block_content_section_v3.gutter,blocks.item:block_content_section_v3.corner_radius',
-        'blocks.item:block_content_section_v3.image_shadow,blocks.item:block_content_section_v3.block_shadow',
-        'blocks.item:block_content_section_v3.caption_align,blocks.item:block_content_section_v3.caption_position,blocks.item:block_content_section_v3.caption_bg',
-        'blocks.item:block_content_section_v3.caption_primary,blocks.item:block_content_section_v3.caption_secondary,blocks.item:block_content_section_v3.caption_third',
-        'blocks.item:block_content_section_v3.alt_primary,blocks.item:block_content_section_v3.alt_secondary,blocks.item:block_content_section_v3.alt_third',
-        'blocks.item:block_content_section_v3.image_primary.id',
-        'blocks.item:block_content_section_v3.image_secondary.id',
-        'blocks.item:block_content_section_v3.image_third.id'
-      ].join(',');
+      // Simple CMS: Query basic fields + content field (no M2A blocks)
+      const fieldsQuery = 'id,title,slug,status,published_at,language,description,content,seo,image.id,author.*';
 
-      // Manually construct URL to preserve commas and filter by slug, language, status, and published_at
+      // Filter by slug, language, status, and published_at
       const now = new Date().toISOString();
-      const url = `https://cms-blog.memopyk.org/items/posts?filter[slug][_eq]=${encodeURIComponent(slug)}&filter[language][_eq]=${language}&filter[status][_eq]=published&filter[published_at][_lte]=${now}&fields=${fieldsQuery}&limit=1`;
+      const url = `https://cms.memopyk.com/items/posts?filter[slug][_eq]=${encodeURIComponent(slug)}&filter[language][_eq]=${language}&filter[status][_eq]=published&filter[published_at][_lte]=${now}&fields=${fieldsQuery}&limit=1`;
+
+      console.log(`🔍 Fetching single post: ${slug} (${language})`);
+      console.log(`🔍 Query URL: ${url}`);
 
       const response = await fetch(url, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -9206,65 +9043,16 @@ export async function registerRoutes(app: Express): Promise<void> {
         return;
       }
       
-      // Fallback hydration for blocks where M2A expansion failed
-      // (e.g., block_content_section_v3 with integer ID causing M2A mismatch)
-      if (post.blocks && Array.isArray(post.blocks)) {
-        // First, fetch the non-expanded blocks to get the actual item IDs
-        const blocksUrl = `https://cms-blog.memopyk.org/items/posts_blocks?filter[posts_id][_eq]=${post.id}&fields=id,collection,item,sort&sort=sort`;
-        const blocksResponse = await fetch(blocksUrl, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (blocksResponse.ok) {
-          const blocksResult = await blocksResponse.json();
-          const rawBlocks = blocksResult.data || [];
-          
-          // Hydrate blocks that failed expansion (item is null in post.blocks)
-          const hydratedBlocks = await Promise.all(
-            post.blocks.map(async (block: any) => {
-              // If expansion failed (item is null), find matching raw block and hydrate
-              if (block.item === null) {
-                // Find raw block by matching collection and sort order
-                const rawBlock = rawBlocks.find((rb: any) => 
-                  rb.collection === block.collection && rb.sort === block.sort
-                );
-                
-                if (rawBlock && rawBlock.item) {
-                  const itemId = rawBlock.item;
-                  
-                  try {
-                    const itemUrl = `https://cms-blog.memopyk.org/items/${rawBlock.collection}/${itemId}`;
-                    const itemResponse = await fetch(itemUrl, {
-                      headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    
-                    if (itemResponse.ok) {
-                      const itemResult = await itemResponse.json();
-                      console.log(`✅ Hydrated ${rawBlock.collection}/${itemId} successfully`);
-                      return { ...block, item: itemResult.data };
-                    }
-                  } catch (err) {
-                    console.error(`⚠️ Failed to hydrate ${rawBlock.collection}/${itemId}:`, err);
-                  }
-                }
-              }
-              
-              return block; // Already expanded or failed to hydrate
-            })
-          );
-          
-          post.blocks = hydratedBlocks;
-        }
-      }
-      
       // Map Directus fields to frontend expectations
       const mappedPost = {
         ...post,
         publish_date: post.published_at, // Map published_at → publish_date for frontend
         featured_image_url: post.image?.id 
-          ? `https://cms-blog.memopyk.org/assets/${post.image.id}` 
+          ? `https://cms.memopyk.com/assets/${post.image.id}` 
           : undefined
       };
+
+      console.log(`✅ Single post fetched: "${post.title}" (${post.language})`);
 
       // Prevent browser caching to always fetch fresh content from Directus
       res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');

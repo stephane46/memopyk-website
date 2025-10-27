@@ -3,13 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import { useLocation, Link, useParams } from 'wouter';
 import { Helmet } from 'react-helmet-async';
 import { setAttr } from '@directus/visual-editing';
-import { BlockRenderer } from '@/components/blog/BlockRenderer';
 import PostBlocks from '@/components/blog/PostBlocks';
 import NewsletterSignup from '@/components/blog/NewsletterSignup';
 import { DEFAULT_OG, DEFAULT_OG_FR } from '@/constants/seo';
-import { directusAsset, getPostWithBlocks } from '@/constants/directus';
-import { rewriteBodyImages } from '@/lib/imageUtils';
-import DOMPurify from 'dompurify';
+import { directusAsset } from '@/constants/directus';
 import { Calendar, Clock, User, Share2, Twitter, Facebook, Linkedin, Link as LinkIcon } from 'lucide-react';
 
 interface Author {
@@ -22,26 +19,13 @@ interface Author {
   email?: string;
 }
 
-interface PostContent {
-  blocks?: Array<{
-    type: string;
-    content?: string | any;
-    level?: number;
-    url?: string;
-    alt?: string;
-    caption?: string;
-    items?: string[];
-  }>;
-}
-
 interface Post {
   id: string;
   title: string;
   slug: string;
   excerpt?: string;
   description?: string;
-  content: string | PostContent;
-  body_html?: string;
+  content: string;
   language: string;
   author?: Author;
   status: string;
@@ -55,10 +39,6 @@ interface Post {
   featured_image_url?: string;
   featured_image_alt?: string;
   reading_time_minutes?: number;
-  blocks?: Array<{
-    collection: string;
-    item: any;
-  }>;
 }
 
 export default function BlogPostPage() {
@@ -72,16 +52,6 @@ export default function BlogPostPage() {
   const { data: post, isLoading } = useQuery<Post | null>({
     queryKey: ['/api/blog/post', slug, languageCode],
     queryFn: async () => {
-      const directusPost = await getPostWithBlocks(slug!, languageCode);
-      if (directusPost && directusPost.blocks && directusPost.blocks.length > 0) {
-        // Client-side guard: verify language matches
-        if (directusPost.language !== languageCode) {
-          console.warn(`⚠️ Language mismatch for post ${slug}: expected ${languageCode}, got ${directusPost.language}`);
-          return null;
-        }
-        return directusPost;
-      }
-      
       const response = await fetch(`/api/blog/posts/${slug}?language=${languageCode}`);
       if (response.status === 404) return null;
       if (!response.ok) throw new Error('Failed to fetch post');
@@ -106,7 +76,7 @@ export default function BlogPostPage() {
     if (!inVisualEditingMode || !post) return;
     
     import('@directus/visual-editing').then(async ({ apply }) => {
-      await apply({ directusUrl: 'https://cms-blog.memopyk.org' });
+      await apply({ directusUrl: 'https://cms.memopyk.com' });
     });
   }, [inVisualEditingMode, post]);
 
@@ -423,46 +393,10 @@ export default function BlogPostPage() {
 
             {/* Article Content */}
             <div className="p-8 md:p-12" data-testid="post-content">
-              {post.blocks && post.blocks.length > 0 ? (
-                <div {...getDirectusAttr('blocks', 'drawer')}>
-                  {(() => {
-                    console.log('📦 Blog blocks:', post.blocks.map(b => ({ collection: b.collection, hasItem: !!b.item })));
-                    return <PostBlocks blocks={post.blocks} />;
-                  })()}
-                </div>
-              ) : post.body_html ? (
-                <article
-                  className="prose prose-lg max-w-none
-                    prose-headings:font-['Playfair_Display'] prose-headings:text-[#2A4759] prose-headings:scroll-mt-24
-                    prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6
-                    prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4
-                    prose-p:text-gray-700 prose-p:leading-relaxed prose-p:text-lg prose-p:mb-6
-                    prose-a:text-[#D67C4A] prose-a:no-underline prose-a:font-medium hover:prose-a:underline
-                    prose-strong:text-[#2A4759] prose-strong:font-semibold
-                    prose-ul:my-6 prose-ol:my-6 prose-li:text-gray-700 prose-li:my-2
-                    prose-img:rounded-xl prose-img:shadow-2xl prose-img:max-w-full prose-img:h-auto prose-img:my-8
-                    prose-blockquote:border-l-4 prose-blockquote:border-[#D67C4A] prose-blockquote:italic prose-blockquote:bg-[#F2EBDC]/30 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:my-8
-                    prose-code:text-[#D67C4A] prose-code:bg-gray-100 prose-code:px-2 prose-code:py-1 prose-code:rounded"
-                  {...getDirectusAttr('body_html', 'drawer')}
-                  dangerouslySetInnerHTML={{ __html: rewriteBodyImages(DOMPurify.sanitize(post.body_html)) }}
-                />
-              ) : typeof post.content === 'object' && post.content.blocks ? (
-                <div {...getDirectusAttr('content', 'drawer')}>
-                  <BlockRenderer blocks={post.content.blocks} />
-                </div>
-              ) : (
-                <div
-                  className="prose prose-lg max-w-none
-                    prose-headings:font-['Playfair_Display'] prose-headings:text-[#2A4759]
-                    prose-p:text-gray-700 prose-p:leading-relaxed prose-p:text-lg
-                    prose-a:text-[#D67C4A] prose-a:no-underline hover:prose-a:underline
-                    prose-strong:text-[#2A4759]
-                    prose-img:rounded-xl prose-img:shadow-2xl
-                    prose-blockquote:border-l-4 prose-blockquote:border-[#D67C4A] prose-blockquote:italic prose-blockquote:bg-[#F2EBDC]/30 prose-blockquote:py-4 prose-blockquote:px-6"
-                  {...getDirectusAttr('content', 'drawer')}
-                  dangerouslySetInnerHTML={{ __html: typeof post.content === 'string' ? post.content : '' }}
-                />
-              )}
+              {/* Simple CMS: Render content field directly */}
+              <div {...getDirectusAttr('content', 'drawer')}>
+                <PostBlocks content={typeof post.content === 'string' ? post.content : ''} />
+              </div>
 
               {/* Share Buttons */}
               <div className="flex items-center justify-center gap-3 mt-12 pt-8 border-t border-gray-100">

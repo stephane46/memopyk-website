@@ -57,7 +57,7 @@ interface DirectusSchema {
   categories: Category[];
 }
 
-const directusUrl = import.meta.env.VITE_DIRECTUS_URL || 'https://cms-blog.memopyk.org';
+const directusUrl = import.meta.env.VITE_DIRECTUS_URL || 'https://cms.memopyk.com';
 
 const directus = createDirectus<DirectusSchema>(directusUrl)
   .with(rest())
@@ -68,7 +68,7 @@ export default directus;
 export type { Post, Author, Category, DirectusSchema };
 
 // Asset URL helpers for Directus CDN
-const CDN = 'https://cms-blog.memopyk.org/assets';
+const CDN = 'https://cms.memopyk.com/assets';
 
 export function assetUrl(id: string, opts?: { width?: number }) {
   const p = new URL(`${CDN}/${id}`);
