@@ -9148,10 +9148,13 @@ export async function registerRoutes(app: Express): Promise<void> {
       console.log(`📤 Uploading to Directus: ${req.file.originalname} (${fileSizeMB.toFixed(2)}MB, ${req.file.mimetype})`);
 
       const token = getDirectusToken();
-      const formData = new (await import('form-data')).default();
       
-      // Add file stream
-      formData.append('file', createReadStream(req.file.path), {
+      // Read file into buffer
+      const fileBuffer = readFileSync(req.file.path);
+      
+      // Create form data with buffer
+      const formData = new (await import('form-data')).default();
+      formData.append('file', fileBuffer, {
         filename: req.file.originalname,
         contentType: req.file.mimetype
       });
@@ -9171,7 +9174,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           'Authorization': `Bearer ${token}`,
           ...formData.getHeaders()
         },
-        body: formData as any // form-data package is compatible with fetch
+        body: formData as any
       });
 
       // Clean up temp file
