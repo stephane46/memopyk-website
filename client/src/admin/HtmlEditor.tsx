@@ -72,11 +72,12 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
     // Check if user is authenticated
     const token = getAdminToken();
     console.log('🔑 Admin token retrieved:', token ? `${token.substring(0, 10)}...` : 'NULL');
-    console.log('📦 localStorage keys:', Object.keys(localStorage));
-    console.log('📦 sessionStorage keys:', Object.keys(sessionStorage));
+    console.log('📦 localStorage has memopyk-admin-token?:', localStorage.getItem('memopyk-admin-token'));
+    console.log('📦 sessionStorage has memopyk-admin-token?:', sessionStorage.getItem('memopyk-admin-token'));
+    console.log('📦 All localStorage keys:', Object.keys(localStorage));
     
     if (!token) {
-      alert('⚠️ You must be logged into the admin area to upload files.\n\nPlease login and try again.');
+      alert('⚠️ Authentication token not found.\n\nPlease logout and login again to fix this issue.');
       return;
     }
 
