@@ -11,7 +11,7 @@ import { Sparkles, Copy, CheckCircle, AlertCircle, Loader2, Send } from 'lucide-
 
 const MASTER_PROMPT_TEMPLATE = `MASTER PROMPT (give this to your marketing AI)
 You are creating a new blog post for a Directus CMS that powers memopyk.com.
-Return **one JSON object only** (no prose) that conforms EXACTLY to the schema below.
+Return **one JSON object only** (no prose) that conforms EXACTLY to the NEW SIMPLE SCHEMA below.
 
 ### INPUTS
 - topic: {{TOPIC}}
@@ -22,103 +22,127 @@ Return **one JSON object only** (no prose) that conforms EXACTLY to the schema b
 
 ### GOALS
 - Produce an authoritative, helpful post with clear sections and scannable structure.
-- Use **Markdown** for headings, lists, links, blockquotes, and **tables** (tables must be valid Markdown).
-- Create content blocks using the "block_content_section_v3" layouts described below.
+- Use **HTML** for all content (headings, paragraphs, lists, links, blockquotes, images, and **tables**).
+- Inline images use: <img src="https://cms.memopyk.com/assets/<FILE_ID>" alt="..." loading="lazy">
+- Tables must use standard HTML table syntax with proper structure.
 
-### DIRECTUS DATA MODEL
+### DIRECTUS DATA MODEL (NEW SIMPLE SCHEMA)
 
-Top-level post fields:
 {
-  "title": string,                          // H1
-  "slug": string-kebab-case,                // URL slug
-  "language": "en-US" | "fr-FR",            // EXACT match
-  "status": "draft" | "published",
-  "published_at": iso8601|null,             // if publish_now else null
-  "description": string,                    // teaser (150–200 chars)
-  "author_name": string,                    // free text; editor can map to a user later
-  "image_featured": null,                   // always null (assets are added later)
-  "meta_title": string,                     // ≤ 60 chars; fallback to title
-  "meta_description": string,               // 150–160 chars; fallback to description
-  "blocks": [ Block, Block, ... ]           // ordered list; first block renders first
+  "title": string,                          // H1 heading (appears in hero)
+  "slug": string-kebab-case,                // URL slug (e.g., "family-reunion-tips")
+  "language": "en-US" | "fr-FR",            // EXACT match - must be one of these
+  "status": "draft" | "published",          // Content status
+  "published_at": iso8601|null,             // ISO date if publish_now=true, else null
+  "description": string,                    // Excerpt/teaser (150–200 chars, appears in cards)
+  "hero_caption": string|null,              // Optional caption for hero image
+  "content": string,                        // **FULL HTML CONTENT** (see format below)
+  "read_time_minutes": number|null,         // Estimated read time (e.g., 5)
+  "image": null,                            // Hero image file ID (always null in JSON - added later)
+  "seo": {                                  // Optional SEO metadata
+    "title": string,                        // ≤ 60 chars; fallback to title
+    "description": string,                  // 150–160 chars; fallback to description
+    "og_image": null                        // Always null - added later
+  },
+  "tags": [string, string],                 // Keywords array (e.g., ["family", "reunion", "tips"])
+  "author": null,                           // Author ID (always null - set by editor)
+  "is_featured": false,                     // Featured flag
+  "featured_order": null                    // Sort order for featured posts
 }
 
-Supported Block types:
+### CONTENT HTML FORMAT
 
-1) Rich text (simple article sections)
+The "content" field should contain complete HTML with:
+- Headings: <h2>, <h3>, <h4> (no <h1> - that's the title)
+- Paragraphs: <p>...</p>
+- Lists: <ul><li>...</li></ul> or <ol><li>...</li></ol>
+- Links: <a href="...">...</a>
+- Blockquotes: <blockquote>...</blockquote>
+- Code: <code>...</code>
+- Tables: <table><tr><th>...</th></tr><tr><td>...</td></tr></table>
+- Images: <img src="https://cms.memopyk.com/assets/PLACEHOLDER_ID" alt="..." loading="lazy">
+
+IMPORTANT: ALL images must use PLACEHOLDER_ID as the file ID. List actual image requirements in "assets_manifest".
+
+### EXAMPLE HTML CONTENT
+
+<h2>Introduction</h2>
+<p>Start with a compelling hook paragraph that draws readers in.</p>
+
+<h3>Key Benefits</h3>
+<ul>
+  <li>First benefit with details</li>
+  <li>Second benefit explanation</li>
+  <li>Third compelling reason</li>
+</ul>
+
+<h3>Comparison Table</h3>
+<table>
+  <tr>
+    <th>Feature</th>
+    <th>DIY Approach</th>
+    <th>Professional Service</th>
+  </tr>
+  <tr>
+    <td>Quality</td>
+    <td>Variable</td>
+    <td>Consistent, High</td>
+  </tr>
+  <tr>
+    <td>Time Required</td>
+    <td>20+ hours</td>
+    <td>2 hours</td>
+  </tr>
+</table>
+
+<p><img src="https://cms.memopyk.com/assets/PLACEHOLDER_ID" alt="Family gathering around photo album" loading="lazy"></p>
+
+<h3>Conclusion</h3>
+<p>Wrap up with actionable next steps and clear takeaways.</p>
+
+### ASSETS MANIFEST
+
+List all images needed (hero + inline) in this format:
 {
-  "type": "block_richtext",
-  "text": "## Section title\\nBody in **Markdown** ... (tables allowed)"
-}
-
-2) Content Section (v3) – flexible layouts
-{
-  "type": "block_content_section_v3",
-  "layout": "text-only" | "image-left" | "image-right" | "image-full" | "two-images" | "three-images",
-  "text": "### Heading\\nBody in Markdown …",
-  "caption": "Optional caption",
-  "alt": "Accessible alt text for key image(s)",
-
-  // images are file IDs in Directus; if unknown, set null and add a human-friendly label in assets_manifest
-  "image_primary": null,
-  "image_secondary": null,
-  "image_third": null,
-
-  // layout controls
-  "media_width": "25|33|40|50|60|66|75" | null,   // for side-by-side
-  "media_align": "left|center|right"    | null,
-  "max_width": "content|wide|full"      | "content",
-  "spacing_top": "none|sm|md|lg"        | "md",
-  "spacing_bottom": "none|sm|md|lg"     | "md",
-  "background": "default|light|dark"    | "default",
-
-  // editor presentation controls
-  "image_fit": "natural|cover|contain"  | "natural",
-  "image_height": number|null,          // e.g., 320 (px) when fit is cover/contain
-  "gutter": number|null,                 // e.g., 16 (px) for two/three-images
-  "corner_radius": number|null,          // e.g., 12
-  "image_shadow": true|false             | false,
-  "block_shadow": true|false             | false,
-  "caption_align": "left|center|right"  | "center",
-  "caption_position": "below|above|overlay" | "below",
-  "caption_bg": "none|light|dark"       | "none"
-}
-
-3) (Optional) Gallery
-{
-  "type": "block_gallery",
-  "title": "Gallery title",
-  "intro": "Markdown intro",
-  "images": []     // ALWAYS empty; assets added later by editor
-}
-
-### IMPORTANT CONTENT RULES
-- Use the **first block** as a compelling intro with an H2 and short hook.
-- Include at least one content_section_v3 with layout "two-images" for visual comparison if relevant.
-- If you need internal links, add Markdown links and also list them in \`internal_links\` at the end.
-- If you reference images, set \`image_*: null\` and describe them in \`assets_manifest\` with a short label.
-
-### OUTPUT FORMAT
-Return a single JSON object:
-{
-  ...post fields...,
-  "blocks": [ ... ],
-  "internal_links": [
-    { "label": "FAQ: Photo Restoration", "url": "/en-US/faq/photo-restoration" }
-  ],
   "assets_manifest": [
-    { "ref": "hero_01", "alt": "Grandmother holding a vintage photo", "notes": "Use as featured image" },
-    { "ref": "compare_left",  "alt": "DIY scan sample", "notes": "Left image for two-images block" },
-    { "ref": "compare_right", "alt": "Pro scan sample", "notes": "Right image for two-images block" }
+    { "ref": "hero", "alt": "Family reunion group photo", "notes": "Use as hero image" },
+    { "ref": "photo_album", "alt": "Family gathering around photo album", "notes": "Inline after comparison table" }
   ]
 }
 
 ### QUALITY BARS
-- Tone: clear, helpful, non-hype; practical tips + short paragraphs.
-- SEO: use target keywords naturally; include 2–3 FAQ-style subheads.
-- Tables: use GitHub-flavored Markdown table syntax (| col | col |).
+- Tone: clear, helpful, non-hype; practical tips + short paragraphs
+- SEO: use target keywords naturally; include 2–3 FAQ-style subheads
+- Tables: use proper HTML table structure with <thead> and <tbody> when appropriate
+- Images: describe clearly in assets_manifest for editor to upload later
 
-### RETURN
-Return ONLY the JSON object. No commentary.`;
+### RETURN FORMAT
+Return ONLY the JSON object with all fields. No commentary, no markdown fence, just pure JSON.
+
+Example minimal structure:
+{
+  "title": "Your Title Here",
+  "slug": "your-slug-here",
+  "language": "en-US",
+  "status": "draft",
+  "published_at": null,
+  "description": "Compelling excerpt...",
+  "hero_caption": "Optional hero caption",
+  "content": "<h2>Intro</h2><p>Content...</p>",
+  "read_time_minutes": 5,
+  "image": null,
+  "seo": {
+    "title": "SEO title",
+    "description": "SEO description"
+  },
+  "tags": ["keyword1", "keyword2"],
+  "author": null,
+  "is_featured": false,
+  "featured_order": null,
+  "assets_manifest": [
+    { "ref": "hero", "alt": "Alt text", "notes": "Usage notes" }
+  ]
+}`;
 
 export const BlogAICreator: React.FC = () => {
   const { toast } = useToast();
@@ -176,8 +200,8 @@ export const BlogAICreator: React.FC = () => {
     try {
       const data = JSON.parse(jsonStr);
       
-      // Required top-level fields
-      const requiredFields = ['title', 'slug', 'language', 'status', 'description', 'blocks'];
+      // Required top-level fields for NEW SCHEMA
+      const requiredFields = ['title', 'slug', 'language', 'status', 'content'];
       for (const field of requiredFields) {
         if (!data[field]) {
           return { valid: false, error: `Missing required field: ${field}` };
@@ -194,20 +218,14 @@ export const BlogAICreator: React.FC = () => {
         return { valid: false, error: `Invalid status: ${data.status}. Must be "draft" or "published"` };
       }
 
-      // Validate blocks is array
-      if (!Array.isArray(data.blocks)) {
-        return { valid: false, error: 'Blocks must be an array' };
+      // Validate content is string (HTML)
+      if (typeof data.content !== 'string') {
+        return { valid: false, error: 'Content must be a string (HTML)' };
       }
 
-      // Validate each block has type
-      for (let i = 0; i < data.blocks.length; i++) {
-        const block = data.blocks[i];
-        if (!block.type) {
-          return { valid: false, error: `Block ${i + 1} missing type field` };
-        }
-        if (!['block_richtext', 'block_content_section_v3', 'block_gallery'].includes(block.type)) {
-          return { valid: false, error: `Block ${i + 1} has invalid type: ${block.type}` };
-        }
+      // Validate content is not empty
+      if (data.content.trim().length === 0) {
+        return { valid: false, error: 'Content cannot be empty' };
       }
 
       return { valid: true, data };

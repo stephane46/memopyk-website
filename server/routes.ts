@@ -9401,52 +9401,48 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
-  // AI Blog Creator - Create post from AI-generated JSON
+  // AI Blog Creator - Create post from AI-generated JSON (NEW SCHEMA: Simple HTML content)
   app.post("/api/admin/blog/create-from-ai", async (req, res) => {
     try {
       console.log('🤖 AI Blog Creator: Starting post creation...');
       const aiData = req.body;
 
-      // Support both formats: nested (post/blocks/images) and flat
-      const isNestedFormat = aiData.post && aiData.blocks;
-      const postData = isNestedFormat ? aiData.post : aiData;
-      const blocks = isNestedFormat ? aiData.blocks : aiData.blocks;
-      const imagesMap = isNestedFormat ? aiData.images?.map : null;
-
-      // Validate required fields
-      const requiredFields = ['title', 'slug', 'language', 'status'];
+      // Validate required fields for NEW schema (simple HTML content)
+      const requiredFields = ['title', 'slug', 'language', 'status', 'content'];
       for (const field of requiredFields) {
-        if (!postData[field]) {
-          return res.status(400).json({ error: `Missing required field: post.${field}` });
+        if (!aiData[field]) {
+          return res.status(400).json({ error: `Missing required field: ${field}` });
         }
-      }
-      if (!blocks || !Array.isArray(blocks) || blocks.length === 0) {
-        return res.status(400).json({ error: 'Missing or empty blocks array' });
       }
 
       const token = await getDirectusToken();
       const BASE_URL = 'https://cms.memopyk.com';
 
-      // Step 1: Create the post
-      console.log(`📝 Creating post: "${postData.title}" (${postData.language})`);
+      // Create post with NEW SCHEMA (simple HTML content field)
+      console.log(`📝 Creating post: "${aiData.title}" (${aiData.language})`);
       
       // Determine published_at: if status is "published", always set a date
-      let publishedAt = postData.published_at;
-      if (!publishedAt && postData.status === 'published') {
-        // If published but no date specified, use now
+      let publishedAt = aiData.published_at;
+      if (!publishedAt && aiData.status === 'published') {
         publishedAt = new Date().toISOString();
       }
       
       const postPayload = {
-        title: postData.title,
-        slug: postData.slug,
-        language: postData.language,
-        status: postData.status,
+        title: aiData.title,
+        slug: aiData.slug,
+        language: aiData.language,
+        status: aiData.status,
+        content: aiData.content, // HTML content (supports tables, multiple images)
         published_at: publishedAt || null,
-        description: postData.description || null,
-        image: postData.image || null,
-        seo: postData.seo || null,
-        author: null
+        description: aiData.description || null,
+        hero_caption: aiData.hero_caption || null,
+        image: aiData.image || null, // Hero image file ID
+        read_time_minutes: aiData.read_time_minutes || null,
+        seo: aiData.seo || null,
+        tags: aiData.tags || null, // JSON keywords array
+        author: aiData.author || null,
+        is_featured: aiData.is_featured || false,
+        featured_order: aiData.featured_order || null
       };
 
       const postResponse = await fetch(`${BASE_URL}/items/posts`, {
@@ -9461,224 +9457,24 @@ export async function registerRoutes(app: Express): Promise<void> {
       if (!postResponse.ok) {
         const errorText = await postResponse.text();
         console.error('❌ Failed to create post:', errorText);
-        throw new Error(`Failed to create post: ${postResponse.status}`);
+        throw new Error(`Failed to create post: ${postResponse.status} - ${errorText}`);
       }
 
       const postResult = await postResponse.json();
       const postId = postResult.data.id;
       console.log(`✅ Post created with ID: ${postId}`);
-
-      // Step 2: Create blocks and link them
-      console.log(`📦 Creating ${blocks.length} blocks...`);
-      
-      // Track created blocks for image patching
-      const createdBlocks: Array<{ blockId: string; blockType: string; sort: number; blockIndex: number }> = [];
-
-      for (let i = 0; i < blocks.length; i++) {
-        const block = blocks[i];
-        // Support both "richtext" and "block_richtext" formats
-        let blockType = block.type;
-        if (blockType === 'richtext') blockType = 'block_richtext';
-        if (blockType === 'content_section_v3') blockType = 'block_content_section_v3';
-        if (blockType === 'gallery') blockType = 'block_gallery';
-        
-        // Use explicit sort field if provided, otherwise auto-generate
-        const sortOrder = block.sort !== undefined ? block.sort : (i + 1) * 100;
-
-        console.log(`   [${i + 1}/${blocks.length}] Creating ${blockType} (sort: ${sortOrder})...`);
-
-        let blockId: string;
-
-        // Create block based on type
-        if (blockType === 'block_richtext') {
-          const blockData = {
-            text: block.text || '',
-            headline: block.headline || null,
-            tagline: block.tagline || null
-          };
-
-          const blockResponse = await fetch(`${BASE_URL}/items/block_richtext`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(blockData)
-          });
-
-          if (!blockResponse.ok) {
-            throw new Error(`Failed to create block_richtext: ${blockResponse.status}`);
-          }
-
-          const blockResult = await blockResponse.json();
-          blockId = blockResult.data.id;
-          createdBlocks.push({ blockId, blockType, sort: sortOrder, blockIndex: i });
-
-        } else if (blockType === 'block_content_section_v3') {
-          const blockData = {
-            layout: block.layout || 'text-only',
-            text: block.text || '',
-            caption: block.caption || null,
-            alt: block.alt || null,
-            image_primary: block.image_primary || null,
-            image_secondary: block.image_secondary || null,
-            image_third: block.image_third || null,
-            media_width: block.media_width || null,
-            media_align: block.media_align || null,
-            max_width: block.max_width || 'content',
-            spacing_top: block.spacing_top || 'md',
-            spacing_bottom: block.spacing_bottom || 'md',
-            background: block.background || 'default',
-            image_fit: block.image_fit || 'natural',
-            image_height: block.image_height || null,
-            gutter: block.gutter || null,
-            corner_radius: block.corner_radius || null,
-            image_shadow: block.image_shadow || false,
-            block_shadow: block.block_shadow || false,
-            caption_align: block.caption_align || 'center',
-            caption_position: block.caption_position || 'below',
-            caption_bg: block.caption_bg || 'none'
-          };
-
-          const blockResponse = await fetch(`${BASE_URL}/items/block_content_section_v3`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(blockData)
-          });
-
-          if (!blockResponse.ok) {
-            throw new Error(`Failed to create block_content_section_v3: ${blockResponse.status}`);
-          }
-
-          const blockResult = await blockResponse.json();
-          blockId = blockResult.data.id;
-          createdBlocks.push({ blockId, blockType, sort: sortOrder, blockIndex: i });
-
-        } else if (blockType === 'block_gallery') {
-          const blockData = {
-            title: block.title || null,
-            intro: block.intro || null,
-            images: [] // Always empty per schema
-          };
-
-          const blockResponse = await fetch(`${BASE_URL}/items/block_gallery`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(blockData)
-          });
-
-          if (!blockResponse.ok) {
-            throw new Error(`Failed to create block_gallery: ${blockResponse.status}`);
-          }
-
-          const blockResult = await blockResponse.json();
-          blockId = blockResult.data.id;
-          createdBlocks.push({ blockId, blockType, sort: sortOrder, blockIndex: i });
-
-        } else {
-          console.warn(`⚠️ Unsupported block type: ${blockType}, skipping...`);
-          continue;
-        }
-
-        console.log(`   ✅ Block ${i + 1} created successfully`);
-      }
-
-      // Step 3: Link blocks to post using PATCH (Directus M2A pattern)
-      console.log(`\n🔗 Linking ${createdBlocks.length} blocks to post...`);
-      const blocksPayload = createdBlocks.map(cb => ({
-        collection: cb.blockType,
-        item: cb.blockId,
-        sort: cb.sort
-      }));
-
-      const patchPostResponse = await fetch(`${BASE_URL}/items/posts/${postId}`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ blocks: blocksPayload })
-      });
-
-      if (!patchPostResponse.ok) {
-        const errorText = await patchPostResponse.text();
-        console.error(`❌ Failed to link blocks to post (${patchPostResponse.status}):`, errorText);
-        throw new Error(`Failed to link blocks: ${patchPostResponse.status} - ${errorText}`);
-      }
-
-      console.log(`✅ All blocks linked successfully`);
-
-      // Step 4: Optional image patching
-      if (imagesMap && imagesMap.length > 0) {
-        console.log(`\n🖼️ Patching ${imagesMap.length} images...`);
-        
-        for (const imageMapping of imagesMap) {
-          const { block_index, field, file_id } = imageMapping;
-          
-          // Find the created block by index
-          const targetBlock = createdBlocks.find(cb => cb.blockIndex === block_index);
-          
-          if (!targetBlock) {
-            console.warn(`   ⚠️ Could not find created block at index ${block_index}, skipping image patch`);
-            continue;
-          }
-          
-          if (targetBlock.blockType !== 'block_content_section_v3') {
-            console.warn(`   ⚠️ Block at index ${block_index} is not a content_section_v3, skipping image patch`);
-            continue;
-          }
-          
-          // Patch the image field
-          const patchResponse = await fetch(`${BASE_URL}/items/block_content_section_v3/${targetBlock.blockId}`, {
-            method: 'PATCH',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ [field]: file_id })
-          });
-          
-          if (!patchResponse.ok) {
-            console.warn(`   ⚠️ Failed to patch ${field} on block ${targetBlock.blockId}`);
-            continue;
-          }
-          
-          console.log(`   ✅ Patched ${field} with file ${file_id} on block ${targetBlock.blockId}`);
-        }
-      }
-
-      console.log(`   Title: ${postData.title}`);
-      console.log(`   Slug: ${postData.slug}`);
-      console.log(`   Language: ${postData.language}`);
-      console.log(`   Status: ${postData.status}`);
-      console.log(`   Blocks: ${blocks.length}`);
-      console.log(`   Images patched: ${imagesMap ? imagesMap.length : 0}`);
-      console.log(`   Post ID: ${postId}`);
-
-      // Log assets manifest if present (legacy format support)
-      const assetsManifest = aiData.assets_manifest || [];
-      if (assetsManifest.length > 0) {
-        console.log(`📸 Assets to upload (${assetsManifest.length}):`);
-        assetsManifest.forEach((asset: any) => {
-          console.log(`   - ${asset.ref}: ${asset.alt} (${asset.notes})`);
-        });
-      }
+      console.log(`   Title: ${aiData.title}`);
+      console.log(`   Slug: ${aiData.slug}`);
+      console.log(`   Language: ${aiData.language}`);
+      console.log(`   Status: ${aiData.status}`);
+      console.log(`   Content length: ${aiData.content.length} characters`);
 
       res.json({
         success: true,
         postId,
-        title: postData.title,
-        slug: postData.slug,
-        language: postData.language,
-        blocksCreated: blocks.length,
-        imagesPatched: imagesMap ? imagesMap.length : 0,
-        assetsManifest: assetsManifest,
+        title: aiData.title,
+        slug: aiData.slug,
+        language: aiData.language,
         directusUrl: `${BASE_URL}/admin/content/posts/${postId}`
       });
 
