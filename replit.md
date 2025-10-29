@@ -80,6 +80,15 @@ Modal styling: Requires solid white modal backgrounds with dark overlays for pro
   - **Typography**: TailwindCSS `@tailwindcss/typography` prose classes provide professional styling for headings, paragraphs, lists, blockquotes, code, and tables
   - **Table Styling**: Responsive tables with zebra striping, subtle borders, and horizontal scroll on mobile
   - **Visual Editing**: Directus Visual Editing SDK integration for in-context content editing
+- **Related Posts System**: Tag-based content recommendation engine for blog posts
+  - **Primary Matching**: Posts sharing ≥1 tag via post_tags junction table
+  - **Fallback Strategy**: Latest posts in same language when no tag matches
+  - **Smart Sorting**: Shared tag count descending, then published date descending
+  - **Tag Count Badges**: Visual indicator showing number of shared tags
+  - **Language Isolation**: Strict language filtering prevents cross-locale content
+  - **GA4 Tracking**: Click tracking with €5 conversion value per related post click
+  - **Performance**: 5-minute React Query cache, 2-3 Directus API calls per request
+  - **Dual API Support**: Deep filter (Directus 10+) with client-side join fallback
 - **Blog Analytics System**: Tracks blog post views with hybrid storage pattern (Supabase primary + JSON fallback). Excludes admin IP addresses. Admin dashboard "Blog" tab shows popular posts ranked by views with language filtering and time period selection (7d/30d/90d).
 - **Advanced Analytics System** (Completed Oct 2025): Comprehensive analytics infrastructure with dual-stream tracking to GA4 and Supabase database:
   - **Event Tracking**: 6 custom event types (page_view, scroll_engagement, form_submit, cta_click, video_interaction, gallery_card_flip, share_click) with automatic tracking hooks
