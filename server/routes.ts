@@ -9605,7 +9605,9 @@ export async function registerRoutes(app: Express): Promise<void> {
         });
 
         if (!junctionResponse.ok) {
-          throw new Error(`Failed to link block to post: ${junctionResponse.status}`);
+          const errorText = await junctionResponse.text();
+          console.error(`❌ Junction table error (${junctionResponse.status}):`, errorText);
+          throw new Error(`Failed to link block to post: ${junctionResponse.status} - ${errorText}`);
         }
 
         console.log(`   ✅ Block ${i + 1} linked successfully`);
