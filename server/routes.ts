@@ -9455,7 +9455,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(postData)
+        body: JSON.stringify(postPayload)
       });
 
       if (!postResponse.ok) {
