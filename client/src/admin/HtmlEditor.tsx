@@ -186,11 +186,20 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
         init={{
           height: 460,
           menubar: false,
-          plugins: 'link lists advlist table code image media preview fullscreen charmap autolink searchreplace anchor wordcount',
-          toolbar: 'undo redo | bold italic underline | link image media table | bullist numlist | searchreplace | charmap | code preview fullscreen',
+          plugins: 'link lists advlist table code image media preview fullscreen charmap autolink searchreplace anchor wordcount visualblocks emoticons',
+          toolbar: 'undo redo | blocks fontsize | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify | link image media table | bullist numlist outdent indent | removeformat | searchreplace | charmap emoticons | code visualblocks preview fullscreen',
           branding: false,
           promotion: false,
           content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; }',
+          
+          // Enable visual resize handles on images/tables
+          object_resizing: true,
+          
+          // Block formats (headings, paragraphs)
+          block_formats: 'Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3; Heading 4=h4; Preformatted=pre',
+          
+          // Font sizes
+          fontsize_formats: '8pt 10pt 12pt 14pt 16pt 18pt 24pt 36pt 48pt',
           
           // Link settings
           link_default_target: '_blank',
