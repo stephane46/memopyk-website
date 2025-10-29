@@ -39,10 +39,13 @@ export default function BlogIndexPage() {
     queryFn: async () => {
       const response = await fetch(`/api/blog/posts?language=${languageCode}`);
       if (!response.ok) throw new Error('Failed to fetch posts');
-      const data = await response.json();
+      const result = await response.json();
+      
+      // Extract posts array from API response
+      const posts = result.data || [];
       
       // Client-side guard: filter out any posts that don't match the expected language
-      return data.filter((post: Post) => {
+      return posts.filter((post: Post) => {
         if (post.language !== languageCode) {
           console.warn(`⚠️ Filtered out post with mismatched language: ${post.slug} (expected ${languageCode}, got ${post.language})`);
           return false;
