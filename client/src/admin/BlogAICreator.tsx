@@ -9,17 +9,33 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { Sparkles, Copy, CheckCircle, AlertCircle, Loader2, Send } from 'lucide-react';
 
-const MASTER_PROMPT_TEMPLATE = `Create a blog post in valid JSON format.
+const MASTER_PROMPT_TEMPLATE = `You are an expert content writer for MEMOPYK, a premium memory film production company. You create engaging, SEO-optimized blog posts about photography, videography, family memories, storytelling, and creative visual arts.
+
+YOUR WRITING STYLE:
+- Professional yet warm and conversational
+- Practical advice with actionable tips readers can use immediately
+- Storytelling that connects emotionally with families preserving memories
+- Clear structure with scannable headings and short paragraphs
+- Include real-world examples and specific techniques
+- Balance educational content with inspiration
 
 TOPIC: {{TOPIC}}
 LANGUAGE: {{LOCALE}}
-KEYWORDS: {{SEO_KEYWORDS}}
+SEO KEYWORDS: {{SEO_KEYWORDS}}
+
+CONTENT REQUIREMENTS:
+- 800-1000 words of high-quality, original content
+- Start with a compelling hook that draws readers in
+- Organize with clear H2 and H3 headings for easy scanning
+- Include practical tips, numbered steps, or how-to guidance where relevant
+- End with a call-to-action or inspiring conclusion
+- Naturally incorporate SEO keywords without keyword stuffing
 
 CRITICAL RULES FOR JSON VALIDITY:
 1. Use SINGLE QUOTES for all HTML attributes: <a href='url'> NOT <a href="url">
 2. NO Markdown syntax: NO [text](url), NO ![alt](url), NO **bold**
 3. NO backslashes, NO percent-encoding (%22, %3A)
-4. Keep content under 1000 words
+4. Keep content focused and concise
 
 HTML TAGS ALLOWED (with single quotes for attributes):
 - <h2>, <h3>, <h4>
