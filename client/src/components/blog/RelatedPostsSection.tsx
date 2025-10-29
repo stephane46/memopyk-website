@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { BlogPost, ApiResponse } from '@/types/blog';
+import { fetchRelatedPosts, assetUrl, PostCard } from '@/services/relatedPosts';
 
 interface RelatedPostsSectionProps {
   slug: string;
@@ -16,24 +16,32 @@ interface RelatedPostsSectionProps {
 
 export default function RelatedPostsSection({
   slug,
-  limit = 5,
+  limit = 3,
   language = 'en-US',
   className = ''
 }: RelatedPostsSectionProps) {
-  const { data, isLoading, error } = useQuery<ApiResponse<BlogPost>>({
-    queryKey: ['/api/blog/posts', slug, 'related', language, limit],
-    queryFn: async () => {
-      const response = await fetch(
-        `/api/blog/posts/${slug}/related?language=${language}&limit=${limit}`
-      );
-      if (!response.ok) throw new Error('Failed to fetch related posts');
-      return response.json();
-    }
+  const { data: relatedPosts, isLoading, error } = useQuery<PostCard[]>({
+    queryKey: ['/api/blog/related', slug, language, limit],
+    queryFn: () => fetchRelatedPosts(slug, language, limit),
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
   });
 
-  const relatedPosts = data?.data || [];
+  // GA4 tracking for related post clicks
+  const handleRelatedClick = (toSlug: string, position: number) => {
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'related_click', {
+        event_category: 'Blog',
+        event_label: `${slug} -> ${toSlug}`,
+        from_slug: slug,
+        to_slug: toSlug,
+        position: position,
+        value: 5 // EUR value for related post click
+      });
+      console.log(`📊 Related post click tracked: ${slug} -> ${toSlug} (position ${position})`);
+    }
+  };
 
-  if (error || relatedPosts.length === 0) {
+  if (error || !relatedPosts || relatedPosts.length === 0) {
     return null; // Don't show section if no related posts
   }
 
@@ -72,53 +80,54 @@ export default function RelatedPostsSection({
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {relatedPosts.map((post) => (
+        {relatedPosts.map((post, idx) => (
           <Card 
             key={post.id} 
             className="group hover:shadow-xl transition-shadow duration-300"
             data-testid={`related-post-card-${post.slug}`}
           >
             {/* Thumbnail */}
-            {post.image?.url && (
-              <div className="relative overflow-hidden rounded-t-lg aspect-video">
-                <Link href={`/${language}/blog/${post.slug}`}>
-                  <img
-                    src={post.image.url}
-                    alt={post.title}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
-                    loading="lazy"
-                  />
-                </Link>
-                {post.matching_tags && post.matching_tags > 0 && (
-                  <Badge 
-                    className="absolute top-3 right-3 bg-[#D67C4A] hover:bg-[#D67C4A]/90"
-                    data-testid={`matching-tags-badge-${post.slug}`}
-                  >
-                    {post.matching_tags} {language === 'fr-FR' ? 'tags communs' : 'matching tags'}
-                  </Badge>
-                )}
-              </div>
-            )}
+            <div className="relative overflow-hidden rounded-t-lg aspect-video bg-gray-100">
+              <Link 
+                href={`/${language}/blog/${post.slug}`}
+                onClick={() => handleRelatedClick(post.slug, idx + 1)}
+              >
+                <img
+                  src={assetUrl(post.image?.id)}
+                  alt={post.hero_caption || post.title}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
+                  loading="lazy"
+                />
+              </Link>
+              {post.matching_tags && post.matching_tags > 0 && (
+                <Badge 
+                  className="absolute top-3 right-3 bg-[#D67C4A] hover:bg-[#D67C4A]/90"
+                  data-testid={`matching-tags-badge-${post.slug}`}
+                >
+                  {post.matching_tags} {language === 'fr-FR' ? 'tags communs' : 'matching tags'}
+                </Badge>
+              )}
+            </div>
 
             <CardHeader>
               <CardTitle className="text-xl font-['Playfair_Display'] group-hover:text-[#D67C4A] transition-colors line-clamp-2">
-                <Link href={`/${language}/blog/${post.slug}`}>
+                <Link 
+                  href={`/${language}/blog/${post.slug}`}
+                  onClick={() => handleRelatedClick(post.slug, idx + 1)}
+                >
                   <span className="cursor-pointer">{post.title}</span>
                 </Link>
               </CardTitle>
               
               {/* Metadata */}
               <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 pt-2">
-                {post.read_time_minutes && (
+                {post.published_at && (
                   <span className="flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" />
-                    {post.read_time_minutes} min
-                  </span>
-                )}
-                {post.tags && post.tags.length > 0 && (
-                  <span className="flex items-center gap-1">
-                    <Tag className="h-3.5 w-3.5" />
-                    {post.tags.slice(0, 2).map(t => t.name).join(', ')}
+                    {new Date(post.published_at).toLocaleDateString(
+                      language === 'fr-FR' ? 'fr-FR' : 'en-US',
+                      { year: 'numeric', month: 'short', day: 'numeric' }
+                    )}
                   </span>
                 )}
               </div>
@@ -126,12 +135,15 @@ export default function RelatedPostsSection({
 
             <CardContent>
               <CardDescription className="text-gray-700 line-clamp-3">
-                {post.description}
+                {post.description || post.hero_caption}
               </CardDescription>
             </CardContent>
 
             <CardFooter>
-              <Link href={`/${language}/blog/${post.slug}`}>
+              <Link 
+                href={`/${language}/blog/${post.slug}`}
+                onClick={() => handleRelatedClick(post.slug, idx + 1)}
+              >
                 <Button 
                   variant="ghost" 
                   className="text-[#D67C4A] hover:text-[#D67C4A]/90 p-0"
