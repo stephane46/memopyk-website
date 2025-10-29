@@ -9854,22 +9854,27 @@ export async function registerRoutes(app: Express): Promise<void> {
         publishedAt = new Date().toISOString();
       }
       
+      // Build payload and exclude Directus system fields (prevents foreign key errors)
+      const systemFields = ['user_created', 'user_updated', 'date_created', 'date_updated', 'user_created_display', 'user_updated_display', 'id'];
+      const cleanedData = { ...aiData };
+      systemFields.forEach(field => delete cleanedData[field]);
+      
       const postPayload = {
-        title: aiData.title,
-        slug: aiData.slug,
-        language: aiData.language,
-        status: aiData.status,
-        content: aiData.content, // HTML content (supports tables, multiple images)
+        title: cleanedData.title,
+        slug: cleanedData.slug,
+        language: cleanedData.language,
+        status: cleanedData.status,
+        content: cleanedData.content, // HTML content (supports tables, multiple images)
         published_at: publishedAt || null,
-        description: aiData.description || null,
-        hero_caption: aiData.hero_caption || null,
-        image: aiData.image || null, // Hero image file ID
-        read_time_minutes: aiData.read_time_minutes || null,
-        seo: aiData.seo || null,
-        tags: aiData.tags || null, // JSON keywords array
-        author: aiData.author || null,
-        is_featured: aiData.is_featured || false,
-        featured_order: aiData.featured_order || null
+        description: cleanedData.description || null,
+        hero_caption: cleanedData.hero_caption || null,
+        image: cleanedData.image || null, // Hero image file ID
+        read_time_minutes: cleanedData.read_time_minutes || null,
+        seo: cleanedData.seo || null,
+        tags: cleanedData.tags || null, // JSON keywords array
+        author: cleanedData.author || null,
+        is_featured: cleanedData.is_featured || false,
+        featured_order: cleanedData.featured_order || null
       };
 
       const postResponse = await fetch(`${BASE_URL}/items/posts`, {
