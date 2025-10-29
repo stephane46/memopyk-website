@@ -156,6 +156,29 @@ export const BlogAICreator: React.FC = () => {
     fixed = fixed.replace(/[\u201C\u201D]/g, '"');
     fixed = fixed.replace(/[\u2018\u2019]/g, "'");
     
+    // CRITICAL FIXES for Markdown/HTML mixing:
+    
+    // 1. Fix image tags with Markdown link syntax: <img src="[URL](URL)" → <img src="URL"
+    fixed = fixed.replace(/<img\s+src="?\[([^\]]+)\]\([^\)]+\)"?/gi, '<img src="$1"');
+    
+    // 2. Fix links with Markdown syntax mixed with HTML: ](URL) or [text](URL)
+    fixed = fixed.replace(/\]\(https?:\/\/[^\)]+\)/g, '');
+    fixed = fixed.replace(/\[([^\]]+)\]/g, '$1');
+    
+    // 3. Remove escaped characters that break JSON
+    fixed = fixed.replace(/\\%/g, '%'); // \%22 → %22
+    fixed = fixed.replace(/%22/g, '"'); // %22 → " (then will be escaped properly)
+    fixed = fixed.replace(/%3A/g, ':'); // %3A → :
+    
+    // 4. Fix double-escaped quotes in HTML content: \\" → "
+    // We need to be careful here - only fix within content field
+    const contentMatch = fixed.match(/"content"\s*:\s*"(.*?)(?<!\\)"/s);
+    if (contentMatch) {
+      const contentValue = contentMatch[1];
+      const fixedContent = contentValue.replace(/\\"/g, '"');
+      fixed = fixed.replace(contentMatch[0], `"content": "${fixedContent.replace(/"/g, '\\"')}"`);
+    }
+    
     return fixed.trim();
   };
 
@@ -433,7 +456,24 @@ export const BlogAICreator: React.FC = () => {
               )}
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex gap-2">
+              <Button
+                onClick={() => {
+                  const fixed = fixCommonJsonIssues(aiJsonInput);
+                  setAiJsonInput(fixed);
+                  toast({
+                    title: "Auto-fix applied",
+                    description: "Common JSON issues have been repaired. Now validate."
+                  });
+                }}
+                variant="outline"
+                disabled={!aiJsonInput.trim()}
+                data-testid="button-autofix"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                Auto-Fix
+              </Button>
+
               <Button
                 onClick={() => {
                   const validation = validateJson(aiJsonInput);
