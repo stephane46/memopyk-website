@@ -22,6 +22,7 @@ export default function AdminLogin() {
 
     if (password === 'memopyk2025admin') {
       localStorage.setItem('memopyk_admin_authenticated', 'true');
+      localStorage.setItem('memopyk-admin-token', 'admin-token-temp');
       // Trigger custom event for same-tab auth state change
       window.dispatchEvent(new CustomEvent('authStateChange'));
       toast({ title: "Access Granted", description: "Welcome to MEMOPYK Admin Panel" });
