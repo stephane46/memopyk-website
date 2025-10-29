@@ -67,16 +67,20 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
     return result.url; // Returns /assets/{id} URL
   };
 
-  // Custom file picker for videos
+  // Custom file picker for images and videos
   const handleFilePicker = (callback: any, value: any, meta: any) => {
-    // Only handle file type (for videos)
-    if (meta.filetype !== 'media') {
-      return;
-    }
-
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
-    input.setAttribute('accept', 'video/mp4,video/webm');
+    
+    // Set appropriate file types based on what's being inserted
+    if (meta.filetype === 'image') {
+      input.setAttribute('accept', 'image/jpeg,image/jpg,image/png,image/webp,image/gif');
+    } else if (meta.filetype === 'media') {
+      input.setAttribute('accept', 'video/mp4,video/webm,video/quicktime');
+    } else {
+      // Fallback: accept both
+      input.setAttribute('accept', 'image/*,video/*');
+    }
 
     input.onchange = async () => {
       const file = input.files?.[0];
@@ -101,11 +105,11 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
         
         const result = await response.json();
         
-        // Return video URL to TinyMCE
-        callback(result.url, { title: file.name });
+        // Return file URL to TinyMCE
+        callback(result.url, { title: file.name, alt: file.name });
       } catch (error) {
-        console.error('Video upload error:', error);
-        alert('Failed to upload video: ' + (error instanceof Error ? error.message : 'Unknown error'));
+        console.error('File upload error:', error);
+        alert('Failed to upload file: ' + (error instanceof Error ? error.message : 'Unknown error'));
       }
     };
 
