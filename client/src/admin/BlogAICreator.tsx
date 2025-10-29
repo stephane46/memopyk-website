@@ -7,7 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
-import { Sparkles, Copy, CheckCircle, AlertCircle, Loader2, Send } from 'lucide-react';
+import { Sparkles, Copy, CheckCircle, AlertCircle, Loader2, Send, Edit3 } from 'lucide-react';
+import { HtmlEditor } from './HtmlEditor';
+import DOMPurify from 'dompurify';
 
 const MASTER_PROMPT_TEMPLATE = `You are an expert content writer for MEMOPYK, a premium memory film production company. You create engaging, SEO-optimized blog posts about photography, videography, family memories, storytelling, and creative visual arts.
 
@@ -85,6 +87,8 @@ export const BlogAICreator: React.FC = () => {
   const [aiJsonInput, setAiJsonInput] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [validatedPost, setValidatedPost] = useState<any>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   const generatePrompt = () => {
     if (!topic.trim()) {
@@ -235,36 +239,76 @@ export const BlogAICreator: React.FC = () => {
     }
   };
 
-  const createBlogPost = async () => {
-    if (!aiJsonInput.trim()) {
-      toast({
-        title: "JSON required",
-        description: "Please paste the AI-generated JSON",
-        variant: "destructive"
-      });
-      return;
-    }
+  const sanitizeContent = (html: string): string => {
+    // Sanitize HTML with DOMPurify
+    const clean = DOMPurify.sanitize(html, {
+      ALLOWED_TAGS: ['p','h2','h3','h4','ul','ol','li','blockquote','pre','code','strong','em','a','img','table','thead','tbody','tr','th','td'],
+      ALLOWED_ATTR: ['href','target','rel','src','alt','title','loading']
+    });
 
-    // Validate JSON
+    // Normalize external links: add rel="noopener nofollow"
+    let normalized = clean.replace(/<a\s+([^>]*href=['"]https?:\/\/[^'"]+['"][^>]*)>/gi, (match, attrs) => {
+      if (!attrs.includes('rel=')) {
+        return `<a ${attrs} rel="noopener nofollow">`;
+      }
+      return match;
+    });
+
+    // Normalize images: add loading="lazy"
+    normalized = normalized.replace(/<img\s+([^>]*)>/gi, (match, attrs) => {
+      if (!attrs.includes('loading=')) {
+        return `<img ${attrs} loading="lazy">`;
+      }
+      return match;
+    });
+
+    return normalized;
+  };
+
+  const handleValidateAndEdit = () => {
     const validation = validateJson(aiJsonInput);
-    if (!validation.valid) {
+    if (validation.valid) {
+      setValidationError(null);
+      setValidatedPost(validation.data);
+      setIsEditing(true);
+      toast({
+        title: "Validation passed",
+        description: "Review and refine your content below, then submit to Directus"
+      });
+    } else {
       setValidationError(validation.error || 'Invalid JSON');
       toast({
         title: "Validation failed",
         description: validation.error,
         variant: "destructive"
       });
+    }
+  };
+
+  const createBlogPost = async () => {
+    if (!validatedPost) {
+      toast({
+        title: "No validated post",
+        description: "Please validate the JSON first",
+        variant: "destructive"
+      });
       return;
     }
 
-    setValidationError(null);
     setIsCreating(true);
 
     try {
+      // Sanitize the content before submitting
+      const sanitizedContent = sanitizeContent(validatedPost.content);
+      const postData = {
+        ...validatedPost,
+        content: sanitizedContent
+      };
+
       const response = await fetch('/api/admin/blog/create-from-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(validation.data)
+        body: JSON.stringify(postData)
       });
 
       if (!response.ok) {
@@ -285,6 +329,8 @@ export const BlogAICreator: React.FC = () => {
       setGeneratedPrompt('');
       setAiJsonInput('');
       setValidationError(null);
+      setValidatedPost(null);
+      setIsEditing(false);
 
     } catch (error: any) {
       console.error('Error creating blog post:', error);
@@ -464,72 +510,102 @@ export const BlogAICreator: React.FC = () => {
               )}
             </div>
 
-            <div className="flex gap-2">
+            {!isEditing ? (
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => {
+                    const fixed = fixCommonJsonIssues(aiJsonInput);
+                    setAiJsonInput(fixed);
+                    toast({
+                      title: "Auto-fix applied",
+                      description: "Common JSON issues have been repaired. Now validate."
+                    });
+                  }}
+                  variant="outline"
+                  disabled={!aiJsonInput.trim()}
+                  data-testid="button-autofix"
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Auto-Fix
+                </Button>
+
+                <Button
+                  onClick={handleValidateAndEdit}
+                  variant="outline"
+                  className="flex-1"
+                  disabled={!aiJsonInput.trim()}
+                  data-testid="button-validate"
+                >
+                  <Edit3 className="h-4 w-4 mr-2" />
+                  Validate & Edit Content
+                </Button>
+              </div>
+            ) : (
               <Button
                 onClick={() => {
-                  const fixed = fixCommonJsonIssues(aiJsonInput);
-                  setAiJsonInput(fixed);
-                  toast({
-                    title: "Auto-fix applied",
-                    description: "Common JSON issues have been repaired. Now validate."
-                  });
+                  setIsEditing(false);
+                  setValidatedPost(null);
                 }}
                 variant="outline"
-                disabled={!aiJsonInput.trim()}
-                data-testid="button-autofix"
+                data-testid="button-back"
               >
-                <Sparkles className="h-4 w-4 mr-2" />
-                Auto-Fix
+                ← Back to JSON Input
               </Button>
-
-              <Button
-                onClick={() => {
-                  const validation = validateJson(aiJsonInput);
-                  if (validation.valid) {
-                    setValidationError(null);
-                    toast({
-                      title: "Validation passed",
-                      description: "JSON structure is valid and ready to create"
-                    });
-                  } else {
-                    setValidationError(validation.error || 'Invalid JSON');
-                    toast({
-                      title: "Validation failed",
-                      description: validation.error,
-                      variant: "destructive"
-                    });
-                  }
-                }}
-                variant="outline"
-                className="flex-1"
-                disabled={!aiJsonInput.trim()}
-                data-testid="button-validate"
-              >
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Validate JSON
-              </Button>
-
-              <Button
-                onClick={createBlogPost}
-                className="flex-1 bg-green-600 hover:bg-green-700"
-                disabled={isCreating || !aiJsonInput.trim()}
-                data-testid="button-create-post"
-              >
-                {isCreating ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Creating in Directus...
-                  </>
-                ) : (
-                  <>
-                    <Send className="h-4 w-4 mr-2" />
-                    Create Blog Post in Directus
-                  </>
-                )}
-              </Button>
-            </div>
+            )}
           </CardContent>
         </Card>
+
+        {/* WYSIWYG Editor - Shows after validation */}
+        {isEditing && validatedPost && (
+          <Card className="bg-white">
+            <CardHeader>
+              <CardTitle>Step 4: Refine Your Content</CardTitle>
+              <CardDescription>
+                Use the rich text editor to add tables, format text, and perfect your blog post before publishing to Directus
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Post Title</Label>
+                <Input
+                  value={validatedPost.title}
+                  onChange={(e) => setValidatedPost({ ...validatedPost, title: e.target.value })}
+                  className="font-semibold"
+                  data-testid="input-post-title"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Content (HTML Editor)</Label>
+                <HtmlEditor
+                  value={validatedPost.content}
+                  onChange={(content) => setValidatedPost({ ...validatedPost, content })}
+                />
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <Button
+                  onClick={createBlogPost}
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  disabled={isCreating}
+                  data-testid="button-submit-to-directus"
+                >
+                  {isCreating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Creating in Directus...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />
+                      Submit to Directus
+                    </>
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
