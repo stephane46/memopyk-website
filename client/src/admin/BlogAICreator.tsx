@@ -47,9 +47,9 @@ PHASE 2: SELF-CHECK AND VALIDATE
 ═══════════════════════════════════════════════════════════════════════════════
 
 Before creating JSON, search your HTML content for these FORBIDDEN patterns:
-1. ✗ Search for `[` or `]` — If found, you're using Markdown syntax. STOP and fix.
-2. ✗ Search for `\\"` — Escaped quotes break JSON. Remove all backslashes.
-3. ✗ Search for `%22` or `%3A` — Percent-encoding breaks JSON. Use plain characters.
+1. ✗ Search for [ or ] — If found, you're using Markdown syntax. STOP and fix.
+2. ✗ Search for backslash-quote — Escaped quotes break JSON. Remove all backslashes.
+3. ✗ Search for %22 or %3A — Percent-encoding breaks JSON. Use plain characters.
 4. ✗ Count words — If over 1000, cut content down.
 
 If ANY forbidden pattern found → REGENERATE your HTML from Phase 1 before continuing.
