@@ -9148,12 +9148,11 @@ export async function registerRoutes(app: Express): Promise<void> {
       console.log(`📤 Uploading to Directus: ${req.file.originalname} (${fileSizeMB.toFixed(2)}MB, ${req.file.mimetype})`);
 
       const token = getDirectusToken();
+      const FormData = (await import('form-data')).default;
+      const formData = new FormData();
       
-      // Read file into buffer
+      // Read file and append as buffer with proper options
       const fileBuffer = readFileSync(req.file.path);
-      
-      // Create form data with buffer
-      const formData = new (await import('form-data')).default();
       formData.append('file', fileBuffer, {
         filename: req.file.originalname,
         contentType: req.file.mimetype
@@ -9167,32 +9166,45 @@ export async function registerRoutes(app: Express): Promise<void> {
         formData.append('description', req.body.description);
       }
 
-      // Upload to Directus
-      const directusResponse = await fetch('https://cms.memopyk.com/files', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          ...formData.getHeaders()
-        },
-        body: formData as any
+      // Upload using form-data's submit method (more reliable than fetch)
+      const uploadPromise = new Promise<{ fileId: string; assetUrl: string }>((resolve, reject) => {
+        formData.submit({
+          host: 'cms.memopyk.com',
+          path: '/files',
+          method: 'POST',
+          protocol: 'https:',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }, (err, response) => {
+          if (err) {
+            return reject(err);
+          }
+
+          let data = '';
+          response.on('data', chunk => data += chunk);
+          response.on('end', () => {
+            if (response.statusCode !== 200 && response.statusCode !== 201) {
+              return reject(new Error(`Directus returned ${response.statusCode}: ${data}`));
+            }
+            
+            try {
+              const result = JSON.parse(data);
+              const fileId = result.data.id;
+              const assetUrl = `https://cms.memopyk.com/assets/${fileId}`;
+              resolve({ fileId, assetUrl });
+            } catch (parseError) {
+              reject(new Error(`Failed to parse response: ${data}`));
+            }
+          });
+        });
       });
 
+      const { fileId, assetUrl } = await uploadPromise;
+      
       // Clean up temp file
       unlinkSync(req.file.path);
-
-      if (!directusResponse.ok) {
-        const errorText = await directusResponse.text();
-        console.error('❌ Directus upload error:', directusResponse.status, errorText);
-        return res.status(directusResponse.status).json({ 
-          error: 'Directus upload failed',
-          details: errorText
-        });
-      }
-
-      const result = await directusResponse.json();
-      const fileId = result.data.id;
-      const assetUrl = `https://cms.memopyk.com/assets/${fileId}`;
-
+      
       console.log(`✅ File uploaded to Directus: ${fileId}`);
 
       res.json({
