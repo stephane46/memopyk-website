@@ -9425,7 +9425,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       }
 
       const token = await getDirectusToken();
-      const BASE_URL = 'https://cms-blog.memopyk.org';
+      const BASE_URL = 'https://cms.memopyk.com';
 
       // Step 1: Create the post
       console.log(`📝 Creating post: "${postData.title}" (${postData.language})`);
