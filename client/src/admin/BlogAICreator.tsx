@@ -60,6 +60,22 @@ TABLES (for comparisons, data, feature matrices):
 - <table><thead><tr><th>Header</th></tr></thead><tbody><tr><td>Data</td></tr></tbody></table>
 → Use for "Before vs After", "Feature Comparison", pricing tables
 
+IMAGE PLACEHOLDERS - Strategic Visual Breaks:
+Include 2-4 HTML comment placeholders throughout the content suggesting where images should be inserted.
+Each placeholder should specify:
+- What type of image (e.g., "Baby portrait with natural window lighting")
+- Orientation: Portrait (800×1200px) or Landscape (1200×800px)
+- Purpose/context (e.g., "Visual break after introduction", "Illustrate the lighting technique")
+
+FORMAT: <!-- 📸 IMAGE SUGGESTION: [description] | [Portrait/Landscape] [dimensions] | [purpose] -->
+
+EXAMPLE PLACEMENTS:
+<p>Introduction paragraph about the topic...</p>
+<!-- 📸 IMAGE SUGGESTION: Hero shot showing the main subject | Landscape 1200×800px | Visual break after introduction -->
+<h2>Section Title</h2>
+<p>Explanation of technique...</p>
+<!-- 📸 IMAGE SUGGESTION: Before/after comparison | Landscape 1200×800px | Illustrate the difference -->
+
 IMPORTANT: Output clean semantic HTML with NO inline styles (no color, margin, padding, font-size).
 The frontend CSS automatically handles all visual formatting for brand consistency.
 
