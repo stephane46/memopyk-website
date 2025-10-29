@@ -246,23 +246,26 @@ export const BlogAICreator: React.FC = () => {
       ALLOWED_ATTR: ['href','target','rel','src','alt','title','loading']
     });
 
-    // Normalize external links: add rel="noopener nofollow"
-    let normalized = clean.replace(/<a\s+([^>]*href=['"]https?:\/\/[^'"]+['"][^>]*)>/gi, (match, attrs) => {
-      if (!attrs.includes('rel=')) {
-        return `<a ${attrs} rel="noopener nofollow">`;
-      }
-      return match;
+    // Use DOM parser for robust attribute manipulation
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(clean, 'text/html');
+
+    // Normalize ALL external links: ensure rel="noopener nofollow"
+    const externalLinks = doc.querySelectorAll('a[href^="http://"], a[href^="https://"]');
+    externalLinks.forEach((link) => {
+      link.setAttribute('rel', 'noopener nofollow');
     });
 
-    // Normalize images: add loading="lazy"
-    normalized = normalized.replace(/<img\s+([^>]*)>/gi, (match, attrs) => {
-      if (!attrs.includes('loading=')) {
-        return `<img ${attrs} loading="lazy">`;
+    // Normalize ALL images: ensure loading="lazy"
+    const images = doc.querySelectorAll('img');
+    images.forEach((img) => {
+      if (!img.getAttribute('loading')) {
+        img.setAttribute('loading', 'lazy');
       }
-      return match;
     });
 
-    return normalized;
+    // Return the normalized HTML (body.innerHTML to exclude <html><body> wrappers)
+    return doc.body.innerHTML;
   };
 
   const handleValidateAndEdit = () => {
