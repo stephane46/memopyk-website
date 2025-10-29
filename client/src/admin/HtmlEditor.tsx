@@ -191,13 +191,27 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
           // Two-row toolbar organized logically
           toolbar_mode: 'wrap',
           toolbar: [
-            'undo redo | blocks fontsize | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify',
+            'undo redo | blocks fontsize lineheight styles | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify',
             'bullist numlist outdent indent | link image media table | removeformat searchreplace | charmap | code preview fullscreen'
           ],
           
           branding: false,
           promotion: false,
           content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; }',
+          
+          // Line height options (spacing between lines)
+          lineheight_formats: '1 1.1 1.2 1.3 1.4 1.5 1.6 1.8 2 2.5 3',
+          
+          // Custom paragraph spacing styles
+          style_formats: [
+            { title: 'Paragraph Spacing', items: [
+              { title: 'No Space', selector: 'p', styles: { 'margin-top': '0', 'margin-bottom': '0' } },
+              { title: 'Small Space', selector: 'p', styles: { 'margin-top': '0.5em', 'margin-bottom': '0.5em' } },
+              { title: 'Normal Space', selector: 'p', styles: { 'margin-top': '1em', 'margin-bottom': '1em' } },
+              { title: 'Large Space', selector: 'p', styles: { 'margin-top': '1.5em', 'margin-bottom': '1.5em' } },
+              { title: 'Extra Large Space', selector: 'p', styles: { 'margin-top': '2em', 'margin-bottom': '2em' } }
+            ]}
+          ],
           
           // Enable visual resize handles on images/tables/media
           object_resizing: true,
