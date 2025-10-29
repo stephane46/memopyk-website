@@ -480,17 +480,23 @@ export const BlogAICreator: React.FC = () => {
         {/* Bottom Row: JSON Input & Create */}
         <Card className="bg-white">
           <CardHeader>
-            <CardTitle>Step 3: Paste AI Response & Create Post</CardTitle>
+            <CardTitle>Step 3: Paste AI's JSON Response</CardTitle>
             <CardDescription>
-              Paste the JSON response from your AI assistant, validate it, and publish to Directus
+              After giving the prompt to ChatGPT/Claude, copy the JSON response it returns and paste it below
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
+              <p className="text-sm text-blue-800">
+                <strong>⚠️ Important:</strong> Paste only the <strong>JSON response</strong> from ChatGPT/Claude here (starts with <code>{`{`}</code>), 
+                NOT the prompt template from Step 2.
+              </p>
+            </div>
             <div className="space-y-2">
-              <Label htmlFor="aiJson">AI-Generated JSON *</Label>
+              <Label htmlFor="aiJson">AI-Generated JSON Response *</Label>
               <Textarea
                 id="aiJson"
-                placeholder='{"title": "...", "slug": "...", "language": "en-US", ...}'
+                placeholder='{"title": "Your Blog Title", "slug": "your-slug", "content": "<h2>...</h2>", ...}'
                 value={aiJsonInput}
                 onChange={(e) => {
                   setAiJsonInput(e.target.value);
