@@ -1385,3 +1385,39 @@ button[role="switch"]:focus-visible {
 .prose tbody tr:nth-child(odd) {
   background: #fafafa;
 }
+
+/* TinyMCE Modal Button Fixes - Dark buttons with !important for visibility */
+.tox .tox-button--secondary,
+.tox .tox-button,
+.tox-button {
+  background-color: #2A4759 !important;
+  background: #2A4759 !important;
+  border-color: #2A4759 !important;
+  color: white !important;
+}
+
+.tox .tox-button--secondary:hover,
+.tox .tox-button:hover,
+.tox-button:hover {
+  background-color: #1f3543 !important;
+  background: #1f3543 !important;
+  border-color: #1f3543 !important;
+  color: white !important;
+}
+
+/* Primary button - MEMOPYK Orange */
+.tox .tox-button--primary,
+.tox .tox-button[type="submit"] {
+  background-color: #D67C4A !important;
+  background: #D67C4A !important;
+  border-color: #D67C4A !important;
+  color: white !important;
+}
+
+.tox .tox-button--primary:hover,
+.tox .tox-button[type="submit"]:hover {
+  background-color: #B8663F !important;
+  background: #B8663F !important;
+  border-color: #B8663F !important;
+  color: white !important;
+}
