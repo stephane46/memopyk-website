@@ -215,9 +215,26 @@ export const BlogAICreator: React.FC = () => {
     }
   };
 
+  const fixCommonJsonIssues = (jsonStr: string): string => {
+    // Try to fix common JSON issues from AI-generated content
+    let fixed = jsonStr;
+    
+    // Remove any markdown code fences
+    fixed = fixed.replace(/^```json\n?/gm, '').replace(/^```\n?/gm, '');
+    
+    // Fix smart quotes to regular quotes (common AI issue)
+    fixed = fixed.replace(/[\u201C\u201D]/g, '"');
+    fixed = fixed.replace(/[\u2018\u2019]/g, "'");
+    
+    return fixed.trim();
+  };
+
   const validateJson = (jsonStr: string): { valid: boolean; data?: any; error?: string } => {
+    // First, try to fix common issues
+    const cleanedJson = fixCommonJsonIssues(jsonStr);
+    
     try {
-      const data = JSON.parse(jsonStr);
+      const data = JSON.parse(cleanedJson);
       
       // Required top-level fields for NEW SCHEMA
       const requiredFields = ['title', 'slug', 'language', 'status', 'content'];
@@ -250,8 +267,10 @@ export const BlogAICreator: React.FC = () => {
       return { valid: true, data };
     } catch (error) {
       console.error('JSON Parse Error:', error);
+      console.log('Problematic JSON (first 500 chars):', cleanedJson.substring(0, 500));
+      console.log('JSON around error position:', cleanedJson.substring(3500, 3600));
       const errorMsg = error instanceof Error ? error.message : 'Unknown parse error';
-      return { valid: false, error: `Invalid JSON: ${errorMsg}` };
+      return { valid: false, error: `Invalid JSON: ${errorMsg}. Check browser console for details.` };
     }
   };
 
