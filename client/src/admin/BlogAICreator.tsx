@@ -240,32 +240,27 @@ export const BlogAICreator: React.FC = () => {
   };
 
   const sanitizeContent = (html: string): string => {
-    // Sanitize HTML with DOMPurify
-    const clean = DOMPurify.sanitize(html, {
-      ALLOWED_TAGS: ['p','h2','h3','h4','ul','ol','li','blockquote','pre','code','strong','em','a','img','table','thead','tbody','tr','th','td'],
+    // Sanitize HTML with DOMPurify - includes table support
+    const cleaned = DOMPurify.sanitize(html, {
+      ALLOWED_TAGS: ['p','h2','h3','h4','ul','ol','li','blockquote','pre','code','strong','em','a','img','br','hr','table','thead','tbody','tr','th','td'],
       ALLOWED_ATTR: ['href','target','rel','src','alt','title','loading']
-    });
-
-    // Use DOM parser for robust attribute manipulation
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(clean, 'text/html');
-
-    // Normalize ALL external links: ensure rel="noopener nofollow"
-    const externalLinks = doc.querySelectorAll('a[href^="http://"], a[href^="https://"]');
-    externalLinks.forEach((link) => {
-      link.setAttribute('rel', 'noopener nofollow');
-    });
-
-    // Normalize ALL images: ensure loading="lazy"
-    const images = doc.querySelectorAll('img');
-    images.forEach((img) => {
-      if (!img.getAttribute('loading')) {
-        img.setAttribute('loading', 'lazy');
+    })
+    // Normalize external links: add rel="noopener nofollow"
+    .replace(/<a\s+([^>]*href="https?:\/\/[^"]+"[^>]*)>/gi, (_m, attrs) => {
+      if (!attrs.includes('rel=')) {
+        return `<a ${attrs} rel="noopener nofollow">`;
       }
+      return `<a ${attrs.replace(/rel="[^"]*"/, 'rel="noopener nofollow"')}>`;
+    })
+    // Normalize images: ensure loading="lazy"
+    .replace(/<img\s+([^>]*)(?<!loading="lazy")>/gi, (_m, attrs) => {
+      if (!attrs.includes('loading=')) {
+        return `<img ${attrs} loading="lazy">`;
+      }
+      return `<img ${attrs}>`;
     });
 
-    // Return the normalized HTML (body.innerHTML to exclude <html><body> wrappers)
-    return doc.body.innerHTML;
+    return cleaned;
   };
 
   const handleValidateAndEdit = () => {
