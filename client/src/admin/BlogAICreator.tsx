@@ -33,6 +33,36 @@ CONTENT REQUIREMENTS:
 - End with a call-to-action or inspiring conclusion
 - Naturally incorporate SEO keywords without keyword stuffing
 
+HTML STRUCTURE GUIDANCE (Semantic Elements Only - NO inline styles):
+Use these semantic HTML elements to create well-structured, scannable content:
+
+HEADINGS (for hierarchy and SEO):
+- <h2> - Main section headings (like chapter titles)
+- <h3> - Subsection headings under H2
+- <h4> - Minor subsections if needed
+→ Use logical hierarchy: H2 → H3 → H4 (don't skip levels)
+
+LISTS (for step-by-step guides, tips, comparisons):
+- <ul><li>item</li></ul> - Unordered lists for general points
+- <ol><li>step</li></ol> - Ordered lists for sequential steps
+→ Perfect for "5 Tips", "How-to Steps", feature lists
+
+EMPHASIS (semantic, not visual):
+- <strong>important text</strong> - Strong importance
+- <em>emphasized text</em> - Stress emphasis
+→ Use sparingly for key concepts
+
+BLOCKQUOTES (for testimonials, quotes, callouts):
+- <blockquote>Pro Tip: Your advice here</blockquote>
+→ Great for highlighting key takeaways or expert tips
+
+TABLES (for comparisons, data, feature matrices):
+- <table><thead><tr><th>Header</th></tr></thead><tbody><tr><td>Data</td></tr></tbody></table>
+→ Use for "Before vs After", "Feature Comparison", pricing tables
+
+IMPORTANT: Output clean semantic HTML with NO inline styles (no color, margin, padding, font-size).
+The frontend CSS automatically handles all visual formatting for brand consistency.
+
 CRITICAL RULES FOR JSON VALIDITY:
 1. Use SINGLE QUOTES for all HTML attributes: <a href='url'> NOT <a href="url">
 2. NO Markdown syntax: NO [text](url), NO ![alt](url), NO **bold**
