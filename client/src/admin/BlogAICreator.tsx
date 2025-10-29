@@ -240,10 +240,10 @@ export const BlogAICreator: React.FC = () => {
   };
 
   const sanitizeContent = (html: string): string => {
-    // Sanitize HTML with DOMPurify - includes table support
+    // Sanitize HTML with DOMPurify - includes table and video support
     const cleaned = DOMPurify.sanitize(html, {
-      ALLOWED_TAGS: ['p','h2','h3','h4','ul','ol','li','blockquote','pre','code','strong','em','a','img','br','hr','table','thead','tbody','tr','th','td'],
-      ALLOWED_ATTR: ['href','target','rel','src','alt','title','loading']
+      ALLOWED_TAGS: ['p','h2','h3','h4','ul','ol','li','blockquote','pre','code','strong','em','a','img','br','hr','table','thead','tbody','tr','th','td','video','source'],
+      ALLOWED_ATTR: ['href','target','rel','src','alt','title','loading','controls','poster','type']
     })
     // Normalize external links: add rel="noopener nofollow"
     .replace(/<a\s+([^>]*href="https?:\/\/[^"]+"[^>]*)>/gi, (_m, attrs) => {
@@ -258,6 +258,13 @@ export const BlogAICreator: React.FC = () => {
         return `<img ${attrs} loading="lazy">`;
       }
       return `<img ${attrs}>`;
+    })
+    // Normalize videos: ensure controls attribute
+    .replace(/<video\s+([^>]*)(?<!controls)>/gi, (_m, attrs) => {
+      if (!attrs.includes('controls')) {
+        return `<video ${attrs} controls>`;
+      }
+      return `<video ${attrs}>`;
     });
 
     return cleaned;

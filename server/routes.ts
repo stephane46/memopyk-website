@@ -8928,15 +8928,427 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
-  // Blog Routes - Proxy to Directus CMS with Static Token Authentication
+  // ========== DIRECTUS MEDIA UPLOAD ENDPOINTS ==========
+  
+  // Multer configuration for Directus media uploads
+  const directusUploadStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      const uploadPath = path.join(process.cwd(), 'temp_uploads');
+      if (!existsSync(uploadPath)) {
+        mkdirSync(uploadPath, { recursive: true });
+      }
+      cb(null, uploadPath);
+    },
+    filename: (req, file, cb) => {
+      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
+      cb(null, `${uniqueSuffix}-${file.originalname}`);
+    }
+  });
+
+  const directusUpload = multer({
+    storage: directusUploadStorage,
+    limits: {
+      fileSize: 100 * 1024 * 1024 // 100MB max
+    },
+    fileFilter: (req, file, cb) => {
+      // Allowed MIME types
+      const allowedImages = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+      const allowedVideos = ['video/mp4', 'video/webm', 'video/quicktime'];
+      const allowed = [...allowedImages, ...allowedVideos];
+      
+      if (allowed.includes(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(new Error(`Invalid file type: ${file.mimetype}. Allowed: images (jpeg, png, webp, gif) and videos (mp4, webm, mov)`));
+      }
+    }
+  });
+
+  // Helper to get Directus token
   function getDirectusToken() {
-    // Simple CMS migration: Use static token instead of email/password login
     const token = process.env.DIRECTUS_TOKEN;
     if (!token) {
       throw new Error('DIRECTUS_TOKEN environment variable not set');
     }
     return token;
   }
+
+  // Helper to validate file size limits
+  function validateFileSize(fileSizeMB: number, mimetype: string): { valid: boolean; error?: string } {
+    const isImage = mimetype.startsWith('image/');
+    const isVideo = mimetype.startsWith('video/');
+    
+    if (isImage && fileSizeMB > 8) {
+      return { valid: false, error: `Image too large: ${fileSizeMB.toFixed(2)}MB. Maximum: 8MB` };
+    }
+    if (isVideo && fileSizeMB > 100) {
+      return { valid: false, error: `Video too large: ${fileSizeMB.toFixed(2)}MB. Maximum: 100MB` };
+    }
+    return { valid: true };
+  }
+
+  // Helper to convert numeric/hex IP to dotted notation
+  function normalizeIPv4(input: string): string | null {
+    // Already in dotted notation
+    if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(input)) {
+      return input;
+    }
+    
+    // Check for decimal IP (e.g., 2130706433 for 127.0.0.1)
+    if (/^\d+$/.test(input)) {
+      const num = parseInt(input, 10);
+      if (num >= 0 && num <= 0xFFFFFFFF) {
+        const a = (num >> 24) & 0xFF;
+        const b = (num >> 16) & 0xFF;
+        const c = (num >> 8) & 0xFF;
+        const d = num & 0xFF;
+        return `${a}.${b}.${c}.${d}`;
+      }
+    }
+    
+    // Check for hex IP (e.g., 0x7f000001 for 127.0.0.1)
+    if (/^0x[0-9a-fA-F]+$/.test(input)) {
+      const num = parseInt(input, 16);
+      if (num >= 0 && num <= 0xFFFFFFFF) {
+        const a = (num >> 24) & 0xFF;
+        const b = (num >> 16) & 0xFF;
+        const c = (num >> 8) & 0xFF;
+        const d = num & 0xFF;
+        return `${a}.${b}.${c}.${d}`;
+      }
+    }
+    
+    // Check for octal (browsers/curl support this)
+    if (/^0[0-7]+$/.test(input)) {
+      const num = parseInt(input, 8);
+      if (num >= 0 && num <= 0xFFFFFFFF) {
+        const a = (num >> 24) & 0xFF;
+        const b = (num >> 16) & 0xFF;
+        const c = (num >> 8) & 0xFF;
+        const d = num & 0xFF;
+        return `${a}.${b}.${c}.${d}`;
+      }
+    }
+    
+    return null;
+  }
+
+  // Helper to check if an IP address is private/reserved
+  function isPrivateOrReservedIP(ip: string): boolean {
+    // Try to normalize if it's a numeric IPv4
+    const normalized = normalizeIPv4(ip);
+    const checkIP = normalized || ip;
+    
+    // Check IPv4 private/reserved ranges
+    const ipv4Octets = checkIP.split('.').map(Number);
+    if (ipv4Octets.length === 4 && ipv4Octets.every(o => o >= 0 && o <= 255)) {
+      const [a, b, c, d] = ipv4Octets;
+      
+      // Loopback: 127.0.0.0/8
+      if (a === 127) return true;
+      
+      // Private Class A: 10.0.0.0/8
+      if (a === 10) return true;
+      
+      // Private Class B: 172.16.0.0/12
+      if (a === 172 && b >= 16 && b <= 31) return true;
+      
+      // Private Class C: 192.168.0.0/16
+      if (a === 192 && b === 168) return true;
+      
+      // Link-local: 169.254.0.0/16
+      if (a === 169 && b === 254) return true;
+      
+      // Broadcast: 255.255.255.255
+      if (a === 255 && b === 255 && c === 255 && d === 255) return true;
+      
+      // This host: 0.0.0.0/8
+      if (a === 0) return true;
+    }
+    
+    // Check IPv6 private/reserved ranges
+    const ipLower = checkIP.toLowerCase();
+    
+    // Loopback: ::1
+    if (ipLower === '::1' || ipLower === '0:0:0:0:0:0:0:1') return true;
+    
+    // Link-local: fe80::/10
+    if (ipLower.startsWith('fe80:')) return true;
+    
+    // Unique local: fc00::/7 and fd00::/8
+    if (ipLower.startsWith('fc') || ipLower.startsWith('fd')) return true;
+    
+    // Unspecified: ::
+    if (ipLower === '::' || ipLower === '0:0:0:0:0:0:0:0') return true;
+    
+    return false;
+  }
+
+  // Helper to check if URL is safe (prevent SSRF) with DNS resolution
+  async function isSafeUrl(urlString: string): Promise<boolean> {
+    try {
+      const url = new URL(urlString);
+      
+      // Only allow http and https
+      if (!['http:', 'https:'].includes(url.protocol)) {
+        return false;
+      }
+      
+      const hostname = url.hostname.toLowerCase();
+      
+      // Block localhost by name
+      if (hostname === 'localhost') {
+        return false;
+      }
+      
+      // If hostname is already an IP address, validate it directly
+      if (hostname.match(/^[\d.:]+$/)) {
+        return !isPrivateOrReservedIP(hostname);
+      }
+      
+      // Resolve hostname to IP addresses
+      try {
+        const { lookup } = await import('dns/promises');
+        const resolved = await lookup(hostname, { all: true });
+        
+        // Check if any resolved IP is private/reserved
+        for (const record of resolved) {
+          if (isPrivateOrReservedIP(record.address)) {
+            console.warn(`⚠️ SSRF blocked: ${hostname} resolves to private IP ${record.address}`);
+            return false;
+          }
+        }
+        
+        return true;
+      } catch (dnsError) {
+        console.warn(`⚠️ DNS resolution failed for ${hostname}:`, dnsError);
+        return false;
+      }
+    } catch {
+      return false;
+    }
+  }
+
+  // POST /api/admin/upload - Upload file to Directus
+  app.post("/api/admin/upload", requireAdmin, directusUpload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file provided' });
+      }
+
+      const fileSizeMB = req.file.size / (1024 * 1024);
+      const sizeCheck = validateFileSize(fileSizeMB, req.file.mimetype);
+      
+      if (!sizeCheck.valid) {
+        // Clean up temp file
+        unlinkSync(req.file.path);
+        return res.status(400).json({ error: sizeCheck.error });
+      }
+
+      console.log(`📤 Uploading to Directus: ${req.file.originalname} (${fileSizeMB.toFixed(2)}MB, ${req.file.mimetype})`);
+
+      const token = getDirectusToken();
+      const formData = new (await import('form-data')).default();
+      
+      // Add file stream
+      formData.append('file', createReadStream(req.file.path), {
+        filename: req.file.originalname,
+        contentType: req.file.mimetype
+      });
+      
+      // Add optional metadata
+      if (req.body.title) {
+        formData.append('title', req.body.title);
+      }
+      if (req.body.description) {
+        formData.append('description', req.body.description);
+      }
+
+      // Upload to Directus
+      const directusResponse = await fetch('https://cms.memopyk.com/files', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          ...formData.getHeaders()
+        },
+        body: formData as any // form-data package is compatible with fetch
+      });
+
+      // Clean up temp file
+      unlinkSync(req.file.path);
+
+      if (!directusResponse.ok) {
+        const errorText = await directusResponse.text();
+        console.error('❌ Directus upload error:', directusResponse.status, errorText);
+        return res.status(directusResponse.status).json({ 
+          error: 'Directus upload failed',
+          details: errorText
+        });
+      }
+
+      const result = await directusResponse.json();
+      const fileId = result.data.id;
+      const assetUrl = `https://cms.memopyk.com/assets/${fileId}`;
+
+      console.log(`✅ File uploaded to Directus: ${fileId}`);
+
+      res.json({
+        success: true,
+        id: fileId,
+        url: assetUrl,
+        filename: req.file.originalname,
+        size: req.file.size,
+        mimetype: req.file.mimetype
+      });
+
+    } catch (error) {
+      // Clean up temp file if it exists
+      if (req.file?.path && existsSync(req.file.path)) {
+        unlinkSync(req.file.path);
+      }
+      
+      console.error('❌ Upload error:', error);
+      res.status(500).json({ 
+        error: 'Upload failed',
+        details: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // POST /api/admin/fetch-external - Import external file URL to Directus
+  app.post("/api/admin/fetch-external", requireAdmin, async (req, res) => {
+    try {
+      const { url, title } = req.body;
+
+      if (!url || typeof url !== 'string') {
+        return res.status(400).json({ error: 'URL is required' });
+      }
+
+      // Validate URL safety (SSRF prevention with DNS resolution)
+      if (!(await isSafeUrl(url))) {
+        return res.status(400).json({ error: 'Invalid or unsafe URL - blocked due to security restrictions' });
+      }
+
+      console.log(`🌐 Fetching external file: ${url}`);
+
+      // Download file with timeout and size limit
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
+      const response = await fetch(url, {
+        signal: controller.signal,
+        redirect: 'follow',
+        headers: {
+          'User-Agent': 'MEMOPYK-CMS/1.0'
+        }
+      });
+
+      clearTimeout(timeout);
+
+      if (!response.ok) {
+        return res.status(400).json({ error: `Failed to fetch URL: ${response.status} ${response.statusText}` });
+      }
+
+      // Check content type
+      const contentType = response.headers.get('content-type') || '';
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm', 'video/quicktime'];
+      
+      const isAllowedType = allowedTypes.some(type => contentType.includes(type));
+      if (!isAllowedType) {
+        return res.status(400).json({ error: `Invalid content type: ${contentType}. Allowed: images and videos only` });
+      }
+
+      // Check content length
+      const contentLength = response.headers.get('content-length');
+      if (contentLength) {
+        const sizeMB = parseInt(contentLength) / (1024 * 1024);
+        const sizeCheck = validateFileSize(sizeMB, contentType);
+        if (!sizeCheck.valid) {
+          return res.status(400).json({ error: sizeCheck.error });
+        }
+      }
+
+      // Download to temp file
+      const buffer = Buffer.from(await response.arrayBuffer());
+      const fileSizeMB = buffer.length / (1024 * 1024);
+      
+      // Validate downloaded size
+      const sizeCheck = validateFileSize(fileSizeMB, contentType);
+      if (!sizeCheck.valid) {
+        return res.status(400).json({ error: sizeCheck.error });
+      }
+
+      // Extract filename from URL or generate one
+      let filename = url.split('/').pop()?.split('?')[0] || `download-${Date.now()}`;
+      if (!filename.includes('.')) {
+        const ext = contentType.split('/')[1]?.split('+')[0] || 'bin';
+        filename = `${filename}.${ext}`;
+      }
+
+      console.log(`📥 Downloaded ${filename} (${fileSizeMB.toFixed(2)}MB)`);
+
+      // Upload to Directus
+      const token = getDirectusToken();
+      const formData = new (await import('form-data')).default();
+      
+      formData.append('file', buffer, {
+        filename,
+        contentType
+      });
+      
+      if (title) {
+        formData.append('title', title);
+      }
+
+      const directusResponse = await fetch('https://cms.memopyk.com/files', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          ...formData.getHeaders()
+        },
+        body: formData as any // form-data package is compatible with fetch
+      });
+
+      if (!directusResponse.ok) {
+        const errorText = await directusResponse.text();
+        console.error('❌ Directus upload error:', directusResponse.status, errorText);
+        return res.status(directusResponse.status).json({ 
+          error: 'Directus upload failed',
+          details: errorText
+        });
+      }
+
+      const result = await directusResponse.json();
+      const fileId = result.data.id;
+      const assetUrl = `https://cms.memopyk.com/assets/${fileId}`;
+
+      console.log(`✅ External file imported to Directus: ${fileId}`);
+
+      res.json({
+        success: true,
+        id: fileId,
+        url: assetUrl,
+        filename,
+        size: buffer.length,
+        mimetype: contentType,
+        originalUrl: url
+      });
+
+    } catch (error) {
+      console.error('❌ Fetch external error:', error);
+      
+      if (error instanceof Error && error.name === 'AbortError') {
+        return res.status(408).json({ error: 'Request timeout - file download took too long' });
+      }
+      
+      res.status(500).json({ 
+        error: 'Failed to fetch external file',
+        details: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // Blog Routes - Proxy to Directus CMS with Static Token Authentication
 
 
   app.get("/api/blog/posts", async (req, res) => {

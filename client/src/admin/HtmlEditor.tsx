@@ -9,8 +9,19 @@ import 'tinymce/themes/silver';
 import 'tinymce/models/dom';
 import 'tinymce/plugins/link';
 import 'tinymce/plugins/lists';
+import 'tinymce/plugins/advlist';
 import 'tinymce/plugins/table';
 import 'tinymce/plugins/code';
+import 'tinymce/plugins/image';
+import 'tinymce/plugins/media';
+import 'tinymce/plugins/preview';
+import 'tinymce/plugins/fullscreen';
+import 'tinymce/plugins/charmap';
+import 'tinymce/plugins/hr';
+import 'tinymce/plugins/autolink';
+import 'tinymce/plugins/searchreplace';
+import 'tinymce/plugins/anchor';
+import 'tinymce/plugins/wordcount';
 import 'tinymce/skins/ui/oxide/skin.min.css';
 
 interface HtmlEditorProps {
@@ -29,26 +40,180 @@ export function HtmlEditor({ value, onChange }: HtmlEditorProps) {
 }
 
 function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
+  // Get admin token for authenticated uploads
+  const getAdminToken = () => {
+    return localStorage.getItem('memopyk-admin-token') || 
+           sessionStorage.getItem('memopyk-admin-token') || '';
+  };
+
+  // Custom image upload handler - uploads to Directus via our proxy
+  const handleImageUpload = async (blobInfo: any, progress: (percent: number) => void) => {
+    const formData = new FormData();
+    formData.append('file', blobInfo.blob(), blobInfo.filename());
+    
+    const response = await fetch('/api/admin/upload', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${getAdminToken()}`
+      },
+      body: formData
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Upload failed');
+    }
+    
+    const result = await response.json();
+    return result.url; // Returns /assets/{id} URL
+  };
+
+  // Custom file picker for videos
+  const handleFilePicker = (callback: any, value: any, meta: any) => {
+    // Only handle file type (for videos)
+    if (meta.filetype !== 'media') {
+      return;
+    }
+
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'video/mp4,video/webm');
+
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const response = await fetch('/api/admin/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${getAdminToken()}`
+          },
+          body: formData
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Upload failed');
+        }
+        
+        const result = await response.json();
+        
+        // Return video URL to TinyMCE
+        callback(result.url, { title: file.name });
+      } catch (error) {
+        console.error('Video upload error:', error);
+        alert('Failed to upload video: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      }
+    };
+
+    input.click();
+  };
+
+  // Handle paste events to auto-import external file URLs
+  const handlePaste = async (editor: any, e: any) => {
+    const pastedText = e.clipboardData?.getData('text/plain');
+    if (!pastedText) return;
+
+    // Check if it's an image or video URL
+    const urlPattern = /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|mp4|webm)(\?.*)?$/i;
+    const match = pastedText.trim().match(urlPattern);
+    
+    if (match) {
+      e.preventDefault();
+      
+      try {
+        console.log('🔗 Importing external file URL:', pastedText);
+        
+        const response = await fetch('/api/admin/fetch-external', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${getAdminToken()}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ url: pastedText.trim() })
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to import file');
+        }
+        
+        const result = await response.json();
+        const isVideo = result.mimetype?.startsWith('video/');
+        
+        // Insert the imported file into editor
+        if (isVideo) {
+          editor.insertContent(`<video src="${result.url}" controls></video>`);
+        } else {
+          editor.insertContent(`<img src="${result.url}" alt="${result.filename}" loading="lazy" />`);
+        }
+        
+        console.log('✅ External file imported:', result.url);
+      } catch (error) {
+        console.error('❌ Failed to import external file:', error);
+        // Fallback: paste as text
+        editor.insertContent(pastedText);
+      }
+    }
+  };
+
   return (
     <div className="border rounded-lg overflow-hidden bg-white">
       <Editor
         licenseKey="gpl"
         value={value}
         init={{
-          height: 420,
+          height: 460,
           menubar: false,
-          plugins: 'link lists table code',
-          toolbar: 'undo redo | bold italic underline | bullist numlist | link table | code',
+          plugins: 'link lists advlist table code image media preview fullscreen charmap hr autolink searchreplace anchor wordcount',
+          toolbar: 'undo redo | bold italic underline | link image media table | bullist numlist | searchreplace | hr charmap | code preview fullscreen',
           branding: false,
           promotion: false,
-          content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }',
+          content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; }',
+          
+          // Link settings
           link_default_target: '_blank',
           link_default_protocol: 'https',
+          autolink_pattern: /^(https?:\/\/|www\.)/i,
+          
+          // Table settings
           table_default_attributes: {
             border: '1'
           },
           table_default_styles: {
             width: '100%'
+          },
+          
+          // Image upload settings
+          automatic_uploads: true,
+          paste_data_images: false, // Prevent base64 images in content
+          images_upload_handler: handleImageUpload,
+          file_picker_types: 'image media',
+          file_picker_callback: handleFilePicker,
+          
+          // Media settings (YouTube/Vimeo embeds)
+          media_live_embeds: true,
+          media_url_resolver: (data: any, resolve: any) => {
+            // Allow YouTube and Vimeo embeds (don't download)
+            if (data.url.includes('youtube.com') || data.url.includes('youtu.be') || 
+                data.url.includes('vimeo.com')) {
+              resolve({ html: '' }); // Let TinyMCE handle embeds
+            } else {
+              resolve({ html: '' });
+            }
+          },
+          
+          // Advanced list settings
+          advlist_bullet_styles: 'default,circle,disc,square',
+          advlist_number_styles: 'default,lower-alpha,lower-roman,upper-alpha,upper-roman',
+          
+          // Paste event handler for auto-import of external file URLs
+          setup: (editor: any) => {
+            editor.on('paste', (e: any) => handlePaste(editor, e));
           }
         }}
         onEditorChange={(content) => onChange(content)}
