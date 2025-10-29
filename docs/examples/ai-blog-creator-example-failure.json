@@ -1,0 +1,13 @@
+{
+  "title": "Guide to Memory Videos",
+  "slug": "Guide To Memory Videos",
+  "language": "en",
+  "status": "pending",
+  "description": "Learn about memory videos",
+  "blocks": [
+    {
+      "type": "custom_block",
+      "content": "This is a custom block type that doesn't exist in Directus"
+    }
+  ]
+}
