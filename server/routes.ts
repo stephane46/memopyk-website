@@ -9877,6 +9877,9 @@ export async function registerRoutes(app: Express): Promise<void> {
         featured_order: cleanedData.featured_order || null
       };
 
+      console.log('🔍 POST PAYLOAD KEYS:', Object.keys(postPayload));
+      console.log('🔍 POST PAYLOAD (full):', JSON.stringify(postPayload, null, 2));
+
       const postResponse = await fetch(`${BASE_URL}/items/posts`, {
         method: 'POST',
         headers: {
