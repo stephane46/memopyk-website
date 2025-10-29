@@ -594,6 +594,83 @@ export const insertPartnerSchema = createInsertSchema(partners).omit({
 export type Partner = typeof partners.$inferSelect;
 export type InsertPartner = z.infer<typeof insertPartnerSchema>;
 
+// ============================================================================
+// BLOG SYSTEM TABLES
+// ============================================================================
+
+// Blog posts table
+export const blogPosts = pgTable("blog_posts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  language: varchar("language", { length: 10 }).notNull().$type<'en-US' | 'fr-FR'>(),
+  status: varchar("status", { length: 20 }).notNull().$type<'draft' | 'published'>(),
+  contentHtml: text("content_html").notNull(),
+  description: text("description"),
+  heroUrl: text("hero_url"), // Public URL in Supabase Storage
+  heroCaption: text("hero_caption"),
+  readTimeMinutes: integer("read_time_minutes"),
+  seo: jsonb("seo").$type<{
+    title?: string;
+    description?: string;
+    keywords?: string[];
+    ogImage?: string;
+  }>(),
+  isFeatured: boolean("is_featured").default(false),
+  featuredOrder: integer("featured_order"),
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true
+});
+
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
+
+// Blog tags table
+export const blogTags = pgTable("blog_tags", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull().unique(),
+  slug: text("slug").notNull().unique(),
+  color: text("color"),
+  icon: text("icon")
+});
+
+export const insertBlogTagSchema = createInsertSchema(blogTags).omit({
+  id: true
+});
+
+export type BlogTag = typeof blogTags.$inferSelect;
+export type InsertBlogTag = z.infer<typeof insertBlogTagSchema>;
+
+// Blog post-tags junction table (many-to-many)
+export const blogPostTags = pgTable("blog_post_tags", {
+  postId: uuid("post_id").notNull().references(() => blogPosts.id, { onDelete: "cascade" }),
+  tagId: uuid("tag_id").notNull().references(() => blogTags.id, { onDelete: "cascade" })
+});
+
+// Blog galleries table (optional images per post)
+export const blogGalleries = pgTable("blog_galleries", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  postId: uuid("post_id").notNull().references(() => blogPosts.id, { onDelete: "cascade" }),
+  sort: integer("sort"),
+  url: text("url").notNull(), // Public URL in Supabase Storage
+  title: text("title"),
+  alt: text("alt")
+});
+
+export const insertBlogGallerySchema = createInsertSchema(blogGalleries).omit({
+  id: true
+});
+
+export type BlogGallery = typeof blogGalleries.$inferSelect;
+export type InsertBlogGallery = z.infer<typeof insertBlogGallerySchema>;
+
 // Insert types for all tables
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertHeroVideo = z.infer<typeof insertHeroVideoSchema>;

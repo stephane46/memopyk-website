@@ -9363,9 +9363,11 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
-  // Blog Routes - Proxy to Directus CMS with Static Token Authentication
+  // ============================================================================
+  // PUBLIC BLOG ROUTES (Supabase-native)
+  // ============================================================================
 
-
+  // Get published blog posts (public list)
   app.get("/api/blog/posts", async (req, res) => {
     try {
       const { language, limit = 24, offset = 0 } = req.query;
@@ -9375,74 +9377,35 @@ export async function registerRoutes(app: Express): Promise<void> {
         return res.status(400).json({ error: 'Invalid or missing language parameter. Must be en-US or fr-FR' });
       }
       
-      const token = getDirectusToken();
+      console.log(`🔍 Fetching blog posts for ${language}`);
       
-      // Phase 2: Enhanced fields with tags, galleries, featured status
-      const fieldsQuery = 'id,title,slug,status,published_at,language,description,image.id,author.*,seo,' +
-        'is_featured,featured_order,hero_caption,read_time_minutes,comments_enabled,disqus_thread_id,' +
-        'tags.tags_id.id,tags.tags_id.name,tags.tags_id.slug,tags.tags_id.color,tags.tags_id.icon,' +
-        'galleries.id,galleries.title,galleries.description,galleries.layout_type,galleries.display_order,' +
-        'galleries.gallery_images.id,galleries.gallery_images.caption,galleries.gallery_images.alt_text,' +
-        'galleries.gallery_images.image,galleries.gallery_images.display_order';
+      // Query published posts only
+      const { data: posts, error, count } = await supabase
+        .from('blog_posts')
+        .select('*', { count: 'exact' })
+        .eq('language', language)
+        .eq('status', 'published')
+        .lte('published_at', new Date().toISOString())
+        .order('is_featured', { ascending: false })
+        .order('featured_order', { ascending: true, nullsFirst: false })
+        .order('published_at', { ascending: false })
+        .range(parseInt(offset as string), parseInt(offset as string) + parseInt(limit as string) - 1);
       
-      // Filter by status, published_at <= now, AND exact language match
-      const now = new Date().toISOString();
-      const url = `https://cms.memopyk.com/items/posts?filter[status][_eq]=published&filter[published_at][_lte]=${now}&filter[language][_eq]=${language}&sort=-featured_order,-published_at&fields=${fieldsQuery}&limit=${limit}&offset=${offset}`;
-      
-      console.log(`🔍 Fetching blog posts with filter: language=${language}, published_at<=${now}`);
-      
-      const response = await fetch(url, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Directus API error:', response.status, errorText);
-        throw new Error(`Directus API error: ${response.status}`);
+      if (error) {
+        console.error('❌ Error fetching posts:', error);
+        throw error;
       }
-
-      const result = await response.json();
-      const posts = result.data || [];
       
-      console.log(`📝 Directus returned ${posts.length} posts`);
+      console.log(`✅ Blog posts fetched: ${posts?.length || 0} posts`);
       
-      // Map Directus fields to frontend expectations
-      const mappedPosts = posts
-        .filter((post: any) => {
-          if (post.language !== language) {
-            console.warn(`⚠️ Language mismatch: expected ${language}, got ${post.language} for post ${post.slug}`);
-            return false;
-          }
-          return true;
-        })
-        .map((post: any) => {
-          const mapped = {
-            ...post,
-            publish_date: post.published_at,
-            language: post.language,
-            featured_image_url: post.image?.id ? `https://cms.memopyk.com/assets/${post.image.id}` : undefined,
-            galleries: post.galleries?.map((gallery: any) => ({
-              ...gallery,
-              gallery_images: gallery.gallery_images?.map((gi: any) => ({
-                ...gi,
-                image_url: gi.image?.id ? `https://cms.memopyk.com/assets/${gi.image.id}` : null
-              }))
-            }))
-          };
-          
-          return mapped;
-        });
-      
-      console.log(`✅ Blog posts fetched for ${language}: ${mappedPosts.length} posts`);
-      
-      // Prevent browser caching to always fetch fresh content from Directus
       res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
       res.set('Pragma', 'no-cache');
       res.set('Expires', '0');
+      
       res.json({
         success: true,
-        data: mappedPosts,
-        total: result.meta?.filter_count || mappedPosts.length,
+        data: posts,
+        total: count || 0,
         limit: parseInt(limit as string),
         offset: parseInt(offset as string)
       });
@@ -9828,13 +9791,125 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
-  // AI Blog Creator - Create post from AI-generated JSON (NEW SCHEMA: Simple HTML content)
+  // ============================================================================
+  // ADMIN BLOG ROUTES (Supabase-native)
+  // ============================================================================
+
+  // Get all blog posts for admin (includes drafts)
+  app.get("/api/admin/blog/posts", async (req, res) => {
+    try {
+      const { language, status, limit = 50, offset = 0 } = req.query;
+      
+      let query = supabase
+        .from('blog_posts')
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(parseInt(offset as string), parseInt(offset as string) + parseInt(limit as string) - 1);
+      
+      if (language) query = query.eq('language', language);
+      if (status) query = query.eq('status', status);
+      
+      const { data: posts, error, count } = await query;
+      
+      if (error) throw error;
+      
+      res.json({
+        success: true,
+        data: posts,
+        total: count || 0,
+        limit: parseInt(limit as string),
+        offset: parseInt(offset as string)
+      });
+    } catch (error: any) {
+      console.error('Error fetching admin blog posts:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get single post by ID for admin
+  app.get("/api/admin/blog/posts/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const { data: post, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (error) throw error;
+      if (!post) return res.status(404).json({ error: 'Post not found' });
+      
+      res.json({ success: true, data: post });
+    } catch (error: any) {
+      console.error('Error fetching post:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Update blog post
+  app.put("/api/admin/blog/posts/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      
+      // Auto-set published_at when changing to published status
+      if (updates.status === 'published' && !updates.published_at) {
+        const { data: currentPost } = await supabase
+          .from('blog_posts')
+          .select('published_at')
+          .eq('id', id)
+          .single();
+        
+        if (!currentPost?.published_at) {
+          updates.published_at = new Date().toISOString();
+        }
+      }
+      
+      const { data: updatedPost, error } = await supabase
+        .from('blog_posts')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      console.log(`✅ Post updated: ${updatedPost.title}`);
+      res.json({ success: true, data: updatedPost });
+    } catch (error: any) {
+      console.error('Error updating post:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Delete blog post
+  app.delete("/api/admin/blog/posts/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const { error } = await supabase
+        .from('blog_posts')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      console.log(`🗑️ Post deleted: ${id}`);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Error deleting post:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // AI Blog Creator - Create post from AI-generated JSON (Supabase-native)
   app.post("/api/admin/blog/create-from-ai", async (req, res) => {
     try {
       console.log('🤖 AI Blog Creator: Starting post creation...');
       const aiData = req.body;
 
-      // Validate required fields for NEW schema (simple HTML content)
+      // Validate required fields
       const requiredFields = ['title', 'slug', 'language', 'status', 'content'];
       for (const field of requiredFields) {
         if (!aiData[field]) {
@@ -9842,10 +9917,6 @@ export async function registerRoutes(app: Express): Promise<void> {
         }
       }
 
-      const token = await getDirectusToken();
-      const BASE_URL = 'https://cms.memopyk.com';
-
-      // Create post with NEW SCHEMA (simple HTML content field)
       console.log(`📝 Creating post: "${aiData.title}" (${aiData.language})`);
       
       // Determine published_at: if status is "published", always set a date
@@ -9854,46 +9925,36 @@ export async function registerRoutes(app: Express): Promise<void> {
         publishedAt = new Date().toISOString();
       }
       
-      // Build payload and exclude Directus system fields (prevents foreign key errors)
-      const systemFields = ['user_created', 'user_updated', 'date_created', 'date_updated', 'user_created_display', 'user_updated_display', 'id'];
-      const cleanedData = { ...aiData };
-      systemFields.forEach(field => delete cleanedData[field]);
-      
+      // Build payload for Supabase blog_posts table
       const postPayload = {
-        title: cleanedData.title,
-        slug: cleanedData.slug,
-        language: cleanedData.language,
-        status: cleanedData.status,
-        content: cleanedData.content, // HTML content (supports tables, multiple images)
+        title: aiData.title,
+        slug: aiData.slug,
+        language: aiData.language,
+        status: aiData.status,
+        content_html: aiData.content, // HTML content (supports tables, multiple images)
         published_at: publishedAt || null,
-        description: cleanedData.description || null,
-        hero_caption: cleanedData.hero_caption || null,
-        image: cleanedData.image || null, // Hero image file ID
-        read_time_minutes: cleanedData.read_time_minutes || null,
-        seo: cleanedData.seo || null,
-        tags: cleanedData.tags || null, // JSON keywords array
-        author: cleanedData.author || null,
-        is_featured: cleanedData.is_featured || false,
-        featured_order: cleanedData.featured_order || null
+        description: aiData.description || null,
+        hero_caption: aiData.hero_caption || null,
+        hero_url: aiData.image || null, // Public URL to hero image
+        read_time_minutes: aiData.read_time_minutes || null,
+        seo: aiData.seo || null,
+        is_featured: aiData.is_featured || false,
+        featured_order: aiData.featured_order || null
       };
 
-      const postResponse = await fetch(`${BASE_URL}/items/posts`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(postPayload)
-      });
+      // Insert post into Supabase
+      const { data: postResult, error: postError } = await supabase
+        .from('blog_posts')
+        .insert(postPayload)
+        .select()
+        .single();
 
-      if (!postResponse.ok) {
-        const errorText = await postResponse.text();
-        console.error('❌ Failed to create post:', errorText);
-        throw new Error(`Failed to create post: ${postResponse.status} - ${errorText}`);
+      if (postError) {
+        console.error('❌ Failed to create post:', postError);
+        throw new Error(`Failed to create post: ${postError.message}`);
       }
 
-      const postResult = await postResponse.json();
-      const postId = postResult.data.id;
+      const postId = postResult.id;
       console.log(`✅ Post created with ID: ${postId}`);
       console.log(`   Title: ${aiData.title}`);
       console.log(`   Slug: ${aiData.slug}`);
@@ -9907,7 +9968,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         title: aiData.title,
         slug: aiData.slug,
         language: aiData.language,
-        directusUrl: `${BASE_URL}/admin/content/posts/${postId}`
+        adminUrl: `/admin/blog/${postId}` // Internal admin URL
       });
 
     } catch (error: any) {
