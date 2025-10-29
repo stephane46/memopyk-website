@@ -249,7 +249,9 @@ export const BlogAICreator: React.FC = () => {
 
       return { valid: true, data };
     } catch (error) {
-      return { valid: false, error: 'Invalid JSON format' };
+      console.error('JSON Parse Error:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Unknown parse error';
+      return { valid: false, error: `Invalid JSON: ${errorMsg}` };
     }
   };
 
