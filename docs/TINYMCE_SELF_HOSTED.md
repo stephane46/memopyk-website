@@ -17,7 +17,7 @@ VITE_EDITOR_ENGINE=quill    # Fallback - React-Quill with HTML source view
 
 ### TinyMCE (Default)
 - **Self-hosted**: Loads from `node_modules/tinymce` bundle (no external CDN)
-- **No API key required**: Complete offline capability
+- **GPL License**: Uses `license_key: 'gpl'` for free self-hosted version
 - **Plugins**: link, lists, table, code
 - **Toolbar**: undo/redo, bold/italic/underline, lists, link, table, HTML code view
 - **Table support**: Native table insertion and editing

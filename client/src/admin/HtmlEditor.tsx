@@ -32,6 +32,7 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
   return (
     <div className="border rounded-lg overflow-hidden bg-white">
       <Editor
+        licenseKey="gpl"
         value={value}
         init={{
           height: 420,
