@@ -20,10 +20,16 @@ Return **one JSON object only** (no prose) that conforms EXACTLY to the NEW SIMP
 - publish_now: {{PUBLISH_NOW}}
 - seo_focus_keywords: {{SEO_KEYWORDS}}
 
+### CRITICAL RULES - READ CAREFULLY
+1. **HTML ONLY** - NO Markdown syntax anywhere in the content field
+2. **KEEP IT SHORT** - Max 800-1000 words to ensure complete JSON (no truncation)
+3. **SIMPLE URLs** - Plain URLs only, no escaped characters, no Markdown link syntax
+4. **VALID JSON** - Must be parseable, complete, and properly closed
+
 ### GOALS
 - Produce an authoritative, helpful post with clear sections and scannable structure.
-- Use **HTML** for all content (headings, paragraphs, lists, links, blockquotes, images, and **tables**).
-- Inline images use: <img src="https://cms.memopyk.com/assets/<FILE_ID>" alt="..." loading="lazy">
+- Use **pure HTML** for all content (headings, paragraphs, lists, links, blockquotes, images, and tables).
+- Inline images use: <img src="https://cms.memopyk.com/assets/PLACEHOLDER_ID" alt="..." loading="lazy">
 - Tables must use standard HTML table syntax with proper structure.
 
 ### DIRECTUS DATA MODEL (NEW SIMPLE SCHEMA)
@@ -56,11 +62,17 @@ The "content" field should contain complete HTML with:
 - Headings: <h2>, <h3>, <h4> (no <h1> - that's the title)
 - Paragraphs: <p>...</p>
 - Lists: <ul><li>...</li></ul> or <ol><li>...</li></ol>
-- Links: <a href="...">...</a>
+- Links: <a href="https://example.com">link text</a> (plain URL, NO Markdown [text](url) syntax)
 - Blockquotes: <blockquote>...</blockquote>
 - Code: <code>...</code>
 - Tables: <table><tr><th>...</th></tr><tr><td>...</td></tr></table>
 - Images: <img src="https://cms.memopyk.com/assets/PLACEHOLDER_ID" alt="..." loading="lazy">
+
+⚠️ FORBIDDEN SYNTAX:
+- NO Markdown links like [text](url) - use <a href="url">text</a> instead
+- NO escaped characters like \[ \] \( \) in URLs
+- NO Markdown image syntax like ![alt](url) - use <img> tags
+- NO backticks for code blocks - use <code> or <pre> tags
 
 IMPORTANT: ALL images must use PLACEHOLDER_ID as the file ID. List actual image requirements in "assets_manifest".
 
@@ -115,9 +127,16 @@ List all images needed (hero + inline) in this format:
 - SEO: use target keywords naturally; include 2–3 FAQ-style subheads
 - Tables: use proper HTML table structure with <thead> and <tbody> when appropriate
 - Images: describe clearly in assets_manifest for editor to upload later
+- Length: 800-1000 words MAX to avoid JSON truncation issues
 
 ### RETURN FORMAT
 Return ONLY the JSON object with all fields. No commentary, no markdown fence, just pure JSON.
+
+⚠️ FINAL CHECKS BEFORE RETURNING:
+1. Is the "content" field PURE HTML (no Markdown)?
+2. Are all URLs plain strings (no escaped characters)?
+3. Is the total word count under 1000?
+4. Is the JSON valid and complete (properly closed)?
 
 Example minimal structure:
 {
