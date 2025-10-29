@@ -186,13 +186,13 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
         init={{
           height: 500,
           menubar: false,
-          plugins: 'link lists advlist table code image media preview fullscreen charmap autolink searchreplace anchor wordcount visualblocks emoticons',
+          plugins: 'link lists advlist table code image media preview fullscreen charmap autolink searchreplace anchor wordcount',
           
           // Two-row toolbar organized logically
           toolbar_mode: 'wrap',
           toolbar: [
             'undo redo | blocks fontsize | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify',
-            'bullist numlist outdent indent | link image media table | removeformat searchreplace | charmap emoticons | code visualblocks preview fullscreen'
+            'bullist numlist outdent indent | link image media table | removeformat searchreplace | charmap | code preview fullscreen'
           ],
           
           branding: false,
@@ -201,14 +201,12 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
           
           // Enable visual resize handles on images/tables/media
           object_resizing: true,
-          object_resizing_options: {
-            alwaysVisible: true
-          },
           resize_img_proportional: true,
           
-          // Explicitly enable image editing
+          // Explicitly enable image editing features
           image_advtab: true,
           image_caption: true,
+          image_dimensions: true,
           
           // Block formats (headings, paragraphs)
           block_formats: 'Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3; Heading 4=h4; Preformatted=pre',
