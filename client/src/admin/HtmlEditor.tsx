@@ -186,13 +186,14 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
         init={{
           height: 500,
           menubar: false,
-          plugins: 'link lists advlist table code image media preview fullscreen charmap autolink searchreplace anchor wordcount',
+          plugins: 'link lists advlist table code codesample image media preview fullscreen charmap autolink searchreplace anchor wordcount emoticons visualblocks visualchars nonbreaking help insertdatetime directionality autosave quickbars',
           
-          // Two-row toolbar organized logically
+          // Three-row toolbar organized logically
           toolbar_mode: 'wrap',
           toolbar: [
-            'undo redo | blocks fontsize lineheight styles | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify',
-            'bullist numlist outdent indent | link image media table | removeformat searchreplace | charmap | code preview fullscreen'
+            'undo redo | cut copy paste | blocks fontselect fontsize lineheight styles | bold italic underline strikethrough subscript superscript | forecolor backcolor | removeformat',
+            'alignleft aligncenter alignright alignjustify | outdent indent | bullist numlist | blockquote hr | ltr rtl',
+            'link unlink anchor | image media table | charmap emoticons nonbreaking insertdatetime | codesample code visualblocks visualchars | searchreplace wordcount help | preview fullscreen'
           ],
           
           branding: false,
