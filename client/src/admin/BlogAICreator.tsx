@@ -9,159 +9,89 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { Sparkles, Copy, CheckCircle, AlertCircle, Loader2, Send } from 'lucide-react';
 
-const MASTER_PROMPT_TEMPLATE = `MASTER PROMPT (give this to your marketing AI)
-You are creating a new blog post for a Directus CMS that powers memopyk.com.
-Return **one JSON object only** (no prose) that conforms EXACTLY to the NEW SIMPLE SCHEMA below.
+const MASTER_PROMPT_TEMPLATE = `ROLE: You are a JSON generator for a Directus CMS blog. You MUST return valid JSON only.
 
-### INPUTS
-- topic: {{TOPIC}}
-- locale: {{LOCALE}}
-- status: {{STATUS}}
-- publish_now: {{PUBLISH_NOW}}
-- seo_focus_keywords: {{SEO_KEYWORDS}}
+INPUTS:
+- Topic: {{TOPIC}}
+- Language: {{LOCALE}}
+- Status: {{STATUS}}
+- Publish now: {{PUBLISH_NOW}}
+- SEO keywords: {{SEO_KEYWORDS}}
 
-### CRITICAL RULES - READ CAREFULLY
-1. **HTML ONLY** - NO Markdown syntax anywhere in the content field
-2. **KEEP IT SHORT** - Max 800-1000 words to ensure complete JSON (no truncation)
-3. **SIMPLE URLs** - Plain URLs only, no escaped characters, no Markdown link syntax
-4. **VALID JSON** - Must be parseable, complete, and properly closed
+TASK: Create blog post content following this TWO-PHASE process:
 
-### GOALS
-- Produce an authoritative, helpful post with clear sections and scannable structure.
-- Use **pure HTML** for all content (headings, paragraphs, lists, links, blockquotes, images, and tables).
-- Inline images use: <img src="https://cms.memopyk.com/assets/PLACEHOLDER_ID" alt="..." loading="lazy">
-- Tables must use standard HTML table syntax with proper structure.
+═══════════════════════════════════════════════════════════════════════════════
+PHASE 1: DRAFT HTML CONTENT (800-1000 words max)
+═══════════════════════════════════════════════════════════════════════════════
 
-### DIRECTUS DATA MODEL (NEW SIMPLE SCHEMA)
+Write your HTML in a scratchpad first. Use ONLY these tags:
+- Headings: <h2>, <h3>, <h4>
+- Paragraphs: <p>text</p>
+- Lists: <ul><li>item</li></ul>
+- Links: <a href="https://example.com">text</a>
+- Images: <img src="https://cms.memopyk.com/assets/PLACEHOLDER_ID" alt="description" loading="lazy">
+- Tables: <table><thead><tr><th>Header</th></tr></thead><tbody><tr><td>Data</td></tr></tbody></table>
+- Emphasis: <strong>bold</strong>, <em>italic</em>
+- Blockquotes: <blockquote>quote</blockquote>
+
+FORBIDDEN - DO NOT USE:
+❌ [text](url) — Use <a href="url">text</a>
+❌ ![alt](url) — Use <img src="url" alt="alt">
+❌ **text** or *text* — Use <strong> or <em>
+❌ Backslashes before quotes (\")
+❌ Percent-encoded characters (%22, %3A)
+❌ Any square brackets [ ] in your HTML
+
+═══════════════════════════════════════════════════════════════════════════════
+PHASE 2: SELF-CHECK AND VALIDATE
+═══════════════════════════════════════════════════════════════════════════════
+
+Before creating JSON, search your HTML content for these FORBIDDEN patterns:
+1. ✗ Search for `[` or `]` — If found, you're using Markdown syntax. STOP and fix.
+2. ✗ Search for `\\"` — Escaped quotes break JSON. Remove all backslashes.
+3. ✗ Search for `%22` or `%3A` — Percent-encoding breaks JSON. Use plain characters.
+4. ✗ Count words — If over 1000, cut content down.
+
+If ANY forbidden pattern found → REGENERATE your HTML from Phase 1 before continuing.
+
+═══════════════════════════════════════════════════════════════════════════════
+PHASE 3: POPULATE JSON SKELETON
+═══════════════════════════════════════════════════════════════════════════════
+
+Fill this EXACT template with your validated content:
 
 {
-  "title": string,                          // H1 heading (appears in hero)
-  "slug": string-kebab-case,                // URL slug (e.g., "family-reunion-tips")
-  "language": "en-US" | "fr-FR",            // EXACT match - must be one of these
-  "status": "draft" | "published",          // Content status
-  "published_at": iso8601|null,             // ISO date if publish_now=true, else null
-  "description": string,                    // Excerpt/teaser (150–200 chars, appears in cards)
-  "hero_caption": string|null,              // Optional caption for hero image
-  "content": string,                        // **FULL HTML CONTENT** (see format below)
-  "read_time_minutes": number|null,         // Estimated read time (e.g., 5)
-  "image": null,                            // Hero image file ID (always null in JSON - added later)
-  "seo": {                                  // Optional SEO metadata
-    "title": string,                        // ≤ 60 chars; fallback to title
-    "description": string,                  // 150–160 chars; fallback to description
-    "og_image": null                        // Always null - added later
-  },
-  "tags": [string, string],                 // Keywords array (e.g., ["family", "reunion", "tips"])
-  "author": null,                           // Author ID (always null - set by editor)
-  "is_featured": false,                     // Featured flag
-  "featured_order": null                    // Sort order for featured posts
-}
-
-### CONTENT HTML FORMAT
-
-The "content" field should contain complete HTML with:
-- Headings: <h2>, <h3>, <h4> (no <h1> - that's the title)
-- Paragraphs: <p>...</p>
-- Lists: <ul><li>...</li></ul> or <ol><li>...</li></ol>
-- Links: <a href="https://example.com">link text</a> (plain URL, NO Markdown [text](url) syntax)
-- Blockquotes: <blockquote>...</blockquote>
-- Code: <code>...</code>
-- Tables: <table><tr><th>...</th></tr><tr><td>...</td></tr></table>
-- Images: <img src="https://cms.memopyk.com/assets/PLACEHOLDER_ID" alt="..." loading="lazy">
-
-⚠️ FORBIDDEN SYNTAX:
-- NO Markdown links like [text](url) - use <a href="url">text</a> instead
-- NO escaped characters like \[ \] \( \) in URLs
-- NO Markdown image syntax like ![alt](url) - use <img> tags
-- NO backticks for code blocks - use <code> or <pre> tags
-
-IMPORTANT: ALL images must use PLACEHOLDER_ID as the file ID. List actual image requirements in "assets_manifest".
-
-### EXAMPLE HTML CONTENT
-
-<h2>Introduction</h2>
-<p>Start with a compelling hook paragraph that draws readers in.</p>
-
-<h3>Key Benefits</h3>
-<ul>
-  <li>First benefit with details</li>
-  <li>Second benefit explanation</li>
-  <li>Third compelling reason</li>
-</ul>
-
-<h3>Comparison Table</h3>
-<table>
-  <tr>
-    <th>Feature</th>
-    <th>DIY Approach</th>
-    <th>Professional Service</th>
-  </tr>
-  <tr>
-    <td>Quality</td>
-    <td>Variable</td>
-    <td>Consistent, High</td>
-  </tr>
-  <tr>
-    <td>Time Required</td>
-    <td>20+ hours</td>
-    <td>2 hours</td>
-  </tr>
-</table>
-
-<p><img src="https://cms.memopyk.com/assets/PLACEHOLDER_ID" alt="Family gathering around photo album" loading="lazy"></p>
-
-<h3>Conclusion</h3>
-<p>Wrap up with actionable next steps and clear takeaways.</p>
-
-### ASSETS MANIFEST
-
-List all images needed (hero + inline) in this format:
-{
-  "assets_manifest": [
-    { "ref": "hero", "alt": "Family reunion group photo", "notes": "Use as hero image" },
-    { "ref": "photo_album", "alt": "Family gathering around photo album", "notes": "Inline after comparison table" }
-  ]
-}
-
-### QUALITY BARS
-- Tone: clear, helpful, non-hype; practical tips + short paragraphs
-- SEO: use target keywords naturally; include 2–3 FAQ-style subheads
-- Tables: use proper HTML table structure with <thead> and <tbody> when appropriate
-- Images: describe clearly in assets_manifest for editor to upload later
-- Length: 800-1000 words MAX to avoid JSON truncation issues
-
-### RETURN FORMAT
-Return ONLY the JSON object with all fields. No commentary, no markdown fence, just pure JSON.
-
-⚠️ FINAL CHECKS BEFORE RETURNING:
-1. Is the "content" field PURE HTML (no Markdown)?
-2. Are all URLs plain strings (no escaped characters)?
-3. Is the total word count under 1000?
-4. Is the JSON valid and complete (properly closed)?
-
-Example minimal structure:
-{
-  "title": "Your Title Here",
+  "title": "YOUR_TITLE_HERE",
   "slug": "your-slug-here",
-  "language": "en-US",
-  "status": "draft",
+  "language": "{{LOCALE}}",
+  "status": "{{STATUS}}",
   "published_at": null,
-  "description": "Compelling excerpt...",
-  "hero_caption": "Optional hero caption",
-  "content": "<h2>Intro</h2><p>Content...</p>",
-  "read_time_minutes": 5,
+  "description": "YOUR_150_CHAR_DESCRIPTION",
+  "hero_caption": "YOUR_HERO_CAPTION_OR_NULL",
+  "content": "YOUR_VALIDATED_HTML_FROM_PHASE_1",
+  "read_time_minutes": 6,
   "image": null,
   "seo": {
-    "title": "SEO title",
-    "description": "SEO description"
+    "title": "YOUR_SEO_TITLE_60_CHARS",
+    "description": "YOUR_SEO_DESCRIPTION_160_CHARS",
+    "og_image": null
   },
-  "tags": ["keyword1", "keyword2"],
+  "tags": ["tag1", "tag2"],
   "author": null,
   "is_featured": false,
   "featured_order": null,
   "assets_manifest": [
-    { "ref": "hero", "alt": "Alt text", "notes": "Usage notes" }
-  ]
-}`;
+    { "ref": "hero", "alt": "DESCRIBE_IMAGE", "notes": "Usage notes" }
+  ],
+  "_self_check": "passed"
+}
+
+CRITICAL:
+- Replace ALL_CAPS_PLACEHOLDERS with actual content
+- "content" field must be your Phase 1 HTML (after self-check validation)
+- "_self_check" MUST be "passed" - this confirms you ran Phase 2
+- Response must start with { and end with }
+- NO markdown fences, NO explanatory text — ONLY the JSON object`;
 
 export const BlogAICreator: React.FC = () => {
   const { toast } = useToast();
