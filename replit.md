@@ -72,23 +72,28 @@ Modal styling: Requires solid white modal backgrounds with dark overlays for pro
 - **Professional Flag System**: 255-country SVG flag solution with dynamic mapping and three-tier fallback.
 - **OpenReplay Integration**: Session recording and user behavior analytics.
 - **Partner Intake System**: Bilingual partner directory with Zoho CRM integration (Account, Contact, Partner records). Uses OAuth refresh-token flow, rate limiting, CSRF, and reCAPTCHA stub.
-- **Directus Blog CMS Integration**: Headless CMS for bilingual blog content using Simple CMS template (https://cms.memopyk.com). Posts use a **simple HTML content model** with a single `content` field (TEXT) containing pre-formatted HTML. **IMPORTANT: No M2A blocks, no block collections** - content is stored as pure HTML for direct rendering. Language normalization helpers for consistent filtering. Backend uses static token authentication (DIRECTUS_TOKEN) instead of email/password login. AI Blog Creator generates HTML content directly with **single quotes for attributes** to ensure clean JSON parsing. **Built-in WYSIWYG editor** (TinyMCE) for post-validation content refinement with DOMPurify sanitization and automatic link/image normalization (rel="noopener nofollow", loading="lazy").
+- **Supabase-Native Blog System** (Migrated Oct 2025): Direct Supabase PostgreSQL integration for full blog management control
+  - **Architecture**: Removed Directus CMS dependency for simpler, self-managed workflow
+  - **Database Schema**: Native `blog_posts` table with HTML content model (`content_html` field)
+  - **AI Blog Creator**: Generates complete HTML blog posts using AI with direct Supabase inserts
+  - **WYSIWYG Editor**: Self-hosted TinyMCE for post-validation content refinement with DOMPurify sanitization
+  - **Image Storage**: Supabase Storage bucket (`memopyk-blog`) for hero images and galleries
+  - **Core Features**: Bilingual (EN/FR), draft/published status, featured posts, SEO metadata, slug-based routing
+  - **Public API Routes**: `/api/blog/posts` (list), `/api/blog/posts/:slug` (detail), `/api/blog/featured`, `/api/blog/posts/search`
+  - **Admin API Routes**: `/api/admin/blog/posts` (CRUD), `/api/admin/blog/create-from-ai` (AI generation)
+  - **Migration Status**: Core blog system complete; advanced features (tags, galleries, related posts) stubbed for future implementation
 - **Blog Content Rendering System**: 
-  - **Simple HTML Content**: Posts contain a single `content` field with pre-formatted HTML
+  - **Simple HTML Content**: Posts use `content_html` field containing pre-formatted, sanitized HTML
   - **Security**: DOMPurify sanitizes all rendered HTML before display for XSS protection
-  - **Image Rewriting**: Body images automatically rewritten to use proxy endpoint for CORS resolution
-  - **Typography**: TailwindCSS `@tailwindcss/typography` prose classes provide professional styling for headings, paragraphs, lists, blockquotes, code, and tables
+  - **Typography**: TailwindCSS `@tailwindcss/typography` prose classes provide professional styling
   - **Table Styling**: Responsive tables with zebra striping, subtle borders, and horizontal scroll on mobile
-  - **Visual Editing**: Directus Visual Editing SDK integration for in-context content editing
-- **Related Posts System**: Tag-based content recommendation engine for blog posts
-  - **Primary Matching**: Posts sharing ≥1 tag via post_tags junction table
-  - **Fallback Strategy**: Latest posts in same language when no tag matches
-  - **Smart Sorting**: Shared tag count descending, then published date descending
-  - **Tag Count Badges**: Visual indicator showing number of shared tags
-  - **Language Isolation**: Strict language filtering prevents cross-locale content
-  - **GA4 Tracking**: Click tracking with €5 conversion value per related post click
-  - **Performance**: 5-minute React Query cache, 2-3 Directus API calls per request
-  - **Dual API Support**: Deep filter (Directus 10+) with client-side join fallback
+- **Blog Image Migration Process** (Manual VPS Procedure):
+  - **Step 1 - Export from Directus Container**: `docker cp directus-oggoowksgsws8kgg40kwk0sg:/directus/uploads/. /root/directus_export/`
+  - **Step 2 - Install Supabase CLI**: `npm install -g supabase && supabase login`
+  - **Step 3 - Bulk Upload to Storage**: Use `find` + `supabase storage upload` loop to transfer files to `memopyk-blog` bucket
+  - **Step 4 - Update Database URLs**: Run SQL migration to rewrite `hero_url` and gallery URLs from Directus CDN to Supabase Storage paths
+  - **Step 5 - Verify Migration**: Confirm non-zero counts for Supabase Storage URLs in production database
+  - **Status**: Image migration pending - currently blog posts can reference external URLs or Supabase Storage URLs directly
 - **Blog Analytics System**: Tracks blog post views with hybrid storage pattern (Supabase primary + JSON fallback). Excludes admin IP addresses. Admin dashboard "Blog" tab shows popular posts ranked by views with language filtering and time period selection (7d/30d/90d).
 - **Advanced Analytics System** (Completed Oct 2025): Comprehensive analytics infrastructure with dual-stream tracking to GA4 and Supabase database:
   - **Event Tracking**: 6 custom event types (page_view, scroll_engagement, form_submit, cta_click, video_interaction, gallery_card_flip, share_click) with automatic tracking hooks
