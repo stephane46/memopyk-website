@@ -17,7 +17,6 @@ import 'tinymce/plugins/media';
 import 'tinymce/plugins/preview';
 import 'tinymce/plugins/fullscreen';
 import 'tinymce/plugins/charmap';
-import 'tinymce/plugins/hr';
 import 'tinymce/plugins/autolink';
 import 'tinymce/plugins/searchreplace';
 import 'tinymce/plugins/anchor';
@@ -169,8 +168,8 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
         init={{
           height: 460,
           menubar: false,
-          plugins: 'link lists advlist table code image media preview fullscreen charmap hr autolink searchreplace anchor wordcount',
-          toolbar: 'undo redo | bold italic underline | link image media table | bullist numlist | searchreplace | hr charmap | code preview fullscreen',
+          plugins: 'link lists advlist table code image media preview fullscreen charmap autolink searchreplace anchor wordcount',
+          toolbar: 'undo redo | bold italic underline | link image media table | bullist numlist | searchreplace | charmap | code preview fullscreen',
           branding: false,
           promotion: false,
           content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; }',
