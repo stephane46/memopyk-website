@@ -69,6 +69,13 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
 
   // Custom file picker for images and videos
   const handleFilePicker = (callback: any, value: any, meta: any) => {
+    // Check if user is authenticated
+    const token = getAdminToken();
+    if (!token) {
+      alert('⚠️ You must be logged into the admin area to upload files.\n\nPlease login and try again.');
+      return;
+    }
+
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
     
@@ -93,13 +100,19 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
         const response = await fetch('/api/admin/upload', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${getAdminToken()}`
+            'Authorization': `Bearer ${token}`
           },
           body: formData
         });
         
         if (!response.ok) {
           const error = await response.json();
+          
+          // Handle authentication errors specifically
+          if (response.status === 401) {
+            throw new Error('Your session has expired. Please login again and retry.');
+          }
+          
           throw new Error(error.error || 'Upload failed');
         }
         
