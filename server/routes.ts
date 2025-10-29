@@ -9586,32 +9586,33 @@ export async function registerRoutes(app: Express): Promise<void> {
           continue;
         }
 
-        // Step 3: Create junction record in posts_blocks
-        console.log(`   🔗 Linking ${blockType} (${blockId}) to post...`);
-        const junctionData = {
-          posts_id: postId,
-          collection: blockType,
-          item: blockId,
-          sort: sortOrder
-        };
-
-        const junctionResponse = await fetch(`${BASE_URL}/items/posts_blocks`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(junctionData)
-        });
-
-        if (!junctionResponse.ok) {
-          const errorText = await junctionResponse.text();
-          console.error(`❌ Junction table error (${junctionResponse.status}):`, errorText);
-          throw new Error(`Failed to link block to post: ${junctionResponse.status} - ${errorText}`);
-        }
-
-        console.log(`   ✅ Block ${i + 1} linked successfully`);
+        console.log(`   ✅ Block ${i + 1} created successfully`);
       }
+
+      // Step 3: Link blocks to post using PATCH (Directus M2A pattern)
+      console.log(`\n🔗 Linking ${createdBlocks.length} blocks to post...`);
+      const blocksPayload = createdBlocks.map(cb => ({
+        collection: cb.blockType,
+        item: cb.blockId,
+        sort: cb.sort
+      }));
+
+      const patchPostResponse = await fetch(`${BASE_URL}/items/posts/${postId}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ blocks: blocksPayload })
+      });
+
+      if (!patchPostResponse.ok) {
+        const errorText = await patchPostResponse.text();
+        console.error(`❌ Failed to link blocks to post (${patchPostResponse.status}):`, errorText);
+        throw new Error(`Failed to link blocks: ${patchPostResponse.status} - ${errorText}`);
+      }
+
+      console.log(`✅ All blocks linked successfully`);
 
       // Step 4: Optional image patching
       if (imagesMap && imagesMap.length > 0) {
