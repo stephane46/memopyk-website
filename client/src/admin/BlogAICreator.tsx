@@ -9,89 +9,54 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { Sparkles, Copy, CheckCircle, AlertCircle, Loader2, Send } from 'lucide-react';
 
-const MASTER_PROMPT_TEMPLATE = `ROLE: You are a JSON generator for a Directus CMS blog. You MUST return valid JSON only.
+const MASTER_PROMPT_TEMPLATE = `Create a blog post in valid JSON format.
 
-INPUTS:
-- Topic: {{TOPIC}}
-- Language: {{LOCALE}}
-- Status: {{STATUS}}
-- Publish now: {{PUBLISH_NOW}}
-- SEO keywords: {{SEO_KEYWORDS}}
+TOPIC: {{TOPIC}}
+LANGUAGE: {{LOCALE}}
+KEYWORDS: {{SEO_KEYWORDS}}
 
-TASK: Create blog post content following this TWO-PHASE process:
+CRITICAL RULES FOR JSON VALIDITY:
+1. Use SINGLE QUOTES for all HTML attributes: <a href='url'> NOT <a href="url">
+2. NO Markdown syntax: NO [text](url), NO ![alt](url), NO **bold**
+3. NO backslashes, NO percent-encoding (%22, %3A)
+4. Keep content under 1000 words
 
-═══════════════════════════════════════════════════════════════════════════════
-PHASE 1: DRAFT HTML CONTENT (800-1000 words max)
-═══════════════════════════════════════════════════════════════════════════════
+HTML TAGS ALLOWED (with single quotes for attributes):
+- <h2>, <h3>, <h4>
+- <p>text</p>
+- <ul><li>item</li></ul>
+- <a href='url'>text</a>
+- <img src='url' alt='description'>
+- <strong>bold</strong>, <em>italic</em>
+- <blockquote>quote</blockquote>
+- <table><thead><tr><th>Header</th></tr></thead><tbody><tr><td>Data</td></tr></tbody></table>
 
-Write your HTML in a scratchpad first. Use ONLY these tags:
-- Headings: <h2>, <h3>, <h4>
-- Paragraphs: <p>text</p>
-- Lists: <ul><li>item</li></ul>
-- Links: <a href="https://example.com">text</a>
-- Images: <img src="https://cms.memopyk.com/assets/PLACEHOLDER_ID" alt="description" loading="lazy">
-- Tables: <table><thead><tr><th>Header</th></tr></thead><tbody><tr><td>Data</td></tr></tbody></table>
-- Emphasis: <strong>bold</strong>, <em>italic</em>
-- Blockquotes: <blockquote>quote</blockquote>
-
-FORBIDDEN - DO NOT USE:
-❌ [text](url) — Use <a href="url">text</a>
-❌ ![alt](url) — Use <img src="url" alt="alt">
-❌ **text** or *text* — Use <strong> or <em>
-❌ Backslashes before quotes (\")
-❌ Percent-encoded characters (%22, %3A)
-❌ Any square brackets [ ] in your HTML
-
-═══════════════════════════════════════════════════════════════════════════════
-PHASE 2: SELF-CHECK AND VALIDATE
-═══════════════════════════════════════════════════════════════════════════════
-
-Before creating JSON, search your HTML content for these FORBIDDEN patterns:
-1. ✗ Search for [ or ] — If found, you're using Markdown syntax. STOP and fix.
-2. ✗ Search for backslash-quote — Escaped quotes break JSON. Remove all backslashes.
-3. ✗ Search for %22 or %3A — Percent-encoding breaks JSON. Use plain characters.
-4. ✗ Count words — If over 1000, cut content down.
-
-If ANY forbidden pattern found → REGENERATE your HTML from Phase 1 before continuing.
-
-═══════════════════════════════════════════════════════════════════════════════
-PHASE 3: POPULATE JSON SKELETON
-═══════════════════════════════════════════════════════════════════════════════
-
-Fill this EXACT template with your validated content:
+OUTPUT EXACTLY THIS JSON (no code fences, no explanations):
 
 {
-  "title": "YOUR_TITLE_HERE",
-  "slug": "your-slug-here",
+  "title": "Your Blog Title Here",
+  "slug": "your-blog-slug-here",
   "language": "{{LOCALE}}",
   "status": "{{STATUS}}",
   "published_at": null,
-  "description": "YOUR_150_CHAR_DESCRIPTION",
-  "hero_caption": "YOUR_HERO_CAPTION_OR_NULL",
-  "content": "YOUR_VALIDATED_HTML_FROM_PHASE_1",
+  "description": "150-character summary of the post",
+  "hero_caption": "Caption for hero image or null",
+  "content": "<h2>Introduction</h2><p>Your HTML content here with SINGLE QUOTES for attributes...</p>",
   "read_time_minutes": 6,
   "image": null,
   "seo": {
-    "title": "YOUR_SEO_TITLE_60_CHARS",
-    "description": "YOUR_SEO_DESCRIPTION_160_CHARS",
+    "title": "SEO title (60 chars max)",
+    "description": "SEO description (160 chars max)",
     "og_image": null
   },
-  "tags": ["tag1", "tag2"],
+  "tags": ["tag1", "tag2", "tag3"],
   "author": null,
   "is_featured": false,
   "featured_order": null,
   "assets_manifest": [
-    { "ref": "hero", "alt": "DESCRIBE_IMAGE", "notes": "Usage notes" }
-  ],
-  "_self_check": "passed"
-}
-
-CRITICAL:
-- Replace ALL_CAPS_PLACEHOLDERS with actual content
-- "content" field must be your Phase 1 HTML (after self-check validation)
-- "_self_check" MUST be "passed" - this confirms you ran Phase 2
-- Response must start with { and end with }
-- NO markdown fences, NO explanatory text — ONLY the JSON object`;
+    { "ref": "hero", "alt": "Image description", "notes": "Use as hero image" }
+  ]
+}`;
 
 export const BlogAICreator: React.FC = () => {
   const { toast } = useToast();
@@ -146,37 +111,64 @@ export const BlogAICreator: React.FC = () => {
   };
 
   const fixCommonJsonIssues = (jsonStr: string): string => {
-    // Try to fix common JSON issues from AI-generated content
-    let fixed = jsonStr;
+    // ROBUST JSON FIXING - Manual field extraction and escaping
+    let fixed = jsonStr.trim();
     
-    // Remove any markdown code fences
+    // 1. Remove markdown code fences
     fixed = fixed.replace(/^```json\n?/gm, '').replace(/^```\n?/gm, '');
     
-    // Fix smart quotes to regular quotes (common AI issue)
+    // 2. Fix smart quotes
     fixed = fixed.replace(/[\u201C\u201D]/g, '"');
     fixed = fixed.replace(/[\u2018\u2019]/g, "'");
     
-    // CRITICAL FIXES for Markdown/HTML mixing:
-    
-    // 1. Fix image tags with Markdown link syntax: <img src="[URL](URL)" → <img src="URL"
-    fixed = fixed.replace(/<img\s+src="?\[([^\]]+)\]\([^\)]+\)"?/gi, '<img src="$1"');
-    
-    // 2. Fix links with Markdown syntax mixed with HTML: ](URL) or [text](URL)
-    fixed = fixed.replace(/\]\(https?:\/\/[^\)]+\)/g, '');
-    fixed = fixed.replace(/\[([^\]]+)\]/g, '$1');
-    
-    // 3. Remove escaped characters that break JSON
-    fixed = fixed.replace(/\\%/g, '%'); // \%22 → %22
-    fixed = fixed.replace(/%22/g, '"'); // %22 → " (then will be escaped properly)
-    fixed = fixed.replace(/%3A/g, ':'); // %3A → :
-    
-    // 4. Fix double-escaped quotes in HTML content: \\" → "
-    // We need to be careful here - only fix within content field
-    const contentMatch = fixed.match(/"content"\s*:\s*"(.*?)(?<!\\)"/s);
-    if (contentMatch) {
-      const contentValue = contentMatch[1];
-      const fixedContent = contentValue.replace(/\\"/g, '"');
-      fixed = fixed.replace(contentMatch[0], `"content": "${fixedContent.replace(/"/g, '\\"')}"`);
+    // 3. Manual JSON reconstruction
+    try {
+      // Parse out individual fields manually
+      const extractField = (fieldName: string, json: string): string | null => {
+        const pattern = new RegExp(`"${fieldName}"\\s*:\\s*"([^]*?)(?=",\\s*"|"})`);
+        const match = json.match(pattern);
+        return match ? match[1] : null;
+      };
+      
+      // Try to extract key fields
+      const title = extractField('title', fixed);
+      const slug = extractField('slug', fixed);
+      const language = extractField('language', fixed);
+      const description = extractField('description', fixed);
+      const heroCaption = extractField('hero_caption', fixed);
+      
+      // For content field, we need special handling - find it by position
+      const contentStart = fixed.indexOf('"content":');
+      if (contentStart !== -1) {
+        const contentValueStart = fixed.indexOf('"', contentStart + 10) + 1;
+        
+        // Find the end of content - look for "image" or "seo" field
+        let contentEnd = fixed.indexOf('",\n  "image":', contentValueStart);
+        if (contentEnd === -1) contentEnd = fixed.indexOf('",\n  "seo":', contentValueStart);
+        if (contentEnd === -1) contentEnd = fixed.indexOf('",\n  "tags":', contentValueStart);
+        
+        if (contentEnd !== -1) {
+          let rawContent = fixed.substring(contentValueStart, contentEnd);
+          
+          // Clean the content:
+          // 1. Remove Markdown links [text](url) → text
+          rawContent = rawContent.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1');
+          
+          // 2. Escape all unescaped quotes
+          // Temporarily replace escaped quotes, escape all quotes, then restore
+          rawContent = rawContent.split('\\"').join('§§ESCAPED§§');
+          rawContent = rawContent.split('"').join('\\"');
+          rawContent = rawContent.split('§§ESCAPED§§').join('\\"');
+          
+          // Rebuild JSON with cleaned content
+          const beforeContent = fixed.substring(0, contentValueStart);
+          const afterContent = fixed.substring(contentEnd);
+          fixed = beforeContent + rawContent + afterContent;
+        }
+      }
+      
+    } catch (e) {
+      console.error('Auto-fix error:', e);
     }
     
     return fixed.trim();
