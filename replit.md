@@ -81,7 +81,7 @@ Modal styling: Requires solid white modal backgrounds with dark overlays for pro
   - **Table Styling**: Responsive tables with zebra striping, subtle borders, and horizontal scroll on mobile
   - **Visual Editing**: Directus Visual Editing SDK integration for in-context content editing
 - **Blog Analytics System**: Tracks blog post views with hybrid storage pattern (Supabase primary + JSON fallback). Excludes admin IP addresses. Admin dashboard "Blog" tab shows popular posts ranked by views with language filtering and time period selection (7d/30d/90d).
-- **Phase 5 Analytics System** (Completed Oct 2025): Comprehensive analytics infrastructure with dual-stream tracking to GA4 and Supabase database:
+- **Advanced Analytics System** (Completed Oct 2025): Comprehensive analytics infrastructure with dual-stream tracking to GA4 and Supabase database:
   - **Event Tracking**: 6 custom event types (page_view, scroll_engagement, form_submit, cta_click, video_interaction, gallery_card_flip, share_click) with automatic tracking hooks
   - **Conversion Tracking**: Business value assignments in EUR (Partner Form €50, Contact Form €40, Scroll 90% €25, CTA Click €15, Video €10, Card Flip €8, Share €5)
   - **Performance Monitoring**: Core Web Vitals auto-capture (LCP, CLS, INP, FID) with rating classification (good/needs-improvement/poor) and page load metrics (DNS, TCP, TTFB, DOM timing)
