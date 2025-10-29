@@ -486,12 +486,6 @@ export const BlogAICreator: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
-              <p className="text-sm text-blue-800">
-                <strong>⚠️ Important:</strong> Paste only the <strong>JSON response</strong> from ChatGPT/Claude here (starts with <code>{`{`}</code>), 
-                NOT the prompt template from Step 2.
-              </p>
-            </div>
             <div className="space-y-2">
               <Label htmlFor="aiJson">AI-Generated JSON Response *</Label>
               <Textarea
