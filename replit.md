@@ -131,11 +131,6 @@ Modal styling: Requires solid white modal backgrounds with dark overlays for pro
 - **Sharp**: Image processing library for static image generation.
 - **marked**: Fast Markdown parser with GFM (GitHub Flavored Markdown) enabled for tables, strikethrough, and enhanced syntax support.
 
-### Content Management
-- **Directus CMS**: Headless CMS for blog content management (https://cms.memopyk.com). Uses Simple CMS template with single content field.
-- **@directus/sdk**: Official Directus JavaScript SDK.
-- **@directus/visual-editing**: Live visual editing support for Directus content.
-
 ### CRM Integration
 - **Zoho CRM**: Partner intake system integration.
 
