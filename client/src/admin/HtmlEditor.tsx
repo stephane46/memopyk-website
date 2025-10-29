@@ -203,14 +203,14 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
           // Line height options (spacing between lines)
           lineheight_formats: '1 1.1 1.2 1.3 1.4 1.5 1.6 1.8 2 2.5 3',
           
-          // Custom paragraph spacing styles
+          // Custom spacing styles (works on paragraphs AND headings)
           style_formats: [
-            { title: 'Paragraph Spacing', items: [
-              { title: 'No Space', selector: 'p', styles: { 'margin-top': '0', 'margin-bottom': '0' } },
-              { title: 'Small Space', selector: 'p', styles: { 'margin-top': '0.5em', 'margin-bottom': '0.5em' } },
-              { title: 'Normal Space', selector: 'p', styles: { 'margin-top': '1em', 'margin-bottom': '1em' } },
-              { title: 'Large Space', selector: 'p', styles: { 'margin-top': '1.5em', 'margin-bottom': '1.5em' } },
-              { title: 'Extra Large Space', selector: 'p', styles: { 'margin-top': '2em', 'margin-bottom': '2em' } }
+            { title: 'Spacing', items: [
+              { title: 'No Space', selector: 'p,h1,h2,h3,h4,h5,h6', styles: { 'margin-top': '0', 'margin-bottom': '0' } },
+              { title: 'Small Space', selector: 'p,h1,h2,h3,h4,h5,h6', styles: { 'margin-top': '0.5em', 'margin-bottom': '0.5em' } },
+              { title: 'Normal Space', selector: 'p,h1,h2,h3,h4,h5,h6', styles: { 'margin-top': '1em', 'margin-bottom': '1em' } },
+              { title: 'Large Space', selector: 'p,h1,h2,h3,h4,h5,h6', styles: { 'margin-top': '1.5em', 'margin-bottom': '1.5em' } },
+              { title: 'Extra Large Space', selector: 'p,h1,h2,h3,h4,h5,h6', styles: { 'margin-top': '2em', 'margin-bottom': '2em' } }
             ]}
           ],
           
