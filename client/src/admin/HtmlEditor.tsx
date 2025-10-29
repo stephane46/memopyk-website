@@ -201,7 +201,14 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
           
           // Enable visual resize handles on images/tables/media
           object_resizing: true,
+          object_resizing_options: {
+            alwaysVisible: true
+          },
           resize_img_proportional: true,
+          
+          // Explicitly enable image editing
+          image_advtab: true,
+          image_caption: true,
           
           // Block formats (headings, paragraphs)
           block_formats: 'Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3; Heading 4=h4; Preformatted=pre',

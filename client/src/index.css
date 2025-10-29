@@ -1421,3 +1421,18 @@ button[role="switch"]:focus-visible {
   border-color: #B8663F !important;
   color: white !important;
 }
+
+/* Force TinyMCE resize handles to be visible */
+.tox .tox-edit-area__iframe img,
+.mce-content-body img {
+  cursor: pointer !important;
+}
+
+/* Ensure resize handles are visible and interactive */
+.tox-resizehandle,
+.mce-resizehandle {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
