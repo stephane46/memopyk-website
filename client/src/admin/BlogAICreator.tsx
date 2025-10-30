@@ -612,7 +612,7 @@ export const BlogAICreator: React.FC = () => {
             <CardHeader>
               <CardTitle>Step 4: Refine Your Content</CardTitle>
               <CardDescription>
-                Use the rich text editor to add tables, format text, and perfect your blog post before publishing to Directus
+                Use the rich text editor to add tables, format text, and perfect your blog post before publishing to Supabase
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
