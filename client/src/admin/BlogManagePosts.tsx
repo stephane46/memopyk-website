@@ -75,33 +75,61 @@ export function BlogManagePosts() {
         updates.published_at = new Date().toISOString();
       }
       
-      return apiRequest(`/api/admin/blog/posts/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(updates)
-      });
+      return apiRequest(`/api/admin/blog/posts/${id}`, 'PUT', updates);
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/blog/posts'] });
-      toast({
-        title: "Success!",
-        description: `Post ${variables.newStatus === 'published' ? 'published' : 'unpublished'} successfully`
+    onMutate: async ({ id, newStatus }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['/api/admin/blog/posts'] });
+      
+      // Snapshot previous value
+      const previousData = queryClient.getQueryData(['/api/admin/blog/posts', statusFilter, languageFilter]);
+      
+      // Optimistically update
+      queryClient.setQueryData(['/api/admin/blog/posts', statusFilter, languageFilter], (old: any) => {
+        if (!old?.data) return old;
+        return {
+          ...old,
+          data: old.data.map((post: BlogPost) =>
+            post.id === id
+              ? { 
+                  ...post, 
+                  status: newStatus,
+                  published_at: newStatus === 'published' ? new Date().toISOString() : null
+                }
+              : post
+          )
+        };
       });
+      
+      return { previousData };
     },
-    onError: (error: Error) => {
+    onError: (error: Error, variables, context: any) => {
+      // Rollback on error
+      if (context?.previousData) {
+        queryClient.setQueryData(['/api/admin/blog/posts', statusFilter, languageFilter], context.previousData);
+      }
       toast({
         title: "Failed to update post",
         description: error.message,
         variant: "destructive"
       });
+    },
+    onSuccess: (_, variables) => {
+      toast({
+        title: "Success!",
+        description: `Post ${variables.newStatus === 'published' ? 'published' : 'unpublished'} successfully`
+      });
+    },
+    onSettled: () => {
+      // Refetch to ensure server state is synced
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/blog/posts'] });
     }
   });
 
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      return apiRequest(`/api/admin/blog/posts/${id}`, {
-        method: 'DELETE'
-      });
+      return apiRequest(`/api/admin/blog/posts/${id}`, 'DELETE');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/blog/posts'] });
