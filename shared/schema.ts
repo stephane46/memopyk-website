@@ -604,7 +604,7 @@ export const blogPosts = pgTable("blog_posts", {
   title: text("title").notNull(),
   slug: text("slug").notNull().unique(),
   language: varchar("language", { length: 10 }).notNull().$type<'en-US' | 'fr-FR'>(),
-  status: varchar("status", { length: 20 }).notNull().$type<'draft' | 'published'>(),
+  status: varchar("status", { length: 20 }).notNull().$type<'draft' | 'in_review' | 'published'>(),
   contentHtml: text("content_html").notNull(),
   description: text("description"),
   heroUrl: text("hero_url"), // Public URL in Supabase Storage

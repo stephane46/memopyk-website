@@ -11,6 +11,8 @@ import { Sparkles, Copy, CheckCircle, AlertCircle, Loader2, Send, Edit3 } from '
 import { HtmlEditor } from './HtmlEditor';
 import { HeroImageUpload } from './HeroImageUpload';
 import { BlogTagSelector } from './BlogTagSelector';
+import { StatusSelector } from './StatusSelector';
+import { PublishedAtPicker } from './PublishedAtPicker';
 import DOMPurify from 'dompurify';
 
 const MASTER_PROMPT_TEMPLATE = `You are an expert content writer for MEMOPYK, a premium memory film production company. You create engaging, SEO-optimized blog posts about photography, videography, family memories, storytelling, and creative visual arts.
@@ -128,8 +130,8 @@ export const BlogAICreator: React.FC = () => {
   const { toast } = useToast();
   const [topic, setTopic] = useState('');
   const [language, setLanguage] = useState<'en-US' | 'fr-FR'>('en-US');
-  const [status, setStatus] = useState<'draft' | 'published'>('draft');
-  const [publishNow, setPublishNow] = useState(false);
+  const [status, setStatus] = useState<'draft' | 'in_review' | 'published'>('draft');
+  const [publishedAt, setPublishedAt] = useState<Date | null>(null);
   const [seoKeywords, setSeoKeywords] = useState('');
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [generatedPrompt, setGeneratedPrompt] = useState('');
@@ -153,7 +155,7 @@ export const BlogAICreator: React.FC = () => {
       .replace('{{TOPIC}}', topic)
       .replace('{{LOCALE}}', language)
       .replace('{{STATUS}}', status)
-      .replace('{{PUBLISH_NOW}}', publishNow.toString())
+      .replace('{{PUBLISH_NOW}}', (publishedAt ? publishedAt.toISOString() : 'null'))
       .replace('{{SEO_KEYWORDS}}', seoKeywords || 'none');
 
     setGeneratedPrompt(prompt);
@@ -356,7 +358,9 @@ export const BlogAICreator: React.FC = () => {
       const sanitizedContent = sanitizeContent(validatedPost.content);
       const postData = {
         ...validatedPost,
-        content: sanitizedContent
+        content: sanitizedContent,
+        status,
+        published_at: publishedAt ? publishedAt.toISOString() : null
       };
 
       const response = await fetch('/api/admin/blog/create-from-ai', {
@@ -395,6 +399,8 @@ export const BlogAICreator: React.FC = () => {
       setTopic('');
       setSeoKeywords('');
       setSelectedTagIds([]);
+      setStatus('draft');
+      setPublishedAt(null);
       setGeneratedPrompt('');
       setAiJsonInput('');
       setValidationError(null);
@@ -448,31 +454,18 @@ export const BlogAICreator: React.FC = () => {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="status">Status *</Label>
-                  <Select value={status} onValueChange={(val) => setStatus(val as 'draft' | 'published')}>
-                    <SelectTrigger id="status" data-testid="select-status">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="draft">Draft</SelectItem>
-                      <SelectItem value="published">Published</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <StatusSelector
+                  value={status}
+                  onChange={(val) => setStatus(val)}
+                  label="Status *"
+                />
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="publishNow"
-                  checked={publishNow}
-                  onCheckedChange={(checked) => setPublishNow(checked as boolean)}
-                  data-testid="checkbox-publish-now"
-                />
-                <Label htmlFor="publishNow" className="cursor-pointer">
-                  Publish immediately (sets published_at to now)
-                </Label>
-              </div>
+              <PublishedAtPicker
+                value={publishedAt}
+                onChange={setPublishedAt}
+                label="Published At (optional)"
+              />
 
               <div className="space-y-2">
                 <Label htmlFor="seoKeywords">SEO Keywords (optional)</Label>
