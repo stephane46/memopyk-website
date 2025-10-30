@@ -1466,12 +1466,12 @@ button[role="switch"]:focus-visible {
 /* Float alignment (text wraps around) */
 .float-left {
   float: left;
-  margin: 0 1.5rem 1.5rem 0;
+  margin: 0 2rem 1.5rem 0 !important;
   max-width: 50%;
 }
 
 .float-right {
   float: right;
-  margin: 0 0 1.5rem 1.5rem;
+  margin: 0 0 1.5rem 2rem !important;
   max-width: 50%;
 }
