@@ -1485,3 +1485,22 @@ img.float-right {
   max-width: 50% !important;
   display: block !important;
 }
+
+/* Blog List Styling - Restore proper bullet points and numbering */
+.prose ul,
+.prose ol {
+  padding-left: 1.75rem !important;
+  list-style-position: outside !important;
+}
+
+.prose ul {
+  list-style-type: disc !important;
+}
+
+.prose ol {
+  list-style-type: decimal !important;
+}
+
+.prose li {
+  padding-left: 0.25rem !important;
+}
