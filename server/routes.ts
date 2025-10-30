@@ -9506,7 +9506,7 @@ export async function registerRoutes(app: Express): Promise<void> {
   // Create blog post from AI-generated JSON
   app.post('/api/admin/blog/create-from-ai', async (req, res) => {
     try {
-      const { title, slug, description, content, hero_url, language, is_featured, meta_title, meta_description, keywords } = req.body;
+      const { title, slug, description, content, hero_url, language, is_featured, meta_title, meta_description } = req.body;
       
       // Validate required fields
       if (!title || !slug || !content || !language) {
@@ -9529,8 +9529,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           status: 'draft',
           is_featured: is_featured || false,
           meta_title: meta_title || title,
-          meta_description: meta_description || description || '',
-          keywords: keywords || []
+          meta_description: meta_description || description || ''
         })
         .select()
         .single();

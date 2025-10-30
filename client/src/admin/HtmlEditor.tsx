@@ -22,7 +22,6 @@ import 'tinymce/plugins/searchreplace';
 import 'tinymce/plugins/anchor';
 import 'tinymce/plugins/wordcount';
 import 'tinymce/plugins/codesample';
-import 'tinymce/plugins/emoticons';
 import 'tinymce/plugins/visualblocks';
 import 'tinymce/plugins/nonbreaking';
 import 'tinymce/plugins/visualchars';
@@ -195,14 +194,14 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
         init={{
           height: 500,
           menubar: false,
-          plugins: 'link lists advlist table code codesample image media preview fullscreen charmap autolink searchreplace anchor wordcount emoticons visualblocks visualchars nonbreaking insertdatetime directionality autosave quickbars',
+          plugins: 'link lists advlist table code codesample image media preview fullscreen charmap autolink searchreplace anchor wordcount visualblocks visualchars nonbreaking insertdatetime directionality autosave quickbars',
           
           // Three-row toolbar organized logically
           toolbar_mode: 'wrap',
           toolbar: [
             'undo redo | blocks fontselect fontsize lineheight styles | bold italic underline strikethrough subscript superscript | forecolor backcolor | removeformat',
             'alignleft aligncenter alignright alignjustify | outdent indent | bullist numlist | blockquote hr | ltr rtl',
-            'link unlink anchor | image media table | charmap emoticons nonbreaking insertdatetime | codesample code visualblocks visualchars | searchreplace wordcount | preview fullscreen'
+            'link unlink anchor | image media table | charmap nonbreaking insertdatetime | codesample code visualblocks visualchars | searchreplace wordcount | preview fullscreen'
           ],
           
           branding: false,
