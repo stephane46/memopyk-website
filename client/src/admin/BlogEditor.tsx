@@ -260,11 +260,37 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                       margin: 1rem auto;
                     }
                   `,
+                  // Use init_instance_callback to hide width/height fields after editor loads
+                  init_instance_callback: (editor) => {
+                    // Hide dimension fields in the image dialog
+                    editor.on('ExecCommand', (e) => {
+                      if (e.command === 'mceImage') {
+                        setTimeout(() => {
+                          const dialog = document.querySelector('.tox-dialog');
+                          if (dialog) {
+                            // Hide width and height fields
+                            const inputs = dialog.querySelectorAll('input[type="number"]');
+                            inputs.forEach((element) => {
+                              const input = element as HTMLInputElement;
+                              const label = input.closest('.tox-form__group');
+                              if (label && (input.placeholder?.toLowerCase().includes('width') || 
+                                          input.placeholder?.toLowerCase().includes('height') ||
+                                          label.textContent?.toLowerCase().includes('width') ||
+                                          label.textContent?.toLowerCase().includes('height'))) {
+                                if (label instanceof HTMLElement) {
+                                  label.style.display = 'none';
+                                }
+                              }
+                            });
+                          }
+                        }, 100);
+                      }
+                    });
+                  },
                   promotion: false,
                   // Image dialog configuration
                   image_caption: true,
                   image_advtab: true,
-                  image_dimensions: false, // Hide width/height fields - use CSS classes instead
                   image_description: true, // Show alt text field
                   image_class_list: [
                     { title: 'Default (centered, full width)', value: '' },
