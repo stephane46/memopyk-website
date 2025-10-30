@@ -292,23 +292,67 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                           
                           // Create a simple dialog with image grid
                           const dialog = document.createElement('div');
-                          dialog.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:center;justify-content:center;';
+                          dialog.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;';
                           
                           const content = document.createElement('div');
-                          content.style.cssText = 'background:white;padding:20px;border-radius:8px;max-width:800px;max-height:80vh;overflow-y:auto;';
+                          content.style.cssText = 'background:white;padding:24px;border-radius:8px;max-width:800px;max-height:80vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
+                          
+                          const header = document.createElement('div');
+                          header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;';
                           
                           const title = document.createElement('h2');
                           title.textContent = 'Select Image from Library';
-                          title.style.marginBottom = '15px';
-                          content.appendChild(title);
+                          title.style.cssText = 'margin:0;color:#2A4759;font-size:20px;font-weight:600;';
+                          header.appendChild(title);
+                          
+                          // Upload button
+                          const uploadBtn = document.createElement('button');
+                          uploadBtn.textContent = '+ Upload New';
+                          uploadBtn.style.cssText = 'padding:8px 16px;background:#D67C4A;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:500;';
+                          uploadBtn.onclick = () => {
+                            const fileInput = document.createElement('input');
+                            fileInput.type = 'file';
+                            fileInput.accept = 'image/*';
+                            fileInput.onchange = async (e) => {
+                              const file = (e.target as HTMLInputElement).files?.[0];
+                              if (!file) return;
+                              
+                              const formData = new FormData();
+                              formData.append('image', file);
+                              
+                              try {
+                                const response = await fetch('/api/admin/blog/images', {
+                                  method: 'POST',
+                                  headers: {
+                                    'Authorization': `Bearer ${getAdminToken()}`
+                                  },
+                                  body: formData
+                                });
+                                
+                                if (!response.ok) throw new Error('Upload failed');
+                                
+                                const result = await response.json();
+                                callback(result.data.url, { alt: file.name });
+                                document.body.removeChild(dialog);
+                              } catch (error) {
+                                alert('Image upload failed: ' + (error as Error).message);
+                              }
+                            };
+                            fileInput.click();
+                          };
+                          header.appendChild(uploadBtn);
+                          
+                          content.appendChild(header);
                           
                           const grid = document.createElement('div');
-                          grid.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:10px;';
+                          grid.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;';
                           
                           images.forEach((img: any) => {
                             const imgBtn = document.createElement('button');
-                            imgBtn.style.cssText = 'border:2px solid #ccc;padding:0;cursor:pointer;border-radius:4px;overflow:hidden;aspect-ratio:16/9;';
+                            imgBtn.style.cssText = 'border:2px solid #ccc;padding:0;cursor:pointer;border-radius:4px;overflow:hidden;aspect-ratio:16/9;transition:border-color 0.2s;';
                             imgBtn.innerHTML = `<img src="${img.url}" style="width:100%;height:100%;object-fit:cover;">`;
+                            imgBtn.onmouseover = () => imgBtn.style.borderColor = '#D67C4A';
+                            imgBtn.onmouseout = () => imgBtn.style.borderColor = '#ccc';
                             imgBtn.onclick = () => {
                               callback(img.url, { alt: img.name });
                               document.body.removeChild(dialog);
@@ -320,7 +364,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                           
                           const closeBtn = document.createElement('button');
                           closeBtn.textContent = 'Close';
-                          closeBtn.style.cssText = 'margin-top:15px;padding:8px 16px;background:#D67C4A;color:white;border:none;border-radius:4px;cursor:pointer;';
+                          closeBtn.style.cssText = 'padding:10px 20px;background:#2A4759;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:500;width:100%;';
                           closeBtn.onclick = () => document.body.removeChild(dialog);
                           content.appendChild(closeBtn);
                           
