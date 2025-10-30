@@ -392,7 +392,7 @@ export const BlogAICreator: React.FC = () => {
       
       toast({
         title: "Success!",
-        description: `Blog post "${result.title}" published to Supabase! View it on your blog or create another post.`,
+        description: `Blog post "${result.title}" saved! Manage it in the "Blog Management" tab to publish or edit.`,
       });
 
       // Reset form
@@ -655,12 +655,12 @@ export const BlogAICreator: React.FC = () => {
                   {isCreating ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Publishing to Supabase...
+                      Saving post...
                     </>
                   ) : (
                     <>
                       <Send className="h-4 w-4 mr-2" />
-                      Publish Blog Post
+                      Save Blog Post
                     </>
                   )}
                 </Button>
