@@ -139,6 +139,11 @@ export function Layout({ children }: LayoutProps) {
       sectionId: 'gallery' 
     },
     { 
+      name: t('nav.blog'), 
+      type: 'link', 
+      href: getLocalizedPath('/blog')
+    },
+    { 
       name: t('nav.faq'), 
       type: 'anchor', 
       sectionId: 'faq' 
@@ -194,15 +199,15 @@ export function Layout({ children }: LayoutProps) {
                       {item.name}
                     </button>
                   );
-                } else if (item.type === 'link' && 'sectionId' in item) {
+                } else if (item.type === 'link' && 'href' in item) {
                   return (
-                    <button
+                    <Link
                       key={`nav-${index}`}
-                      onClick={() => handleAnchorClick(item.sectionId, item.sectionId === 'footer' ? 'footer-email-text' : (item.sectionId === 'cta' ? 'cta-questionnaire' : undefined))}
-                      className="text-sm font-medium transition-colors text-gray-600 hover:text-memopyk-navy cursor-pointer"
+                      href={item.href as string}
+                      className="text-sm font-medium transition-colors text-gray-600 hover:text-memopyk-navy"
                     >
                       {item.name}
-                    </button>
+                    </Link>
                   );
                 } else if (item.type === 'external' && 'href' in item) {
                   return (
@@ -309,18 +314,16 @@ export function Layout({ children }: LayoutProps) {
                       {item.name}
                     </button>
                   );
-                } else if (item.type === 'link' && 'sectionId' in item) {
+                } else if (item.type === 'link' && 'href' in item) {
                   return (
-                    <button
+                    <Link
                       key={`mobile-nav-${index}`}
-                      onClick={() => {
-                        handleAnchorClick(item.sectionId, item.sectionId === 'footer' ? 'footer-email' : (item.sectionId === 'cta' ? 'cta-questionnaire' : undefined));
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="block w-full text-left px-4 py-3 rounded-md text-base font-medium transition-all duration-200 min-h-[44px] flex items-center text-gray-600 hover:text-memopyk-navy hover:bg-gray-50 hover:border-l-4 hover:border-memopyk-blue-gray"
+                      href={item.href as string}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block px-4 py-3 rounded-md text-base font-medium transition-all duration-200 min-h-[44px] flex items-center text-gray-600 hover:text-memopyk-navy hover:bg-gray-50 hover:border-l-4 hover:border-memopyk-blue-gray"
                     >
                       {item.name}
-                    </button>
+                    </Link>
                   );
                 } else if (item.type === 'external' && 'href' in item) {
                   return (
@@ -449,6 +452,14 @@ export function Layout({ children }: LayoutProps) {
                   >
                     {t('nav.gallery')}
                   </button>
+                </li>
+                <li>
+                  <Link 
+                    href={getLocalizedPath('/blog')}
+                    className="hover:text-white transition-colors"
+                  >
+                    {t('nav.blog')}
+                  </Link>
                 </li>
                 <li>
                   <button 
