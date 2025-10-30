@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Sparkles, Copy, CheckCircle, AlertCircle, Loader2, Send, Edit3 } from 'lucide-react';
 import { HtmlEditor } from './HtmlEditor';
 import { HeroImageUpload } from './HeroImageUpload';
+import { BlogTagSelector } from './BlogTagSelector';
 import DOMPurify from 'dompurify';
 
 const MASTER_PROMPT_TEMPLATE = `You are an expert content writer for MEMOPYK, a premium memory film production company. You create engaging, SEO-optimized blog posts about photography, videography, family memories, storytelling, and creative visual arts.
@@ -130,6 +131,7 @@ export const BlogAICreator: React.FC = () => {
   const [status, setStatus] = useState<'draft' | 'published'>('draft');
   const [publishNow, setPublishNow] = useState(false);
   const [seoKeywords, setSeoKeywords] = useState('');
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [generatedPrompt, setGeneratedPrompt] = useState('');
   const [aiJsonInput, setAiJsonInput] = useState('');
   const [isCreating, setIsCreating] = useState(false);
@@ -370,6 +372,20 @@ export const BlogAICreator: React.FC = () => {
 
       const result = await response.json();
       
+      // Assign tags to the newly created post
+      if (selectedTagIds.length > 0 && result.data?.id) {
+        try {
+          await fetch(`/api/admin/blog/posts/${result.data.id}/tags`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tagIds: selectedTagIds })
+          });
+        } catch (tagError) {
+          console.error('Failed to assign tags:', tagError);
+          // Don't fail the whole operation if tags fail
+        }
+      }
+      
       toast({
         title: "Success!",
         description: `Blog post "${result.title}" published to Supabase! View it on your blog or create another post.`,
@@ -378,6 +394,7 @@ export const BlogAICreator: React.FC = () => {
       // Reset form
       setTopic('');
       setSeoKeywords('');
+      setSelectedTagIds([]);
       setGeneratedPrompt('');
       setAiJsonInput('');
       setValidationError(null);
@@ -620,6 +637,11 @@ export const BlogAICreator: React.FC = () => {
               <HeroImageUpload
                 currentImageUrl={validatedPost.hero_url}
                 onImageChange={(url) => setValidatedPost({ ...validatedPost, hero_url: url })}
+              />
+
+              <BlogTagSelector
+                selectedTagIds={selectedTagIds}
+                onTagsChange={setSelectedTagIds}
               />
 
               <div className="space-y-2">

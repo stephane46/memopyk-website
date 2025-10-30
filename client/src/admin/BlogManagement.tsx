@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Sparkles, FileText } from 'lucide-react';
+import { BookOpen, Sparkles, FileText, Tag } from 'lucide-react';
 import { BlogAICreator } from './BlogAICreator';
 import { BlogManagePosts } from './BlogManagePosts';
+import { BlogTagManagement } from './BlogTagManagement';
 
 export function BlogManagement() {
   const [activeTab, setActiveTab] = useState('manage');
@@ -44,6 +45,17 @@ export function BlogManagement() {
               <Sparkles className="h-4 w-4 mr-2" />
               Create a Post
             </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setActiveTab('tags')}
+              className={activeTab === 'tags' ? 'seo-language-btn-active' : 'seo-language-btn-inactive'}
+              style={{ borderRadius: '0', border: '0', padding: '12px 24px' }}
+              data-testid="tab-tags"
+            >
+              <Tag className="h-4 w-4 mr-2" />
+              Tags
+            </Button>
           </div>
         </div>
 
@@ -57,6 +69,12 @@ export function BlogManagement() {
         {activeTab === 'ai-creator' && (
           <div className="space-y-4">
             <BlogAICreator />
+          </div>
+        )}
+
+        {activeTab === 'tags' && (
+          <div className="space-y-4">
+            <BlogTagManagement />
           </div>
         )}
       </div>
