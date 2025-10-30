@@ -42,7 +42,7 @@ export function BlogManagement() {
               data-testid="tab-ai-creator"
             >
               <Sparkles className="h-4 w-4 mr-2" />
-              AI Creator
+              Create a Post
             </Button>
           </div>
         </div>
