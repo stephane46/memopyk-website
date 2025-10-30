@@ -647,7 +647,6 @@ export const BlogAICreator: React.FC = () => {
             </CardContent>
           </Card>
         )}
-      </div>
     </div>
   );
 }
