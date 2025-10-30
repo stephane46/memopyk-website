@@ -9647,7 +9647,7 @@ export async function registerRoutes(app: Express): Promise<void> {
   // Create blog post from AI-generated JSON
   app.post('/api/admin/blog/create-from-ai', async (req, res) => {
     try {
-      const { title, slug, description, content, hero_url, language, is_featured, meta_title, meta_description } = req.body;
+      const { title, slug, description, content, hero_url, language, is_featured, meta_title, meta_description, status, published_at } = req.body;
       
       // Validate required fields
       if (!title || !slug || !content || !language) {
@@ -9663,7 +9663,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         description: meta_description || description || ''
       };
       
-      // Create post with default status 'draft'
+      // Create post with provided status or default to 'draft'
       const { data: post, error } = await supabase
         .from('blog_posts')
         .insert({
@@ -9673,7 +9673,8 @@ export async function registerRoutes(app: Express): Promise<void> {
           content_html: content,
           hero_url: hero_url || null,
           language,
-          status: 'draft',
+          status: status || 'draft',
+          published_at: published_at || null,
           is_featured: is_featured || false,
           seo
         })
@@ -9696,6 +9697,80 @@ export async function registerRoutes(app: Express): Promise<void> {
       res.status(500).json({ 
         success: false, 
         error: error instanceof Error ? error.message : 'Failed to create blog post' 
+      });
+    }
+  });
+
+  // Translate/duplicate blog post to other language
+  app.post('/api/admin/blog/posts/:id/translate', async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Get the source post
+      const { data: sourcePost, error: fetchError } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (fetchError || !sourcePost) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Source post not found' 
+        });
+      }
+      
+      // Determine target language (opposite of source)
+      const targetLanguage = sourcePost.language === 'en-US' ? 'fr-FR' : 'en-US';
+      const languageSuffix = targetLanguage === 'en-US' ? '-en' : '-fr';
+      
+      // Create new slug with language suffix (remove existing suffix if present)
+      let newSlug = sourcePost.slug.replace(/-(en|fr)$/, '') + languageSuffix;
+      
+      // Check if slug already exists, if so append timestamp
+      const { data: existingPost } = await supabase
+        .from('blog_posts')
+        .select('id')
+        .eq('slug', newSlug)
+        .single();
+      
+      if (existingPost) {
+        newSlug = `${newSlug}-${Date.now()}`;
+      }
+      
+      // Create translated post as draft
+      const { data: translatedPost, error: createError } = await supabase
+        .from('blog_posts')
+        .insert({
+          title: `[TRANSLATE] ${sourcePost.title}`,
+          slug: newSlug,
+          description: sourcePost.description,
+          content_html: sourcePost.content_html,
+          hero_url: sourcePost.hero_url,
+          language: targetLanguage,
+          status: 'draft',
+          is_featured: false,
+          seo: sourcePost.seo
+        })
+        .select()
+        .single();
+      
+      if (createError) {
+        console.error('❌ Error creating translated post:', createError);
+        throw createError;
+      }
+      
+      console.log(`✅ Post translated: ${sourcePost.language} → ${targetLanguage} (ID: ${translatedPost.id})`);
+      
+      res.json({
+        success: true,
+        data: translatedPost
+      });
+    } catch (error) {
+      console.error('❌ Error translating post:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to translate post' 
       });
     }
   });

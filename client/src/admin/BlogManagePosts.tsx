@@ -15,7 +15,8 @@ import {
   Eye,
   Loader2,
   Calendar,
-  Globe
+  Globe,
+  Languages
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -33,7 +34,7 @@ type BlogPost = {
   title: string;
   slug: string;
   language: string;
-  status: 'draft' | 'published';
+  status: 'draft' | 'in_review' | 'published';
   description: string;
   is_featured: boolean;
   created_at: string;
@@ -43,7 +44,7 @@ type BlogPost = {
 
 export function BlogManagePosts() {
   const { toast } = useToast();
-  const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'published'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'in_review' | 'published'>('all');
   const [languageFilter, setLanguageFilter] = useState<'all' | 'en-US' | 'fr-FR'>('all');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState<BlogPost | null>(null);
@@ -67,9 +68,9 @@ export function BlogManagePosts() {
   const posts: BlogPost[] = postsData?.data || [];
   const totalCount = postsData?.total || 0;
 
-  // Publish/Unpublish mutation
-  const publishMutation = useMutation({
-    mutationFn: async ({ id, newStatus }: { id: string; newStatus: 'draft' | 'published' }) => {
+  // Update status mutation
+  const statusUpdateMutation = useMutation({
+    mutationFn: async ({ id, newStatus }: { id: string; newStatus: 'draft' | 'in_review' | 'published' }) => {
       const updates: any = { status: newStatus };
       if (newStatus === 'published') {
         updates.published_at = new Date().toISOString();
@@ -115,9 +116,11 @@ export function BlogManagePosts() {
       });
     },
     onSuccess: (_, variables) => {
+      const statusText = variables.newStatus === 'published' ? 'published' : 
+                        variables.newStatus === 'in_review' ? 'marked for review' : 'set to draft';
       toast({
         title: "Success!",
-        description: `Post ${variables.newStatus === 'published' ? 'published' : 'unpublished'} successfully`
+        description: `Post ${statusText} successfully`
       });
     },
     onSettled: () => {
@@ -149,9 +152,30 @@ export function BlogManagePosts() {
     }
   });
 
-  const handlePublishToggle = (post: BlogPost) => {
-    const newStatus = post.status === 'draft' ? 'published' : 'draft';
-    publishMutation.mutate({ id: post.id, newStatus });
+  // Translate mutation
+  const translateMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return apiRequest(`/api/admin/blog/posts/${id}/translate`, 'POST');
+    },
+    onSuccess: (response: any) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/blog/posts'] });
+      const targetLang = response.data.language === 'en-US' ? 'English' : 'French';
+      toast({
+        title: "Translation created!",
+        description: `Draft post created in ${targetLang}. Edit the content to complete the translation.`
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to translate post",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleStatusChange = (post: BlogPost, newStatus: 'draft' | 'in_review' | 'published') => {
+    statusUpdateMutation.mutate({ id: post.id, newStatus });
   };
 
   const handleDeleteClick = (post: BlogPost) => {
@@ -194,6 +218,7 @@ export function BlogManagePosts() {
                   <SelectContent>
                     <SelectItem value="all">All Posts</SelectItem>
                     <SelectItem value="draft">Draft Only</SelectItem>
+                    <SelectItem value="in_review">In Review Only</SelectItem>
                     <SelectItem value="published">Published Only</SelectItem>
                   </SelectContent>
                 </Select>
@@ -276,6 +301,11 @@ export function BlogManagePosts() {
                               <CheckCircle className="h-3 w-3 mr-1" />
                               Published
                             </Badge>
+                          ) : post.status === 'in_review' ? (
+                            <Badge className="bg-[#D67C4A] bg-opacity-10 text-[#D67C4A] hover:bg-opacity-10" data-testid={`badge-status-${post.id}`}>
+                              <Eye className="h-3 w-3 mr-1" />
+                              In Review
+                            </Badge>
                           ) : (
                             <Badge variant="outline" className="text-gray-600" data-testid={`badge-status-${post.id}`}>
                               <XCircle className="h-3 w-3 mr-1" />
@@ -308,26 +338,53 @@ export function BlogManagePosts() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handlePublishToggle(post)}
-                              disabled={publishMutation.isPending}
-                              className={post.status === 'draft' 
-                                ? "text-green-600 hover:text-green-700 hover:bg-green-50" 
-                                : "text-gray-600 hover:text-gray-700 hover:bg-gray-50"
-                              }
-                              data-testid={`button-publish-toggle-${post.id}`}
+                              onClick={() => translateMutation.mutate(post.id)}
+                              disabled={translateMutation.isPending}
+                              className="text-[#D67C4A] hover:text-[#D67C4A] hover:bg-orange-50"
+                              title={`Translate to ${post.language === 'en-US' ? 'French' : 'English'}`}
+                              data-testid={`button-translate-${post.id}`}
                             >
-                              {post.status === 'draft' ? (
-                                <>
-                                  <CheckCircle className="h-4 w-4 mr-1" />
-                                  Publish
-                                </>
-                              ) : (
-                                <>
-                                  <XCircle className="h-4 w-4 mr-1" />
-                                  Unpublish
-                                </>
-                              )}
+                              <Languages className="h-4 w-4" />
                             </Button>
+                            {post.status === 'draft' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleStatusChange(post, 'in_review')}
+                                disabled={statusUpdateMutation.isPending}
+                                className="text-[#D67C4A] hover:text-[#D67C4A] hover:bg-orange-50"
+                                data-testid={`button-set-review-${post.id}`}
+                              >
+                                <Eye className="h-4 w-4 mr-1" />
+                                Review
+                              </Button>
+                            )}
+                            {post.status === 'in_review' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleStatusChange(post, 'published')}
+                                disabled={statusUpdateMutation.isPending}
+                                className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                data-testid={`button-publish-${post.id}`}
+                              >
+                                <CheckCircle className="h-4 w-4 mr-1" />
+                                Publish
+                              </Button>
+                            )}
+                            {post.status === 'published' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleStatusChange(post, 'draft')}
+                                disabled={statusUpdateMutation.isPending}
+                                className="text-gray-600 hover:text-gray-700 hover:bg-gray-50"
+                                data-testid={`button-unpublish-${post.id}`}
+                              >
+                                <XCircle className="h-4 w-4 mr-1" />
+                                Unpublish
+                              </Button>
+                            )}
                             <Button
                               variant="ghost"
                               size="sm"

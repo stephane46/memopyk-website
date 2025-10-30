@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { useState, useEffect } from 'react';
+import { DateTime } from 'luxon';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -14,10 +13,17 @@ interface PublishedAtPickerProps {
   label?: string;
 }
 
+const FRENCH_TZ = 'Europe/Paris';
+
 export function PublishedAtPicker({ value, onChange, label = "Published At" }: PublishedAtPickerProps) {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(value || undefined);
-  const [hours, setHours] = useState(value ? value.getHours().toString().padStart(2, '0') : '12');
-  const [minutes, setMinutes] = useState(value ? value.getMinutes().toString().padStart(2, '0') : '00');
+  // Convert incoming Date to French timezone DateTime
+  const valueDT = value ? DateTime.fromJSDate(value).setZone(FRENCH_TZ) : null;
+  
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    valueDT ? valueDT.toJSDate() : undefined
+  );
+  const [hours, setHours] = useState(valueDT ? valueDT.hour.toString().padStart(2, '0') : '12');
+  const [minutes, setMinutes] = useState(valueDT ? valueDT.minute.toString().padStart(2, '0') : '00');
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
@@ -35,17 +41,21 @@ export function PublishedAtPicker({ value, onChange, label = "Published At" }: P
   };
 
   const updateDateTime = (date: Date, h: number, m: number) => {
-    const combined = new Date(date);
-    combined.setHours(h, m, 0, 0);
-    onChange(combined);
+    // Create DateTime in French timezone
+    const frenchDT = DateTime.fromJSDate(date, { zone: FRENCH_TZ })
+      .set({ hour: h, minute: m, second: 0, millisecond: 0 });
+    
+    // Pass back as JavaScript Date (internally stored in French timezone)
+    onChange(frenchDT.toJSDate());
   };
 
   const setToNow = () => {
-    const now = new Date();
-    setSelectedDate(now);
-    setHours(now.getHours().toString().padStart(2, '0'));
-    setMinutes(now.getMinutes().toString().padStart(2, '0'));
-    onChange(now);
+    // Get current time in French timezone
+    const nowFrench = DateTime.now().setZone(FRENCH_TZ);
+    setSelectedDate(nowFrench.toJSDate());
+    setHours(nowFrench.hour.toString().padStart(2, '0'));
+    setMinutes(nowFrench.minute.toString().padStart(2, '0'));
+    onChange(nowFrench.toJSDate());
   };
 
   const clearDate = () => {
@@ -56,6 +66,19 @@ export function PublishedAtPicker({ value, onChange, label = "Published At" }: P
   };
 
   const [showCalendar, setShowCalendar] = useState(false);
+
+  // Format date for display in French timezone
+  const formatDateDisplay = (date: Date | undefined): string => {
+    if (!date) return '';
+    const dt = DateTime.fromJSDate(date).setZone(FRENCH_TZ);
+    return dt.toFormat('dd MMMM yyyy', { locale: 'fr' });
+  };
+
+  const formatDateTimeDisplay = (date: Date | undefined): string => {
+    if (!date) return '';
+    const dt = DateTime.fromJSDate(date).setZone(FRENCH_TZ);
+    return dt.toFormat("dd MMMM yyyy 'à' HH:mm", { locale: 'fr' });
+  };
 
   return (
     <div className="space-y-2">
@@ -70,7 +93,7 @@ export function PublishedAtPicker({ value, onChange, label = "Published At" }: P
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {selectedDate ? (
-            format(selectedDate, 'PPP', { locale: fr })
+            formatDateDisplay(selectedDate)
           ) : (
             <span>Choisir une date</span>
           )}
@@ -95,7 +118,6 @@ export function PublishedAtPicker({ value, onChange, label = "Published At" }: P
               selected={selectedDate}
               onSelect={handleDateSelect}
               initialFocus
-              locale={fr}
             />
             <div className="mt-3 pt-3 border-t border-gray-200">
               <div className="flex items-center justify-center gap-2 mb-2">
@@ -132,7 +154,7 @@ export function PublishedAtPicker({ value, onChange, label = "Published At" }: P
                 className="w-full text-[#6366f1]"
                 data-testid="button-set-to-now"
               >
-                Définir maintenant
+                Définir maintenant (heure française)
               </Button>
             </div>
           </CardContent>
@@ -141,7 +163,7 @@ export function PublishedAtPicker({ value, onChange, label = "Published At" }: P
       
       {selectedDate && (
         <p className="text-sm text-gray-600">
-          {format(selectedDate, "PPP 'à' HH:mm", { locale: fr })}
+          {formatDateTimeDisplay(selectedDate)} (Europe/Paris)
         </p>
       )}
     </div>
