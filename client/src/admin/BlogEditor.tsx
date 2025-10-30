@@ -249,7 +249,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                   toolbar: 'undo redo | blocks | ' +
                     'bold italic forecolor | alignleft aligncenter ' +
                     'alignright alignjustify | bullist numlist outdent indent | ' +
-                    'image | removeformat | help',
+                    'image | formatselect | removeformat | help',
                   content_style: `
                     body { font-family:Helvetica,Arial,sans-serif; font-size:14px }
                     /* Default max-width for images in editor before sizing class is applied */
@@ -260,9 +260,9 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                       margin: 1rem auto;
                     }
                   `,
-                  // Use init_instance_callback to make width/height fields read-only
+                  // Use init_instance_callback to customize image dialog
                   init_instance_callback: (editor) => {
-                    // Make dimension fields read-only (show original size, prevent editing)
+                    // Customize image dialog when it opens
                     editor.on('ExecCommand', (e) => {
                       if (e.command === 'mceImage') {
                         setTimeout(() => {
@@ -281,7 +281,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                                 input.readOnly = true;
                                 input.style.backgroundColor = '#f5f5f5';
                                 input.style.cursor = 'not-allowed';
-                                input.title = 'Original image size (read-only). Use Class dropdown in Advanced tab to resize.';
+                                input.title = 'Original image size (read-only). Use sizing buttons in toolbar.';
                               }
                             });
                           }
@@ -293,28 +293,23 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                   // Image dialog configuration
                   image_caption: true,
                   image_advtab: true,
-                  image_description: true, // Show alt text field
+                  image_description: true,
                   image_class_list: [
-                    { title: 'Default (centered, full width)', value: '' },
-                    { title: '─── QUARTER WIDTH (25%) ───', value: '' },
-                    { title: 'Quarter - Left aligned', value: 'img-quarter align-left' },
-                    { title: 'Quarter - Centered', value: 'img-quarter align-center' },
-                    { title: 'Quarter - Right aligned', value: 'img-quarter align-right' },
-                    { title: '─── HALF WIDTH (50%) ───', value: '' },
-                    { title: 'Half - Left aligned', value: 'img-half align-left' },
-                    { title: 'Half - Centered', value: 'img-half align-center' },
-                    { title: 'Half - Right aligned', value: 'img-half align-right' },
-                    { title: '─── THREE-QUARTER WIDTH (75%) ───', value: '' },
-                    { title: 'Three-quarter - Left aligned', value: 'img-three-quarter align-left' },
-                    { title: 'Three-quarter - Centered', value: 'img-three-quarter align-center' },
-                    { title: 'Three-quarter - Right aligned', value: 'img-three-quarter align-right' },
-                    { title: '─── FULL WIDTH (100%) ───', value: '' },
-                    { title: 'Full - Left aligned', value: 'img-full align-left' },
-                    { title: 'Full - Centered', value: 'img-full align-center' },
-                    { title: 'Full - Right aligned', value: 'img-full align-right' },
-                    { title: '─── TEXT WRAP (Inline) ───', value: '' },
-                    { title: 'Float left (text wraps right)', value: 'float-left' },
-                    { title: 'Float right (text wraps left)', value: 'float-right' }
+                    { title: 'Default (full width, centered)', value: '' },
+                    { title: 'Quarter - Left', value: 'img-quarter align-left' },
+                    { title: 'Quarter - Center', value: 'img-quarter align-center' },
+                    { title: 'Quarter - Right', value: 'img-quarter align-right' },
+                    { title: 'Half - Left', value: 'img-half align-left' },
+                    { title: 'Half - Center', value: 'img-half align-center' },
+                    { title: 'Half - Right', value: 'img-half align-right' },
+                    { title: 'Three-quarter - Left', value: 'img-three-quarter align-left' },
+                    { title: 'Three-quarter - Center', value: 'img-three-quarter align-center' },
+                    { title: 'Three-quarter - Right', value: 'img-three-quarter align-right' },
+                    { title: 'Full - Left', value: 'img-full align-left' },
+                    { title: 'Full - Center', value: 'img-full align-center' },
+                    { title: 'Full - Right', value: 'img-full align-right' },
+                    { title: 'Float Left (text wraps)', value: 'float-left' },
+                    { title: 'Float Right (text wraps)', value: 'float-right' }
                   ],
                   // Quick toolbar for images with alignment buttons
                   quickbars_insert_toolbar: false,
