@@ -7,9 +7,9 @@ import PostBlocks from '@/components/blog/PostBlocks';
 import NewsletterSignup from '@/components/blog/NewsletterSignup';
 import TagCloud from '@/components/blog/TagCloud';
 import GalleryComponent from '@/components/blog/GalleryComponent';
-import RelatedPostsSection from '@/components/blog/RelatedPostsSection';
 import CommentsSection from '@/components/blog/CommentsSection';
 import FeaturedPostsSection from '@/components/blog/FeaturedPostsSection';
+import { RelatedPosts } from '@/components/RelatedPosts';
 import { DEFAULT_OG, DEFAULT_OG_FR } from '@/constants/seo';
 import { directusAsset } from '@/constants/directus';
 import { Calendar, Clock, User, Share2, Twitter, Facebook, Linkedin, Link as LinkIcon, Star, Hash } from 'lucide-react';
@@ -528,7 +528,7 @@ export default function BlogPostPage() {
 
           {/* Related Posts Section */}
           <div className="mt-12">
-            <RelatedPostsSection slug={slug} language={languageCode} limit={3} />
+            <RelatedPosts currentPostSlug={post.slug} language={languageCode} blogRoute={blogRoute} />
           </div>
 
           {/* Comments Section */}

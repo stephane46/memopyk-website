@@ -66,11 +66,11 @@ export default function BlogIndexPage() {
     }
   });
 
-  // Fetch all tags
+  // Fetch all tags (public endpoint)
   const { data: tagsData } = useQuery<BlogTag[]>({
-    queryKey: ['/api/admin/blog/tags'],
+    queryKey: ['/api/blog/tags'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/blog/tags');
+      const response = await fetch('/api/blog/tags');
       if (!response.ok) throw new Error('Failed to fetch tags');
       const result = await response.json();
       return result.data || [];
