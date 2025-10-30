@@ -147,7 +147,10 @@ export function initGA(measurementId: string, opts?: { debug?: boolean }) {
 }
 
 export async function gaReady() {
-  if (!gaReadyPromise) throw new Error("initGA not called");
+  if (!gaReadyPromise) {
+    console.warn("[GA] Analytics not initialized - skipping");
+    return Promise.resolve();
+  }
   return gaReadyPromise;
 }
 
@@ -176,6 +179,7 @@ function sendEvent(name: string, params: EventParams) {
 
 // ✅ SEND PAGE VIEW with enhanced geographic context - called on route changes  
 export async function sendPageView(additionalParams?: EventParams) {
+  if (!gaReadyPromise) return; // Skip if GA not initialized
   await gaReady();
   const locale = getLocaleFromURL(); // ✅ PRESERVE existing locale logic for KPIs
   const trackingData = getTrackingData();
@@ -208,6 +212,7 @@ export async function sendVideoProgress(params: EventParams & {
   video_id: string;
   video_title: string;
 }) {
+  if (!gaReadyPromise) return; // Skip if GA not initialized
   await gaReady();
   sendEvent("video_progress", params);
 }
@@ -216,6 +221,7 @@ export async function sendVideoStart(params: EventParams & {
   video_id: string;
   video_title: string;
 }) {
+  if (!gaReadyPromise) return; // Skip if GA not initialized
   await gaReady();
   sendEvent("video_start", params);
 }
@@ -224,6 +230,7 @@ export async function sendVideoComplete(params: EventParams & {
   video_id: string;
   video_title: string;
 }) {
+  if (!gaReadyPromise) return; // Skip if GA not initialized
   await gaReady();
   sendEvent("video_complete", params);
 }
@@ -232,6 +239,7 @@ export async function sendVideoComplete(params: EventParams & {
 
 // Track language mismatches for expansion opportunity analysis
 export async function trackLanguageMismatch() {
+  if (!gaReadyPromise) return; // Skip if GA not initialized
   await gaReady();
   const trackingData = getTrackingData();
   
@@ -250,6 +258,7 @@ export async function trackLanguageMismatch() {
 
 // Enhanced conversion tracking with geographic context
 export async function trackConversion(eventName: string, conversionData: EventParams = {}) {
+  if (!gaReadyPromise) return; // Skip if GA not initialized
   await gaReady();
   const trackingData = getTrackingData();
   
@@ -267,6 +276,7 @@ export async function trackConversion(eventName: string, conversionData: EventPa
 
 // Track market-specific behaviors for geographic analysis
 export async function trackGeographicBehavior() {
+  if (!gaReadyPromise) return; // Skip if GA not initialized
   await gaReady();
   const trackingData = getTrackingData();
   
