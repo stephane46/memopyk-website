@@ -9,7 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { Sparkles, Copy, CheckCircle, AlertCircle, Loader2, Send, Edit3 } from 'lucide-react';
 import { HtmlEditor } from './HtmlEditor';
-import { HeroImageUpload } from './HeroImageUpload';
+import { BlogHeroImageUpload } from './BlogHeroImageUpload';
 import { BlogTagSelector } from './BlogTagSelector';
 import { StatusSelector } from './StatusSelector';
 import { PublishedAtPicker } from './PublishedAtPicker';
@@ -627,9 +627,9 @@ export const BlogAICreator: React.FC = () => {
                 />
               </div>
 
-              <HeroImageUpload
+              <BlogHeroImageUpload
                 currentImageUrl={validatedPost.hero_url}
-                onImageChange={(url) => setValidatedPost({ ...validatedPost, hero_url: url })}
+                onImageSelect={(url) => setValidatedPost({ ...validatedPost, hero_url: url })}
               />
 
               <BlogTagSelector
