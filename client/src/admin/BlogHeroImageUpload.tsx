@@ -123,9 +123,12 @@ export function BlogHeroImageUpload({ currentImageUrl, onImageSelect }: BlogHero
     <div className="space-y-2">
       <Label>Hero Image</Label>
       
-      {/* Current Image Preview - Matches published site appearance */}
+      {/* Current Image Preview - Professional MEMOPYK style */}
       {currentImageUrl && (
-        <div className="relative w-full h-64 md:h-80 bg-[#2A4759] rounded-lg overflow-hidden">
+        <div className="relative w-full h-64 md:h-80 rounded-lg overflow-hidden
+                        bg-gradient-to-br from-[#011526] to-[#2A4759]
+                        border-2 border-[#D67C4A]/20
+                        shadow-lg hover:shadow-xl transition-shadow duration-300">
           <img 
             src={currentImageUrl} 
             alt="Hero" 
