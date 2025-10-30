@@ -57,7 +57,23 @@ interface CacheStats {
 }
 
 export default function AdminPage() {
-  const [activeSection, setActiveSection] = useState('analytics-new');
+  // Check URL params for initial section
+  const getInitialSection = () => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    
+    // Handle blog-edit tab (redirect to blog-management)
+    if (tab === 'blog-edit') {
+      return 'blog-management';
+    }
+    // Handle other tab parameters
+    if (tab) {
+      return tab;
+    }
+    return 'analytics-new';
+  };
+
+  const [activeSection, setActiveSection] = useState(getInitialSection());
   const [heroTab, setHeroTab] = useState('videos');
   const [previewVideo, setPreviewVideo] = useState<{ url: string; title: string } | null>(null);
   const [editingVideo, setEditingVideo] = useState<any | null>(null);
