@@ -1461,7 +1461,7 @@ button[role="switch"]:focus-visible {
 }
 
 /* Blog Image Alignment Classes */
-/* Block-level alignment (no text wrap) */
+/* Block-level alignment (no text wrap) - Works with width presets */
 .prose img.align-left,
 img.align-left {
   display: block !important;
@@ -1469,7 +1469,6 @@ img.align-left {
   margin-right: auto !important;
   margin-bottom: 1.5rem !important;
   margin-top: 0 !important;
-  max-width: 100% !important;
 }
 
 .prose img.align-center,
@@ -1479,7 +1478,6 @@ img.align-center {
   margin-right: auto !important;
   margin-bottom: 1.5rem !important;
   margin-top: 0 !important;
-  max-width: 100% !important;
 }
 
 .prose img.align-right,
@@ -1489,6 +1487,15 @@ img.align-right {
   margin-right: 0 !important;
   margin-bottom: 1.5rem !important;
   margin-top: 0 !important;
+}
+
+/* If alignment class is used WITHOUT a width class, default to 100% */
+.prose img.align-left:not([class*="img-"]),
+img.align-left:not([class*="img-"]),
+.prose img.align-center:not([class*="img-"]),
+img.align-center:not([class*="img-"]),
+.prose img.align-right:not([class*="img-"]),
+img.align-right:not([class*="img-"]) {
   max-width: 100% !important;
 }
 
@@ -1507,5 +1514,45 @@ img.float-right {
   margin: 0 0 1.5rem 2rem !important;
   max-width: 50% !important;
   display: block !important;
+}
+
+/* Image Width Presets - Clear size control */
+.prose img.img-quarter,
+img.img-quarter {
+  max-width: 25% !important;
+  height: auto !important;
+}
+
+.prose img.img-half,
+img.img-half {
+  max-width: 50% !important;
+  height: auto !important;
+}
+
+.prose img.img-three-quarter,
+img.img-three-quarter {
+  max-width: 75% !important;
+  height: auto !important;
+}
+
+.prose img.img-full,
+img.img-full {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Mobile responsiveness for width presets */
+@media (max-width: 768px) {
+  .prose img.img-quarter,
+  img.img-quarter {
+    max-width: 50% !important;
+  }
+  
+  .prose img.img-half,
+  img.img-half,
+  .prose img.img-three-quarter,
+  img.img-three-quarter {
+    max-width: 100% !important;
+  }
 }
 
