@@ -324,7 +324,7 @@ export const BlogAICreator: React.FC = () => {
       setIsEditing(true);
       toast({
         title: "Validation passed",
-        description: "Review and refine your content below, then submit to Directus"
+        description: "Review and refine your content below, then publish your blog post"
       });
     } else {
       setValidationError(validation.error || 'Invalid JSON');
@@ -371,7 +371,7 @@ export const BlogAICreator: React.FC = () => {
       
       toast({
         title: "Success!",
-        description: `Blog post "${result.title}" created successfully in Directus`,
+        description: `Blog post "${result.title}" published to Supabase! View it on your blog or create another post.`,
       });
 
       // Reset form
@@ -387,7 +387,7 @@ export const BlogAICreator: React.FC = () => {
       console.error('Error creating blog post:', error);
       toast({
         title: "Creation failed",
-        description: error.message || 'Failed to create blog post in Directus',
+        description: error.message || 'Failed to publish blog post to Supabase',
         variant: "destructive"
       });
     } finally {
@@ -403,7 +403,7 @@ export const BlogAICreator: React.FC = () => {
           <Sparkles className="h-8 w-8 text-[#D67C4A]" />
           <div>
             <h1 className="text-3xl font-bold text-gray-900">AI Blog Post Creator</h1>
-            <p className="text-gray-600 mt-1">Generate prompts, paste AI responses, publish to Directus</p>
+            <p className="text-gray-600 mt-1">Generate prompts, paste AI responses, publish to Supabase</p>
           </div>
         </div>
 
@@ -639,17 +639,17 @@ export const BlogAICreator: React.FC = () => {
                   onClick={createBlogPost}
                   className="flex-1 bg-green-600 hover:bg-green-700"
                   disabled={isCreating}
-                  data-testid="button-submit-to-directus"
+                  data-testid="button-submit-to-supabase"
                 >
                   {isCreating ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Creating in Directus...
+                      Publishing to Supabase...
                     </>
                   ) : (
                     <>
                       <Send className="h-4 w-4 mr-2" />
-                      Submit to Directus
+                      Publish Blog Post
                     </>
                   )}
                 </Button>
