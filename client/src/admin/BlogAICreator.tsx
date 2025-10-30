@@ -68,14 +68,14 @@ Each placeholder should specify:
 - Orientation: Portrait (800×1200px) or Landscape (1200×800px)
 - Purpose/context (e.g., "Visual break after introduction", "Illustrate the lighting technique")
 
-FORMAT: <p style='background: #ffe6e6; border-left: 4px solid #ff0000; padding: 12px; color: #cc0000; font-weight: bold;'>📸 IMAGE SUGGESTION: [description] | [Portrait/Landscape] [dimensions] | [purpose]</p>
+FORMAT: <p style='color: #cc0000; font-weight: bold;'>📸 IMAGE SUGGESTION: [description] | [Portrait/Landscape] [dimensions] | [purpose]</p>
 
 EXAMPLE PLACEMENTS:
 <p>Introduction paragraph about the topic...</p>
-<p style='background: #ffe6e6; border-left: 4px solid #ff0000; padding: 12px; color: #cc0000; font-weight: bold;'>📸 IMAGE SUGGESTION: Hero shot showing the main subject | Landscape 1200×800px | Visual break after introduction</p>
+<p style='color: #cc0000; font-weight: bold;'>📸 IMAGE SUGGESTION: Hero shot showing the main subject | Landscape 1200×800px | Visual break after introduction</p>
 <h2>Section Title</h2>
 <p>Explanation of technique...</p>
-<p style='background: #ffe6e6; border-left: 4px solid #ff0000; padding: 12px; color: #cc0000; font-weight: bold;'>📸 IMAGE SUGGESTION: Before/after comparison showing natural vs artificial light | Landscape 1200×800px | Illustrate the lighting difference</p>
+<p style='color: #cc0000; font-weight: bold;'>📸 IMAGE SUGGESTION: Before/after comparison showing natural vs artificial light | Landscape 1200×800px | Illustrate the lighting difference</p>
 
 IMPORTANT: Output clean semantic HTML with NO inline styles (no color, margin, padding, font-size).
 The frontend CSS automatically handles all visual formatting for brand consistency.

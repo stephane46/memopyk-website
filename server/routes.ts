@@ -9462,14 +9462,72 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
-  // Get related posts (STUB - requires tags junction table)
+  // Get related posts based on shared tags
   app.get('/api/blog/posts/:slug/related', async (req, res) => {
     try {
-      // TODO: Implement after creating blog_tags and blog_post_tags tables
+      const { slug } = req.params;
+      const limit = parseInt(req.query.limit as string) || 3;
+      
+      // First, get the current post
+      const { data: currentPost, error: postError } = await supabase
+        .from('blog_posts')
+        .select('id, language')
+        .eq('slug', slug)
+        .eq('status', 'published')
+        .single();
+      
+      if (postError || !currentPost) {
+        return res.json({ success: true, data: [], total: 0 });
+      }
+      
+      // Get tags for this post
+      const { data: currentTags, error: tagsError } = await supabase
+        .from('blog_post_tags')
+        .select('tag_id')
+        .eq('post_id', currentPost.id);
+      
+      if (tagsError || !currentTags || currentTags.length === 0) {
+        return res.json({ success: true, data: [], total: 0 });
+      }
+      
+      const tagIds = currentTags.map(t => t.tag_id);
+      
+      // Find other posts with same tags
+      const { data: relatedPostTags, error: relatedError } = await supabase
+        .from('blog_post_tags')
+        .select('post_id, blog_posts(*)')
+        .in('tag_id', tagIds)
+        .neq('post_id', currentPost.id);
+      
+      if (relatedError) throw relatedError;
+      
+      // Group by post and count shared tags
+      const postScores: { [key: string]: { post: any; score: number } } = {};
+      
+      relatedPostTags?.forEach(item => {
+        const post = item.blog_posts;
+        if (post && post.status === 'published' && post.language === currentPost.language) {
+          if (!postScores[post.id]) {
+            postScores[post.id] = { post, score: 0 };
+          }
+          postScores[post.id].score++;
+        }
+      });
+      
+      // Sort by score and take top N
+      const relatedPosts = Object.values(postScores)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, limit)
+        .map(item => ({
+          ...item.post,
+          featured_image_url: item.post.hero_url,
+          publish_date: item.post.published_at
+        }));
+      
       res.json({
         success: true,
-        data: [],
-        total: 0
+        data: relatedPosts,
+        total: relatedPosts.length
       });
     } catch (error) {
       console.error('Error fetching related posts:', error);
@@ -9492,14 +9550,42 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
-  // Get blog tags (STUB - requires tags table)
+  // Get all public blog tags with post counts
   app.get('/api/blog/tags', async (req, res) => {
     try {
-      // TODO: Implement after creating blog_tags table
+      // Get all tags
+      const { data: tags, error: tagsError } = await supabase
+        .from('blog_tags')
+        .select('*')
+        .order('name', { ascending: true });
+      
+      if (tagsError) throw tagsError;
+      
+      // Get post counts for each tag
+      const { data: tagCounts, error: countsError } = await supabase
+        .from('blog_post_tags')
+        .select('tag_id, blog_posts!inner(status)');
+      
+      if (countsError) throw countsError;
+      
+      // Calculate published post count per tag
+      const counts: { [key: string]: number } = {};
+      tagCounts?.forEach(item => {
+        if (item.blog_posts.status === 'published') {
+          counts[item.tag_id] = (counts[item.tag_id] || 0) + 1;
+        }
+      });
+      
+      // Add counts to tags
+      const tagsWithCounts = tags?.map(tag => ({
+        ...tag,
+        post_count: counts[tag.id] || 0
+      })) || [];
+      
       res.json({
         success: true,
-        data: [],
-        total: 0
+        data: tagsWithCounts,
+        total: tagsWithCounts.length
       });
     } catch (error) {
       console.error('Error fetching tags:', error);
@@ -9727,6 +9813,178 @@ export async function registerRoutes(app: Express): Promise<void> {
       });
     } catch (error) {
       console.error('Error deleting post:', error);
+      res.status(500).json({ success: false, error: (error as Error).message });
+    }
+  });
+
+  // ========== BLOG TAG MANAGEMENT ==========
+
+  // Get all tags (admin)
+  app.get('/api/admin/blog/tags', async (req, res) => {
+    try {
+      const { data: tags, error } = await supabase
+        .from('blog_tags')
+        .select('*')
+        .order('name', { ascending: true });
+      
+      if (error) throw error;
+      
+      res.json({
+        success: true,
+        data: tags || [],
+        total: tags?.length || 0
+      });
+    } catch (error) {
+      console.error('Error fetching tags:', error);
+      res.status(500).json({ success: false, error: (error as Error).message });
+    }
+  });
+
+  // Create new tag (admin)
+  app.post('/api/admin/blog/tags', async (req, res) => {
+    try {
+      const { name, color, icon } = req.body;
+      
+      // Generate slug from name
+      const slug = name.toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+      
+      const { data: tag, error } = await supabase
+        .from('blog_tags')
+        .insert({ name, slug, color, icon })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      console.log(`✅ Tag created: ${name}`);
+      
+      res.json({
+        success: true,
+        data: tag
+      });
+    } catch (error) {
+      console.error('Error creating tag:', error);
+      res.status(500).json({ success: false, error: (error as Error).message });
+    }
+  });
+
+  // Update tag (admin)
+  app.put('/api/admin/blog/tags/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, color, icon } = req.body;
+      
+      const updates: any = {};
+      if (name !== undefined) {
+        updates.name = name;
+        updates.slug = name.toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '');
+      }
+      if (color !== undefined) updates.color = color;
+      if (icon !== undefined) updates.icon = icon;
+      
+      const { data: tag, error } = await supabase
+        .from('blog_tags')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      res.json({
+        success: true,
+        data: tag
+      });
+    } catch (error) {
+      console.error('Error updating tag:', error);
+      res.status(500).json({ success: false, error: (error as Error).message });
+    }
+  });
+
+  // Delete tag (admin)
+  app.delete('/api/admin/blog/tags/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const { error } = await supabase
+        .from('blog_tags')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      console.log(`✅ Tag deleted: ${id}`);
+      
+      res.json({
+        success: true,
+        message: 'Tag deleted successfully'
+      });
+    } catch (error) {
+      console.error('Error deleting tag:', error);
+      res.status(500).json({ success: false, error: (error as Error).message });
+    }
+  });
+
+  // Assign tags to post (admin)
+  app.post('/api/admin/blog/posts/:id/tags', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { tagIds } = req.body;
+      
+      // First, delete existing tag associations
+      await supabase
+        .from('blog_post_tags')
+        .delete()
+        .eq('post_id', id);
+      
+      // Then insert new associations
+      if (tagIds && tagIds.length > 0) {
+        const associations = tagIds.map((tagId: string) => ({
+          post_id: id,
+          tag_id: tagId
+        }));
+        
+        const { error } = await supabase
+          .from('blog_post_tags')
+          .insert(associations);
+        
+        if (error) throw error;
+      }
+      
+      res.json({
+        success: true,
+        message: 'Tags updated successfully'
+      });
+    } catch (error) {
+      console.error('Error updating post tags:', error);
+      res.status(500).json({ success: false, error: (error as Error).message });
+    }
+  });
+
+  // Get tags for a post (admin)
+  app.get('/api/admin/blog/posts/:id/tags', async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const { data: postTags, error } = await supabase
+        .from('blog_post_tags')
+        .select('tag_id, blog_tags(*)')
+        .eq('post_id', id);
+      
+      if (error) throw error;
+      
+      const tags = postTags?.map(pt => pt.blog_tags).filter(Boolean) || [];
+      
+      res.json({
+        success: true,
+        data: tags
+      });
+    } catch (error) {
+      console.error('Error fetching post tags:', error);
       res.status(500).json({ success: false, error: (error as Error).message });
     }
   });
