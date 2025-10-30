@@ -260,36 +260,8 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                       margin: 1rem auto;
                     }
                   `,
-                  // Use init_instance_callback to customize image dialog
-                  init_instance_callback: (editor) => {
-                    // Customize image dialog when it opens
-                    editor.on('ExecCommand', (e) => {
-                      if (e.command === 'mceImage') {
-                        setTimeout(() => {
-                          const dialog = document.querySelector('.tox-dialog');
-                          if (dialog) {
-                            // Make width and height fields read-only
-                            const inputs = dialog.querySelectorAll('input[type="number"]');
-                            inputs.forEach((element) => {
-                              const input = element as HTMLInputElement;
-                              const label = input.closest('.tox-form__group');
-                              if (label && (input.placeholder?.toLowerCase().includes('width') || 
-                                          input.placeholder?.toLowerCase().includes('height') ||
-                                          label.textContent?.toLowerCase().includes('width') ||
-                                          label.textContent?.toLowerCase().includes('height'))) {
-                                // Make read-only and add visual hint
-                                input.readOnly = true;
-                                input.style.backgroundColor = '#f5f5f5';
-                                input.style.cursor = 'not-allowed';
-                                input.title = 'Original image size (read-only). Use sizing buttons in toolbar.';
-                              }
-                            });
-                          }
-                        }, 100);
-                      }
-                    });
-                  },
                   promotion: false,
+                  a11y_advanced_options: true, // Required for image_class_list dropdown to appear
                   // Image dialog configuration
                   image_caption: true,
                   image_advtab: true,
