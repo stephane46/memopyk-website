@@ -21,6 +21,16 @@ import 'tinymce/plugins/autolink';
 import 'tinymce/plugins/searchreplace';
 import 'tinymce/plugins/anchor';
 import 'tinymce/plugins/wordcount';
+import 'tinymce/plugins/codesample';
+import 'tinymce/plugins/emoticons';
+import 'tinymce/plugins/visualblocks';
+import 'tinymce/plugins/nonbreaking';
+import 'tinymce/plugins/help';
+import 'tinymce/plugins/visualchars';
+import 'tinymce/plugins/directionality';
+import 'tinymce/plugins/autosave';
+import 'tinymce/plugins/insertdatetime';
+import 'tinymce/plugins/quickbars';
 import 'tinymce/skins/ui/oxide/skin.min.css';
 
 interface HtmlEditorProps {
