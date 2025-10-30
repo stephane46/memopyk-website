@@ -556,7 +556,11 @@ export default function AdminPage() {
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveSection(item.id)}
+                  onClick={() => {
+                    setActiveSection(item.id);
+                    // Clear URL params when navigating via sidebar
+                    window.history.pushState({}, '', `/en-US/admin?tab=${item.id}`);
+                  }}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors duration-200 group ${
                     isActive 
                       ? 'text-white' 
