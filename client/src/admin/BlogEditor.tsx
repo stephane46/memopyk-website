@@ -261,11 +261,11 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                     }
                   `,
                   promotion: false,
-                  a11y_advanced_options: true, // Required for image_class_list dropdown to appear
                   // Image dialog configuration
                   image_caption: true,
                   image_advtab: true,
                   image_description: true,
+                  image_dimensions: false, // Hide dimensions UI
                   image_class_list: [
                     { title: 'Default (full width, centered)', value: '' },
                     { title: 'Quarter - Left', value: 'img-quarter align-left' },
