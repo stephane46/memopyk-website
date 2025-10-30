@@ -131,6 +131,43 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY!
 );
 
+// Ensure blog storage bucket exists
+async function ensureBlogBucketExists() {
+  try {
+    const bucketName = 'memopyk-blog';
+    
+    // Check if bucket exists
+    const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+    
+    if (listError) {
+      console.error('❌ Failed to list buckets:', listError);
+      return;
+    }
+    
+    const bucketExists = buckets?.some(b => b.name === bucketName);
+    
+    if (!bucketExists) {
+      console.log(`📦 Creating blog storage bucket: ${bucketName}`);
+      
+      const { data, error } = await supabase.storage.createBucket(bucketName, {
+        public: true, // Public bucket for blog images
+        fileSizeLimit: 10485760, // 10MB limit
+        allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+      });
+      
+      if (error) {
+        console.error('❌ Failed to create blog bucket:', error);
+      } else {
+        console.log('✅ Blog storage bucket created successfully');
+      }
+    } else {
+      console.log(`✅ Blog storage bucket already exists: ${bucketName}`);
+    }
+  } catch (error) {
+    console.error('❌ Error ensuring blog bucket exists:', error);
+  }
+}
+
 // Generate signed upload URL for direct Supabase uploads
 async function generateSignedUploadUrl(filename: string, bucket: string): Promise<{ signedUrl: string; publicUrl: string }> {
   try {
@@ -260,6 +297,9 @@ const locationService = new LocationService(hybridStorage);
 const enrichmentManager = EnrichmentManager.getInstance(hybridStorage, locationService);
 
 export async function registerRoutes(app: Express): Promise<void> {
+  // Ensure blog storage bucket exists on startup
+  await ensureBlogBucketExists();
+  
   // GA4 Measurement Protocol Relay (ad-blocker bypass)
   app.use("/api", ga4MpRouter);
   
@@ -10066,6 +10106,60 @@ export async function registerRoutes(app: Express): Promise<void> {
   });
 
   // ========== BLOG IMAGE STORAGE (Supabase) ==========
+  
+  // Debug endpoint to test and create bucket
+  app.get('/api/admin/blog/test-bucket', async (req, res) => {
+    try {
+      console.log('🧪 Testing blog bucket creation...');
+      
+      // List all buckets
+      const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+      
+      if (listError) {
+        console.error('❌ Failed to list buckets:', listError);
+        return res.status(500).json({ 
+          success: false, 
+          error: 'Failed to list buckets',
+          details: listError
+        });
+      }
+      
+      console.log('📦 Available buckets:', buckets?.map(b => b.name));
+      
+      const bucketExists = buckets?.some(b => b.name === 'memopyk-blog');
+      
+      if (!bucketExists) {
+        console.log('📦 Creating memopyk-blog bucket...');
+        
+        const { data, error } = await supabase.storage.createBucket('memopyk-blog', {
+          public: true,
+          fileSizeLimit: 10485760,
+          allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+        });
+        
+        if (error) {
+          console.error('❌ Failed to create bucket:', error);
+          return res.status(500).json({ 
+            success: false, 
+            error: 'Failed to create bucket',
+            details: error
+          });
+        }
+        
+        console.log('✅ Bucket created successfully!');
+        return res.json({ success: true, message: 'Bucket created', buckets, created: true });
+      } else {
+        console.log('✅ Bucket already exists');
+        return res.json({ success: true, message: 'Bucket already exists', buckets, created: false });
+      }
+    } catch (error) {
+      console.error('❌ Test bucket error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: (error as Error).message 
+      });
+    }
+  });
 
   // List images in blog storage bucket
   app.get('/api/admin/blog/images', requireAdmin, async (req, res) => {
