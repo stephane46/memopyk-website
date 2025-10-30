@@ -9516,6 +9516,12 @@ export async function registerRoutes(app: Express): Promise<void> {
         });
       }
       
+      // Build SEO object
+      const seo = {
+        title: meta_title || title,
+        description: meta_description || description || ''
+      };
+      
       // Create post with default status 'draft'
       const { data: post, error } = await supabase
         .from('blog_posts')
@@ -9528,8 +9534,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           language,
           status: 'draft',
           is_featured: is_featured || false,
-          meta_title: meta_title || title,
-          meta_description: meta_description || description || ''
+          seo
         })
         .select()
         .single();
