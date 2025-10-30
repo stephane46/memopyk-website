@@ -123,13 +123,13 @@ export function BlogHeroImageUpload({ currentImageUrl, onImageSelect }: BlogHero
     <div className="space-y-2">
       <Label>Hero Image</Label>
       
-      {/* Current Image Preview */}
+      {/* Current Image Preview - Matches published site appearance */}
       {currentImageUrl && (
-        <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
+        <div className="relative w-full h-64 md:h-80 bg-[#2A4759] rounded-lg overflow-hidden">
           <img 
             src={currentImageUrl} 
             alt="Hero" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
           />
         </div>
       )}

@@ -1183,10 +1183,10 @@ button[role="switch"]:focus-visible {
   border-radius: 0.5rem;
 }
 
-/* Prose Content Images from WYSIWYG (body_html) */
+/* Prose Content Images from WYSIWYG (body_html) - Base styles without !important so alignment classes can override */
 .prose img {
-  max-width: 100% !important;
-  height: auto !important;
+  max-width: 100%;
+  height: auto;
   display: block;
   margin: 1.5rem auto;
   border-radius: 0.5rem;
