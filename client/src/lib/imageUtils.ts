@@ -28,5 +28,26 @@ export function rewriteBodyImages(html: string): string {
     }
   });
 
+  // Remove inline float/margin styles from ALL images to let CSS classes control spacing
+  div.querySelectorAll('img').forEach((img) => {
+    const classList = img.className;
+    const hasAlignmentClass = /\b(align-left|align-center|align-right|float-left|float-right)\b/.test(classList);
+    
+    if (hasAlignmentClass) {
+      // Remove inline float and margin styles so CSS can control them
+      const style = img.getAttribute('style') || '';
+      const cleanedStyle = style
+        .replace(/float\s*:\s*[^;]+;?/gi, '')
+        .replace(/margin(-left|-right|-top|-bottom)?\s*:\s*[^;]+;?/gi, '')
+        .trim();
+      
+      if (cleanedStyle) {
+        img.setAttribute('style', cleanedStyle);
+      } else {
+        img.removeAttribute('style');
+      }
+    }
+  });
+
   return div.innerHTML;
 }
