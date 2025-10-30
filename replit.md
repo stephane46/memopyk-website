@@ -85,8 +85,9 @@ Modal styling: Requires solid white modal backgrounds with dark overlays for pro
     - **Safe Delete**: Red delete button (×) on each image with usage checking across all blog posts (hero images and content HTML) before deletion; prevents breaking published posts
     - **Image Alignment**: TinyMCE quickbars toolbar and image_class_list with clear separation of block vs float alignment:
       - **Block Alignment** (no text wrap): left/center/right with 1.5rem bottom margins, max-width 100%
-      - **Float Alignment** (text wraps around): float-left/right with balanced 1.5rem spacing, max-width 50%
+      - **Float Alignment** (text wraps around): float-left/right with 2rem (32px) spacing for better text separation, max-width 50%
       - **TinyMCE Interface**: Descriptive labels clarify text flow behavior ("text below" vs "text wraps left/right")
+      - **Inline Style Conversion**: rewriteBodyImages automatically detects and converts inline float styles to CSS classes, strips inline float/margin styles to prevent overrides
     - **API Endpoints**: `/api/admin/blog/images` (GET/POST/DELETE), `/api/admin/blog/images/:name/usage` (GET) protected with `requireAdmin` middleware
     - **Authentication**: Bearer token auth pattern (localStorage/sessionStorage fallback) across all image operations
     - **File Cleanup**: Automatic cleanup of temporary uploaded files after Supabase storage
