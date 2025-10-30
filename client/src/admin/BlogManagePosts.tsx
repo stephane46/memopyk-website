@@ -16,7 +16,8 @@ import {
   Loader2,
   Calendar,
   Globe,
-  Languages
+  Languages,
+  Pencil
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -324,6 +325,15 @@ export function BlogManagePosts() {
                         </td>
                         <td className="py-4 px-4">
                           <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => window.location.href = `/en-US/admin?tab=blog-edit&id=${post.id}`}
+                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                              data-testid={`button-edit-${post.id}`}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
                             {post.status === 'published' && (
                               <Button
                                 variant="ghost"
