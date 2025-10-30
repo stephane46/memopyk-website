@@ -10278,6 +10278,88 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
+  // Check if image is used in any blog post
+  app.get('/api/admin/blog/images/:name/usage', requireAdmin, async (req, res) => {
+    try {
+      const imageName = decodeURIComponent(req.params.name);
+      console.log(`🔍 Checking usage for image: ${imageName}`);
+      
+      // Query all blog posts
+      const { data: posts, error } = await supabase
+        .from('blog_posts')
+        .select('id, title, content_html, hero_url');
+      
+      if (error) {
+        console.error('❌ Error fetching blog posts:', error);
+        throw error;
+      }
+      
+      // Check if image appears in any post
+      const usedInPosts = (posts || []).filter(post => {
+        // Check hero image
+        if (post.hero_url && post.hero_url.includes(imageName)) {
+          return true;
+        }
+        // Check content HTML
+        if (post.content_html && post.content_html.includes(imageName)) {
+          return true;
+        }
+        return false;
+      });
+      
+      const isUsed = usedInPosts.length > 0;
+      
+      console.log(`${isUsed ? '⚠️' : '✅'} Image "${imageName}" is ${isUsed ? 'used in' : 'not used in any'} ${usedInPosts.length} post(s)`);
+      
+      res.json({
+        success: true,
+        data: {
+          isUsed,
+          count: usedInPosts.length,
+          posts: usedInPosts.map(p => ({ id: p.id, title: p.title }))
+        }
+      });
+    } catch (error) {
+      console.error('Error checking image usage:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: (error as Error).message 
+      });
+    }
+  });
+
+  // Delete image from blog storage
+  app.delete('/api/admin/blog/images/:name', requireAdmin, async (req, res) => {
+    try {
+      const imageName = decodeURIComponent(req.params.name);
+      console.log(`🗑️ Deleting blog image: ${imageName}`);
+      
+      // Delete from Supabase storage
+      const { data, error } = await supabase.storage
+        .from('memopyk-blog')
+        .remove([imageName]);
+      
+      if (error) {
+        console.error('❌ Error deleting image:', error);
+        throw error;
+      }
+      
+      console.log(`✅ Image deleted successfully: ${imageName}`);
+      
+      res.json({
+        success: true,
+        message: 'Image deleted successfully',
+        data: { name: imageName }
+      });
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: (error as Error).message 
+      });
+    }
+  });
+
   // Admin Routes
   app.use(adminCountryNames);
   

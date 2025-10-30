@@ -244,7 +244,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                   plugins: [
                     'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
                     'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                    'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount'
+                    'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount', 'quickbars'
                   ],
                   toolbar: 'undo redo | blocks | ' +
                     'bold italic forecolor | alignleft aligncenter ' +
@@ -252,6 +252,21 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                     'image | removeformat | help',
                   content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
                   promotion: false,
+                  // Image toolbar - appears when clicking on an image
+                  image_caption: true,
+                  image_advtab: true,
+                  image_class_list: [
+                    { title: 'Default', value: '' },
+                    { title: 'Left aligned', value: 'align-left' },
+                    { title: 'Center aligned', value: 'align-center' },
+                    { title: 'Right aligned', value: 'align-right' },
+                    { title: 'Float left', value: 'float-left' },
+                    { title: 'Float right', value: 'float-right' }
+                  ],
+                  // Quick toolbar for images with alignment buttons
+                  quickbars_insert_toolbar: false,
+                  quickbars_selection_toolbar: 'bold italic | link',
+                  quickbars_image_toolbar: 'alignleft aligncenter alignright | rotateleft rotateright | imageoptions',
                   // Automatic image upload to Supabase
                   automatic_uploads: true,
                   images_upload_handler: async (blobInfo, progress) => {
@@ -288,15 +303,22 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                       })
                         .then(res => res.json())
                         .then(data => {
-                          const images = data.data || [];
+                          let allImages = (data.data || []).sort((a: any, b: any) => 
+                            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                          );
                           
-                          // Create a simple dialog with image grid
+                          let currentPage = 1;
+                          const imagesPerPage = 12;
+                          let searchQuery = '';
+                          
+                          // Create dialog
                           const dialog = document.createElement('div');
                           dialog.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;';
                           
                           const content = document.createElement('div');
-                          content.style.cssText = 'background:white;padding:24px;border-radius:8px;max-width:800px;max-height:80vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
+                          content.style.cssText = 'background:white;padding:24px;border-radius:8px;max-width:900px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
                           
+                          // Header
                           const header = document.createElement('div');
                           header.style.cssText = 'display:flex !important;justify-content:space-between !important;align-items:center !important;margin-bottom:20px !important;';
                           
@@ -305,7 +327,6 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                           title.style.cssText = 'margin:0 !important;color:#000 !important;font-size:20px !important;font-weight:600 !important;';
                           header.appendChild(title);
                           
-                          // Upload button
                           const uploadBtn = document.createElement('button');
                           uploadBtn.textContent = '+ Upload New';
                           uploadBtn.style.cssText = 'padding:10px 20px !important;background-color:#D67C4A !important;color:#fff !important;border:none !important;border-radius:6px !important;cursor:pointer !important;font-weight:600 !important;font-size:14px !important;';
@@ -341,35 +362,153 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                             fileInput.click();
                           };
                           header.appendChild(uploadBtn);
-                          
                           content.appendChild(header);
                           
-                          const grid = document.createElement('div');
-                          grid.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;';
+                          // Search bar
+                          const searchContainer = document.createElement('div');
+                          searchContainer.style.cssText = 'margin-bottom:20px !important;';
                           
-                          images.forEach((img: any) => {
-                            const imgBtn = document.createElement('button');
-                            imgBtn.style.cssText = 'border:2px solid #ccc;padding:0;cursor:pointer;border-radius:4px;overflow:hidden;aspect-ratio:16/9;transition:border-color 0.2s;';
-                            imgBtn.innerHTML = `<img src="${img.url}" style="width:100%;height:100%;object-fit:cover;">`;
-                            imgBtn.onmouseover = () => imgBtn.style.borderColor = '#D67C4A';
-                            imgBtn.onmouseout = () => imgBtn.style.borderColor = '#ccc';
-                            imgBtn.onclick = () => {
-                              callback(img.url, { alt: img.name });
-                              document.body.removeChild(dialog);
-                            };
-                            grid.appendChild(imgBtn);
-                          });
+                          const searchInput = document.createElement('input');
+                          searchInput.type = 'text';
+                          searchInput.placeholder = 'Search images by filename...';
+                          searchInput.style.cssText = 'width:100% !important;padding:10px 15px !important;border:2px solid #ddd !important;border-radius:6px !important;font-size:14px !important;';
+                          searchInput.oninput = (e) => {
+                            searchQuery = (e.target as HTMLInputElement).value.toLowerCase();
+                            currentPage = 1;
+                            renderImages();
+                          };
+                          searchContainer.appendChild(searchInput);
+                          content.appendChild(searchContainer);
                           
-                          content.appendChild(grid);
+                          // Container for grid and pagination
+                          const gridContainer = document.createElement('div');
+                          const paginationContainer = document.createElement('div');
                           
+                          const renderImages = () => {
+                            // Filter images
+                            const filteredImages = searchQuery
+                              ? allImages.filter((img: any) => img.name.toLowerCase().includes(searchQuery))
+                              : allImages;
+                            
+                            const totalPages = Math.ceil(filteredImages.length / imagesPerPage);
+                            const startIdx = (currentPage - 1) * imagesPerPage;
+                            const endIdx = startIdx + imagesPerPage;
+                            const paginated = filteredImages.slice(startIdx, endIdx);
+                            
+                            // Clear grid
+                            gridContainer.innerHTML = '';
+                            gridContainer.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;min-height:300px;';
+                            
+                            if (paginated.length === 0) {
+                              const emptyMsg = document.createElement('div');
+                              emptyMsg.textContent = searchQuery ? 'No images found' : 'No images yet';
+                              emptyMsg.style.cssText = 'grid-column:1/-1;text-align:center;padding:40px;color:#666;';
+                              gridContainer.appendChild(emptyMsg);
+                            } else {
+                              paginated.forEach((img: any) => {
+                                const imgWrapper = document.createElement('div');
+                                imgWrapper.style.cssText = 'position:relative;border:2px solid #ccc;border-radius:4px;overflow:hidden;aspect-ratio:16/9;transition:border-color 0.2s;';
+                                
+                                const imgBtn = document.createElement('button');
+                                imgBtn.style.cssText = 'width:100%;height:100%;padding:0;border:none;cursor:pointer;background:transparent;';
+                                imgBtn.innerHTML = \`<img src="\${img.url}" style="width:100%;height:100%;object-fit:cover;">\`;
+                                imgBtn.onmouseover = () => imgWrapper.style.borderColor = '#D67C4A';
+                                imgBtn.onmouseout = () => imgWrapper.style.borderColor = '#ccc';
+                                imgBtn.onclick = () => {
+                                  callback(img.url, { alt: img.name });
+                                  document.body.removeChild(dialog);
+                                };
+                                
+                                const deleteBtn = document.createElement('button');
+                                deleteBtn.innerHTML = '×';
+                                deleteBtn.style.cssText = 'position:absolute;top:5px;right:5px;width:28px;height:28px;background:rgba(220,38,38,0.9) !important;color:#fff !important;border:none !important;border-radius:4px !important;cursor:pointer !important;font-size:20px !important;font-weight:bold !important;line-height:1 !important;display:flex;align-items:center;justify-content:center;';
+                                deleteBtn.onclick = async (e) => {
+                                  e.stopPropagation();
+                                  if (!confirm(\`Delete "\${img.name}"? This action cannot be undone.\`)) return;
+                                  
+                                  try {
+                                    // Check if image is used
+                                    const checkResponse = await fetch(\`/api/admin/blog/images/\${encodeURIComponent(img.name)}/usage\`, {
+                                      headers: { 'Authorization': \`Bearer \${getAdminToken()}\` }
+                                    });
+                                    const checkData = await checkResponse.json();
+                                    
+                                    if (checkData.data.isUsed) {
+                                      alert(\`Cannot delete: This image is used in \${checkData.data.count} blog post(s):\n\${checkData.data.posts.map((p: any) => '• ' + p.title).join('\n')}\`);
+                                      return;
+                                    }
+                                    
+                                    // Delete image
+                                    const deleteResponse = await fetch(\`/api/admin/blog/images/\${encodeURIComponent(img.name)}\`, {
+                                      method: 'DELETE',
+                                      headers: { 'Authorization': \`Bearer \${getAdminToken()}\` }
+                                    });
+                                    
+                                    if (!deleteResponse.ok) throw new Error('Delete failed');
+                                    
+                                    allImages = allImages.filter((i: any) => i.name !== img.name);
+                                    renderImages();
+                                  } catch (error) {
+                                    alert('Delete failed: ' + (error as Error).message);
+                                  }
+                                };
+                                
+                                imgWrapper.appendChild(imgBtn);
+                                imgWrapper.appendChild(deleteBtn);
+                                gridContainer.appendChild(imgWrapper);
+                              });
+                            }
+                            
+                            // Pagination
+                            paginationContainer.innerHTML = '';
+                            paginationContainer.style.cssText = 'display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:20px;';
+                            
+                            if (totalPages > 1) {
+                              const prevBtn = document.createElement('button');
+                              prevBtn.textContent = '← Prev';
+                              prevBtn.disabled = currentPage === 1;
+                              prevBtn.style.cssText = \`padding:8px 16px !important;background-color:\${currentPage === 1 ? '#ccc' : '#2A4759'} !important;color:#fff !important;border:none !important;border-radius:4px !important;cursor:\${currentPage === 1 ? 'not-allowed' : 'pointer'} !important;font-weight:500 !important;\`;
+                              prevBtn.onclick = () => {
+                                if (currentPage > 1) {
+                                  currentPage--;
+                                  renderImages();
+                                }
+                              };
+                              paginationContainer.appendChild(prevBtn);
+                              
+                              const pageInfo = document.createElement('span');
+                              pageInfo.textContent = \`Page \${currentPage} of \${totalPages}\`;
+                              pageInfo.style.cssText = 'color:#000 !important;font-weight:500 !important;';
+                              paginationContainer.appendChild(pageInfo);
+                              
+                              const nextBtn = document.createElement('button');
+                              nextBtn.textContent = 'Next →';
+                              nextBtn.disabled = currentPage === totalPages;
+                              nextBtn.style.cssText = \`padding:8px 16px !important;background-color:\${currentPage === totalPages ? '#ccc' : '#2A4759'} !important;color:#fff !important;border:none !important;border-radius:4px !important;cursor:\${currentPage === totalPages ? 'not-allowed' : 'pointer'} !important;font-weight:500 !important;\`;
+                              nextBtn.onclick = () => {
+                                if (currentPage < totalPages) {
+                                  currentPage++;
+                                  renderImages();
+                                }
+                              };
+                              paginationContainer.appendChild(nextBtn);
+                            }
+                          };
+                          
+                          content.appendChild(gridContainer);
+                          content.appendChild(paginationContainer);
+                          
+                          // Close button
                           const closeBtn = document.createElement('button');
                           closeBtn.textContent = 'Close';
-                          closeBtn.style.cssText = 'padding:12px 24px !important;background-color:#000 !important;color:#fff !important;border:none !important;border-radius:6px !important;cursor:pointer !important;font-weight:600 !important;width:100% !important;font-size:15px !important;margin-top:10px !important;';
+                          closeBtn.style.cssText = 'padding:12px 24px !important;background-color:#000 !important;color:#fff !important;border:none !important;border-radius:6px !important;cursor:pointer !important;font-weight:600 !important;width:100% !important;font-size:15px !important;';
                           closeBtn.onclick = () => document.body.removeChild(dialog);
                           content.appendChild(closeBtn);
                           
                           dialog.appendChild(content);
                           document.body.appendChild(dialog);
+                          
+                          renderImages();
                         });
                     }
                   }
