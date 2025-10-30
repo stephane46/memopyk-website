@@ -1438,30 +1438,40 @@ button[role="switch"]:focus-visible {
 }
 
 /* Blog Image Alignment Classes */
+/* Block-level alignment (no text wrap) */
 .align-left {
   display: block;
   margin-left: 0;
   margin-right: auto;
+  margin-bottom: 1.5rem;
+  max-width: 100%;
 }
 
 .align-center {
   display: block;
   margin-left: auto;
   margin-right: auto;
+  margin-bottom: 1.5rem;
+  max-width: 100%;
 }
 
 .align-right {
   display: block;
   margin-left: auto;
   margin-right: 0;
+  margin-bottom: 1.5rem;
+  max-width: 100%;
 }
 
+/* Float alignment (text wraps around) */
 .float-left {
   float: left;
-  margin: 0 20px 20px 0;
+  margin: 0 1.5rem 1.5rem 0;
+  max-width: 50%;
 }
 
 .float-right {
   float: right;
-  margin: 0 0 20px 20px;
+  margin: 0 0 1.5rem 1.5rem;
+  max-width: 50%;
 }

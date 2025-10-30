@@ -257,11 +257,13 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                   image_advtab: true,
                   image_class_list: [
                     { title: 'Default', value: '' },
-                    { title: 'Left aligned', value: 'align-left' },
-                    { title: 'Center aligned', value: 'align-center' },
-                    { title: 'Right aligned', value: 'align-right' },
-                    { title: 'Float left', value: 'float-left' },
-                    { title: 'Float right', value: 'float-right' }
+                    { title: '─── No Text Wrap ───', value: '' },
+                    { title: 'Left (text below)', value: 'align-left' },
+                    { title: 'Center (text below)', value: 'align-center' },
+                    { title: 'Right (text below)', value: 'align-right' },
+                    { title: '─── Text Wraps Around ───', value: '' },
+                    { title: 'Float left (text wraps right)', value: 'float-left' },
+                    { title: 'Float right (text wraps left)', value: 'float-right' }
                   ],
                   // Quick toolbar for images with alignment buttons
                   quickbars_insert_toolbar: false,
