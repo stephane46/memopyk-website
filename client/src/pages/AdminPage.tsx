@@ -32,6 +32,7 @@ import SystemTestDashboard from '@/components/admin/SystemTestDashboard';
 import PerformanceTestDashboard from '@/components/admin/PerformanceTestDashboard';
 import DeploymentManagement from '@/components/admin/DeploymentManagement';
 import { BlogAICreator } from '@/admin/BlogAICreator';
+import { BlogManagePosts } from '@/admin/BlogManagePosts';
 import CryptoJS from 'crypto-js';
 
 
@@ -236,6 +237,7 @@ export default function AdminPage() {
     { id: 'analytics-new', label: 'Analytics', icon: BarChart3 },
     { id: 'seo', label: 'SEO Management', icon: Globe },
     { id: 'blog-ai-creator', label: 'AI Blog Creator', icon: Sparkles },
+    { id: 'blog-manage-posts', label: 'Manage Posts', icon: FileText },
     { id: 'hero-management', label: 'Vidéos Hero', icon: Video },
     { id: 'gallery', label: 'Galerie Vidéos', icon: Play },
     { id: 'partners', label: 'Annuaire Pro', icon: UserCheck },
@@ -1491,6 +1493,11 @@ export default function AdminPage() {
           {/* AI Blog Creator */}
           {activeSection === 'blog-ai-creator' && (
             <BlogAICreator />
+          )}
+
+          {/* Blog Manage Posts */}
+          {activeSection === 'blog-manage-posts' && (
+            <BlogManagePosts />
           )}
 
           {/* FAQ */}
