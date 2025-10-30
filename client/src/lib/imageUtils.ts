@@ -46,6 +46,11 @@ export function rewriteBodyImages(html: string): string {
       }
     }
     
+    // CRITICAL FIX: Remove width/height attributes so CSS can control sizing
+    // These inline attributes override CSS max-width and prevent responsive behavior
+    img.removeAttribute('width');
+    img.removeAttribute('height');
+    
     // If image has any alignment class, remove inline float and margin styles
     const hasAlignmentClass = /\b(align-left|align-center|align-right|float-left|float-right)\b/.test(img.className);
     
