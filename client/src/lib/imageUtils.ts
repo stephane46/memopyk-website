@@ -28,18 +28,34 @@ export function rewriteBodyImages(html: string): string {
     }
   });
 
-  // Remove inline float/margin styles from ALL images to let CSS classes control spacing
+  // Convert inline float/margin styles to CSS classes for ALL images
   div.querySelectorAll('img').forEach((img) => {
+    const style = img.getAttribute('style') || '';
     const classList = img.className;
-    const hasAlignmentClass = /\b(align-left|align-center|align-right|float-left|float-right)\b/.test(classList);
+    
+    // Check for inline float styles
+    const floatMatch = style.match(/float\s*:\s*(left|right)/i);
+    
+    if (floatMatch) {
+      const floatDirection = floatMatch[1].toLowerCase();
+      const className = `float-${floatDirection}`;
+      
+      // Add the class if not already present
+      if (!classList.includes(className)) {
+        img.className = classList ? `${classList} ${className}` : className;
+      }
+    }
+    
+    // If image has any alignment class, remove inline float and margin styles
+    const hasAlignmentClass = /\b(align-left|align-center|align-right|float-left|float-right)\b/.test(img.className);
     
     if (hasAlignmentClass) {
       // Remove inline float and margin styles so CSS can control them
-      const style = img.getAttribute('style') || '';
       const cleanedStyle = style
         .replace(/float\s*:\s*[^;]+;?/gi, '')
         .replace(/margin(-left|-right|-top|-bottom)?\s*:\s*[^;]+;?/gi, '')
-        .trim();
+        .trim()
+        .replace(/^;+|;+$/g, ''); // Clean up leading/trailing semicolons
       
       if (cleanedStyle) {
         img.setAttribute('style', cleanedStyle);
