@@ -9499,6 +9499,179 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
+  // ============================================================================
+  // ADMIN BLOG ROUTES (Supabase-native CRUD)
+  // ============================================================================
+
+  // Create blog post from AI-generated JSON
+  app.post('/api/admin/blog/create-from-ai', async (req, res) => {
+    try {
+      const { title, slug, description, content, hero_url, language, is_featured, meta_title, meta_description, keywords } = req.body;
+      
+      // Validate required fields
+      if (!title || !slug || !content || !language) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Missing required fields: title, slug, content, language' 
+        });
+      }
+      
+      // Create post with default status 'draft'
+      const { data: post, error } = await supabase
+        .from('blog_posts')
+        .insert({
+          title,
+          slug,
+          description: description || '',
+          content_html: content,
+          hero_url: hero_url || null,
+          language,
+          status: 'draft',
+          is_featured: is_featured || false,
+          meta_title: meta_title || title,
+          meta_description: meta_description || description || '',
+          keywords: keywords || []
+        })
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('❌ Error creating blog post:', error);
+        throw error;
+      }
+      
+      console.log(`✅ Blog post created: ${post.id} - ${post.title}`);
+      
+      res.json({
+        success: true,
+        data: post
+      });
+    } catch (error) {
+      console.error('❌ Error creating blog post from AI:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to create blog post' 
+      });
+    }
+  });
+
+  // Get all blog posts (admin view - includes drafts)
+  app.get('/api/admin/blog/posts', async (req, res) => {
+    try {
+      const { language, status, limit = 50, offset = 0 } = req.query;
+      
+      let query = supabase
+        .from('blog_posts')
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false });
+      
+      if (language) {
+        query = query.eq('language', language);
+      }
+      
+      if (status) {
+        query = query.eq('status', status);
+      }
+      
+      const { data: posts, error, count } = await query
+        .range(parseInt(offset as string), parseInt(offset as string) + parseInt(limit as string) - 1);
+      
+      if (error) throw error;
+      
+      res.json({
+        success: true,
+        data: posts,
+        total: count || 0
+      });
+    } catch (error) {
+      console.error('Error fetching admin posts:', error);
+      res.status(500).json({ success: false, error: (error as Error).message });
+    }
+  });
+
+  // Get single blog post by ID (admin)
+  app.get('/api/admin/blog/posts/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const { data: post, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (error) throw error;
+      
+      if (!post) {
+        return res.status(404).json({ success: false, error: 'Post not found' });
+      }
+      
+      res.json({
+        success: true,
+        data: post
+      });
+    } catch (error) {
+      console.error('Error fetching post:', error);
+      res.status(500).json({ success: false, error: (error as Error).message });
+    }
+  });
+
+  // Update blog post
+  app.put('/api/admin/blog/posts/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      
+      // If publishing, set published_at
+      if (updates.status === 'published' && !updates.published_at) {
+        updates.published_at = new Date().toISOString();
+      }
+      
+      const { data: post, error } = await supabase
+        .from('blog_posts')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      console.log(`✅ Blog post updated: ${id}`);
+      
+      res.json({
+        success: true,
+        data: post
+      });
+    } catch (error) {
+      console.error('Error updating post:', error);
+      res.status(500).json({ success: false, error: (error as Error).message });
+    }
+  });
+
+  // Delete blog post
+  app.delete('/api/admin/blog/posts/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const { error } = await supabase
+        .from('blog_posts')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      console.log(`✅ Blog post deleted: ${id}`);
+      
+      res.json({
+        success: true,
+        message: 'Post deleted successfully'
+      });
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      res.status(500).json({ success: false, error: (error as Error).message });
+    }
+  });
+
   // Admin Routes
   app.use(adminCountryNames);
   
