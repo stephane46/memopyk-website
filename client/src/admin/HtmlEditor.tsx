@@ -1,7 +1,12 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Editor } from '@tinymce/tinymce-react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Upload, Loader2, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 import 'tinymce/tinymce';
 import 'tinymce/icons/default';
@@ -46,12 +51,45 @@ export function HtmlEditor({ value, onChange }: HtmlEditorProps) {
   return <TinyMCEEditor value={value} onChange={onChange} />;
 }
 
+type BlogImage = {
+  name: string;
+  url: string;
+  size: number;
+  created_at: string;
+};
+
 function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
+  // State for image picker modal
+  const [isImagePickerOpen, setIsImagePickerOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const imagePickerCallbackRef = useRef<any>(null);
+
   // Get admin token for authenticated uploads
   const getAdminToken = () => {
     return localStorage.getItem('memopyk-admin-token') || 
            sessionStorage.getItem('memopyk-admin-token') || '';
   };
+
+  // Fetch existing blog images for the picker modal
+  const { data: imagesData, isLoading: imagesLoading, refetch: refetchImages } = useQuery({
+    queryKey: ['/api/admin/blog/images'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/blog/images', {
+        headers: {
+          'Authorization': `Bearer ${getAdminToken()}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch images');
+      return response.json();
+    },
+    enabled: isImagePickerOpen
+  });
+
+  const allImages: BlogImage[] = imagesData?.data || [];
+  const filteredImages = searchTerm
+    ? allImages.filter(img => img.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    : allImages;
 
   // Custom image upload handler - uploads to Directus via our proxy
   const handleImageUpload = async (blobInfo: any, progress: (percent: number) => void) => {
@@ -75,7 +113,7 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
     return result.url; // Returns /assets/{id} URL
   };
 
-  // Custom file picker for images and videos
+  // Custom file picker - Opens modal for image selection
   const handleFilePicker = (callback: any, value: any, meta: any) => {
     // Check if user is authenticated
     const token = getAdminToken();
@@ -85,57 +123,108 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
       return;
     }
 
-    const input = document.createElement('input');
-    input.setAttribute('type', 'file');
-    
-    // Set appropriate file types based on what's being inserted
+    // Only open modal for images (not videos)
     if (meta.filetype === 'image') {
-      input.setAttribute('accept', 'image/jpeg,image/jpg,image/png,image/webp,image/gif');
-    } else if (meta.filetype === 'media') {
-      input.setAttribute('accept', 'video/mp4,video/webm,video/quicktime');
+      // Store callback and open modal
+      imagePickerCallbackRef.current = callback;
+      setIsImagePickerOpen(true);
     } else {
-      // Fallback: accept both
-      input.setAttribute('accept', 'image/*,video/*');
-    }
+      // For non-image files, fall back to direct file input
+      const input = document.createElement('input');
+      input.setAttribute('type', 'file');
+      input.setAttribute('accept', 'video/mp4,video/webm,video/quicktime');
+      
+      input.onchange = async () => {
+        const file = input.files?.[0];
+        if (!file) return;
 
-    input.onchange = async () => {
-      const file = input.files?.[0];
-      if (!file) return;
-
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        const response = await fetch('/api/admin/upload', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          body: formData
-        });
-        
-        if (!response.ok) {
-          const error = await response.json();
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
           
-          // Handle authentication errors specifically
-          if (response.status === 401) {
-            throw new Error('Your session has expired. Please login again and retry.');
+          const response = await fetch('/api/admin/upload', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+            body: formData
+          });
+          
+          if (!response.ok) {
+            throw new Error('Upload failed');
           }
           
-          throw new Error(error.error || 'Upload failed');
+          const result = await response.json();
+          callback(result.url, { title: file.name, alt: file.name });
+        } catch (error) {
+          console.error('File upload error:', error);
+          alert('Failed to upload file: ' + (error instanceof Error ? error.message : 'Unknown error'));
         }
-        
-        const result = await response.json();
-        
-        // Return file URL to TinyMCE
-        callback(result.url, { title: file.name, alt: file.name });
-      } catch (error) {
-        console.error('File upload error:', error);
-        alert('Failed to upload file: ' + (error instanceof Error ? error.message : 'Unknown error'));
-      }
-    };
+      };
+      input.click();
+    }
+  };
 
-    input.click();
+  // Handle file upload from modal
+  const handleModalFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Please select an image smaller than 5MB');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('/api/admin/blog/images', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${getAdminToken()}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const result = await response.json();
+      
+      // Call TinyMCE callback with the uploaded image URL
+      if (imagePickerCallbackRef.current) {
+        imagePickerCallbackRef.current(result.data.url, { title: file.name, alt: file.name });
+      }
+      
+      // Refresh images list
+      refetchImages();
+      
+      // Close modal
+      setIsImagePickerOpen(false);
+    } catch (error) {
+      alert('Failed to upload image: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Handle image selection from modal
+  const handleImageSelect = (url: string, name: string) => {
+    if (imagePickerCallbackRef.current) {
+      imagePickerCallbackRef.current(url, { title: name, alt: name });
+    }
+    setIsImagePickerOpen(false);
   };
 
   // Handle paste events to auto-import external file URLs
@@ -187,11 +276,115 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
   };
 
   return (
-    <div className="border rounded-lg overflow-hidden bg-white">
-      <Editor
-        licenseKey="gpl"
-        value={value}
-        init={{
+    <>
+      {/* Image Picker Modal */}
+      <Dialog open={isImagePickerOpen} onOpenChange={setIsImagePickerOpen}>
+        <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Select or Upload Image</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Upload Section */}
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+              <div className="text-center">
+                <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                <div className="mt-4">
+                  <label htmlFor="inline-image-upload" className="cursor-pointer">
+                    <span className="mt-2 block text-sm font-medium text-gray-900">
+                      Upload new image
+                    </span>
+                    <span className="mt-1 block text-xs text-gray-500">
+                      PNG, JPG, GIF, WEBP up to 5MB
+                    </span>
+                    <input
+                      id="inline-image-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleModalFileUpload}
+                      disabled={isUploading}
+                      className="hidden"
+                    />
+                    <Button 
+                      type="button" 
+                      className="mt-3"
+                      disabled={isUploading}
+                      onClick={() => document.getElementById('inline-image-upload')?.click()}
+                    >
+                      {isUploading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Uploading...
+                        </>
+                      ) : (
+                        'Choose File'
+                      )}
+                    </Button>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Search and Browse Existing Images */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    type="text"
+                    placeholder="Search images by filename..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+              
+              {imagesLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-[#D67C4A]" />
+                </div>
+              ) : filteredImages.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">
+                  {searchTerm ? 'No images match your search.' : 'No images found. Upload your first image above.'}
+                </div>
+              ) : (
+                <div className="grid grid-cols-4 gap-3">
+                  {filteredImages.map((image) => (
+                    <button
+                      key={image.url}
+                      type="button"
+                      onClick={() => handleImageSelect(image.url, image.name)}
+                      className="relative aspect-video rounded-lg overflow-hidden border-2 border-gray-200 hover:border-[#D67C4A] transition-colors group"
+                    >
+                      <img 
+                        src={image.url} 
+                        alt={image.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
+                        <span className="text-white opacity-0 group-hover:opacity-100 text-sm font-medium">
+                          Insert
+                        </span>
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white text-xs p-1 truncate">
+                        {image.name}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* TinyMCE Editor */}
+      <div className="border rounded-lg overflow-hidden bg-white">
+        <Editor
+          licenseKey="gpl"
+          value={value}
+          init={{
           height: 500,
           menubar: false,
           plugins: 'link lists advlist table code codesample image media preview fullscreen charmap autolink searchreplace anchor wordcount visualblocks visualchars nonbreaking insertdatetime directionality autosave quickbars',
@@ -280,7 +473,8 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
         }}
         onEditorChange={(content) => onChange(content)}
       />
-    </div>
+      </div>
+    </>
   );
 }
 
