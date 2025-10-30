@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation, Link } from 'wouter';
 import { Helmet } from 'react-helmet-async';
 import { DEFAULT_OG, DEFAULT_OG_FR } from '@/constants/seo';
-import { Calendar, Clock, User } from 'lucide-react';
+import { Calendar, Clock, User, Tag } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface Author {
   id: string;
@@ -27,12 +29,21 @@ interface Post {
   featured_image_url?: string;
   featured_image_alt?: string;
   reading_time_minutes?: number;
+  tags?: BlogTag[];
+}
+
+interface BlogTag {
+  id: string;
+  name: string;
+  slug: string;
+  color: string | null;
 }
 
 export default function BlogIndexPage() {
   const [location] = useLocation();
   const languageCode = location.includes('/fr-FR') ? 'fr-FR' : 'en-US';
   const language = languageCode === 'fr-FR' ? 'fr' : 'en';
+  const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
 
   const { data: posts, isLoading } = useQuery<Post[]>({
     queryKey: ['/api/blog/posts', languageCode],
@@ -55,6 +66,24 @@ export default function BlogIndexPage() {
     }
   });
 
+  // Fetch all tags
+  const { data: tagsData } = useQuery<BlogTag[]>({
+    queryKey: ['/api/admin/blog/tags'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/blog/tags');
+      if (!response.ok) throw new Error('Failed to fetch tags');
+      const result = await response.json();
+      return result.data || [];
+    }
+  });
+
+  const tags = tagsData || [];
+
+  // Filter posts by selected tag
+  const filteredPosts = selectedTagId && posts
+    ? posts.filter(post => post.tags?.some(tag => tag.id === selectedTagId))
+    : posts;
+
   const t = {
     'fr-FR': {
       title: 'Blog MEMOPYK',
@@ -66,7 +95,9 @@ export default function BlogIndexPage() {
       featuredArticle: 'Article à la une',
       latestArticles: 'Derniers articles',
       minRead: 'min de lecture',
-      by: 'Par'
+      by: 'Par',
+      allTags: 'Tous les sujets',
+      filterBy: 'Filtrer par sujet'
     },
     'en-US': {
       title: 'MEMOPYK Blog',
@@ -78,7 +109,9 @@ export default function BlogIndexPage() {
       featuredArticle: 'Featured article',
       latestArticles: 'Latest articles',
       minRead: 'min read',
-      by: 'By'
+      by: 'By',
+      allTags: 'All topics',
+      filterBy: 'Filter by topic'
     }
   }[languageCode];
 
@@ -86,8 +119,8 @@ export default function BlogIndexPage() {
   const blogRoute = language === 'fr' ? '/fr-FR/blog' : '/en-US/blog';
   const defaultOg = languageCode === 'fr-FR' ? DEFAULT_OG_FR : DEFAULT_OG;
 
-  const featuredPost = posts && posts.length > 0 ? posts[0] : null;
-  const regularPosts = posts && posts.length > 1 ? posts.slice(1) : [];
+  const featuredPost = filteredPosts && filteredPosts.length > 0 ? filteredPosts[0] : null;
+  const regularPosts = filteredPosts && filteredPosts.length > 1 ? filteredPosts.slice(1) : [];
 
   const getAuthorName = (author?: Author) => {
     if (!author) return null;
@@ -156,6 +189,44 @@ export default function BlogIndexPage() {
         </header>
 
         <main className="container mx-auto px-4 py-12 md:py-20">
+          {/* Tag Filter */}
+          {tags.length > 0 && (
+            <div className="mb-12">
+              <div className="flex items-center gap-3 mb-4">
+                <Tag className="h-5 w-5 text-[#D67C4A]" />
+                <h3 className="text-lg font-semibold text-[#2A4759]">{t.filterBy}</h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setSelectedTagId(null)}
+                  className="transition-all"
+                  data-testid="tag-filter-all"
+                >
+                  <Badge
+                    className={selectedTagId === null ? 'bg-[#2A4759] text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}
+                  >
+                    {t.allTags}
+                  </Badge>
+                </button>
+                {tags.map((tag) => (
+                  <button
+                    key={tag.id}
+                    onClick={() => setSelectedTagId(tag.id)}
+                    className="transition-all"
+                    data-testid={`tag-filter-${tag.slug}`}
+                  >
+                    <Badge
+                      style={selectedTagId === tag.id ? { backgroundColor: tag.color || '#D67C4A' } : {}}
+                      className={selectedTagId === tag.id ? 'text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}
+                    >
+                      {tag.name}
+                    </Badge>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {isLoading ? (
             <div className="space-y-12">
               {/* Featured skeleton */}
