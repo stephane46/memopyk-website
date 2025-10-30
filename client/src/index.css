@@ -4,27 +4,33 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Blog List Styling Layer - Override Tailwind Preflight reset */
-@layer utilities {
-  article[data-testid="post-content"] ul,
-  article[data-testid="post-content"] ol {
-    padding-left: 2.5rem;
-    margin-left: 0;
-    list-style-position: outside;
-  }
+/* Blog List Styling - Override Tailwind Preflight reset */
+/* Must come AFTER @tailwind directives to override base reset */
+article[data-testid="post-content"] ul,
+article[data-testid="post-content"] ol,
+.prose ul,
+.prose ol {
+  padding-left: 2.5rem !important;
+  margin-left: 0 !important;
+  list-style-position: outside !important;
+  display: block !important;
+}
 
-  article[data-testid="post-content"] ul {
-    list-style-type: disc;
-  }
+article[data-testid="post-content"] ul,
+.prose ul {
+  list-style-type: disc !important;
+}
 
-  article[data-testid="post-content"] ol {
-    list-style-type: decimal;
-  }
+article[data-testid="post-content"] ol,
+.prose ol {
+  list-style-type: decimal !important;
+}
 
-  article[data-testid="post-content"] li {
-    padding-left: 0.375rem;
-    margin-left: 0;
-  }
+article[data-testid="post-content"] li,
+.prose li {
+  padding-left: 0.375rem !important;
+  margin-left: 0 !important;
+  display: list-item !important;
 }
 
 /* Hide fullscreen button from video controls */
