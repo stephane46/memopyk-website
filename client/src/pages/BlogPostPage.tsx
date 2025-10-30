@@ -372,7 +372,7 @@ export default function BlogPostPage() {
               alt={post.featured_image_alt || post.title}
               loading="eager"
               decoding="async"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
               data-testid="img-post-hero"
               {...getDirectusAttr('featured_image_url', 'popover')}
             />
@@ -399,9 +399,9 @@ export default function BlogPostPage() {
           {/* Main Content Card */}
           <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
             {/* Article Header */}
-            <header className="p-8 md:p-12 border-b border-gray-100">
+            <header className="px-6 md:px-8 pt-6 md:pt-8 pb-4 md:pb-6 border-b border-gray-100">
               <h1
-                className="text-4xl md:text-5xl lg:text-6xl font-['Playfair_Display'] text-[#2A4759] mb-6 leading-tight"
+                className="text-4xl md:text-5xl lg:text-6xl font-['Playfair_Display'] text-[#2A4759] mb-4 leading-tight"
                 data-testid="text-post-title"
                 {...getDirectusAttr('title', 'popover')}
               >
@@ -409,7 +409,7 @@ export default function BlogPostPage() {
               </h1>
               
               {/* Metadata */}
-              <div className="flex flex-wrap items-center gap-4 text-gray-600 mb-6">
+              <div className="flex flex-wrap items-center gap-4 text-gray-600 mb-4">
                 {post.is_featured && (
                   <>
                     <Badge className="bg-[#D67C4A] hover:bg-[#D67C4A]/90" data-testid="badge-featured">
@@ -443,7 +443,7 @@ export default function BlogPostPage() {
 
               {/* Tags Section */}
               {post.tags && post.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-6" data-testid="post-tags">
+                <div className="flex flex-wrap gap-2 mb-4" data-testid="post-tags">
                   {post.tags.map((tag) => (
                     <Link key={tag.id} href={`/${languageCode}/blog?tag=${tag.slug}&language=${languageCode}`}>
                       <Badge 
@@ -465,21 +465,21 @@ export default function BlogPostPage() {
 
               {/* Hero Caption */}
               {post.hero_caption && (
-                <p className="text-lg text-gray-600 italic border-l-4 border-[#D67C4A] pl-4 mb-6" data-testid="text-hero-caption">
+                <p className="text-lg text-gray-600 italic border-l-4 border-[#D67C4A] pl-4 mb-4" data-testid="text-hero-caption">
                   {post.hero_caption}
                 </p>
               )}
             </header>
 
             {/* Article Content */}
-            <div className="p-8 md:p-12" data-testid="post-content">
+            <div className="px-6 md:px-8 pt-3 md:pt-4 pb-6 md:pb-8" data-testid="post-content">
               {/* Simple CMS: Render content field directly */}
               <div {...getDirectusAttr('content', 'drawer')}>
                 <PostBlocks content={typeof post.content === 'string' ? post.content : ''} />
               </div>
 
               {/* Share Buttons */}
-              <div className="flex items-center justify-center gap-3 mt-12 pt-8 border-t border-gray-100">
+              <div className="flex items-center justify-center gap-3 mt-8 pt-6 border-t border-gray-100">
                 <span className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                   <Share2 className="w-4 h-4" />
                   {t.share}:
@@ -516,12 +516,12 @@ export default function BlogPostPage() {
             </div>
 
             {/* Galleries Section */}
-            <div className="px-8 md:px-12 pb-8" data-testid="post-galleries">
+            <div className="px-6 md:px-8 pb-6" data-testid="post-galleries">
               <GalleryComponent slug={slug} language={languageCode} />
             </div>
 
             {/* Newsletter Signup */}
-            <div className="px-8 md:px-12 pb-8 md:pb-12">
+            <div className="px-6 md:px-8 pb-6 md:pb-8">
               <NewsletterSignup language={languageCode} />
             </div>
           </div>
