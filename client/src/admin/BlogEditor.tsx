@@ -411,7 +411,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                                 
                                 const imgBtn = document.createElement('button');
                                 imgBtn.style.cssText = 'width:100%;height:100%;padding:0;border:none;cursor:pointer;background:transparent;';
-                                imgBtn.innerHTML = \`<img src="\${img.url}" style="width:100%;height:100%;object-fit:cover;">\`;
+                                imgBtn.innerHTML = `<img src="${img.url}" style="width:100%;height:100%;object-fit:cover;">`;
                                 imgBtn.onmouseover = () => imgWrapper.style.borderColor = '#D67C4A';
                                 imgBtn.onmouseout = () => imgWrapper.style.borderColor = '#ccc';
                                 imgBtn.onclick = () => {
@@ -424,24 +424,24 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                                 deleteBtn.style.cssText = 'position:absolute;top:5px;right:5px;width:28px;height:28px;background:rgba(220,38,38,0.9) !important;color:#fff !important;border:none !important;border-radius:4px !important;cursor:pointer !important;font-size:20px !important;font-weight:bold !important;line-height:1 !important;display:flex;align-items:center;justify-content:center;';
                                 deleteBtn.onclick = async (e) => {
                                   e.stopPropagation();
-                                  if (!confirm(\`Delete "\${img.name}"? This action cannot be undone.\`)) return;
+                                  if (!confirm(`Delete "${img.name}"? This action cannot be undone.`)) return;
                                   
                                   try {
                                     // Check if image is used
-                                    const checkResponse = await fetch(\`/api/admin/blog/images/\${encodeURIComponent(img.name)}/usage\`, {
-                                      headers: { 'Authorization': \`Bearer \${getAdminToken()}\` }
+                                    const checkResponse = await fetch(`/api/admin/blog/images/${encodeURIComponent(img.name)}/usage`, {
+                                      headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                                     });
                                     const checkData = await checkResponse.json();
                                     
                                     if (checkData.data.isUsed) {
-                                      alert(\`Cannot delete: This image is used in \${checkData.data.count} blog post(s):\n\${checkData.data.posts.map((p: any) => '• ' + p.title).join('\n')}\`);
+                                      alert(`Cannot delete: This image is used in ${checkData.data.count} blog post(s):\n${checkData.data.posts.map((p: any) => '• ' + p.title).join('\n')}`);
                                       return;
                                     }
                                     
                                     // Delete image
-                                    const deleteResponse = await fetch(\`/api/admin/blog/images/\${encodeURIComponent(img.name)}\`, {
+                                    const deleteResponse = await fetch(`/api/admin/blog/images/${encodeURIComponent(img.name)}`, {
                                       method: 'DELETE',
-                                      headers: { 'Authorization': \`Bearer \${getAdminToken()}\` }
+                                      headers: { 'Authorization': `Bearer ${getAdminToken()}` }
                                     });
                                     
                                     if (!deleteResponse.ok) throw new Error('Delete failed');
@@ -467,7 +467,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                               const prevBtn = document.createElement('button');
                               prevBtn.textContent = '← Prev';
                               prevBtn.disabled = currentPage === 1;
-                              prevBtn.style.cssText = \`padding:8px 16px !important;background-color:\${currentPage === 1 ? '#ccc' : '#2A4759'} !important;color:#fff !important;border:none !important;border-radius:4px !important;cursor:\${currentPage === 1 ? 'not-allowed' : 'pointer'} !important;font-weight:500 !important;\`;
+                              prevBtn.style.cssText = `padding:8px 16px !important;background-color:${currentPage === 1 ? '#ccc' : '#2A4759'} !important;color:#fff !important;border:none !important;border-radius:4px !important;cursor:${currentPage === 1 ? 'not-allowed' : 'pointer'} !important;font-weight:500 !important;`;
                               prevBtn.onclick = () => {
                                 if (currentPage > 1) {
                                   currentPage--;
@@ -477,14 +477,14 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                               paginationContainer.appendChild(prevBtn);
                               
                               const pageInfo = document.createElement('span');
-                              pageInfo.textContent = \`Page \${currentPage} of \${totalPages}\`;
+                              pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
                               pageInfo.style.cssText = 'color:#000 !important;font-weight:500 !important;';
                               paginationContainer.appendChild(pageInfo);
                               
                               const nextBtn = document.createElement('button');
                               nextBtn.textContent = 'Next →';
                               nextBtn.disabled = currentPage === totalPages;
-                              nextBtn.style.cssText = \`padding:8px 16px !important;background-color:\${currentPage === totalPages ? '#ccc' : '#2A4759'} !important;color:#fff !important;border:none !important;border-radius:4px !important;cursor:\${currentPage === totalPages ? 'not-allowed' : 'pointer'} !important;font-weight:500 !important;\`;
+                              nextBtn.style.cssText = `padding:8px 16px !important;background-color:${currentPage === totalPages ? '#ccc' : '#2A4759'} !important;color:#fff !important;border:none !important;border-radius:4px !important;cursor:${currentPage === totalPages ? 'not-allowed' : 'pointer'} !important;font-weight:500 !important;`;
                               nextBtn.onclick = () => {
                                 if (currentPage < totalPages) {
                                   currentPage++;
