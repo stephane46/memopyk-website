@@ -261,28 +261,74 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                     }
                   `,
                   promotion: false,
+                  setup: (editor) => {
+                    // Custom image dialog with sizing dropdown
+                    editor.on('ExecCommand', (e) => {
+                      if (e.command === 'mceImage') {
+                        setTimeout(() => {
+                          const dialog = document.querySelector('.tox-dialog');
+                          if (!dialog) return;
+                          
+                          // Find the caption area to insert our sizing control after it
+                          const captionLabel = Array.from(dialog.querySelectorAll('label')).find(
+                            el => el.textContent?.includes('Show caption')
+                          );
+                          
+                          if (captionLabel && !dialog.querySelector('#custom-image-size-select')) {
+                            const container = captionLabel.closest('.tox-form__group')?.parentElement;
+                            if (container) {
+                              // Create sizing control
+                              const sizeGroup = document.createElement('div');
+                              sizeGroup.className = 'tox-form__group';
+                              sizeGroup.innerHTML = `
+                                <label class="tox-label">Image Size & Alignment</label>
+                                <select id="custom-image-size-select" class="tox-selectfield" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+                                  <option value="">Default (full width, centered)</option>
+                                  <option value="img-quarter align-left">Quarter - Left</option>
+                                  <option value="img-quarter align-center">Quarter - Center</option>
+                                  <option value="img-quarter align-right">Quarter - Right</option>
+                                  <option value="img-half align-left">Half - Left</option>
+                                  <option value="img-half align-center">Half - Center</option>
+                                  <option value="img-half align-right">Half - Right</option>
+                                  <option value="img-three-quarter align-left">Three-quarter - Left</option>
+                                  <option value="img-three-quarter align-center">Three-quarter - Center</option>
+                                  <option value="img-three-quarter align-right">Three-quarter - Right</option>
+                                  <option value="img-full align-left">Full - Left</option>
+                                  <option value="img-full align-center">Full - Center</option>
+                                  <option value="img-full align-right">Full - Right</option>
+                                  <option value="float-left">Float Left (text wraps)</option>
+                                  <option value="float-right">Float Right (text wraps)</option>
+                                </select>
+                              `;
+                              
+                              container.insertBefore(sizeGroup, captionLabel.closest('.tox-form__group'));
+                              
+                              // Get current image class if editing
+                              const img = editor.selection.getNode();
+                              if (img.tagName === 'IMG' && img.className) {
+                                const select = sizeGroup.querySelector('select') as HTMLSelectElement;
+                                if (select) select.value = img.className;
+                              }
+                              
+                              // Apply class when changed
+                              const select = sizeGroup.querySelector('select') as HTMLSelectElement;
+                              select?.addEventListener('change', () => {
+                                const img = editor.selection.getNode();
+                                if (img.tagName === 'IMG') {
+                                  img.className = select.value;
+                                }
+                              });
+                            }
+                          }
+                        }, 100);
+                      }
+                    });
+                  },
                   // Image dialog configuration
                   image_caption: true,
                   image_advtab: true,
                   image_description: true,
                   image_dimensions: false, // Hide dimensions UI
-                  image_class_list: [
-                    { title: 'Default (full width, centered)', value: '' },
-                    { title: 'Quarter - Left', value: 'img-quarter align-left' },
-                    { title: 'Quarter - Center', value: 'img-quarter align-center' },
-                    { title: 'Quarter - Right', value: 'img-quarter align-right' },
-                    { title: 'Half - Left', value: 'img-half align-left' },
-                    { title: 'Half - Center', value: 'img-half align-center' },
-                    { title: 'Half - Right', value: 'img-half align-right' },
-                    { title: 'Three-quarter - Left', value: 'img-three-quarter align-left' },
-                    { title: 'Three-quarter - Center', value: 'img-three-quarter align-center' },
-                    { title: 'Three-quarter - Right', value: 'img-three-quarter align-right' },
-                    { title: 'Full - Left', value: 'img-full align-left' },
-                    { title: 'Full - Center', value: 'img-full align-center' },
-                    { title: 'Full - Right', value: 'img-full align-right' },
-                    { title: 'Float Left (text wraps)', value: 'float-left' },
-                    { title: 'Float Right (text wraps)', value: 'float-right' }
-                  ],
                   // Quick toolbar for images with alignment buttons
                   quickbars_insert_toolbar: false,
                   quickbars_selection_toolbar: 'bold italic | link',
