@@ -1487,20 +1487,28 @@ img.float-right {
 }
 
 /* Blog List Styling - Restore proper bullet points and numbering */
+/* Target blog post content specifically with higher specificity */
+article[data-testid="post-content"] ul,
+article[data-testid="post-content"] ol,
 .prose ul,
 .prose ol {
-  padding-left: 1.75rem !important;
+  padding-left: 2.5rem !important;
+  margin-left: 0 !important;
   list-style-position: outside !important;
 }
 
+article[data-testid="post-content"] ul,
 .prose ul {
   list-style-type: disc !important;
 }
 
+article[data-testid="post-content"] ol,
 .prose ol {
   list-style-type: decimal !important;
 }
 
+article[data-testid="post-content"] li,
 .prose li {
-  padding-left: 0.25rem !important;
+  padding-left: 0.375rem !important;
+  margin-left: 0 !important;
 }
