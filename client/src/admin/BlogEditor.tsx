@@ -298,17 +298,17 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                           content.style.cssText = 'background:white;padding:24px;border-radius:8px;max-width:800px;max-height:80vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
                           
                           const header = document.createElement('div');
-                          header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;';
+                          header.style.cssText = 'display:flex !important;justify-content:space-between !important;align-items:center !important;margin-bottom:20px !important;';
                           
                           const title = document.createElement('h2');
                           title.textContent = 'Select Image from Library';
-                          title.style.cssText = 'margin:0;color:#2A4759;font-size:20px;font-weight:600;';
+                          title.style.cssText = 'margin:0 !important;color:#000 !important;font-size:20px !important;font-weight:600 !important;';
                           header.appendChild(title);
                           
                           // Upload button
                           const uploadBtn = document.createElement('button');
                           uploadBtn.textContent = '+ Upload New';
-                          uploadBtn.style.cssText = 'padding:8px 16px;background:#D67C4A;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:500;';
+                          uploadBtn.style.cssText = 'padding:10px 20px !important;background-color:#D67C4A !important;color:#fff !important;border:none !important;border-radius:6px !important;cursor:pointer !important;font-weight:600 !important;font-size:14px !important;';
                           uploadBtn.onclick = () => {
                             const fileInput = document.createElement('input');
                             fileInput.type = 'file';
@@ -364,7 +364,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                           
                           const closeBtn = document.createElement('button');
                           closeBtn.textContent = 'Close';
-                          closeBtn.style.cssText = 'padding:10px 20px;background:#2A4759;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:500;width:100%;';
+                          closeBtn.style.cssText = 'padding:12px 24px !important;background-color:#000 !important;color:#fff !important;border:none !important;border-radius:6px !important;cursor:pointer !important;font-weight:600 !important;width:100% !important;font-size:15px !important;margin-top:10px !important;';
                           closeBtn.onclick = () => document.body.removeChild(dialog);
                           content.appendChild(closeBtn);
                           
