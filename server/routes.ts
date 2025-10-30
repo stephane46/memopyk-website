@@ -10065,6 +10065,125 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
+  // ========== BLOG IMAGE STORAGE (Supabase) ==========
+
+  // List images in blog storage bucket
+  app.get('/api/admin/blog/images', requireAdmin, async (req, res) => {
+    try {
+      console.log('📂 Fetching blog images from Supabase Storage');
+      
+      const { data: files, error } = await supabase.storage
+        .from('memopyk-blog')
+        .list('', {
+          limit: 1000,
+          sortBy: { column: 'created_at', order: 'desc' }
+        });
+      
+      if (error) {
+        console.error('❌ Error listing blog images:', error);
+        throw error;
+      }
+      
+      // Filter to only image files and construct full URLs
+      const imageFiles = (files || [])
+        .filter(file => {
+          const ext = file.name.toLowerCase().split('.').pop();
+          return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext || '');
+        })
+        .map(file => ({
+          name: file.name,
+          url: `${process.env.SUPABASE_URL}/storage/v1/object/public/memopyk-blog/${file.name}`,
+          size: file.metadata?.size || 0,
+          created_at: file.created_at
+        }));
+      
+      console.log(`✅ Found ${imageFiles.length} blog images`);
+      
+      res.json({
+        success: true,
+        data: imageFiles,
+        total: imageFiles.length
+      });
+    } catch (error) {
+      console.error('Error fetching blog images:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: (error as Error).message 
+      });
+    }
+  });
+
+  // Upload image to blog storage bucket
+  app.post('/api/admin/blog/images', requireAdmin, uploadImage.single('image'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'No image file provided' 
+        });
+      }
+
+      const filename = req.file.originalname;
+      console.log(`📤 Uploading blog image: ${filename} (${(req.file.size / 1024 / 1024).toFixed(2)}MB)`);
+
+      // Read file from disk
+      const fileBuffer = require('fs').readFileSync(req.file.path);
+      
+      // Upload to Supabase storage (memopyk-blog bucket)
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('memopyk-blog')
+        .upload(filename, fileBuffer, {
+          contentType: req.file.mimetype,
+          cacheControl: '3600',
+          upsert: true // Overwrite if exists
+        });
+      
+      if (uploadError) {
+        console.error('❌ Supabase upload error:', uploadError);
+        throw uploadError;
+      }
+      
+      // Construct public URL
+      const publicUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/memopyk-blog/${filename}`;
+      
+      // Clean up temporary file
+      try {
+        require('fs').unlinkSync(req.file.path);
+        console.log(`🧹 Cleaned up temporary file: ${req.file.path}`);
+      } catch (cleanupError) {
+        console.warn(`⚠️ Failed to cleanup temp file: ${(cleanupError as any).message}`);
+      }
+      
+      console.log(`✅ Blog image uploaded successfully: ${publicUrl}`);
+      
+      res.json({
+        success: true,
+        data: {
+          name: filename,
+          url: publicUrl,
+          size: req.file.size
+        }
+      });
+    } catch (error) {
+      console.error('❌ Blog image upload error:', error);
+      
+      // Clean up temporary file on error
+      if (req.file && req.file.path) {
+        try {
+          require('fs').unlinkSync(req.file.path);
+          console.log(`🧹 Cleaned up temporary file after error: ${req.file.path}`);
+        } catch (cleanupError) {
+          console.warn(`⚠️ Failed to cleanup temp file: ${(cleanupError as any).message}`);
+        }
+      }
+      
+      res.status(500).json({ 
+        success: false, 
+        error: (error as Error).message 
+      });
+    }
+  });
+
   // Admin Routes
   app.use(adminCountryNames);
   

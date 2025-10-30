@@ -77,10 +77,16 @@ Modal styling: Requires solid white modal backgrounds with dark overlays for pro
   - **Database Schema**: Native `blog_posts` table with HTML content model (`content_html` field)
   - **AI Blog Creator**: Generates complete HTML blog posts using AI with direct Supabase inserts
   - **WYSIWYG Editor**: Self-hosted TinyMCE for post-validation content refinement with DOMPurify sanitization
-  - **Image Storage**: Supabase Storage bucket (`memopyk-blog`) for hero images and galleries
+  - **Image Management System**: Complete Supabase Storage integration with authenticated API endpoints
+    - **Storage**: All images in `memopyk-blog` bucket with public CDN URLs
+    - **Hero Images**: BlogHeroImageUpload component for browse/upload with modal gallery interface
+    - **Inline Images**: TinyMCE automatic upload on paste/insert + file picker for browsing library
+    - **API Endpoints**: `/api/admin/blog/images` (GET/POST) protected with `requireAdmin` middleware
+    - **Authentication**: Bearer token auth pattern (localStorage/sessionStorage fallback) across all image operations
+    - **File Cleanup**: Automatic cleanup of temporary uploaded files after Supabase storage
   - **Core Features**: Bilingual (EN/FR), draft/published status, featured posts, SEO metadata, slug-based routing
   - **Public API Routes**: `/api/blog/posts` (list), `/api/blog/posts/:slug` (detail), `/api/blog/featured`, `/api/blog/posts/search`
-  - **Admin API Routes**: `/api/admin/blog/posts` (CRUD), `/api/admin/blog/create-from-ai` (AI generation)
+  - **Admin API Routes**: `/api/admin/blog/posts` (CRUD), `/api/admin/blog/create-from-ai` (AI generation), `/api/admin/blog/images` (GET/POST)
   - **Migration Status**: Core blog system complete; advanced features (tags, galleries, related posts) stubbed for future implementation
 - **Blog Content Rendering System**: 
   - **Simple HTML Content**: Posts use `content_html` field containing pre-formatted, sanitized HTML

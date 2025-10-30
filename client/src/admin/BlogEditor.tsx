@@ -12,6 +12,13 @@ import { Editor } from '@tinymce/tinymce-react';
 import DOMPurify from 'dompurify';
 import { StatusSelector } from './StatusSelector';
 import { PublishedAtPicker } from './PublishedAtPicker';
+import { BlogHeroImageUpload } from './BlogHeroImageUpload';
+
+// Helper to get admin token
+const getAdminToken = () => {
+  return localStorage.getItem('memopyk-admin-token') || 
+         sessionStorage.getItem('memopyk-admin-token') || '';
+};
 
 interface BlogEditorProps {
   postId: string;
@@ -40,6 +47,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
   const [content, setContent] = useState('');
   const [status, setStatus] = useState<'draft' | 'in_review' | 'published'>('draft');
   const [publishedAt, setPublishedAt] = useState<Date | null>(null);
+  const [heroUrl, setHeroUrl] = useState<string | null>(null);
 
   // Fetch the blog post
   const { data: postData, isLoading } = useQuery({
@@ -62,6 +70,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
       setContent(post.content_html);
       setStatus(post.status);
       setPublishedAt(post.published_at ? new Date(post.published_at) : null);
+      setHeroUrl(post.hero_url);
     }
   }, [post]);
 
@@ -96,7 +105,8 @@ export function BlogEditor({ postId }: BlogEditorProps) {
       description,
       content_html: sanitizedContent,
       status,
-      published_at: publishedAt?.toISOString() || null
+      published_at: publishedAt?.toISOString() || null,
+      hero_url: heroUrl
     });
   };
 
@@ -207,6 +217,12 @@ export function BlogEditor({ postId }: BlogEditorProps) {
             />
           </div>
 
+          {/* Hero Image */}
+          <BlogHeroImageUpload 
+            currentImageUrl={heroUrl}
+            onImageSelect={setHeroUrl}
+          />
+
           {/* Status and Published At */}
           <div className="grid grid-cols-2 gap-4">
             <StatusSelector value={status} onChange={setStatus} />
@@ -233,9 +249,86 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                   toolbar: 'undo redo | blocks | ' +
                     'bold italic forecolor | alignleft aligncenter ' +
                     'alignright alignjustify | bullist numlist outdent indent | ' +
-                    'removeformat | help',
+                    'image | removeformat | help',
                   content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-                  promotion: false
+                  promotion: false,
+                  // Automatic image upload to Supabase
+                  automatic_uploads: true,
+                  images_upload_handler: async (blobInfo, progress) => {
+                    const formData = new FormData();
+                    formData.append('image', blobInfo.blob(), blobInfo.filename());
+
+                    try {
+                      const response = await fetch('/api/admin/blog/images', {
+                        method: 'POST',
+                        headers: {
+                          'Authorization': `Bearer ${getAdminToken()}`
+                        },
+                        body: formData
+                      });
+
+                      if (!response.ok) {
+                        throw new Error('Upload failed');
+                      }
+
+                      const result = await response.json();
+                      return result.data.url;
+                    } catch (error) {
+                      throw new Error('Image upload failed: ' + (error as Error).message);
+                    }
+                  },
+                  // File picker for browsing existing images
+                  file_picker_callback: (callback, value, meta) => {
+                    if (meta.filetype === 'image') {
+                      // Fetch existing images
+                      fetch('/api/admin/blog/images', {
+                        headers: {
+                          'Authorization': `Bearer ${getAdminToken()}`
+                        }
+                      })
+                        .then(res => res.json())
+                        .then(data => {
+                          const images = data.data || [];
+                          
+                          // Create a simple dialog with image grid
+                          const dialog = document.createElement('div');
+                          dialog.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:center;justify-content:center;';
+                          
+                          const content = document.createElement('div');
+                          content.style.cssText = 'background:white;padding:20px;border-radius:8px;max-width:800px;max-height:80vh;overflow-y:auto;';
+                          
+                          const title = document.createElement('h2');
+                          title.textContent = 'Select Image from Library';
+                          title.style.marginBottom = '15px';
+                          content.appendChild(title);
+                          
+                          const grid = document.createElement('div');
+                          grid.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:10px;';
+                          
+                          images.forEach((img: any) => {
+                            const imgBtn = document.createElement('button');
+                            imgBtn.style.cssText = 'border:2px solid #ccc;padding:0;cursor:pointer;border-radius:4px;overflow:hidden;aspect-ratio:16/9;';
+                            imgBtn.innerHTML = `<img src="${img.url}" style="width:100%;height:100%;object-fit:cover;">`;
+                            imgBtn.onclick = () => {
+                              callback(img.url, { alt: img.name });
+                              document.body.removeChild(dialog);
+                            };
+                            grid.appendChild(imgBtn);
+                          });
+                          
+                          content.appendChild(grid);
+                          
+                          const closeBtn = document.createElement('button');
+                          closeBtn.textContent = 'Close';
+                          closeBtn.style.cssText = 'margin-top:15px;padding:8px 16px;background:#D67C4A;color:white;border:none;border-radius:4px;cursor:pointer;';
+                          closeBtn.onclick = () => document.body.removeChild(dialog);
+                          content.appendChild(closeBtn);
+                          
+                          dialog.appendChild(content);
+                          document.body.appendChild(dialog);
+                        });
+                    }
+                  }
                 }}
               />
             </div>
