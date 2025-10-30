@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { Sparkles, Copy, CheckCircle, AlertCircle, Loader2, Send, Edit3 } from 'lucide-react';
 import { HtmlEditor } from './HtmlEditor';
+import { HeroImageUpload } from './HeroImageUpload';
 import DOMPurify from 'dompurify';
 
 const MASTER_PROMPT_TEMPLATE = `You are an expert content writer for MEMOPYK, a premium memory film production company. You create engaging, SEO-optimized blog posts about photography, videography, family memories, storytelling, and creative visual arts.
@@ -615,6 +616,11 @@ export const BlogAICreator: React.FC = () => {
                   data-testid="input-post-title"
                 />
               </div>
+
+              <HeroImageUpload
+                currentImageUrl={validatedPost.hero_url}
+                onImageChange={(url) => setValidatedPost({ ...validatedPost, hero_url: url })}
+              />
 
               <div className="space-y-2">
                 <Label>Content (HTML Editor)</Label>
