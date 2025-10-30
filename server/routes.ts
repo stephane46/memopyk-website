@@ -9396,7 +9396,15 @@ export async function registerRoutes(app: Express): Promise<void> {
         throw error;
       }
       
-      console.log(`✅ Blog posts fetched: ${posts?.length || 0} posts`);
+      // Transform database fields to match frontend expectations
+      const transformedPosts = (posts || []).map(post => ({
+        ...post,
+        publish_date: post.published_at || post.created_at, // Frontend expects publish_date
+        featured_image_url: post.hero_url, // Frontend expects featured_image_url
+        excerpt: post.description // Frontend may use excerpt
+      }));
+      
+      console.log(`✅ Blog posts fetched: ${transformedPosts.length} posts`);
       
       res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
       res.set('Pragma', 'no-cache');
@@ -9404,7 +9412,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       
       res.json({
         success: true,
-        data: posts,
+        data: transformedPosts,
         total: count || 0,
         limit: parseInt(limit as string),
         offset: parseInt(offset as string)
@@ -9496,6 +9504,53 @@ export async function registerRoutes(app: Express): Promise<void> {
     } catch (error) {
       console.error('Error fetching tags:', error);
       res.status(500).json({ success: false, error: (error as Error).message });
+    }
+  });
+
+  // Get single published blog post by slug (public detail page)
+  app.get('/api/blog/posts/:slug', async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const { language } = req.query;
+      
+      console.log(`🔍 Fetching blog post: ${slug} (language: ${language})`);
+      
+      // Query for published post with matching slug
+      let query = supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('slug', slug)
+        .eq('status', 'published')
+        .single();
+      
+      // Optionally filter by language if provided
+      if (language) {
+        query = query.eq('language', language);
+      }
+      
+      const { data: post, error } = await query;
+      
+      if (error || !post) {
+        console.log(`❌ Blog post not found: ${slug}`);
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Post not found or not published' 
+        });
+      }
+      
+      // Transform database fields to match frontend expectations
+      const transformedPost = {
+        ...post,
+        publish_date: post.published_at || post.created_at, // Frontend expects publish_date
+        featured_image_url: post.hero_url, // Frontend expects featured_image_url
+        content: post.content_html // Frontend expects content
+      };
+      
+      console.log(`✅ Blog post found: ${post.title}`);
+      res.json(transformedPost);
+    } catch (error) {
+      console.error('❌ Error fetching blog post:', error);
+      res.status(500).json({ success: false, error: 'Failed to fetch blog post' });
     }
   });
 
