@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { BookOpen, Sparkles, FileText } from 'lucide-react';
 import { BlogAICreator } from './BlogAICreator';
 import { BlogManagePosts } from './BlogManagePosts';
@@ -20,29 +19,46 @@ export function BlogManagement() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <Card className="bg-white p-1">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="manage" className="flex items-center gap-2" data-testid="tab-manage-posts">
-                <FileText className="h-4 w-4" />
-                Manage Posts
-              </TabsTrigger>
-              <TabsTrigger value="ai-creator" className="flex items-center gap-2" data-testid="tab-ai-creator">
-                <Sparkles className="h-4 w-4" />
-                AI Creator
-              </TabsTrigger>
-            </TabsList>
-          </Card>
+        {/* Tabs - SEO Management Style */}
+        <div className="mb-6">
+          <div className="flex rounded-lg border-2 border-gray-300 overflow-hidden">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setActiveTab('manage')}
+              className={activeTab === 'manage' ? 'seo-language-btn-active' : 'seo-language-btn-inactive'}
+              style={{ borderRadius: '0', border: '0', padding: '12px 24px' }}
+              data-testid="tab-manage-posts"
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Manage Posts
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setActiveTab('ai-creator')}
+              className={activeTab === 'ai-creator' ? 'seo-language-btn-active' : 'seo-language-btn-inactive'}
+              style={{ borderRadius: '0', border: '0', padding: '12px 24px' }}
+              data-testid="tab-ai-creator"
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              AI Creator
+            </Button>
+          </div>
+        </div>
 
-          <TabsContent value="manage" className="space-y-4">
+        {/* Tab Content */}
+        {activeTab === 'manage' && (
+          <div className="space-y-4">
             <BlogManagePosts />
-          </TabsContent>
+          </div>
+        )}
 
-          <TabsContent value="ai-creator" className="space-y-4">
+        {activeTab === 'ai-creator' && (
+          <div className="space-y-4">
             <BlogAICreator />
-          </TabsContent>
-        </Tabs>
+          </div>
+        )}
       </div>
     </div>
   );
