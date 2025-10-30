@@ -396,18 +396,8 @@ export const BlogAICreator: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-3">
-          <Sparkles className="h-8 w-8 text-[#D67C4A]" />
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">AI Blog Post Creator</h1>
-            <p className="text-gray-600 mt-1">Generate prompts, paste AI responses, publish to Supabase</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column: Input Form */}
           <Card className="bg-white">
             <CardHeader>
@@ -660,4 +650,4 @@ export const BlogAICreator: React.FC = () => {
       </div>
     </div>
   );
-};
+}

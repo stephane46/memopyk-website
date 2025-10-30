@@ -175,26 +175,7 @@ export function BlogManagePosts() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <BookOpen className="h-8 w-8 text-[#D67C4A]" />
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Manage Blog Posts</h1>
-              <p className="text-gray-600 mt-1">View, publish, and manage all blog content</p>
-            </div>
-          </div>
-          <Button 
-            onClick={() => window.location.href = '/admin#ai-blog-creator'}
-            className="bg-[#D67C4A] hover:bg-[#C06A3A]"
-            data-testid="button-create-new-post"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Create New Post
-          </Button>
-        </div>
+    <div className="space-y-6">{/* Removed outer padding since it's now inside tabs */}
 
         {/* Filters */}
         <Card className="bg-white">
@@ -367,7 +348,6 @@ export function BlogManagePosts() {
             )}
           </CardContent>
         </Card>
-      </div>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
