@@ -250,7 +250,16 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                     'bold italic forecolor | alignleft aligncenter ' +
                     'alignright alignjustify | bullist numlist outdent indent | ' +
                     'image | removeformat | help',
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+                  content_style: `
+                    body { font-family:Helvetica,Arial,sans-serif; font-size:14px }
+                    /* Default max-width for images in editor before sizing class is applied */
+                    img:not([class*="img-"]) { 
+                      max-width: 600px; 
+                      height: auto; 
+                      display: block;
+                      margin: 1rem auto;
+                    }
+                  `,
                   promotion: false,
                   // Image toolbar - appears when clicking on an image
                   image_caption: true,
