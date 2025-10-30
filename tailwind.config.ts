@@ -106,5 +106,12 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+  plugins: [
+    require("tailwindcss-animate"), 
+    require("@tailwindcss/typography")
+  ],
+  corePlugins: {
+    // Disable Preflight's list reset to allow prose plugin to work
+    preflight: true,
+  },
 } satisfies Config;

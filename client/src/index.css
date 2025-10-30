@@ -4,33 +4,27 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Blog List Styling - Override Tailwind Preflight reset */
-/* Must come AFTER @tailwind directives to override base reset */
-article[data-testid="post-content"] ul,
-article[data-testid="post-content"] ol,
-.prose ul,
-.prose ol {
-  padding-left: 2.5rem !important;
-  margin-left: 0 !important;
-  list-style-position: outside !important;
-  display: block !important;
+/* Blog List Styling - Force restore after Tailwind Preflight */
+.prose :where(ul):not(:where([class~="not-prose"] *)),
+.prose :where(ol):not(:where([class~="not-prose"] *)) {
+  list-style-position: outside;
+  padding-left: 1.625em;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
 }
 
-article[data-testid="post-content"] ul,
-.prose ul {
-  list-style-type: disc !important;
+.prose :where(ul):not(:where([class~="not-prose"] *)) {
+  list-style-type: disc;
 }
 
-article[data-testid="post-content"] ol,
-.prose ol {
-  list-style-type: decimal !important;
+.prose :where(ol):not(:where([class~="not-prose"] *)) {
+  list-style-type: decimal;
 }
 
-article[data-testid="post-content"] li,
-.prose li {
-  padding-left: 0.375rem !important;
-  margin-left: 0 !important;
-  display: list-item !important;
+.prose :where(li):not(:where([class~="not-prose"] *)) {
+  display: list-item;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
 }
 
 /* Hide fullscreen button from video controls */
