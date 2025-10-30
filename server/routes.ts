@@ -9601,12 +9601,13 @@ export async function registerRoutes(app: Express): Promise<void> {
       
       console.log(`🔍 Fetching blog post: ${slug} (language: ${language})`);
       
-      // Query for published post with matching slug
+      // Query for published post with matching slug and scheduled date in the past
       let query = supabase
         .from('blog_posts')
         .select('*')
         .eq('slug', slug)
         .eq('status', 'published')
+        .lte('published_at', new Date().toISOString())
         .single();
       
       // Optionally filter by language if provided
