@@ -260,15 +260,15 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                       margin: 1rem auto;
                     }
                   `,
-                  // Use init_instance_callback to hide width/height fields after editor loads
+                  // Use init_instance_callback to make width/height fields read-only
                   init_instance_callback: (editor) => {
-                    // Hide dimension fields in the image dialog
+                    // Make dimension fields read-only (show original size, prevent editing)
                     editor.on('ExecCommand', (e) => {
                       if (e.command === 'mceImage') {
                         setTimeout(() => {
                           const dialog = document.querySelector('.tox-dialog');
                           if (dialog) {
-                            // Hide width and height fields
+                            // Make width and height fields read-only
                             const inputs = dialog.querySelectorAll('input[type="number"]');
                             inputs.forEach((element) => {
                               const input = element as HTMLInputElement;
@@ -277,9 +277,11 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                                           input.placeholder?.toLowerCase().includes('height') ||
                                           label.textContent?.toLowerCase().includes('width') ||
                                           label.textContent?.toLowerCase().includes('height'))) {
-                                if (label instanceof HTMLElement) {
-                                  label.style.display = 'none';
-                                }
+                                // Make read-only and add visual hint
+                                input.readOnly = true;
+                                input.style.backgroundColor = '#f5f5f5';
+                                input.style.cursor = 'not-allowed';
+                                input.title = 'Original image size (read-only). Use Class dropdown in Advanced tab to resize.';
                               }
                             });
                           }
