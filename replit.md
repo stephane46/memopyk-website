@@ -80,8 +80,11 @@ Modal styling: Requires solid white modal backgrounds with dark overlays for pro
   - **Image Management System**: Complete Supabase Storage integration with authenticated API endpoints
     - **Storage**: All images in `memopyk-blog` bucket with public CDN URLs
     - **Hero Images**: BlogHeroImageUpload component for browse/upload with modal gallery interface
-    - **Inline Images**: TinyMCE automatic upload on paste/insert + file picker for browsing library
-    - **API Endpoints**: `/api/admin/blog/images` (GET/POST) protected with `requireAdmin` middleware
+    - **Inline Images**: TinyMCE automatic upload on paste/insert + enhanced file picker with search, pagination (12 per page), and newest-first sorting
+    - **Image Library**: Search by filename, paginated browsing for 50+ images, date-sorted (newest first)
+    - **Safe Delete**: Red delete button (×) on each image with usage checking across all blog posts (hero images and content HTML) before deletion; prevents breaking published posts
+    - **Image Alignment**: TinyMCE quickbars toolbar with left/center/right alignment and float options; CSS classes (align-left, align-center, align-right, float-left, float-right) for blog post rendering
+    - **API Endpoints**: `/api/admin/blog/images` (GET/POST/DELETE), `/api/admin/blog/images/:name/usage` (GET) protected with `requireAdmin` middleware
     - **Authentication**: Bearer token auth pattern (localStorage/sessionStorage fallback) across all image operations
     - **File Cleanup**: Automatic cleanup of temporary uploaded files after Supabase storage
   - **Core Features**: Bilingual (EN/FR), draft/published status, featured posts, SEO metadata, slug-based routing
