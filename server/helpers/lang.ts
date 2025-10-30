@@ -10,7 +10,7 @@ export const sameLang = (a?: string, b?: string): boolean =>
   toBase(a) === toBase(b);
 
 /**
- * Creates Directus filter for language that accepts both full and base forms
+ * Creates language filter that accepts both full and base forms
  * Example: "en-US" will match both "en-US" and "en"
  */
 export const languageFilter = (locale: string): string => {

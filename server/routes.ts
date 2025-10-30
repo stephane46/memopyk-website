@@ -3058,7 +3058,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       );
       
       // Apply same filtering logic as main analytics dashboard
-      console.log(`🔍 RECENT VISITORS: Processing ${sessions.length} raw sessions`);
+      console.log(`🔍 RECENT VISITORS: Processing ${sessions.length} raw sessions from ${finalStartDate} to ${finalEndDate}`);
       const realSessions = sessions.filter(session => {
         const isValid = !session.is_test_data &&  // Same as main dashboard 
                session.ip_address && 
@@ -3076,6 +3076,13 @@ export async function registerRoutes(app: Express): Promise<void> {
       // **CRITICAL FIX**: Build visitor list BEFORE fast mode - core session processing should always happen
       const recentVisitors = buildVisitorList(realSessions, dateFrom, dateTo);
       console.log(`🔍 RECENT VISITORS: Built ${recentVisitors.length} visitors from ${realSessions.length} sessions`);
+      console.log(`📊 RECENT VISITORS SAMPLE:`, recentVisitors.slice(0, 3).map(v => ({ 
+        ip: v.ip_address, 
+        country: v.country, 
+        city: v.city,
+        visit_count: v.visit_count,
+        created_at: v.created_at
+      })));
 
       // FAST MODE: Always return immediately with best available data - never wait for external APIs
       console.log(`⚡ Recent Visitors: Using fast response mode - no blocking external API calls`);
@@ -8968,50 +8975,6 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
-  // ========== DIRECTUS MEDIA UPLOAD ENDPOINTS ==========
-  
-  // Multer configuration for Directus media uploads
-  const directusUploadStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      const uploadPath = path.join(process.cwd(), 'temp_uploads');
-      if (!existsSync(uploadPath)) {
-        mkdirSync(uploadPath, { recursive: true });
-      }
-      cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
-      cb(null, `${uniqueSuffix}-${file.originalname}`);
-    }
-  });
-
-  const directusUpload = multer({
-    storage: directusUploadStorage,
-    limits: {
-      fileSize: 100 * 1024 * 1024 // 100MB max
-    },
-    fileFilter: (req, file, cb) => {
-      // Allowed MIME types
-      const allowedImages = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
-      const allowedVideos = ['video/mp4', 'video/webm', 'video/quicktime'];
-      const allowed = [...allowedImages, ...allowedVideos];
-      
-      if (allowed.includes(file.mimetype)) {
-        cb(null, true);
-      } else {
-        cb(new Error(`Invalid file type: ${file.mimetype}. Allowed: images (jpeg, png, webp, gif) and videos (mp4, webm, mov)`));
-      }
-    }
-  });
-
-  // Helper to get Directus token
-  function getDirectusToken() {
-    const token = process.env.DIRECTUS_TOKEN;
-    if (!token) {
-      throw new Error('DIRECTUS_TOKEN environment variable not set');
-    }
-    return token;
-  }
 
   // Helper to validate file size limits
   function validateFileSize(fileSizeMB: number, mimetype: string): { valid: boolean; error?: string } {
@@ -9169,239 +9132,6 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   }
 
-  // POST /api/admin/upload - Upload file to Directus
-  app.post("/api/admin/upload", requireAdmin, directusUpload.single('file'), async (req, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ error: 'No file provided' });
-      }
-
-      const fileSizeMB = req.file.size / (1024 * 1024);
-      const sizeCheck = validateFileSize(fileSizeMB, req.file.mimetype);
-      
-      if (!sizeCheck.valid) {
-        // Clean up temp file
-        unlinkSync(req.file.path);
-        return res.status(400).json({ error: sizeCheck.error });
-      }
-
-      console.log(`📤 Uploading to Directus: ${req.file.originalname} (${fileSizeMB.toFixed(2)}MB, ${req.file.mimetype})`);
-
-      const token = getDirectusToken();
-      const FormData = (await import('form-data')).default;
-      const formData = new FormData();
-      
-      // Read file and append as buffer with proper options
-      const fileBuffer = readFileSync(req.file.path);
-      formData.append('file', fileBuffer, {
-        filename: req.file.originalname,
-        contentType: req.file.mimetype
-      });
-      
-      // Add optional metadata
-      if (req.body.title) {
-        formData.append('title', req.body.title);
-      }
-      if (req.body.description) {
-        formData.append('description', req.body.description);
-      }
-
-      // Upload using form-data's submit method (more reliable than fetch)
-      const uploadPromise = new Promise<{ fileId: string; assetUrl: string }>((resolve, reject) => {
-        formData.submit({
-          host: 'cms.memopyk.com',
-          path: '/files',
-          method: 'POST',
-          protocol: 'https:',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }, (err, response) => {
-          if (err) {
-            return reject(err);
-          }
-
-          let data = '';
-          response.on('data', chunk => data += chunk);
-          response.on('end', () => {
-            if (response.statusCode !== 200 && response.statusCode !== 201) {
-              return reject(new Error(`Directus returned ${response.statusCode}: ${data}`));
-            }
-            
-            try {
-              const result = JSON.parse(data);
-              const fileId = result.data.id;
-              const assetUrl = `https://cms.memopyk.com/assets/${fileId}`;
-              resolve({ fileId, assetUrl });
-            } catch (parseError) {
-              reject(new Error(`Failed to parse response: ${data}`));
-            }
-          });
-        });
-      });
-
-      const { fileId, assetUrl } = await uploadPromise;
-      
-      // Clean up temp file
-      unlinkSync(req.file.path);
-      
-      console.log(`✅ File uploaded to Directus: ${fileId}`);
-
-      res.json({
-        success: true,
-        id: fileId,
-        url: assetUrl,
-        filename: req.file.originalname,
-        size: req.file.size,
-        mimetype: req.file.mimetype
-      });
-
-    } catch (error) {
-      // Clean up temp file if it exists
-      if (req.file?.path && existsSync(req.file.path)) {
-        unlinkSync(req.file.path);
-      }
-      
-      console.error('❌ Upload error:', error);
-      res.status(500).json({ 
-        error: 'Upload failed',
-        details: error instanceof Error ? error.message : String(error)
-      });
-    }
-  });
-
-  // POST /api/admin/fetch-external - Import external file URL to Directus
-  app.post("/api/admin/fetch-external", requireAdmin, async (req, res) => {
-    try {
-      const { url, title } = req.body;
-
-      if (!url || typeof url !== 'string') {
-        return res.status(400).json({ error: 'URL is required' });
-      }
-
-      // Validate URL safety (SSRF prevention with DNS resolution)
-      if (!(await isSafeUrl(url))) {
-        return res.status(400).json({ error: 'Invalid or unsafe URL - blocked due to security restrictions' });
-      }
-
-      console.log(`🌐 Fetching external file: ${url}`);
-
-      // Download file with timeout and size limit
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
-
-      const response = await fetch(url, {
-        signal: controller.signal,
-        redirect: 'follow',
-        headers: {
-          'User-Agent': 'MEMOPYK-CMS/1.0'
-        }
-      });
-
-      clearTimeout(timeout);
-
-      if (!response.ok) {
-        return res.status(400).json({ error: `Failed to fetch URL: ${response.status} ${response.statusText}` });
-      }
-
-      // Check content type
-      const contentType = response.headers.get('content-type') || '';
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm', 'video/quicktime'];
-      
-      const isAllowedType = allowedTypes.some(type => contentType.includes(type));
-      if (!isAllowedType) {
-        return res.status(400).json({ error: `Invalid content type: ${contentType}. Allowed: images and videos only` });
-      }
-
-      // Check content length
-      const contentLength = response.headers.get('content-length');
-      if (contentLength) {
-        const sizeMB = parseInt(contentLength) / (1024 * 1024);
-        const sizeCheck = validateFileSize(sizeMB, contentType);
-        if (!sizeCheck.valid) {
-          return res.status(400).json({ error: sizeCheck.error });
-        }
-      }
-
-      // Download to temp file
-      const buffer = Buffer.from(await response.arrayBuffer());
-      const fileSizeMB = buffer.length / (1024 * 1024);
-      
-      // Validate downloaded size
-      const sizeCheck = validateFileSize(fileSizeMB, contentType);
-      if (!sizeCheck.valid) {
-        return res.status(400).json({ error: sizeCheck.error });
-      }
-
-      // Extract filename from URL or generate one
-      let filename = url.split('/').pop()?.split('?')[0] || `download-${Date.now()}`;
-      if (!filename.includes('.')) {
-        const ext = contentType.split('/')[1]?.split('+')[0] || 'bin';
-        filename = `${filename}.${ext}`;
-      }
-
-      console.log(`📥 Downloaded ${filename} (${fileSizeMB.toFixed(2)}MB)`);
-
-      // Upload to Directus
-      const token = getDirectusToken();
-      const formData = new (await import('form-data')).default();
-      
-      formData.append('file', buffer, {
-        filename,
-        contentType
-      });
-      
-      if (title) {
-        formData.append('title', title);
-      }
-
-      const directusResponse = await fetch('https://cms.memopyk.com/files', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          ...formData.getHeaders()
-        },
-        body: formData as any // form-data package is compatible with fetch
-      });
-
-      if (!directusResponse.ok) {
-        const errorText = await directusResponse.text();
-        console.error('❌ Directus upload error:', directusResponse.status, errorText);
-        return res.status(directusResponse.status).json({ 
-          error: 'Directus upload failed',
-          details: errorText
-        });
-      }
-
-      const result = await directusResponse.json();
-      const fileId = result.data.id;
-      const assetUrl = `https://cms.memopyk.com/assets/${fileId}`;
-
-      console.log(`✅ External file imported to Directus: ${fileId}`);
-
-      res.json({
-        success: true,
-        id: fileId,
-        url: assetUrl,
-        filename,
-        size: buffer.length,
-        mimetype: contentType,
-        originalUrl: url
-      });
-
-    } catch (error) {
-      console.error('❌ Fetch external error:', error);
-      
-      if (error instanceof Error && error.name === 'AbortError') {
-        return res.status(408).json({ error: 'Request timeout - file download took too long' });
-      }
-      
-      res.status(500).json({ 
-        error: 'Failed to fetch external file',
-        details: error instanceof Error ? error.message : String(error)
-      });
-    }
-  });
 
   // ============================================================================
   // PUBLIC BLOG ROUTES (Supabase-native)

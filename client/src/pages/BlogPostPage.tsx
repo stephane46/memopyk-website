@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation, Link, useParams } from 'wouter';
 import { Helmet } from 'react-helmet-async';
-import { setAttr } from '@directus/visual-editing';
 import PostBlocks from '@/components/blog/PostBlocks';
 import NewsletterSignup from '@/components/blog/NewsletterSignup';
 import TagCloud from '@/components/blog/TagCloud';
@@ -11,7 +10,6 @@ import CommentsSection from '@/components/blog/CommentsSection';
 import FeaturedPostsSection from '@/components/blog/FeaturedPostsSection';
 import { RelatedPosts } from '@/components/RelatedPosts';
 import { DEFAULT_OG, DEFAULT_OG_FR } from '@/constants/seo';
-import { directusAsset } from '@/constants/directus';
 import { Calendar, Clock, User, Share2, Twitter, Facebook, Linkedin, Link as LinkIcon, Star, Hash } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { ScrollTracker, trackShare } from '@/utils/analytics';
@@ -90,18 +88,6 @@ export default function BlogPostPage() {
     }
   });
 
-  const inVisualEditingMode = useMemo(() => {
-    if (typeof window === 'undefined') return false;
-    return window.location.search.includes('ve=1');
-  }, [location]);
-
-  useEffect(() => {
-    if (!inVisualEditingMode || !post) return;
-    
-    import('@directus/visual-editing').then(async ({ apply }) => {
-      await apply({ directusUrl: 'https://cms.memopyk.com' });
-    });
-  }, [inVisualEditingMode, post]);
 
   // Track blog post view for analytics (exclude admin and development)
   useEffect(() => {
@@ -178,17 +164,6 @@ export default function BlogPostPage() {
     };
   }, [post]);
 
-  const getDirectusAttr = (fields: string, mode: 'popover' | 'drawer' = 'popover') => {
-    if (!inVisualEditingMode || !post) return {};
-    return {
-      'data-directus': setAttr({
-        collection: 'posts',
-        item: String(post.id),
-        fields,
-        mode
-      })
-    };
-  };
 
   const t = {
     'fr-FR': {
@@ -309,10 +284,11 @@ export default function BlogPostPage() {
   const seoDescription = post.meta_description || post.description || post.excerpt || "";
   const seoKeywords = post.meta_keywords;
   
-  function resolveHero(raw?: string | null, width?: number) {
+  function resolveHero(raw?: string | null, _width?: number) {
     if (!raw) return null;
     if (raw.includes('REPLACE') || raw.startsWith('[')) return null;
-    return directusAsset(raw, { ...(width ? { width } : {}), quality: 82, fit: 'inside' });
+    // Images are now stored as full Supabase Storage URLs or external URLs
+    return raw;
   }
 
   const heroUrl =
@@ -374,7 +350,6 @@ export default function BlogPostPage() {
               decoding="async"
               className="w-full h-full object-contain"
               data-testid="img-post-hero"
-              {...getDirectusAttr('featured_image_url', 'popover')}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
             
@@ -403,7 +378,6 @@ export default function BlogPostPage() {
               <h1
                 className="text-4xl md:text-5xl lg:text-6xl font-['Playfair_Display'] text-[#2A4759] mb-4 leading-tight"
                 data-testid="text-post-title"
-                {...getDirectusAttr('title', 'popover')}
               >
                 {post.title}
               </h1>
@@ -474,7 +448,7 @@ export default function BlogPostPage() {
             {/* Article Content */}
             <div className="px-6 md:px-8 pt-3 md:pt-4 pb-6 md:pb-8" data-testid="post-content">
               {/* Simple CMS: Render content field directly */}
-              <div {...getDirectusAttr('content', 'drawer')}>
+              <div>
                 <PostBlocks content={typeof post.content === 'string' ? post.content : ''} />
               </div>
 
