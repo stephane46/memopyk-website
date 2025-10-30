@@ -261,9 +261,11 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                     }
                   `,
                   promotion: false,
-                  // Image toolbar - appears when clicking on an image
+                  // Image dialog configuration
                   image_caption: true,
                   image_advtab: true,
+                  image_dimensions: false, // Hide width/height fields - use CSS classes instead
+                  image_description: true, // Show alt text field
                   image_class_list: [
                     { title: 'Default (centered, full width)', value: '' },
                     { title: '─── QUARTER WIDTH (25%) ───', value: '' },
