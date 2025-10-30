@@ -4,6 +4,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Blog List Styling Layer - Override Tailwind Preflight reset */
+@layer utilities {
+  article[data-testid="post-content"] ul,
+  article[data-testid="post-content"] ol {
+    padding-left: 2.5rem;
+    margin-left: 0;
+    list-style-position: outside;
+  }
+
+  article[data-testid="post-content"] ul {
+    list-style-type: disc;
+  }
+
+  article[data-testid="post-content"] ol {
+    list-style-type: decimal;
+  }
+
+  article[data-testid="post-content"] li {
+    padding-left: 0.375rem;
+    margin-left: 0;
+  }
+}
+
 /* Hide fullscreen button from video controls */
 video::-webkit-media-controls-fullscreen-button {
   display: none !important;
@@ -1486,29 +1509,3 @@ img.float-right {
   display: block !important;
 }
 
-/* Blog List Styling - Restore proper bullet points and numbering */
-/* Target blog post content specifically with higher specificity */
-article[data-testid="post-content"] ul,
-article[data-testid="post-content"] ol,
-.prose ul,
-.prose ol {
-  padding-left: 2.5rem !important;
-  margin-left: 0 !important;
-  list-style-position: outside !important;
-}
-
-article[data-testid="post-content"] ul,
-.prose ul {
-  list-style-type: disc !important;
-}
-
-article[data-testid="post-content"] ol,
-.prose ol {
-  list-style-type: decimal !important;
-}
-
-article[data-testid="post-content"] li,
-.prose li {
-  padding-left: 0.375rem !important;
-  margin-left: 0 !important;
-}
