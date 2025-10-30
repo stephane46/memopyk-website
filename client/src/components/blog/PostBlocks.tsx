@@ -16,7 +16,7 @@ export default function PostBlocks({ content }: PostBlocksProps) {
       className="prose prose-lg max-w-none
         prose-headings:font-['Playfair_Display'] prose-headings:text-[#2A4759] prose-headings:scroll-mt-24
         prose-h1:text-4xl prose-h1:md:text-5xl prose-h1:mt-6 prose-h1:mb-3
-        prose-h2:text-3xl prose-h2:md:text-4xl prose-h2:mt-4 prose-h2:mb-2
+        prose-h2:text-3xl prose-h2:md:text-4xl prose-h2:mt-2 prose-h2:md:mt-4 prose-h2:mb-2
         prose-h3:text-2xl prose-h3:md:text-3xl prose-h3:mt-3 prose-h3:mb-1.5
         prose-p:text-gray-700 prose-p:leading-relaxed prose-p:text-lg prose-p:mb-3
         prose-a:text-[#D67C4A] prose-a:no-underline prose-a:font-medium hover:prose-a:underline
