@@ -137,7 +137,7 @@ interface TinyMCEConfigOptions {
  * Create TinyMCE configuration with optional overrides
  */
 export function createTinyMCEConfig(options: TinyMCEConfigOptions = {}) {
-  return {
+  const config = {
     height: options.height || 500,
     menubar: options.menubar !== undefined ? options.menubar : false,
     plugins: 'link lists advlist table code codesample image media preview fullscreen charmap autolink searchreplace anchor wordcount visualblocks visualchars nonbreaking insertdatetime directionality autosave quickbars',
@@ -227,4 +227,14 @@ export function createTinyMCEConfig(options: TinyMCEConfigOptions = {}) {
     // Setup editor events
     setup: options.setup
   };
+  
+  console.log('🔧 TinyMCE Config Debug:', {
+    menubar: config.menubar,
+    image_advtab: config.image_advtab,
+    image_dimensions: config.image_dimensions,
+    image_class_list_count: config.image_class_list?.length || 0,
+    has_image_plugin: config.plugins.includes('image')
+  });
+  
+  return config;
 }
