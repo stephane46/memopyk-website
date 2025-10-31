@@ -263,15 +263,21 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                   promotion: false,
                   setup: (editor) => {
                     console.log('🎨 TinyMCE setup function called');
-                    // Custom image dialog with sizing dropdown
-                    editor.on('ExecCommand', (e) => {
-                      console.log('🔧 ExecCommand:', e.command);
-                      if (e.command === 'mceImage') {
-                        console.log('🖼️ Image dialog opening...');
-                        setTimeout(() => {
-                          const dialog = document.querySelector('.tox-dialog');
-                          console.log('📦 Dialog found:', !!dialog);
-                          if (!dialog) return;
+                    // Listen for when any dialog window opens
+                    editor.on('OpenWindow', (e) => {
+                      console.log('🪟 Window opened, type:', e);
+                      setTimeout(() => {
+                        const dialog = document.querySelector('.tox-dialog');
+                        console.log('📦 Dialog found:', !!dialog);
+                        if (!dialog) return;
+                        
+                        // Check if this is the image dialog (has Source field)
+                        const hasSourceField = dialog.querySelector('input[type="url"]') || 
+                                               Array.from(dialog.querySelectorAll('label')).some(
+                                                 el => el.textContent?.includes('Source')
+                                               );
+                        console.log('🖼️ Is image dialog:', hasSourceField);
+                        if (!hasSourceField) return;
                           
                           // Find the caption area to insert our sizing control after it
                           const captionLabel = Array.from(dialog.querySelectorAll('label')).find(
