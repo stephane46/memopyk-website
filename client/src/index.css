@@ -41,6 +41,12 @@ video::-webkit-media-controls-picture-in-picture-button {
   display: none !important;
 }
 
+/* Blog Header Text Visibility Fix - CRITICAL */
+[data-testid="text-blog-subtitle"],
+[data-testid="text-blog-description"] {
+  color: #FFFFFF !important;
+}
+
 /* MEMOPYK Official Brand Colors */
 :root {
   --memopyk-navy: #011526;        /* Navy - Primary brand color (RGB 1,21,38) */

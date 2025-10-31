@@ -160,7 +160,7 @@ export default function BlogIndexPage() {
 
       <div className="min-h-screen bg-gradient-to-b from-[#F2EBDC] to-white">
         {/* Enhanced Hero Section */}
-        <header className="relative bg-gradient-to-br from-[#2A4759] via-[#1a2d38] to-[#D67C4A]/20 text-white py-8 md:py-12 overflow-hidden">
+        <header className="relative bg-gradient-to-br from-[#2A4759] via-[#1a2d38] to-[#D67C4A]/20 text-white py-6 md:py-8 overflow-hidden">
           {/* Decorative elements with stronger orange accent */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-[#D67C4A] rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
           <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#D67C4A] rounded-full blur-3xl opacity-15 translate-y-1/2 -translate-x-1/2"></div>
@@ -174,14 +174,14 @@ export default function BlogIndexPage() {
                 {t.backHome}
               </span>
             </Link>
-            <div className="mt-6 max-w-3xl">
+            <div className="mt-4 max-w-3xl">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-['Playfair_Display'] font-bold leading-tight" data-testid="text-blog-title">
                 {t.title}
               </h1>
-              <p className="text-lg md:text-xl mt-3 font-light" style={{ color: '#FFFFFF !important' }} data-testid="text-blog-subtitle">
+              <p className="text-lg md:text-xl mt-2 font-light" data-testid="text-blog-subtitle">
                 {t.subtitle}
               </p>
-              <p className="text-sm md:text-base mt-2 leading-relaxed" style={{ color: '#FFFFFF !important' }} data-testid="text-blog-description">
+              <p className="text-sm md:text-base mt-1.5 leading-relaxed" data-testid="text-blog-description">
                 {t.description}
               </p>
             </div>
