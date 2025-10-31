@@ -561,76 +561,94 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
             // Paste event handler for auto-import of external file URLs
             editor.on('paste', (e: any) => handlePaste(editor, e));
             
-            // Intercept when any dialog opens
-            let currentDialogApi: any = null;
-            
+            // Intercept image dialog and add proper selectbox control
             editor.on('OpenWindow', (e: any) => {
+              const dialogApi = e.dialog;
+              if (!dialogApi) return;
+              
+              // Check if this is the image dialog
               setTimeout(() => {
                 const dialog = document.querySelector('.tox-dialog');
-                if (!dialog) return;
-                
-                // Check if it's the image dialog by looking for Source field
-                const hasSourceField = dialog.querySelector('input[type="url"]') || 
-                                       Array.from(dialog.querySelectorAll('label')).some(
-                                         el => el.textContent?.includes('Source')
-                                       );
-                if (!hasSourceField) return;
-                
-                // Save reference to dialog API from event
-                currentDialogApi = e.dialog;
-                
-                const captionLabel = Array.from(dialog.querySelectorAll('label')).find(
-                  el => el.textContent?.includes('Show caption')
+                const hasSourceField = dialog && (
+                  dialog.querySelector('input[type="url"]') || 
+                  Array.from(dialog.querySelectorAll('label')).some(
+                    el => el.textContent?.includes('Source')
+                  )
                 );
                 
-                if (captionLabel && !dialog.querySelector('#custom-image-size-select')) {
-                  const container = captionLabel.closest('.tox-form__group')?.parentElement;
-                  if (container) {
-                    const sizeGroup = document.createElement('div');
-                    sizeGroup.className = 'tox-form__group';
-                    sizeGroup.innerHTML = `
-                      <label class="tox-label">Image Size & Alignment</label>
-                      <select id="custom-image-size-select" class="tox-selectfield" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
-                        <option value="">Default (full width, centered)</option>
-                        <option value="img-quarter align-left">Quarter - Left</option>
-                        <option value="img-quarter align-center">Quarter - Center</option>
-                        <option value="img-quarter align-right">Quarter - Right</option>
-                        <option value="img-half align-left">Half - Left</option>
-                        <option value="img-half align-center">Half - Center</option>
-                        <option value="img-half align-right">Half - Right</option>
-                        <option value="img-three-quarter align-left">Three-quarter - Left</option>
-                        <option value="img-three-quarter align-center">Three-quarter - Center</option>
-                        <option value="img-three-quarter align-right">Three-quarter - Right</option>
-                        <option value="img-full align-left">Full - Left</option>
-                        <option value="img-full align-center">Full - Center</option>
-                        <option value="img-full align-right">Full - Right</option>
-                        <option value="float-left">Float Left (text wraps)</option>
-                        <option value="float-right">Float Right (text wraps)</option>
-                      </select>
-                    `;
-                    
-                    container.insertBefore(sizeGroup, captionLabel.closest('.tox-form__group'));
-                    
-                    const select = sizeGroup.querySelector('select') as HTMLSelectElement;
-                    
-                    // Set initial value from current image class if dialog API available
-                    if (currentDialogApi) {
-                      const currentData = currentDialogApi.getData();
-                      if (currentData && currentData.class) {
-                        select.value = currentData.class;
-                      }
+                if (!hasSourceField) return;
+                
+                // Get current dialog spec and data
+                const currentSpec = dialogApi.getData();
+                const currentClass = currentSpec.class || '';
+                
+                // Get the original dialog specification
+                const spec = (dialogApi as any).spec;
+                if (!spec || !spec.body || !spec.body.items) return;
+                
+                // Check if we already added our control
+                const hasCustomControl = spec.body.items.some((item: any) => 
+                  item.name === 'imagesize'
+                );
+                if (hasCustomControl) return;
+                
+                // Create the size/alignment selectbox control
+                const sizeControl = {
+                  type: 'selectbox',
+                  name: 'imagesize',
+                  label: 'Image Size & Alignment',
+                  items: [
+                    { value: '', text: 'Default (full width, centered)' },
+                    { value: 'img-quarter align-left', text: 'Quarter - Left' },
+                    { value: 'img-quarter align-center', text: 'Quarter - Center' },
+                    { value: 'img-quarter align-right', text: 'Quarter - Right' },
+                    { value: 'img-half align-left', text: 'Half - Left' },
+                    { value: 'img-half align-center', text: 'Half - Center' },
+                    { value: 'img-half align-right', text: 'Half - Right' },
+                    { value: 'img-three-quarter align-left', text: 'Three-quarter - Left' },
+                    { value: 'img-three-quarter align-center', text: 'Three-quarter - Center' },
+                    { value: 'img-three-quarter align-right', text: 'Three-quarter - Right' },
+                    { value: 'img-full align-left', text: 'Full - Left' },
+                    { value: 'img-full align-center', text: 'Full - Center' },
+                    { value: 'img-full align-right', text: 'Full - Right' },
+                    { value: 'float-left', text: 'Float Left (text wraps)' },
+                    { value: 'float-right', text: 'Float Right (text wraps)' }
+                  ]
+                };
+                
+                // Insert after the caption field (usually 3rd item in General tab)
+                const newItems = [...spec.body.items];
+                newItems.splice(3, 0, sizeControl);
+                
+                // Create new spec with our control
+                const newSpec = {
+                  ...spec,
+                  body: {
+                    ...spec.body,
+                    items: newItems
+                  },
+                  onSubmit: (api: any) => {
+                    const data = api.getData();
+                    // Map imagesize to class attribute
+                    if (data.imagesize) {
+                      data.class = data.imagesize;
                     }
-                    
-                    // Update dialog data when dropdown changes
-                    select?.addEventListener('change', () => {
-                      if (currentDialogApi) {
-                        const newData = { ...currentDialogApi.getData(), class: select.value };
-                        currentDialogApi.setData(newData);
-                      }
-                    });
+                    // Call original onSubmit if it exists
+                    if (spec.onSubmit) {
+                      spec.onSubmit(api);
+                    }
                   }
-                }
-              }, 100);
+                };
+                
+                // Redial with new specification
+                dialogApi.redial(newSpec);
+                
+                // Set initial value for our control
+                dialogApi.setData({
+                  ...currentSpec,
+                  imagesize: currentClass
+                });
+              }, 50);
             });
           }
         }}
