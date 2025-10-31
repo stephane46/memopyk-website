@@ -162,14 +162,14 @@ export function BlogManagePosts() {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/blog/posts'] });
       const targetLang = response?.data?.language === 'en-US' ? 'English' : 'French';
       toast({
-        title: "Translation created!",
-        description: `Draft post created in ${targetLang}. Edit the content to complete the translation.`
+        title: "Translation complete! 🌐",
+        description: `Blog post automatically translated to ${targetLang} using LibreTranslate. Review the draft to ensure quality.`
       });
     },
     onError: (error: Error) => {
       toast({
         title: "Failed to translate post",
-        description: error.message,
+        description: error.message || "Unable to translate post. Please check LibreTranslate service status.",
         variant: "destructive"
       });
     }
@@ -351,10 +351,14 @@ export function BlogManagePosts() {
                               onClick={() => translateMutation.mutate(post.id)}
                               disabled={translateMutation.isPending}
                               className="text-[#D67C4A] hover:text-[#D67C4A] hover:bg-orange-50"
-                              title={`Translate to ${post.language === 'en-US' ? 'French' : 'English'}`}
+                              title={translateMutation.isPending ? 'Translating...' : `Translate to ${post.language === 'en-US' ? 'French' : 'English'}`}
                               data-testid={`button-translate-${post.id}`}
                             >
-                              <Languages className="h-4 w-4" />
+                              {translateMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Languages className="h-4 w-4" />
+                              )}
                             </Button>
                             {post.status === 'draft' && (
                               <Button
