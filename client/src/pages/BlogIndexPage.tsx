@@ -102,7 +102,7 @@ export default function BlogIndexPage() {
     'en-US': {
       title: 'MEMOPYK Blog',
       subtitle: 'Inspiration, Tips & Stories',
-      description: 'Discover our latest articles about memory films and preserving your memories',
+      description: 'Discover our latest articles about souvenir films and preserving your memories',
       readMore: 'Read article',
       backHome: 'Back to home',
       noPosts: 'No articles available at the moment',
@@ -160,28 +160,28 @@ export default function BlogIndexPage() {
 
       <div className="min-h-screen bg-gradient-to-b from-[#F2EBDC] to-white">
         {/* Enhanced Hero Section */}
-        <header className="relative bg-gradient-to-br from-[#2A4759] via-[#2A4759] to-[#1a2d38] text-white py-16 md:py-24 overflow-hidden">
-          {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[#D67C4A] rounded-full blur-3xl opacity-10 -translate-y-1/2 translate-x-1/2"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#89BAD9] rounded-full blur-3xl opacity-10 translate-y-1/2 -translate-x-1/2"></div>
+        <header className="relative bg-gradient-to-br from-[#2A4759] via-[#1a2d38] to-[#D67C4A]/20 text-white py-8 md:py-12 overflow-hidden">
+          {/* Decorative elements with stronger orange accent */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[#D67C4A] rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#D67C4A] rounded-full blur-3xl opacity-15 translate-y-1/2 -translate-x-1/2"></div>
           
           <div className="container mx-auto px-4 relative z-10">
             <Link href={homeRoute} data-testid="link-home">
-              <span className="inline-flex items-center text-[#D67C4A] hover:text-[#F2EBDC] transition-colors cursor-pointer font-medium group">
+              <span className="inline-flex items-center text-[#D67C4A] hover:text-white transition-colors cursor-pointer font-medium group">
                 <svg className="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
                 {t.backHome}
               </span>
             </Link>
-            <div className="mt-8 max-w-3xl">
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-['Playfair_Display'] font-bold leading-tight" data-testid="text-blog-title">
+            <div className="mt-6 max-w-3xl">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-['Playfair_Display'] font-bold leading-tight" data-testid="text-blog-title">
                 {t.title}
               </h1>
-              <p className="text-xl md:text-2xl text-[#89BAD9] mt-4 font-light" data-testid="text-blog-subtitle">
+              <p className="text-lg md:text-xl text-white/90 mt-3 font-light" data-testid="text-blog-subtitle">
                 {t.subtitle}
               </p>
-              <p className="text-base md:text-lg text-gray-300 mt-3 leading-relaxed" data-testid="text-blog-description">
+              <p className="text-sm md:text-base text-white/80 mt-2 leading-relaxed" data-testid="text-blog-description">
                 {t.description}
               </p>
             </div>
