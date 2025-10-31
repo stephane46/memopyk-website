@@ -142,7 +142,7 @@ export function createTinyMCEConfig(options: TinyMCEConfigOptions = {}) {
     plugins: 'link lists advlist table code codesample image media preview fullscreen charmap autolink searchreplace anchor wordcount visualblocks visualchars nonbreaking insertdatetime directionality autosave quickbars',
     
     // Three-row toolbar organized logically
-    toolbar_mode: 'wrap',
+    toolbar_mode: 'wrap' as const,
     toolbar: [
       'undo redo | blocks fontselect fontsize lineheight styles | bold italic underline strikethrough subscript superscript | forecolor backcolor | removeformat',
       'alignleft aligncenter alignright alignjustify | outdent indent | bullist numlist | blockquote hr | ltr rtl',
