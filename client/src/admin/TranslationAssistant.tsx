@@ -123,9 +123,14 @@ ${extractedText}`;
       return;
     }
 
-    const translatedTitle = titleMatch[1].trim();
-    const translatedSlug = slugMatch[1].trim();
-    const translatedDescription = descMatch[1].trim();
+    // Clean up markdown formatting (remove ** bold markers)
+    const cleanMarkdown = (text: string) => {
+      return text.replace(/\*\*/g, '').trim();
+    };
+
+    const translatedTitle = cleanMarkdown(titleMatch[1]);
+    const translatedSlug = cleanMarkdown(slugMatch[1]);
+    const translatedDescription = cleanMarkdown(descMatch[1]);
     let translatedContent = contentMatch[1].trim();
 
     // Re-insert images by replacing [IMAGE X] placeholders
