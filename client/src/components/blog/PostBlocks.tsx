@@ -22,7 +22,7 @@ export default function PostBlocks({ content }: PostBlocksProps) {
         prose-a:text-[#D67C4A] prose-a:no-underline prose-a:font-medium hover:prose-a:underline
         prose-strong:text-[#2A4759] prose-strong:font-semibold
         prose-ul:my-3 prose-ol:my-3 prose-li:text-gray-700 prose-li:my-0.5
-        prose-img:rounded-xl prose-img:shadow-2xl prose-img:max-w-full prose-img:h-auto prose-img:my-4
+        prose-img:rounded-xl prose-img:shadow-2xl prose-img:h-auto prose-img:my-4
         prose-blockquote:border-l-4 prose-blockquote:border-[#D67C4A] prose-blockquote:italic prose-blockquote:bg-[#F2EBDC]/30 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-blockquote:my-4
         prose-code:text-[#D67C4A] prose-code:bg-gray-100 prose-code:px-2 prose-code:py-1 prose-code:rounded
         prose-table:w-full prose-table:my-4 prose-table:border-collapse
