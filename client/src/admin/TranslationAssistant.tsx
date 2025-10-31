@@ -46,12 +46,16 @@ export function TranslationAssistant({
     const images: string[] = [];
     let placeholderCount = 0;
 
-    // Replace all <img> tags with [IMAGE X] placeholders
-    const textWithPlaceholders = currentContent.replace(/<img[^>]*>/gi, (imgTag) => {
-      placeholderCount++;
-      images.push(imgTag);
-      return `[IMAGE ${placeholderCount}]`;
-    });
+    // Replace images (with or without wrapper elements like <figure>) with [IMAGE X] placeholders
+    // This regex captures: <figure>...</figure>, <span>...</span> containing <img>, or bare <img> tags
+    const textWithPlaceholders = currentContent.replace(
+      /(<figure[^>]*>[\s\S]*?<img[^>]*>[\s\S]*?<\/figure>)|(<span[^>]*>[\s\S]*?<img[^>]*>[\s\S]*?<\/span>)|(<img[^>]*>)/gi,
+      (fullMatch) => {
+        placeholderCount++;
+        images.push(fullMatch);
+        return `[IMAGE ${placeholderCount}]`;
+      }
+    );
 
     setImageMap(images);
     setExtractedText(textWithPlaceholders);
