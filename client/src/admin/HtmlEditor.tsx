@@ -596,14 +596,36 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
                       if (select) select.value = img.className;
                     }
                     
-                    // Apply class when changed
+                    // Store selected value and apply when dialog closes
                     const select = sizeGroup.querySelector('select') as HTMLSelectElement;
+                    let selectedClass = '';
+                    
                     select?.addEventListener('change', () => {
+                      selectedClass = select.value;
+                      // Also apply to dialog preview immediately
                       const img = editor.selection.getNode();
                       if (img.tagName === 'IMG') {
                         img.className = select.value;
                       }
                     });
+                    
+                    // Listen for dialog submission
+                    const observer = new MutationObserver(() => {
+                      const dialog = document.querySelector('.tox-dialog');
+                      if (!dialog) {
+                        // Dialog closed - apply class to newly inserted/updated image
+                        setTimeout(() => {
+                          const img = editor.selection.getNode();
+                          if (img.tagName === 'IMG' && selectedClass) {
+                            img.className = selectedClass;
+                            editor.nodeChanged(); // Trigger content update
+                          }
+                        }, 100);
+                        observer.disconnect();
+                      }
+                    });
+                    
+                    observer.observe(document.body, { childList: true, subtree: true });
                   }
                 }
               }, 100);
