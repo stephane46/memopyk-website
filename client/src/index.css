@@ -1556,3 +1556,43 @@ img.img-full {
   }
 }
 
+/* Translation Assistant - Force readable text colors */
+[data-testid="button-extract-text"] {
+  color: white !important;
+  background-color: #D67C4A !important;
+}
+
+/* Force all card titles and descriptions to be dark in dialogs */
+.bg-white [class*="CardTitle"],
+.bg-white h3,
+.bg-white [class*="DialogTitle"] {
+  color: #111827 !important;
+}
+
+.bg-white [class*="CardDescription"],
+.bg-white p {
+  color: #4B5563 !important;
+}
+
+/* Force list items to be readable */
+.bg-white ol li,
+.bg-white ul li {
+  color: #374151 !important;
+}
+
+/* Override any text color in dialog content */
+[role="dialog"] * {
+  color: inherit !important;
+}
+
+[role="dialog"] h2,
+[role="dialog"] h3,
+[role="dialog"] h4 {
+  color: #111827 !important;
+}
+
+[role="dialog"] p,
+[role="dialog"] span:not([class*="text-white"]):not([class*="bg-"]) {
+  color: #4B5563 !important;
+}
+
