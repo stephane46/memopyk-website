@@ -3057,17 +3057,16 @@ export async function registerRoutes(app: Express): Promise<void> {
         country as string // Add country filtering support
       );
       
-      // Apply same filtering logic as main analytics dashboard
+      // Apply filtering logic - includeProduction=true so don't filter test_data
       console.log(`🔍 RECENT VISITORS: Processing ${sessions.length} raw sessions from ${finalStartDate} to ${finalEndDate}`);
       const realSessions = sessions.filter(session => {
-        const isValid = !session.is_test_data &&  // Same as main dashboard 
-               session.ip_address && 
+        const isValid = session.ip_address && 
                session.ip_address !== '0.0.0.0' &&
-               session.ip_address !== '127.0.0.1' &&  // Exclude localhost like main dashboard
+               session.ip_address !== '127.0.0.1' &&  // Exclude localhost
                session.ip_address !== null &&
                !session.session_id?.includes('anonymous');
         if (!isValid) {
-          console.log(`🚫 FILTERED OUT: ${session.ip_address} - test:${session.is_test_data}, sessionId:${session.session_id}`);
+          console.log(`🚫 FILTERED OUT: ${session.ip_address} - sessionId:${session.session_id}`);
         }
         return isValid;
       });
