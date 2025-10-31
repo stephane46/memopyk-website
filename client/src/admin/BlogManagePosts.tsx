@@ -160,7 +160,7 @@ export function BlogManagePosts() {
     },
     onSuccess: (response: any) => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/blog/posts'] });
-      const targetLang = response.data.language === 'en-US' ? 'English' : 'French';
+      const targetLang = response?.data?.language === 'en-US' ? 'English' : 'French';
       toast({
         title: "Translation created!",
         description: `Draft post created in ${targetLang}. Edit the content to complete the translation.`
