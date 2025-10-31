@@ -127,6 +127,7 @@ export const createImageUploadHandler = () => {
 
 interface TinyMCEConfigOptions {
   height?: number;
+  menubar?: boolean;
   images_upload_handler?: (blobInfo: any, progress: (percent: number) => void) => Promise<string>;
   file_picker_callback?: (callback: any, value: any, meta: any) => void;
   setup?: (editor: any) => void;
@@ -138,7 +139,7 @@ interface TinyMCEConfigOptions {
 export function createTinyMCEConfig(options: TinyMCEConfigOptions = {}) {
   return {
     height: options.height || 500,
-    menubar: false,
+    menubar: options.menubar !== undefined ? options.menubar : false,
     plugins: 'link lists advlist table code codesample image media preview fullscreen charmap autolink searchreplace anchor wordcount visualblocks visualchars nonbreaking insertdatetime directionality autosave quickbars',
     
     // Three-row toolbar organized logically

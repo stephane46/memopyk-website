@@ -233,7 +233,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                 licenseKey="gpl"
                 value={content}
                 onEditorChange={(newContent) => setContent(newContent)}
-                init={createTinyMCEConfig()}
+                init={createTinyMCEConfig({ menubar: true })}
               />
             </div>
           </div>
