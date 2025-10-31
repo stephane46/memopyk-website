@@ -274,8 +274,8 @@ export function BlogManagePosts() {
                       <th className="text-left py-3 px-4 font-semibold text-gray-700">Title</th>
                       <th className="text-left py-3 px-4 font-semibold text-gray-700">Language</th>
                       <th className="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Created</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Published</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">Created</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700 whitespace-nowrap">Published</th>
                       <th className="text-right py-3 px-4 font-semibold text-gray-700">Actions</th>
                     </tr>
                   </thead>
@@ -314,13 +314,13 @@ export function BlogManagePosts() {
                             </Badge>
                           )}
                         </td>
-                        <td className="py-4 px-4 text-sm text-gray-600">
+                        <td className="py-4 px-4 text-sm text-gray-600 whitespace-nowrap">
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-gray-400" />
                             {formatDate(post.created_at)}
                           </div>
                         </td>
-                        <td className="py-4 px-4 text-sm text-gray-600">
+                        <td className="py-4 px-4 text-sm text-gray-600 whitespace-nowrap">
                           {formatDate(post.published_at)}
                         </td>
                         <td className="py-4 px-4">
