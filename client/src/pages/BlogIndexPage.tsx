@@ -178,10 +178,10 @@ export default function BlogIndexPage() {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-['Playfair_Display'] font-bold leading-tight" data-testid="text-blog-title">
                 {t.title}
               </h1>
-              <p className="text-lg md:text-xl text-white mt-3 font-light" data-testid="text-blog-subtitle">
+              <p className="text-lg md:text-xl mt-3 font-light" style={{ color: '#FFFFFF !important' }} data-testid="text-blog-subtitle">
                 {t.subtitle}
               </p>
-              <p className="text-sm md:text-base text-white mt-2 leading-relaxed" data-testid="text-blog-description">
+              <p className="text-sm md:text-base mt-2 leading-relaxed" style={{ color: '#FFFFFF !important' }} data-testid="text-blog-description">
                 {t.description}
               </p>
             </div>
