@@ -36,6 +36,7 @@ CONTENT REQUIREMENTS:
 - Include practical tips, numbered steps, or how-to guidance where relevant
 - End with a call-to-action or inspiring conclusion
 - Naturally incorporate SEO keywords without keyword stuffing
+- NEVER use em dashes (—) - use regular hyphens (-) instead
 
 HTML STRUCTURE GUIDANCE (Semantic Elements Only - NO inline styles):
 Use these semantic HTML elements to create well-structured, scannable content:

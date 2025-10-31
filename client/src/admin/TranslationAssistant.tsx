@@ -75,8 +75,9 @@ IMPORTANT RULES:
 1. Keep ALL HTML tags exactly as they are (including <h2>, <p>, <strong>, <ul>, <li>, etc.)
 2. Keep ALL [IMAGE X] placeholders exactly as they are - DO NOT translate or modify them
 3. Translate ONLY the text content between HTML tags
-4. For the slug, create a French-friendly URL (lowercase, hyphens, no accents)
-5. Return your response in this EXACT format:
+4. For the slug, create a ${targetLangLabel}-friendly URL (lowercase, hyphens, no accents)
+5. NEVER use em dashes (—) - use regular hyphens (-) instead
+6. Return your response in this EXACT format:
 
 TITLE: [translated title here]
 SLUG: [french-url-slug-here]
