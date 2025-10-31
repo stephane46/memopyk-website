@@ -562,14 +562,10 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
             editor.on('paste', (e: any) => handlePaste(editor, e));
             
             // Intercept when any dialog opens
-            let imageDialogApi: any = null;
+            let currentDialogApi: any = null;
             
-            editor.on('OpenWindow', () => {
+            editor.on('OpenWindow', (e: any) => {
               setTimeout(() => {
-                // Get the active dialog
-                const windows = (editor as any).windowManager.getWindows();
-                if (windows.length === 0) return;
-                
                 const dialog = document.querySelector('.tox-dialog');
                 if (!dialog) return;
                 
@@ -580,8 +576,8 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
                                        );
                 if (!hasSourceField) return;
                 
-                // This is the image dialog - save reference
-                imageDialogApi = windows[0];
+                // Save reference to dialog API from event
+                currentDialogApi = e.dialog;
                 
                 const captionLabel = Array.from(dialog.querySelectorAll('label')).find(
                   el => el.textContent?.includes('Show caption')
@@ -617,16 +613,20 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
                     
                     const select = sizeGroup.querySelector('select') as HTMLSelectElement;
                     
-                    // Set initial value from current image class
-                    const currentData = imageDialogApi.getData();
-                    if (currentData.class) {
-                      select.value = currentData.class;
+                    // Set initial value from current image class if dialog API available
+                    if (currentDialogApi) {
+                      const currentData = currentDialogApi.getData();
+                      if (currentData && currentData.class) {
+                        select.value = currentData.class;
+                      }
                     }
                     
                     // Update dialog data when dropdown changes
                     select?.addEventListener('change', () => {
-                      const newData = { ...imageDialogApi.getData(), class: select.value };
-                      imageDialogApi.setData(newData);
+                      if (currentDialogApi) {
+                        const newData = { ...currentDialogApi.getData(), class: select.value };
+                        currentDialogApi.setData(newData);
+                      }
                     });
                   }
                 }
