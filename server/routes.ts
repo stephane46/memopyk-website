@@ -9474,7 +9474,7 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   // LibreTranslate helper function
   async function translateText(text: string, sourceLang: string, targetLang: string): Promise<string> {
-    const LIBRETRANSLATE_ENDPOINT = process.env.LIBRETRANSLATE_ENDPOINT || 'https://translate.argosopentech.com/translate';
+    const LIBRETRANSLATE_ENDPOINT = process.env.LIBRETRANSLATE_ENDPOINT || 'https://libretranslate.com/translate';
     const LIBRETRANSLATE_API_KEY = process.env.LIBRETRANSLATE_API_KEY;
     const MAX_CHUNK_SIZE = 1800; // Leave buffer below 2000 char limit
     
