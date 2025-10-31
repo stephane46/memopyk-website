@@ -147,12 +147,11 @@ export const useVideoAnalytics = () => {
       return;
     }
     
-    // Development environment exclusion - exclude Replit preview and localhost
-    const isDevelopment = window.location.hostname.includes('replit.dev') || 
-                         window.location.hostname.includes('localhost') ||
+    // FIXED: Only exclude localhost - allow replit.dev for testing custom analytics
+    const isDevelopment = window.location.hostname.includes('localhost') ||
                          window.location.hostname === '127.0.0.1';
     if (isDevelopment) {
-      console.log('📊 PRODUCTION ANALYTICS: Skipping session tracking - development environment detected');
+      console.log('📊 PRODUCTION ANALYTICS: Skipping session tracking - localhost detected');
       return;
     }
     
