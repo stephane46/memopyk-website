@@ -41,10 +41,13 @@ video::-webkit-media-controls-picture-in-picture-button {
   display: none !important;
 }
 
-/* Blog Header Text Visibility Fix - CRITICAL */
+/* Blog Header Text Visibility Fix - CRITICAL - Force white text with max specificity */
+header p[data-testid="text-blog-subtitle"],
+header p[data-testid="text-blog-description"],
 [data-testid="text-blog-subtitle"],
 [data-testid="text-blog-description"] {
   color: #FFFFFF !important;
+  opacity: 1 !important;
 }
 
 /* MEMOPYK Official Brand Colors */
