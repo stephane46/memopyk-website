@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, Eye, Upload, Search } from 'lucide-react';
+import { Loader2, Save, Eye, Upload, Search, Languages } from 'lucide-react';
 import { Editor } from '@tinymce/tinymce-react';
 import DOMPurify from 'dompurify';
 import { StatusSelector } from './StatusSelector';
@@ -15,6 +15,7 @@ import { PublishedAtPicker } from './PublishedAtPicker';
 import { BlogHeroImageUpload } from './BlogHeroImageUpload';
 import { createTinyMCEConfig, getAdminToken } from './tinymce/config';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { TranslationAssistant } from './TranslationAssistant';
 
 interface BlogEditorProps {
   postId: string;
@@ -50,6 +51,12 @@ export function BlogEditor({ postId }: BlogEditorProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const imagePickerCallbackRef = useRef<any>(null);
+  
+  // Translation assistant state
+  const [isTranslationAssistantOpen, setIsTranslationAssistantOpen] = useState(false);
+  
+  // Check if this is a translation draft
+  const isTranslationDraft = title.startsWith('[TRANSLATE TO');
 
   // Fetch the blog post
   const { data: postData, isLoading } = useQuery({
@@ -257,6 +264,18 @@ export function BlogEditor({ postId }: BlogEditorProps) {
           <CardTitle className="flex items-center justify-between">
             <span>Edit Blog Post</span>
             <div className="flex gap-2">
+              {isTranslationDraft && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsTranslationAssistantOpen(true)}
+                  className="border-[#D67C4A] text-[#D67C4A] hover:bg-orange-50"
+                  data-testid="button-translation-assistant"
+                >
+                  <Languages className="h-4 w-4 mr-2" />
+                  Translation Assistant
+                </Button>
+              )}
               {post.status === 'published' && (
                 <Button
                   variant="outline"
@@ -454,6 +473,21 @@ export function BlogEditor({ postId }: BlogEditorProps) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Translation Assistant Modal */}
+      <TranslationAssistant
+        isOpen={isTranslationAssistantOpen}
+        onClose={() => setIsTranslationAssistantOpen(false)}
+        currentContent={content}
+        targetLanguage={post.language as 'en-US' | 'fr-FR'}
+        onApplyTranslation={(translatedContent) => {
+          setContent(translatedContent);
+          toast({
+            title: "Content updated!",
+            description: "Translation has been applied to the editor. Remember to save your changes."
+          });
+        }}
+      />
     </div>
   );
 }

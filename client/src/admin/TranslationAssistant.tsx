@@ -1,0 +1,304 @@
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Copy, CheckCircle, Languages, Sparkles, ArrowRight } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+interface TranslationAssistantProps {
+  isOpen: boolean;
+  onClose: () => void;
+  currentContent: string;
+  targetLanguage: 'en-US' | 'fr-FR';
+  onApplyTranslation: (translatedContent: string) => void;
+}
+
+export function TranslationAssistant({
+  isOpen,
+  onClose,
+  currentContent,
+  targetLanguage,
+  onApplyTranslation
+}: TranslationAssistantProps) {
+  const { toast } = useToast();
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
+  const [extractedText, setExtractedText] = useState('');
+  const [translatedText, setTranslatedText] = useState('');
+  const [imageMap, setImageMap] = useState<string[]>([]);
+
+  const targetLangLabel = targetLanguage === 'en-US' ? 'English' : 'French';
+  const targetLangCode = targetLanguage === 'en-US' ? 'en' : 'fr';
+
+  // Step 1: Extract images and create placeholders
+  const handleExtractText = () => {
+    const images: string[] = [];
+    let placeholderCount = 0;
+
+    // Replace all <img> tags with [IMAGE X] placeholders
+    const textWithPlaceholders = currentContent.replace(/<img[^>]*>/gi, (imgTag) => {
+      placeholderCount++;
+      images.push(imgTag);
+      return `[IMAGE ${placeholderCount}]`;
+    });
+
+    setImageMap(images);
+    setExtractedText(textWithPlaceholders);
+    setCurrentStep(2);
+
+    toast({
+      title: "Text extracted! 📝",
+      description: `Found ${images.length} image(s). Ready to translate.`
+    });
+  };
+
+  // Step 2: Copy prompt to clipboard
+  const handleCopyPrompt = () => {
+    const prompt = `Translate the following HTML content to ${targetLangLabel}. 
+
+IMPORTANT RULES:
+1. Keep ALL HTML tags exactly as they are (including <h2>, <p>, <strong>, <ul>, <li>, etc.)
+2. Keep ALL [IMAGE X] placeholders exactly as they are - DO NOT translate or modify them
+3. Translate ONLY the text content between HTML tags
+4. Preserve the exact structure and formatting
+
+Content to translate:
+
+${extractedText}`;
+
+    navigator.clipboard.writeText(prompt);
+    
+    toast({
+      title: "Copied to clipboard! 📋",
+      description: "Paste this into ChatGPT or Claude to get the translation"
+    });
+  };
+
+  // Step 3: Apply translation and re-insert images
+  const handleApplyTranslation = () => {
+    if (!translatedText.trim()) {
+      toast({
+        title: "No translation provided",
+        description: "Please paste the translated text from ChatGPT",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Re-insert images by replacing [IMAGE X] placeholders
+    let finalContent = translatedText;
+    imageMap.forEach((imgTag, index) => {
+      const placeholder = `[IMAGE ${index + 1}]`;
+      finalContent = finalContent.replace(placeholder, imgTag);
+    });
+
+    onApplyTranslation(finalContent);
+    
+    toast({
+      title: "Translation applied! ✅",
+      description: `Content translated to ${targetLangLabel} with all images preserved`
+    });
+
+    // Reset and close
+    setCurrentStep(1);
+    setExtractedText('');
+    setTranslatedText('');
+    setImageMap([]);
+    onClose();
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-2xl">
+            <Languages className="h-6 w-6 text-[#D67C4A]" />
+            Translation Assistant
+          </DialogTitle>
+          <p className="text-gray-600">
+            Translate your blog post to {targetLangLabel} using ChatGPT/Claude while preserving all images
+          </p>
+        </DialogHeader>
+
+        {/* Progress Steps */}
+        <div className="flex items-center justify-between mb-6 px-4">
+          <div className="flex items-center gap-2">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+              currentStep >= 1 ? 'bg-[#D67C4A] text-white' : 'bg-gray-200 text-gray-500'
+            }`}>
+              1
+            </div>
+            <span className={`text-sm ${currentStep >= 1 ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
+              Extract
+            </span>
+          </div>
+          
+          <ArrowRight className="h-4 w-4 text-gray-400" />
+          
+          <div className="flex items-center gap-2">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+              currentStep >= 2 ? 'bg-[#D67C4A] text-white' : 'bg-gray-200 text-gray-500'
+            }`}>
+              2
+            </div>
+            <span className={`text-sm ${currentStep >= 2 ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
+              Translate
+            </span>
+          </div>
+          
+          <ArrowRight className="h-4 w-4 text-gray-400" />
+          
+          <div className="flex items-center gap-2">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+              currentStep >= 3 ? 'bg-[#D67C4A] text-white' : 'bg-gray-200 text-gray-500'
+            }`}>
+              3
+            </div>
+            <span className={`text-sm ${currentStep >= 3 ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
+              Apply
+            </span>
+          </div>
+        </div>
+
+        {/* Step 1: Extract Text */}
+        {currentStep === 1 && (
+          <Card className="bg-gradient-to-br from-orange-50 to-white border-[#D67C4A]">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-[#D67C4A]" />
+                Step 1: Extract Text for Translation
+              </CardTitle>
+              <CardDescription>
+                We'll replace all images with placeholders like [IMAGE 1], [IMAGE 2], so ChatGPT can focus on the text
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={handleExtractText}
+                className="w-full bg-[#D67C4A] hover:bg-[#B86A3E] text-white"
+                size="lg"
+                data-testid="button-extract-text"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                Extract Text & Remove Images
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Step 2: Copy Prompt */}
+        {currentStep === 2 && (
+          <div className="space-y-4">
+            <Card className="bg-gradient-to-br from-blue-50 to-white border-blue-300">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Copy className="h-5 w-5 text-blue-600" />
+                  Step 2: Copy & Translate with ChatGPT
+                </CardTitle>
+                <CardDescription>
+                  Copy the prompt below, paste it into ChatGPT or Claude, then copy the response
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-white border rounded-lg p-4 max-h-[300px] overflow-y-auto">
+                  <pre className="text-sm whitespace-pre-wrap text-gray-700">
+{`Translate the following HTML content to ${targetLangLabel}.
+
+IMPORTANT RULES:
+1. Keep ALL HTML tags exactly as they are
+2. Keep ALL [IMAGE X] placeholders exactly as they are
+3. Translate ONLY the text content between HTML tags
+4. Preserve the exact structure and formatting
+
+Content to translate:
+
+${extractedText}`}
+                  </pre>
+                </div>
+                
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleCopyPrompt}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                    data-testid="button-copy-prompt"
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy Prompt to Clipboard
+                  </Button>
+                  <Button
+                    onClick={() => setCurrentStep(3)}
+                    variant="outline"
+                    data-testid="button-next-step"
+                  >
+                    Next Step
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Step 3: Paste Translation */}
+        {currentStep === 3 && (
+          <Card className="bg-gradient-to-br from-green-50 to-white border-green-300">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+                Step 3: Paste Translated Content
+              </CardTitle>
+              <CardDescription>
+                Paste the translated HTML from ChatGPT/Claude below. We'll automatically re-insert all images!
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Textarea
+                placeholder={`Paste the ${targetLangLabel} translation from ChatGPT here...`}
+                value={translatedText}
+                onChange={(e) => setTranslatedText(e.target.value)}
+                className="h-[300px] font-mono text-sm"
+                data-testid="textarea-translated-content"
+              />
+              
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setCurrentStep(2)}
+                  variant="outline"
+                  data-testid="button-back"
+                >
+                  Back
+                </Button>
+                <Button
+                  onClick={handleApplyTranslation}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                  disabled={!translatedText.trim()}
+                  data-testid="button-apply-translation"
+                >
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Apply Translation & Re-insert Images
+                </Button>
+              </div>
+
+              {imageMap.length > 0 && (
+                <p className="text-sm text-gray-600 text-center">
+                  ✨ {imageMap.length} image{imageMap.length !== 1 ? 's' : ''} will be automatically re-inserted
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Help Text */}
+        <div className="mt-4 p-4 bg-gray-50 rounded-lg text-sm text-gray-600">
+          <p className="font-medium mb-2">💡 Quick Guide:</p>
+          <ol className="list-decimal list-inside space-y-1">
+            <li>Extract text (images become [IMAGE 1], [IMAGE 2], etc.)</li>
+            <li>Copy the prompt and paste it into ChatGPT or Claude</li>
+            <li>Copy ChatGPT's translated response and paste it back here</li>
+            <li>Click "Apply" - images are automatically re-inserted!</li>
+          </ol>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
