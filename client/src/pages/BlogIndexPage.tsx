@@ -160,7 +160,7 @@ export default function BlogIndexPage() {
 
       <div className="min-h-screen bg-gradient-to-b from-[#F2EBDC] to-white">
         {/* Enhanced Hero Section */}
-        <header className="relative bg-gradient-to-br from-[#2A4759] via-[#1a2d38] to-[#D67C4A]/20 text-white py-6 md:py-8 overflow-hidden">
+        <header className="relative bg-gradient-to-br from-[#2A4759] via-[#1a2d38] to-[#D67C4A]/20 text-white py-4 md:py-6 overflow-hidden">
           {/* Decorative elements with stronger orange accent */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-[#D67C4A] rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
           <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#D67C4A] rounded-full blur-3xl opacity-15 translate-y-1/2 -translate-x-1/2"></div>
@@ -188,7 +188,7 @@ export default function BlogIndexPage() {
           </div>
         </header>
 
-        <main className="container mx-auto px-4 py-12 md:py-20">
+        <main className="container mx-auto px-4 pt-6 md:pt-8 pb-12 md:pb-20">
           {/* Tag Filter */}
           {tags.length > 0 && (
             <div className="mb-12">
@@ -266,7 +266,7 @@ export default function BlogIndexPage() {
               {/* Featured Post */}
               {featuredPost && (
                 <section>
-                  <div className="flex items-center gap-3 mb-8">
+                  <div className="flex items-center gap-3 mb-6">
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#D67C4A] to-transparent"></div>
                     <h2 className="text-2xl font-['Playfair_Display'] text-[#2A4759] font-semibold">
                       {t.featuredArticle}
