@@ -324,10 +324,9 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                   `,
                   promotion: false,
                   // Image dialog configuration
-                  image_caption: true,
                   image_advtab: true,
-                  image_description: true,
-                  image_dimensions: false, // Hide dimensions UI
+                  image_caption: true,
+                  image_dimensions: true,
                   // Image class list for sizing and alignment
                   image_class_list: [
                     { title: 'Default', value: '' },
