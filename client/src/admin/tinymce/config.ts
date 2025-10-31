@@ -137,17 +137,9 @@ interface TinyMCEConfigOptions {
  * Create TinyMCE configuration with optional overrides
  */
 export function createTinyMCEConfig(options: TinyMCEConfigOptions = {}) {
-  console.log('🔧 createTinyMCEConfig called with options:', options);
-  const menubarValue = options.menubar !== undefined ? options.menubar : false;
-  console.log('🔧 menubar calculation:', { 
-    'options.menubar': options.menubar, 
-    'undefined check': options.menubar !== undefined,
-    'final value': menubarValue 
-  });
-  
   const config = {
     height: options.height || 500,
-    menubar: menubarValue,
+    menubar: options.menubar !== undefined ? options.menubar : false,
     plugins: 'link lists advlist table code codesample image media preview fullscreen charmap autolink searchreplace anchor wordcount visualblocks visualchars nonbreaking insertdatetime directionality autosave quickbars',
     
     // Three-row toolbar organized logically
@@ -235,14 +227,6 @@ export function createTinyMCEConfig(options: TinyMCEConfigOptions = {}) {
     // Setup editor events
     setup: options.setup
   };
-  
-  console.log('🔧 TinyMCE Config Debug:', {
-    menubar: config.menubar,
-    image_advtab: config.image_advtab,
-    image_dimensions: config.image_dimensions,
-    image_class_list_count: config.image_class_list?.length || 0,
-    has_image_plugin: config.plugins.includes('image')
-  });
   
   return config;
 }

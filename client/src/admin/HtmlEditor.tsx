@@ -386,6 +386,7 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
           licenseKey="gpl"
           value={value}
           init={createTinyMCEConfig({
+            menubar: true,
             images_upload_handler: handleImageUpload,
             file_picker_callback: handleFilePicker,
             setup: (editor: any) => {
