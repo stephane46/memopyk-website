@@ -399,7 +399,16 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
           
           branding: false,
           promotion: false,
-          content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; }',
+          content_style: `
+            body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; }
+            /* Default max-width for images in editor before sizing class is applied */
+            img:not([class*="img-"]) { 
+              max-width: 600px; 
+              height: auto; 
+              display: block;
+              margin: 1rem auto;
+            }
+          `,
           
           // Line height options (spacing between lines)
           lineheight_formats: '1 1.1 1.2 1.3 1.4 1.5 1.6 1.8 2 2.5 3',
@@ -466,9 +475,77 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
           advlist_bullet_styles: 'default,circle,disc,square',
           advlist_number_styles: 'default,lower-alpha,lower-roman,upper-alpha,upper-roman',
           
-          // Paste event handler for auto-import of external file URLs
+          // Setup editor events
           setup: (editor: any) => {
+            // Paste event handler for auto-import of external file URLs
             editor.on('paste', (e: any) => handlePaste(editor, e));
+            
+            // Listen for when any dialog window opens to add image sizing controls
+            editor.on('OpenWindow', (e: any) => {
+              setTimeout(() => {
+                const dialog = document.querySelector('.tox-dialog');
+                if (!dialog) return;
+                
+                // Check if this is the image dialog (has Source field)
+                const hasSourceField = dialog.querySelector('input[type="url"]') || 
+                                       Array.from(dialog.querySelectorAll('label')).some(
+                                         el => el.textContent?.includes('Source')
+                                       );
+                if (!hasSourceField) return;
+                
+                // Find the caption area to insert our sizing control after it
+                const captionLabel = Array.from(dialog.querySelectorAll('label')).find(
+                  el => el.textContent?.includes('Show caption')
+                );
+                
+                if (captionLabel && !dialog.querySelector('#custom-image-size-select')) {
+                  const container = captionLabel.closest('.tox-form__group')?.parentElement;
+                  if (container) {
+                    // Create sizing control
+                    const sizeGroup = document.createElement('div');
+                    sizeGroup.className = 'tox-form__group';
+                    sizeGroup.innerHTML = `
+                      <label class="tox-label">Image Size & Alignment</label>
+                      <select id="custom-image-size-select" class="tox-selectfield" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+                        <option value="">Default (full width, centered)</option>
+                        <option value="img-quarter align-left">Quarter - Left</option>
+                        <option value="img-quarter align-center">Quarter - Center</option>
+                        <option value="img-quarter align-right">Quarter - Right</option>
+                        <option value="img-half align-left">Half - Left</option>
+                        <option value="img-half align-center">Half - Center</option>
+                        <option value="img-half align-right">Half - Right</option>
+                        <option value="img-three-quarter align-left">Three-quarter - Left</option>
+                        <option value="img-three-quarter align-center">Three-quarter - Center</option>
+                        <option value="img-three-quarter align-right">Three-quarter - Right</option>
+                        <option value="img-full align-left">Full - Left</option>
+                        <option value="img-full align-center">Full - Center</option>
+                        <option value="img-full align-right">Full - Right</option>
+                        <option value="float-left">Float Left (text wraps)</option>
+                        <option value="float-right">Float Right (text wraps)</option>
+                      </select>
+                    `;
+                    
+                    container.insertBefore(sizeGroup, captionLabel.closest('.tox-form__group'));
+                    
+                    // Get current image class if editing
+                    const img = editor.selection.getNode();
+                    if (img.tagName === 'IMG' && img.className) {
+                      const select = sizeGroup.querySelector('select') as HTMLSelectElement;
+                      if (select) select.value = img.className;
+                    }
+                    
+                    // Apply class when changed
+                    const select = sizeGroup.querySelector('select') as HTMLSelectElement;
+                    select?.addEventListener('change', () => {
+                      const img = editor.selection.getNode();
+                      if (img.tagName === 'IMG') {
+                        img.className = select.value;
+                      }
+                    });
+                  }
+                }
+              }, 100);
+            });
           }
         }}
         onEditorChange={(content) => onChange(content)}
