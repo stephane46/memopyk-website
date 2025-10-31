@@ -302,10 +302,10 @@ ${extractedText}`}
 
         {/* Step 3: Paste Translation */}
         {currentStep === 3 && (
-          <Card className="bg-gradient-to-br from-green-50 to-white border-green-300">
+          <Card className="bg-gradient-to-br from-orange-50 to-white border-[#D67C4A]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2" style={{ color: '#1F2937 !important' }}>
-                <CheckCircle className="h-5 w-5 text-green-600" />
+                <CheckCircle className="h-5 w-5 text-[#D67C4A]" />
                 Step 3: Paste Translated Content
               </CardTitle>
               <CardDescription style={{ color: '#4B5563 !important' }}>
@@ -331,7 +331,7 @@ ${extractedText}`}
                 </Button>
                 <Button
                   onClick={handleApplyTranslation}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                  className="flex-1 bg-[#D67C4A] hover:bg-[#B86A3E] text-white"
                   disabled={!translatedText.trim()}
                   data-testid="button-apply-translation"
                 >
