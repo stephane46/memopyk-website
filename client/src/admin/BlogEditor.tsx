@@ -330,8 +330,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                               });
                             }
                           }
-                        }, 100);
-                      }
+                      }, 100);
                     });
                   },
                   // Image dialog configuration
