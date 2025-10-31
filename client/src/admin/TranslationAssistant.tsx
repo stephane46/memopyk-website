@@ -111,11 +111,11 @@ ${extractedText}`;
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-2xl">
+          <DialogTitle className="flex items-center gap-2 text-2xl" style={{ color: '#1F2937 !important' }}>
             <Languages className="h-6 w-6 text-[#D67C4A]" />
             Translation Assistant
           </DialogTitle>
-          <p className="text-gray-600">
+          <p className="text-gray-600" style={{ color: '#4B5563 !important' }}>
             Translate your blog post to {targetLangLabel} using ChatGPT/Claude while preserving all images
           </p>
         </DialogHeader>
@@ -128,7 +128,7 @@ ${extractedText}`;
             }`}>
               1
             </div>
-            <span className={`text-sm ${currentStep >= 1 ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
+            <span className={`text-sm ${currentStep >= 1 ? 'text-gray-900 font-medium' : 'text-gray-400'}`} style={{ color: currentStep >= 1 ? '#111827 !important' : '#9CA3AF !important' }}>
               Extract
             </span>
           </div>
@@ -141,7 +141,7 @@ ${extractedText}`;
             }`}>
               2
             </div>
-            <span className={`text-sm ${currentStep >= 2 ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
+            <span className={`text-sm ${currentStep >= 2 ? 'text-gray-900 font-medium' : 'text-gray-400'}`} style={{ color: currentStep >= 2 ? '#111827 !important' : '#9CA3AF !important' }}>
               Translate
             </span>
           </div>
@@ -154,7 +154,7 @@ ${extractedText}`;
             }`}>
               3
             </div>
-            <span className={`text-sm ${currentStep >= 3 ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
+            <span className={`text-sm ${currentStep >= 3 ? 'text-gray-900 font-medium' : 'text-gray-400'}`} style={{ color: currentStep >= 3 ? '#111827 !important' : '#9CA3AF !important' }}>
               Apply
             </span>
           </div>
@@ -164,11 +164,11 @@ ${extractedText}`;
         {currentStep === 1 && (
           <Card className="bg-gradient-to-br from-orange-50 to-white border-[#D67C4A]">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2" style={{ color: '#1F2937 !important' }}>
                 <Sparkles className="h-5 w-5 text-[#D67C4A]" />
                 Step 1: Extract Text for Translation
               </CardTitle>
-              <CardDescription>
+              <CardDescription style={{ color: '#4B5563 !important' }}>
                 We'll replace all images with placeholders like [IMAGE 1], [IMAGE 2], so ChatGPT can focus on the text
               </CardDescription>
             </CardHeader>
@@ -191,11 +191,11 @@ ${extractedText}`;
           <div className="space-y-4">
             <Card className="bg-gradient-to-br from-blue-50 to-white border-blue-300">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2" style={{ color: '#1F2937 !important' }}>
                   <Copy className="h-5 w-5 text-blue-600" />
                   Step 2: Copy & Translate with ChatGPT
                 </CardTitle>
-                <CardDescription>
+                <CardDescription style={{ color: '#4B5563 !important' }}>
                   Copy the prompt below, paste it into ChatGPT or Claude, then copy the response
                 </CardDescription>
               </CardHeader>
@@ -243,11 +243,11 @@ ${extractedText}`}
         {currentStep === 3 && (
           <Card className="bg-gradient-to-br from-green-50 to-white border-green-300">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2" style={{ color: '#1F2937 !important' }}>
                 <CheckCircle className="h-5 w-5 text-green-600" />
                 Step 3: Paste Translated Content
               </CardTitle>
-              <CardDescription>
+              <CardDescription style={{ color: '#4B5563 !important' }}>
                 Paste the translated HTML from ChatGPT/Claude below. We'll automatically re-insert all images!
               </CardDescription>
             </CardHeader>
@@ -280,7 +280,7 @@ ${extractedText}`}
               </div>
 
               {imageMap.length > 0 && (
-                <p className="text-sm text-gray-600 text-center">
+                <p className="text-sm text-gray-600 text-center" style={{ color: '#4B5563 !important' }}>
                   ✨ {imageMap.length} image{imageMap.length !== 1 ? 's' : ''} will be automatically re-inserted
                 </p>
               )}
@@ -289,9 +289,9 @@ ${extractedText}`}
         )}
 
         {/* Help Text */}
-        <div className="mt-4 p-4 bg-gray-50 rounded-lg text-sm text-gray-600">
-          <p className="font-medium mb-2">💡 Quick Guide:</p>
-          <ol className="list-decimal list-inside space-y-1">
+        <div className="mt-4 p-4 bg-gray-50 rounded-lg text-sm text-gray-600" style={{ color: '#4B5563 !important' }}>
+          <p className="font-medium mb-2" style={{ color: '#374151 !important' }}>💡 Quick Guide:</p>
+          <ol className="list-decimal list-inside space-y-1" style={{ color: '#4B5563 !important' }}>
             <li>Extract text (images become [IMAGE 1], [IMAGE 2], etc.)</li>
             <li>Copy the prompt and paste it into ChatGPT or Claude</li>
             <li>Copy ChatGPT's translated response and paste it back here</li>
