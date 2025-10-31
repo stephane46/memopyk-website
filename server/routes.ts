@@ -9472,96 +9472,12 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
-  // LibreTranslate helper function
-  async function translateText(text: string, sourceLang: string, targetLang: string): Promise<string> {
-    const LIBRETRANSLATE_ENDPOINT = process.env.LIBRETRANSLATE_ENDPOINT || 'https://libretranslate.com/translate';
-    const LIBRETRANSLATE_API_KEY = process.env.LIBRETRANSLATE_API_KEY;
-    const MAX_CHUNK_SIZE = 1800; // Leave buffer below 2000 char limit
-    
-    // If text is short enough, translate in one request
-    if (text.length <= MAX_CHUNK_SIZE) {
-      const requestBody: any = {
-        q: text,
-        source: sourceLang,
-        target: targetLang,
-        format: 'html'
-      };
-      
-      if (LIBRETRANSLATE_API_KEY) {
-        requestBody.api_key = LIBRETRANSLATE_API_KEY;
-      }
-      
-      const response = await fetch(LIBRETRANSLATE_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`LibreTranslate API error: ${response.status} - ${errorText}`);
-      }
-      
-      const data = await response.json();
-      return data.translatedText;
-    }
-    
-    // For longer text, split into chunks (simple paragraph-based splitting)
-    const paragraphs = text.split(/(<\/p>|<\/h[1-6]>|<\/li>|<\/blockquote>|<\/td>)/i);
-    const chunks: string[] = [];
-    let currentChunk = '';
-    
-    for (let i = 0; i < paragraphs.length; i++) {
-      const para = paragraphs[i];
-      
-      if (currentChunk.length + para.length <= MAX_CHUNK_SIZE) {
-        currentChunk += para;
-      } else {
-        if (currentChunk) chunks.push(currentChunk);
-        currentChunk = para;
-      }
-    }
-    if (currentChunk) chunks.push(currentChunk);
-    
-    // Translate each chunk
-    const translatedChunks = await Promise.all(
-      chunks.map(async (chunk) => {
-        const requestBody: any = {
-          q: chunk,
-          source: sourceLang,
-          target: targetLang,
-          format: 'html'
-        };
-        
-        if (LIBRETRANSLATE_API_KEY) {
-          requestBody.api_key = LIBRETRANSLATE_API_KEY;
-        }
-        
-        const response = await fetch(LIBRETRANSLATE_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody)
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`LibreTranslate API error: ${response.status} - ${errorText}`);
-        }
-        
-        const data = await response.json();
-        return data.translatedText;
-      })
-    );
-    
-    return translatedChunks.join('');
-  }
-
-  // Translate blog post to other language using LibreTranslate
+  // Duplicate blog post to other language (preserves images, user replaces text manually)
   app.post('/api/admin/blog/posts/:id/translate', async (req, res) => {
     try {
       const { id } = req.params;
       
-      console.log(`🌐 Starting translation for post ID: ${id}`);
+      console.log(`📋 Duplicating post for translation: ${id}`);
       
       // Get the source post
       const { data: sourcePost, error: fetchError } = await supabase
@@ -9580,33 +9496,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       // Determine target language (opposite of source)
       const targetLanguage = sourcePost.language === 'en-US' ? 'fr-FR' : 'en-US';
       const languageSuffix = targetLanguage === 'en-US' ? '-en' : '-fr';
-      
-      // Map locale codes to LibreTranslate language codes
-      const sourceLangCode = sourcePost.language === 'en-US' ? 'en' : 'fr';
-      const targetLangCode = targetLanguage === 'en-US' ? 'en' : 'fr';
-      
-      console.log(`🌐 Translating from ${sourceLangCode} to ${targetLangCode}`);
-      
-      // Translate title, description, and content
-      const [translatedTitle, translatedDescription, translatedContent] = await Promise.all([
-        translateText(sourcePost.title, sourceLangCode, targetLangCode),
-        sourcePost.description ? translateText(sourcePost.description, sourceLangCode, targetLangCode) : null,
-        translateText(sourcePost.content_html, sourceLangCode, targetLangCode)
-      ]);
-      
-      // Translate SEO fields if they exist
-      let translatedSeo = sourcePost.seo;
-      if (sourcePost.seo?.meta_title || sourcePost.seo?.meta_description) {
-        translatedSeo = {
-          ...sourcePost.seo,
-          meta_title: sourcePost.seo.meta_title 
-            ? await translateText(sourcePost.seo.meta_title, sourceLangCode, targetLangCode)
-            : null,
-          meta_description: sourcePost.seo.meta_description
-            ? await translateText(sourcePost.seo.meta_description, sourceLangCode, targetLangCode)
-            : null
-        };
-      }
+      const languageLabel = targetLanguage === 'en-US' ? 'English' : 'French';
       
       // Create new slug with language suffix (remove existing suffix if present)
       let newSlug = sourcePost.slug.replace(/-(en|fr)$/, '') + languageSuffix;
@@ -9622,39 +9512,39 @@ export async function registerRoutes(app: Express): Promise<void> {
         newSlug = `${newSlug}-${Date.now()}`;
       }
       
-      // Create translated post as draft
-      const { data: translatedPost, error: createError } = await supabase
+      // Create duplicate post with [TRANSLATE TO LANGUAGE] prefix
+      const { data: duplicatedPost, error: createError } = await supabase
         .from('blog_posts')
         .insert({
-          title: translatedTitle,
+          title: `[TRANSLATE TO ${languageLabel.toUpperCase()}] ${sourcePost.title}`,
           slug: newSlug,
-          description: translatedDescription,
-          content_html: translatedContent,
-          hero_url: sourcePost.hero_url,
+          description: sourcePost.description,
+          content_html: sourcePost.content_html, // Keeps all inline images in place!
+          hero_url: sourcePost.hero_url, // Copies hero image
           language: targetLanguage,
           status: 'draft',
           is_featured: false,
-          seo: translatedSeo
+          seo: sourcePost.seo
         })
         .select()
         .single();
       
       if (createError) {
-        console.error('❌ Error creating translated post:', createError);
+        console.error('❌ Error duplicating post:', createError);
         throw createError;
       }
       
-      console.log(`✅ Post translated successfully: ${sourcePost.language} → ${targetLanguage} (ID: ${translatedPost.id})`);
+      console.log(`✅ Post duplicated for translation: ${sourcePost.language} → ${targetLanguage} (ID: ${duplicatedPost.id})`);
       
       res.json({
         success: true,
-        data: translatedPost
+        data: duplicatedPost
       });
     } catch (error) {
-      console.error('❌ Error translating post:', error);
+      console.error('❌ Error duplicating post:', error);
       res.status(500).json({ 
         success: false, 
-        error: error instanceof Error ? error.message : 'Failed to translate post' 
+        error: error instanceof Error ? error.message : 'Failed to duplicate post' 
       });
     }
   });

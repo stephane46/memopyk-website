@@ -162,14 +162,14 @@ export function BlogManagePosts() {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/blog/posts'] });
       const targetLang = response?.data?.language === 'en-US' ? 'English' : 'French';
       toast({
-        title: "Translation complete! 🌐",
-        description: `Blog post automatically translated to ${targetLang} using LibreTranslate. Review the draft to ensure quality.`
+        title: "Draft created! 📋",
+        description: `Duplicate created for ${targetLang} translation. All images are preserved in position. Edit the post and replace the text with your ${targetLang} translation.`
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Failed to translate post",
-        description: error.message || "Unable to translate post. Please check LibreTranslate service status.",
+        title: "Failed to create translation draft",
+        description: error.message || "Unable to duplicate post.",
         variant: "destructive"
       });
     }
