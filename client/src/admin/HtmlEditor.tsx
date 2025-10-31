@@ -561,69 +561,67 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
             // Paste event handler for auto-import of external file URLs
             editor.on('paste', (e: any) => handlePaste(editor, e));
             
-            // Add visible dropdown in General tab
-            editor.on('OpenWindow', (e: any) => {
-              setTimeout(() => {
-                const dialog = document.querySelector('.tox-dialog');
-                if (!dialog) return;
-                
-                const hasSourceField = dialog.querySelector('input[type="url"]') || 
-                                       Array.from(dialog.querySelectorAll('label')).some(
-                                         el => el.textContent?.includes('Source')
-                                       );
-                if (!hasSourceField) return;
-                
-                const captionLabel = Array.from(dialog.querySelectorAll('label')).find(
-                  el => el.textContent?.includes('Show caption')
-                );
-                
-                if (captionLabel && !dialog.querySelector('#custom-image-size-select')) {
-                  const container = captionLabel.closest('.tox-form__group')?.parentElement;
-                  if (container) {
-                    const sizeGroup = document.createElement('div');
-                    sizeGroup.className = 'tox-form__group';
-                    sizeGroup.innerHTML = `
-                      <label class="tox-label">Image Size & Alignment</label>
-                      <select id="custom-image-size-select" class="tox-selectfield" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
-                        <option value="">Default (full width, centered)</option>
-                        <option value="img-quarter align-left">Quarter - Left</option>
-                        <option value="img-quarter align-center">Quarter - Center</option>
-                        <option value="img-quarter align-right">Quarter - Right</option>
-                        <option value="img-half align-left">Half - Left</option>
-                        <option value="img-half align-center">Half - Center</option>
-                        <option value="img-half align-right">Half - Right</option>
-                        <option value="img-three-quarter align-left">Three-quarter - Left</option>
-                        <option value="img-three-quarter align-center">Three-quarter - Center</option>
-                        <option value="img-three-quarter align-right">Three-quarter - Right</option>
-                        <option value="img-full align-left">Full - Left</option>
-                        <option value="img-full align-center">Full - Center</option>
-                        <option value="img-full align-right">Full - Right</option>
-                        <option value="float-left">Float Left (text wraps)</option>
-                        <option value="float-right">Float Right (text wraps)</option>
-                      </select>
-                    `;
-                    
-                    container.insertBefore(sizeGroup, captionLabel.closest('.tox-form__group'));
-                    
-                    // Find TinyMCE's class input field in Advanced tab
-                    const classInput = dialog.querySelector('input[name="class"]') as HTMLInputElement;
-                    const select = sizeGroup.querySelector('select') as HTMLSelectElement;
-                    
-                    // Set dropdown value from TinyMCE's class field
-                    if (classInput && classInput.value) {
-                      select.value = classInput.value;
-                    }
-                    
-                    // Update TinyMCE's class field when dropdown changes
-                    select?.addEventListener('change', () => {
-                      if (classInput) {
-                        classInput.value = select.value;
-                        classInput.dispatchEvent(new Event('input', { bubbles: true }));
+            // Intercept image dialog to add custom size selector
+            editor.on('ExecCommand', (e: any) => {
+              if (e.command === 'mceImage') {
+                setTimeout(() => {
+                  const dialogApi = (editor as any).windowManager.getWindows()[0];
+                  if (!dialogApi) return;
+                  
+                  // Get current dialog data
+                  const currentData = dialogApi.getData();
+                  
+                  // Find dialog body to inject our control
+                  const dialog = document.querySelector('.tox-dialog');
+                  if (!dialog) return;
+                  
+                  const captionLabel = Array.from(dialog.querySelectorAll('label')).find(
+                    el => el.textContent?.includes('Show caption')
+                  );
+                  
+                  if (captionLabel && !dialog.querySelector('#custom-image-size-select')) {
+                    const container = captionLabel.closest('.tox-form__group')?.parentElement;
+                    if (container) {
+                      const sizeGroup = document.createElement('div');
+                      sizeGroup.className = 'tox-form__group';
+                      sizeGroup.innerHTML = `
+                        <label class="tox-label">Image Size & Alignment</label>
+                        <select id="custom-image-size-select" class="tox-selectfield" style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+                          <option value="">Default (full width, centered)</option>
+                          <option value="img-quarter align-left">Quarter - Left</option>
+                          <option value="img-quarter align-center">Quarter - Center</option>
+                          <option value="img-quarter align-right">Quarter - Right</option>
+                          <option value="img-half align-left">Half - Left</option>
+                          <option value="img-half align-center">Half - Center</option>
+                          <option value="img-half align-right">Half - Right</option>
+                          <option value="img-three-quarter align-left">Three-quarter - Left</option>
+                          <option value="img-three-quarter align-center">Three-quarter - Center</option>
+                          <option value="img-three-quarter align-right">Three-quarter - Right</option>
+                          <option value="img-full align-left">Full - Left</option>
+                          <option value="img-full align-center">Full - Center</option>
+                          <option value="img-full align-right">Full - Right</option>
+                          <option value="float-left">Float Left (text wraps)</option>
+                          <option value="float-right">Float Right (text wraps)</option>
+                        </select>
+                      `;
+                      
+                      container.insertBefore(sizeGroup, captionLabel.closest('.tox-form__group'));
+                      
+                      const select = sizeGroup.querySelector('select') as HTMLSelectElement;
+                      
+                      // Set initial value from current image class
+                      if (currentData.class) {
+                        select.value = currentData.class;
                       }
-                    });
+                      
+                      // Update dialog data when dropdown changes
+                      select?.addEventListener('change', () => {
+                        dialogApi.setData({ ...dialogApi.getData(), class: select.value });
+                      });
+                    }
                   }
-                }
-              }, 100);
+                }, 50);
+              }
             });
           }
         }}
