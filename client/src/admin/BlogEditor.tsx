@@ -479,12 +479,18 @@ export function BlogEditor({ postId }: BlogEditorProps) {
         isOpen={isTranslationAssistantOpen}
         onClose={() => setIsTranslationAssistantOpen(false)}
         currentContent={content}
+        currentTitle={title}
+        currentSlug={slug}
+        currentDescription={description}
         targetLanguage={post.language as 'en-US' | 'fr-FR'}
-        onApplyTranslation={(translatedContent) => {
-          setContent(translatedContent);
+        onApplyTranslation={(translatedData) => {
+          setContent(translatedData.content);
+          setTitle(translatedData.title);
+          setSlug(translatedData.slug);
+          setDescription(translatedData.description);
           toast({
-            title: "Content updated!",
-            description: "Translation has been applied to the editor. Remember to save your changes."
+            title: "Translation applied! ✅",
+            description: "Title, slug, description, and content have been translated. Remember to save your changes."
           });
         }}
       />

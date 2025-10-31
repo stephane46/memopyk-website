@@ -10,14 +10,25 @@ interface TranslationAssistantProps {
   isOpen: boolean;
   onClose: () => void;
   currentContent: string;
+  currentTitle: string;
+  currentSlug: string;
+  currentDescription: string;
   targetLanguage: 'en-US' | 'fr-FR';
-  onApplyTranslation: (translatedContent: string) => void;
+  onApplyTranslation: (translatedData: {
+    title: string;
+    slug: string;
+    description: string;
+    content: string;
+  }) => void;
 }
 
 export function TranslationAssistant({
   isOpen,
   onClose,
   currentContent,
+  currentTitle,
+  currentSlug,
+  currentDescription,
   targetLanguage,
   onApplyTranslation
 }: TranslationAssistantProps) {
@@ -54,16 +65,28 @@ export function TranslationAssistant({
 
   // Step 2: Copy prompt to clipboard
   const handleCopyPrompt = () => {
-    const prompt = `Translate the following HTML content to ${targetLangLabel}. 
+    const prompt = `Translate the following blog post metadata and content to ${targetLangLabel}.
 
 IMPORTANT RULES:
 1. Keep ALL HTML tags exactly as they are (including <h2>, <p>, <strong>, <ul>, <li>, etc.)
 2. Keep ALL [IMAGE X] placeholders exactly as they are - DO NOT translate or modify them
 3. Translate ONLY the text content between HTML tags
-4. Preserve the exact structure and formatting
+4. For the slug, create a French-friendly URL (lowercase, hyphens, no accents)
+5. Return your response in this EXACT format:
+
+TITLE: [translated title here]
+SLUG: [french-url-slug-here]
+DESCRIPTION: [translated description here]
+CONTENT:
+[translated HTML content here]
+
+---
+
+Current Title: ${currentTitle}
+Current Slug: ${currentSlug}
+Current Description: ${currentDescription}
 
 Content to translate:
-
 ${extractedText}`;
 
     navigator.clipboard.writeText(prompt);
@@ -85,18 +108,42 @@ ${extractedText}`;
       return;
     }
 
+    // Parse the response to extract title, slug, description, and content
+    const titleMatch = translatedText.match(/TITLE:\s*(.+)/i);
+    const slugMatch = translatedText.match(/SLUG:\s*(.+)/i);
+    const descMatch = translatedText.match(/DESCRIPTION:\s*(.+)/i);
+    const contentMatch = translatedText.match(/CONTENT:\s*([\s\S]+)/i);
+
+    if (!titleMatch || !slugMatch || !descMatch || !contentMatch) {
+      toast({
+        title: "Invalid format",
+        description: "The AI response doesn't match the expected format. Please check the prompt and try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const translatedTitle = titleMatch[1].trim();
+    const translatedSlug = slugMatch[1].trim();
+    const translatedDescription = descMatch[1].trim();
+    let translatedContent = contentMatch[1].trim();
+
     // Re-insert images by replacing [IMAGE X] placeholders
-    let finalContent = translatedText;
     imageMap.forEach((imgTag, index) => {
       const placeholder = `[IMAGE ${index + 1}]`;
-      finalContent = finalContent.replace(placeholder, imgTag);
+      translatedContent = translatedContent.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), imgTag);
     });
 
-    onApplyTranslation(finalContent);
+    onApplyTranslation({
+      title: translatedTitle,
+      slug: translatedSlug,
+      description: translatedDescription,
+      content: translatedContent
+    });
     
     toast({
       title: "Translation applied! ✅",
-      description: `Content translated to ${targetLangLabel} with all images preserved`
+      description: `Title, slug, description, and content translated to ${targetLangLabel} with all images preserved`
     });
 
     // Reset and close
@@ -202,16 +249,28 @@ ${extractedText}`;
               <CardContent className="space-y-4">
                 <div className="bg-white border rounded-lg p-4 max-h-[300px] overflow-y-auto">
                   <pre className="text-sm whitespace-pre-wrap text-gray-700">
-{`Translate the following HTML content to ${targetLangLabel}.
+{`Translate the following blog post metadata and content to ${targetLangLabel}.
 
 IMPORTANT RULES:
 1. Keep ALL HTML tags exactly as they are
 2. Keep ALL [IMAGE X] placeholders exactly as they are
 3. Translate ONLY the text content between HTML tags
-4. Preserve the exact structure and formatting
+4. For the slug, create a ${targetLangLabel}-friendly URL (lowercase, hyphens, no accents)
+5. Return your response in this EXACT format:
+
+TITLE: [translated title here]
+SLUG: [${targetLangCode}-url-slug-here]
+DESCRIPTION: [translated description here]
+CONTENT:
+[translated HTML content here]
+
+---
+
+Current Title: ${currentTitle}
+Current Slug: ${currentSlug}
+Current Description: ${currentDescription}
 
 Content to translate:
-
 ${extractedText}`}
                   </pre>
                 </div>
@@ -294,8 +353,8 @@ ${extractedText}`}
           <ol className="list-decimal list-inside space-y-1" style={{ color: '#4B5563 !important' }}>
             <li>Extract text (images become [IMAGE 1], [IMAGE 2], etc.)</li>
             <li>Copy the prompt and paste it into ChatGPT or Claude</li>
-            <li>Copy ChatGPT's translated response and paste it back here</li>
-            <li>Click "Apply" - images are automatically re-inserted!</li>
+            <li>Copy ChatGPT's translated response (with TITLE, SLUG, DESCRIPTION, and CONTENT)</li>
+            <li>Click "Apply" - title, slug, description are filled in, and images are re-inserted!</li>
           </ol>
         </div>
       </DialogContent>
