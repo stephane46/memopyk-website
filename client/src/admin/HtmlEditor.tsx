@@ -401,12 +401,74 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
           promotion: false,
           content_style: `
             body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; }
+            
             /* Default max-width for images in editor before sizing class is applied */
             img:not([class*="img-"]) { 
               max-width: 600px; 
               height: auto; 
               display: block;
               margin: 1rem auto;
+            }
+            
+            /* Image sizing classes */
+            img.img-quarter {
+              max-width: 25% !important;
+              height: auto !important;
+            }
+            
+            img.img-half {
+              max-width: 50% !important;
+              height: auto !important;
+            }
+            
+            img.img-three-quarter {
+              max-width: 75% !important;
+              height: auto !important;
+            }
+            
+            img.img-full {
+              max-width: 100% !important;
+              height: auto !important;
+            }
+            
+            /* Block alignment (no text wrap) */
+            img.align-left {
+              display: block !important;
+              margin-left: 0 !important;
+              margin-right: auto !important;
+              margin-bottom: 1.5rem !important;
+              margin-top: 0 !important;
+            }
+            
+            img.align-center {
+              display: block !important;
+              margin-left: auto !important;
+              margin-right: auto !important;
+              margin-bottom: 1.5rem !important;
+              margin-top: 0 !important;
+            }
+            
+            img.align-right {
+              display: block !important;
+              margin-left: auto !important;
+              margin-right: 0 !important;
+              margin-bottom: 1.5rem !important;
+              margin-top: 0 !important;
+            }
+            
+            /* Float alignment (text wraps around) */
+            img.float-left {
+              float: left !important;
+              margin: 0 2rem 1.5rem 0 !important;
+              max-width: 50% !important;
+              display: block !important;
+            }
+            
+            img.float-right {
+              float: right !important;
+              margin: 0 0 1.5rem 2rem !important;
+              max-width: 50% !important;
+              display: block !important;
             }
           `,
           
