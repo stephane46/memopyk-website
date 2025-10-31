@@ -109,10 +109,11 @@ ${extractedText}`;
     }
 
     // Parse the response to extract title, slug, description, and content
-    const titleMatch = translatedText.match(/TITLE:\s*(.+)/i);
-    const slugMatch = translatedText.match(/SLUG:\s*(.+)/i);
-    const descMatch = translatedText.match(/DESCRIPTION:\s*(.+)/i);
-    const contentMatch = translatedText.match(/CONTENT:\s*([\s\S]+)/i);
+    // Handle both plain and markdown-formatted responses (e.g., **TITLE:** or TITLE:)
+    const titleMatch = translatedText.match(/\*\*TITLE:\*\*\s*(.+)|TITLE:\s*(.+)/i);
+    const slugMatch = translatedText.match(/\*\*SLUG:\*\*\s*(.+)|SLUG:\s*(.+)/i);
+    const descMatch = translatedText.match(/\*\*DESCRIPTION:\*\*\s*(.+)|DESCRIPTION:\s*(.+)/i);
+    const contentMatch = translatedText.match(/\*\*CONTENT:\*\*\s*([\s\S]+)|CONTENT:\s*([\s\S]+)/i);
 
     if (!titleMatch || !slugMatch || !descMatch || !contentMatch) {
       toast({
@@ -123,15 +124,11 @@ ${extractedText}`;
       return;
     }
 
-    // Clean up markdown formatting (remove ** bold markers)
-    const cleanMarkdown = (text: string) => {
-      return text.replace(/\*\*/g, '').trim();
-    };
-
-    const translatedTitle = cleanMarkdown(titleMatch[1]);
-    const translatedSlug = cleanMarkdown(slugMatch[1]);
-    const translatedDescription = cleanMarkdown(descMatch[1]);
-    let translatedContent = contentMatch[1].trim();
+    // Extract the matched groups (handle both markdown and plain formats)
+    const translatedTitle = (titleMatch[1] || titleMatch[2]).trim();
+    const translatedSlug = (slugMatch[1] || slugMatch[2]).trim();
+    const translatedDescription = (descMatch[1] || descMatch[2]).trim();
+    let translatedContent = (contentMatch[1] || contentMatch[2]).trim();
 
     // Re-insert images by replacing [IMAGE X] placeholders
     imageMap.forEach((imgTag, index) => {
