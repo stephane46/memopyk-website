@@ -2821,6 +2821,40 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
+  // Analytics Auto-Sync Status & Manual Trigger
+  app.get("/api/admin/analytics/sync-status", async (req, res) => {
+    try {
+      const { getSyncStatus } = await import('./analytics-sync');
+      const status = getSyncStatus();
+      res.json(status);
+    } catch (error) {
+      console.error('❌ Get sync status error:', error);
+      res.status(500).json({ error: "Failed to get sync status" });
+    }
+  });
+
+  app.post("/api/admin/analytics/sync-trigger", async (req, res) => {
+    try {
+      const { runSync } = await import('./analytics-sync');
+      console.log('🔄 Manual sync triggered by admin');
+      const result = await runSync();
+      res.json({
+        success: result.success,
+        synced: result.synced,
+        errors: result.errors,
+        message: result.success 
+          ? `Successfully synced ${result.synced} sessions${result.errors > 0 ? ` (${result.errors} errors)` : ''}`
+          : 'Sync failed - check server logs'
+      });
+    } catch (error) {
+      console.error('❌ Manual sync trigger error:', error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to trigger sync" 
+      });
+    }
+  });
+
   // Missing Analytics Endpoints - Fixing 404s
   app.get("/api/analytics/video-engagement", async (req, res) => {
     try {

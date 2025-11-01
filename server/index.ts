@@ -55,6 +55,35 @@ setImmediate(() => {
   });
 });
 
+// Analytics Auto-Sync: Self-healing system to sync JSON sessions to Supabase
+setImmediate(async () => {
+  try {
+    const { runSync } = await import("./analytics-sync");
+    
+    // Run initial sync after 30 seconds (give server time to fully start)
+    setTimeout(async () => {
+      console.log("🔄 Running initial analytics sync...");
+      const result = await runSync();
+      if (result.success && result.synced > 0) {
+        console.log(`✅ Initial sync completed: ${result.synced} sessions synced`);
+      }
+    }, 30000);
+    
+    // Run sync every 5 minutes
+    setInterval(async () => {
+      console.log("🔄 Running periodic analytics sync...");
+      const result = await runSync();
+      if (result.success && result.synced > 0) {
+        console.log(`✅ Periodic sync completed: ${result.synced} sessions synced`);
+      }
+    }, 5 * 60 * 1000); // 5 minutes
+    
+    console.log("✅ Analytics auto-sync service initialized (runs every 5 minutes)");
+  } catch (err) {
+    console.error("❌ Analytics sync service initialization error (non-critical):", err);
+  }
+});
+
 // Initialize video cache system for production gallery video support (non-blocking)
 console.log("🎬 Initializing video cache system...");
 const videoCache = new VideoCache();
