@@ -11,7 +11,7 @@ import { testDatabaseConnection } from "./database";
 import { VideoCache } from "./video-cache";
 import { processSeoForDev, isHtmlResponse, shouldProcessSeoUrl, prodSeoMiddleware } from "./seo-middleware";
 
-const VERSION = "1.0.53-deploy-fix";
+const VERSION = "1.0.54-fast-deploy";
 console.log(`=== MEMOPYK Server Starting ${VERSION} ===`);
 console.log("🚀 Deployment Environment Detection:");
 console.log("   NODE_ENV:", process.env.NODE_ENV || "undefined");
@@ -49,8 +49,8 @@ console.log("   SUPABASE_URL:", process.env.SUPABASE_URL ? "✅ Configured" : "�
 
 // Import GA4 scheduler after server startup to avoid blocking deployment
 setImmediate(() => {
-  // @ts-ignore - ga4-scheduler.js is a plain JS file without types
-  import("./ga4-scheduler").catch(err => {
+  // @ts-ignore - ga4-scheduler.mjs is an ES module file without types
+  import("./ga4-scheduler.mjs").catch(err => {
     console.error("❌ GA4 scheduler import error (non-critical):", err.message);
   });
 });
@@ -117,7 +117,7 @@ setImmediate(() => {
 const app = express();
 const server = createServer(app);
 
-// Add multiple health check endpoints for deployment compatibility
+// CRITICAL: Health check endpoints MUST be first for deployment readiness
 app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({ 
     status: 'healthy', 
@@ -143,6 +143,30 @@ app.get('/api/health-check', (req: Request, res: Response) => {
     version: VERSION,
     uptime: process.uptime()
   });
+});
+
+// Start server IMMEDIATELY after health checks - before route registration
+const port = parseInt(process.env.PORT || "5000", 10);
+server.timeout = 120000; // 2 minutes timeout
+server.headersTimeout = 121000; 
+server.keepAliveTimeout = 5000;
+
+console.log(`\n🌐 Starting HTTP server IMMEDIATELY on 0.0.0.0:${port}...`);
+server.listen(port, "0.0.0.0", () => {
+  console.log(`\n✅ ========================================`);
+  console.log(`✅ MEMOPYK Server Successfully Started!`);
+  console.log(`✅ ========================================`);
+  console.log(`📡 Version: ${VERSION}`);
+  console.log(`🌍 Listening on: 0.0.0.0:${port}`);
+  console.log(`🏥 Health check: http://0.0.0.0:${port}/health`);
+  console.log(`✅ Server ready for deployment health checks!`);
+  console.log(`✅ ========================================\n`);
+  
+  // Signal deployment readiness IMMEDIATELY
+  if (process.send) {
+    console.log(`📤 Sending ready signal to process manager...`);
+    process.send('ready');
+  }
 });
 
 // 🔍 ABSOLUTE FIRST MIDDLEWARE: Log EVERY request that reaches Express
@@ -246,16 +270,6 @@ app.use((req, res, next) => {
     res.sendFile(path.join(root, "public", "robots.txt"));
   });
   // --- END ---
-  
-  // Add health check endpoint after API routes for better organization
-  app.get('/health', (req: Request, res: Response) => {
-    res.status(200).json({ 
-      status: 'healthy', 
-      timestamp: new Date().toISOString(),
-      version: '1.0.50',
-      uptime: process.uptime()
-    });
-  });
 
   // 2) Frontend handling
   if (process.env.NODE_ENV !== "production") {
@@ -386,43 +400,18 @@ app.use((req, res, next) => {
     }
   );
 
-  // 4) Start server
-  const port = parseInt(process.env.PORT || "5000", 10);
-  
-  // Set server timeout for production deployments
-  server.timeout = 120000; // 2 minutes timeout for requests (was 30s)
-  server.headersTimeout = 121000; // Slightly higher than server timeout
-  server.keepAliveTimeout = 5000; // Keep alive timeout
-  
-  console.log(`\n🌐 Starting HTTP server on 0.0.0.0:${port}...`);
-  
-  server.listen(port, "0.0.0.0", () => {
-    console.log(`\n✅ ========================================`);
-    console.log(`✅ MEMOPYK Server Successfully Started!`);
-    console.log(`✅ ========================================`);
-    console.log(`📡 Version: ${VERSION}`);
-    console.log(`🌍 Listening on: 0.0.0.0:${port}`);
-    console.log(`🏥 Health check: http://0.0.0.0:${port}/health`);
-    console.log(`🔗 API endpoints: http://0.0.0.0:${port}/api/*`);
-    
-    if (process.env.NODE_ENV === "production" || process.env.REPLIT_DEPLOYMENT === "1") {
-      console.log(`📦 Mode: PRODUCTION`);
-      console.log(`📁 Static files: dist/`);
-      console.log(`🔒 SEO injection: ENABLED`);
-    } else {
-      console.log(`🔄 Mode: DEVELOPMENT`);
-      console.log(`🔄 Frontend proxy: http://localhost:5173`);
-    }
-    
-    console.log(`✅ Server ready to accept connections!`);
-    console.log(`✅ ========================================\n`);
-    
-    // Signal deployment readiness immediately
-    if (process.send) {
-      console.log(`📤 Sending ready signal to process manager...`);
-      process.send('ready');
-    }
-  });
+  // Log route registration completion
+  console.log(`\n📋 Route registration completed`);
+  if (process.env.NODE_ENV === "production" || process.env.REPLIT_DEPLOYMENT === "1") {
+    console.log(`📦 Mode: PRODUCTION`);
+    console.log(`📁 Static files: dist/`);
+    console.log(`🔒 SEO injection: ENABLED`);
+  } else {
+    console.log(`🔄 Mode: DEVELOPMENT`);
+    console.log(`🔄 Frontend proxy: http://localhost:5173`);
+  }
+  console.log(`✅ All routes ready to accept connections!`);
+  console.log(`✅ ========================================\n`);
   
   // Handle deployment errors gracefully
   server.on('error', (err: any) => {
