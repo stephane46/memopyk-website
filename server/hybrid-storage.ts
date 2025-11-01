@@ -6873,6 +6873,18 @@ Allow: /contact`;
   async getBlogPostViews(options?: { dateFrom?: string, dateTo?: string, postSlug?: string }): Promise<any[]> {
     const { dateFrom, dateTo, postSlug } = options || {};
     
+    // Load excluded IP ranges for filtering
+    let excludedIpRanges: string[] = [];
+    try {
+      const exclusions = await this.getIpExclusions();
+      excludedIpRanges = exclusions
+        .filter((exclusion: any) => exclusion.active)
+        .map((exclusion: any) => exclusion.ip_cidr);
+      console.log(`🚫 BLOG IP FILTER: Loaded ${excludedIpRanges.length} excluded IP ranges for filtering`);
+    } catch (error) {
+      console.warn('⚠️ BLOG IP FILTER: Failed to load excluded IPs, continuing without filtering:', error);
+    }
+    
     try {
       console.log(`📊 Fetching blog post views from Supabase...`);
       
@@ -6901,7 +6913,23 @@ Allow: /contact`;
 
       if (data) {
         console.log(`✅ Retrieved ${data.length} blog post views from Supabase`);
-        return data;
+        
+        // Apply IP exclusion filter
+        let filtered = data;
+        if (excludedIpRanges.length > 0) {
+          const beforeFiltering = filtered.length;
+          filtered = filtered.filter((view: any) => {
+            const viewIp = view.ip_address;
+            // Skip filtering if IP is null/undefined/empty - keep the view
+            if (!viewIp || typeof viewIp !== 'string' || viewIp.trim() === '') {
+              return true;
+            }
+            return !excludedIpRanges.some(cidr => this.isIPInCIDR(viewIp, cidr));
+          });
+          console.log(`🚫 BLOG IP FILTER (Supabase): Excluded ${beforeFiltering - filtered.length} views from ${excludedIpRanges.length} IP ranges`);
+        }
+        
+        return filtered;
       }
       
       return [];
@@ -6911,6 +6939,20 @@ Allow: /contact`;
       // Fallback to JSON
       try {
         let views = this.loadJsonFile('blog-post-views.json') || [];
+        
+        // Apply IP exclusion filter to JSON data
+        if (excludedIpRanges.length > 0) {
+          const beforeFiltering = views.length;
+          views = views.filter((view: any) => {
+            const viewIp = view.ip_address;
+            // Skip filtering if IP is null/undefined/empty - keep the view
+            if (!viewIp || typeof viewIp !== 'string' || viewIp.trim() === '') {
+              return true;
+            }
+            return !excludedIpRanges.some(cidr => this.isIPInCIDR(viewIp, cidr));
+          });
+          console.log(`🚫 BLOG IP FILTER (JSON): Excluded ${beforeFiltering - views.length} views from ${excludedIpRanges.length} IP ranges`);
+        }
         
         if (dateFrom) {
           views = views.filter((view: any) => view.created_at >= dateFrom);
