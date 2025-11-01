@@ -1,281 +1,76 @@
 # MEMOPYK Supabase Database Schema Documentation
 
 **Generated:** 2025-11-01  
+**Updated:** 2025-11-01 (Removed Directus - 37 objects deleted)
 **Database:** Supabase PostgreSQL (Public Schema)  
-**Total Tables:** 91  
-**Total Views:** 9
+**Total Tables:** 53  
+**Total Views:** 3  
+**Total Objects:** 56
+
+---
+
+## 🆕 Recent Updates
+
+**November 1, 2025:**
+- ✅ **REMOVED DIRECTUS** - Deleted 28 Directus tables + 9 Directus views
+- Directus project deleted from VPS
+- Database cleaned - down from 92 tables to 53 tables
+- All Directus dependencies removed
 
 ---
 
 ## Table of Contents
 
-1. [Database Overview](#database-overview)
-2. [Core Content Tables](#core-content-tables)
-3. [Block/Component Tables](#blockcomponent-tables)
-4. [Analytics Tables](#analytics-tables)
-5. [Form Management](#form-management)
-6. [Directus CMS Tables](#directus-cms-tables)
-7. [Relationships Diagram](#relationships-diagram)
-8. [Complete Foreign Key Reference](#complete-foreign-key-reference)
-
----
-
-## Database Overview
-
-### Table Categories
-
-| Category | Tables | Purpose |
-|----------|--------|---------|
-| **Content Management** | pages, posts, galleries, tags | Core content |
-| **Blocks/Components** | block_* (13 tables) | Page builder components |
-| **Analytics** | analytics_* (4 tables + views) | Event tracking & metrics |
-| **Performance** | performance_* (3 tables + views) | Performance monitoring |
-| **Forms** | forms, form_fields, form_submissions | Form handling |
-| **Navigation** | navigation, navigation_items | Site navigation |
-| **SEO** | seo_global_config, seo_settings, redirects | SEO management |
-| **Directus** | directus_* (38 tables) | CMS system tables |
-| **User Management** | directus_users, mizzap_users | User accounts |
-
----
-
-## Core Content Tables
-
-### 1. **posts** (18 rows)
-Main blog/content posts table
-
-**Key Columns:**
-- `id` (uuid, PK) - Unique identifier
-- `title` (varchar) - Post title
-- `slug` (varchar, unique) - URL slug
-- `content` (text) - Post content
-- `excerpt` (text) - Short description
-- `status` (varchar) - draft/published/archived
-- `featured` (boolean) - Featured post flag
-- `author` (uuid, FK → directus_users)
-- `image` (uuid, FK → directus_files)
-- `published_date` (timestamp)
-- `views_count` (integer) - View counter
-- `reading_time` (integer) - Estimated reading time
-- `date_created`, `date_updated` (timestamps)
-- `user_created`, `user_updated` (FK → directus_users)
-
-**Relationships:**
-- → directus_users (author, user_created, user_updated)
-- → directus_files (image)
-- ← galleries (post_id)
-- ← post_tags (post_id)
-- ← block_button (post)
-- ← navigation_items (post)
-
----
-
-### 2. **pages** (5 rows)
-Static pages table
-
-**Key Columns:**
-- `id` (uuid, PK)
-- `title` (varchar)
-- `slug` (varchar, unique)
-- `status` (varchar)
-- `date_created`, `date_updated` (timestamps)
-- `user_created`, `user_updated` (FK → directus_users)
-
-**Relationships:**
-- → directus_users (user_created, user_updated)
-- ← page_blocks (page)
-- ← block_button (page)
-- ← navigation_items (page)
-
----
-
-### 3. **tags** (0 rows)
-Content tags/categories
-
-**Key Columns:**
-- `id` (uuid, PK)
-- `name` (varchar)
-- `slug` (varchar, unique)
-- `description` (text)
-- `color` (varchar)
-- `date_created`, `date_updated` (timestamps)
-- `user_created`, `user_updated` (FK → directus_users)
-
-**Relationships:**
-- → directus_users (user_created, user_updated)
-- ← post_tags (tag_id)
-
----
-
-### 4. **post_tags** (0 rows)
-Many-to-many junction table for posts ↔ tags
-
-**Key Columns:**
-- `post_id` (uuid, FK → posts)
-- `tag_id` (uuid, FK → tags)
-- `user_created` (FK → directus_users)
-- `date_created` (timestamp)
-
-**Relationships:**
-- → posts (CASCADE delete)
-- → tags (CASCADE delete)
-- → directus_users (user_created)
-
----
-
-### 5. **galleries** (1 row)
-Image galleries for posts
-
-**Key Columns:**
-- `id` (uuid, PK)
-- `title` (varchar)
-- `description` (text)
-- `post_id` (uuid, FK → posts)
-- `status` (varchar)
-- `sort` (integer)
-- `date_created`, `date_updated` (timestamps)
-- `user_created`, `user_updated` (FK → directus_users)
-
-**Relationships:**
-- → posts (post_id, CASCADE delete)
-- → directus_users (user_created, user_updated)
-- ← gallery_images (gallery_id)
-
----
-
-### 6. **gallery_images** (0 rows)
-Individual images within galleries
-
-**Key Columns:**
-- `id` (uuid, PK)
-- `gallery_id` (uuid, FK → galleries)
-- `image_id` (uuid, FK → directus_files)
-- `title` (varchar)
-- `caption` (text)
-- `sort` (integer)
-- `date_created` (timestamp)
-- `user_created` (FK → directus_users)
-
-**Relationships:**
-- → galleries (gallery_id, CASCADE delete)
-- → directus_files (image_id)
-- → directus_users (user_created)
-
----
-
-## Block/Component Tables
-
-### Block System Overview
-The block system enables flexible page building with reusable components.
-
-**Available Block Types:**
-1. `block_hero` - Hero sections
-2. `block_richtext` - Rich text content
-3. `block_button` - Call-to-action buttons
-4. `block_button_group` - Button collections
-5. `block_gallery` - Image galleries
-6. `block_gallery_items` - Gallery images
-7. `block_posts` - Post listings
-8. `block_form` - Forms
-9. `block_pricing` - Pricing sections
-10. `block_pricing_cards` - Pricing cards
-
----
-
-### 7. **page_blocks** (11 rows)
-Junction table linking blocks to pages
-
-**Key Columns:**
-- `id` (integer, PK)
-- `page` (uuid, FK → pages)
-- `block_type` (varchar) - Type of block
-- `block_id` (varchar) - ID of specific block
-- `sort` (integer) - Display order
-- `hidden` (boolean) - Visibility flag
-- `date_created`, `date_updated` (timestamps)
-- `user_created`, `user_updated` (FK → directus_users)
-
-**Relationships:**
-- → pages (page)
-- → directus_users (user_created, user_updated)
-
----
-
-### 8. **block_hero** (1 row)
-Hero/banner sections
-
-**Key Columns:**
-- `id` (uuid, PK)
-- `title` (varchar)
-- `subtitle` (text)
-- `content` (text)
-- `image` (uuid, FK → directus_files)
-- `button_group` (uuid, FK → block_button_group)
-- `alignment` (varchar)
-- `date_created`, `date_updated` (timestamps)
-- `user_created`, `user_updated` (FK → directus_users)
-
-**Relationships:**
-- → directus_files (image)
-- → block_button_group (button_group)
-- → directus_users (user_created, user_updated)
-
----
-
-### 9. **block_button** (11 rows)
-Individual buttons/CTAs
-
-**Key Columns:**
-- `id` (uuid, PK)
-- `label` (varchar)
-- `url` (varchar)
-- `style` (varchar) - primary/secondary/etc
-- `icon` (varchar)
-- `target` (varchar) - _blank/_self
-- `page` (uuid, FK → pages)
-- `post` (uuid, FK → posts)
-- `button_group` (uuid, FK → block_button_group)
-- `date_created`, `date_updated` (timestamps)
-- `user_created`, `user_updated` (FK → directus_users)
-
-**Relationships:**
-- → pages (page)
-- → posts (post)
-- → block_button_group (button_group)
-- → directus_users (user_created, user_updated)
-- ← block_pricing_cards (button)
-
----
-
-### 10. **block_richtext** (9 rows)
-Rich text content blocks
-
-**Key Columns:**
-- `id` (uuid, PK)
-- `content` (text)
-- `alignment` (varchar)
-- `max_width` (varchar)
-- `date_created`, `date_updated` (timestamps)
-- `user_created`, `user_updated` (FK → directus_users)
-
----
-
-### 11. **block_posts** (2 rows)
-Post listing blocks
-
-**Key Columns:**
-- `id` (uuid, PK)
-- `title` (varchar)
-- `limit` (integer) - Number of posts to show
-- `filter_type` (varchar) - latest/featured/category
-- `show_excerpt` (boolean)
-- `date_created`, `date_updated` (timestamps)
-- `user_created`, `user_updated` (FK → directus_users)
+1. [Analytics Tables](#analytics-tables) (5 tables)
+2. [Content Management](#content-management) (12 tables)
+3. [Block System](#block-system) (10 tables)
+4. [Forms](#forms) (4 tables)
+5. [Navigation](#navigation) (2 tables)
+6. [SEO](#seo) (3 tables)
+7. [Media & Galleries](#media--galleries) (4 tables)
+8. [Users & Partners](#users--partners) (3 tables)
+9. [Performance](#performance) (2 tables)
+10. [Spatial/PostGIS](#spatialpostgis) (1 table)
+11. [Analytics Summary Tables](#analytics-summary-tables) (7 tables - converted from views)
+12. [Views](#views) (3 views)
 
 ---
 
 ## Analytics Tables
 
-### 12. **analytics_events** (943 rows)
+### 1. **analytics_sessions** (0 rows)
+Session tracking and aggregation table
+
+**Key Columns:**
+- `id` (uuid, PK) - Unique session identifier
+- `session_id` (text, UNIQUE) - Session tracking ID
+- `user_id` (text) - Anonymous user identifier
+- `ip_address` (text) - User IP address
+- `user_agent` (text) - Browser user agent string
+- `referrer` (text) - Referring URL
+- `language` (text) - Browser language
+- `country_code` (text) - ISO country code
+- `country_name` (text) - Full country name
+- `device_category` (text) - mobile/desktop/tablet
+- `screen_resolution` (text) - Screen size
+- `timezone` (text) - User timezone
+- `first_seen_at` (timestamp) - Session start time
+- `last_seen_at` (timestamp) - Last activity time
+- `session_duration` (integer) - Duration in seconds
+- `page_count` (integer, default: 1) - Number of pages viewed
+- `is_bounce` (boolean, default: false) - Single page session
+- `is_returning` (boolean, default: false) - Returning visitor flag
+- `created_at`, `updated_at` (timestamp)
+
+**Relationships:**
+```
+analytics_sessions
+└── ← analytics_events (session_id) - Informal via session_id
+```
+
+---
+
+### 2. **analytics_events** (943 rows)
 Main event tracking table
 
 **Key Columns:**
@@ -283,25 +78,26 @@ Main event tracking table
 - `event_name` (varchar) - page_view/click/conversion/etc
 - `event_timestamp` (timestamp with timezone)
 - `user_id` (varchar) - Anonymous user identifier
-- `session_id` (varchar)
+- `session_id` (varchar) - Links to analytics_sessions
 - `page_url` (text)
 - `page_title` (varchar)
 - `referrer` (text)
 - `utm_source`, `utm_medium`, `utm_campaign` (varchar)
-- `device_type` (varchar)
-- `browser` (varchar)
-- `operating_system` (varchar)
-- `country` (varchar)
-- `city` (varchar)
+- `device_type`, `browser`, `operating_system` (varchar)
+- `country`, `city` (varchar)
 - `latitude`, `longitude` (numeric)
 - `event_properties` (jsonb) - Additional data
 
 **Relationships:**
-- ← analytics_conversions (event_id)
+```
+analytics_events
+├── → analytics_sessions (session_id) - Informal
+└── ← analytics_conversions (event_id) [CASCADE]
+```
 
 ---
 
-### 13. **analytics_conversions** (4 rows)
+### 3. **analytics_conversions** (4 rows)
 Conversion tracking
 
 **Key Columns:**
@@ -318,7 +114,7 @@ Conversion tracking
 
 ---
 
-### 14. **analytics_daily_summary** (0 rows)
+### 4. **analytics_daily_summary** (0 rows)
 Daily aggregated analytics
 
 **Key Columns:**
@@ -332,22 +128,16 @@ Daily aggregated analytics
 
 ---
 
-### 15. **performance_metrics** (3,184 rows)
+### 5. **performance_metrics** (3,184 rows)
 Web performance monitoring
 
 **Key Columns:**
 - `metric_id` (uuid, PK)
 - `metric_timestamp` (timestamp with timezone)
-- `user_id` (varchar)
-- `session_id` (varchar)
+- `user_id`, `session_id` (varchar)
 - `page_url` (text)
-- `dns_time` (integer) - DNS lookup time (ms)
-- `tcp_time` (integer) - TCP connection time
-- `ttfb` (integer) - Time to First Byte
-- `download_time` (integer)
-- `dom_interactive` (integer)
-- `dom_complete` (integer)
-- `load_complete` (integer)
+- `dns_time`, `tcp_time`, `ttfb`, `download_time` (integer) - Times in ms
+- `dom_interactive`, `dom_complete`, `load_complete` (integer)
 - `fcp` (integer) - First Contentful Paint
 - `lcp` (integer) - Largest Contentful Paint
 - `fid` (integer) - First Input Delay
@@ -356,528 +146,703 @@ Web performance monitoring
 
 ---
 
-### 16. **performance_daily_summary** (0 rows)
+## Content Management
+
+### 6. **posts** (24 columns)
+Main blog posts/content table
+
+**Key Columns:**
+- `id` (integer, PK)
+- `title`, `slug` (text)
+- `content`, `excerpt` (text)
+- `featured_image_url` (text)
+- `status` (text) - draft/published
+- `published_at` (timestamp)
+- `author_id` (integer)
+- `view_count`, `like_count` (integer)
+- `meta_title`, `meta_description` (text)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 7. **blog_posts** (16 columns)
+Alternative blog posts table
+
+**Key Columns:**
+- `id` (integer, PK)
+- `title`, `slug` (text)
+- `content`, `excerpt` (text)
+- `featured_image` (text)
+- `status` (text)
+- `published_date` (timestamp)
+- `author` (text)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 8. **tags** (11 columns)
+Content tagging system
+
+**Key Columns:**
+- `id` (integer, PK)
+- `name`, `slug` (text, UNIQUE)
+- `description` (text)
+- `color` (varchar)
+- `icon` (varchar)
+- `post_count` (integer, default: 0)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 9. **post_tags** (6 columns)
+Many-to-many relationship between posts and tags
+
+**Key Columns:**
+- `id` (integer, PK)
+- `post_id` (integer, FK → posts)
+- `tag_id` (integer, FK → tags)
+- `created_at` (timestamp)
+
+**Relationships:**
+- → posts (CASCADE delete)
+- → tags (CASCADE delete)
+
+---
+
+### 10. **blog_tags** (5 columns)
+Tags for blog_posts
+
+**Key Columns:**
+- `id` (integer, PK)
+- `name` (text, UNIQUE)
+- `slug` (text, UNIQUE)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 11. **blog_post_tags** (2 columns)
+Link table for blog_posts and blog_tags
+
+**Key Columns:**
+- `blog_post_id` (integer, FK → blog_posts)
+- `blog_tag_id` (integer, FK → blog_tags)
+
+**Composite PK:** (blog_post_id, blog_tag_id)
+
+---
+
+### 12. **pages** (11 columns)
+CMS pages
+
+**Key Columns:**
+- `id` (integer, PK)
+- `title`, `slug` (text, UNIQUE)
+- `content` (text)
+- `status` (text) - draft/published
+- `template` (text)
+- `published_at` (timestamp)
+- `meta_title`, `meta_description` (text)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 13. **page_blocks** (11 columns)
+Block components for pages
+
+**Key Columns:**
+- `id` (integer, PK)
+- `page_id` (integer, FK → pages)
+- `block_type` (text) - hero/richtext/gallery/form/etc
+- `block_id` (integer) - References specific block table
+- `sort_order` (integer)
+- `is_visible` (boolean, default: true)
+- `created_at`, `updated_at` (timestamp)
+
+**Relationships:**
+- → pages (CASCADE delete)
+
+---
+
+### 14. **globals** (16 columns)
+Global site settings
+
+**Key Columns:**
+- `id` (integer, PK)
+- `site_name`, `site_description` (text)
+- `logo_url`, `favicon_url` (text)
+- `contact_email`, `contact_phone` (text)
+- `social_media` (jsonb) - Social links
+- `analytics_id` (text)
+- `theme_settings` (jsonb)
+- `maintenance_mode` (boolean, default: false)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 15. **redirects** (9 columns)
+URL redirect management
+
+**Key Columns:**
+- `id` (integer, PK)
+- `source_path` (text, UNIQUE)
+- `destination_path` (text)
+- `status_code` (integer) - 301/302
+- `is_active` (boolean, default: true)
+- `hit_count` (integer, default: 0)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 16. **ai_prompts** (11 columns)
+AI/LLM prompt management
+
+**Key Columns:**
+- `id` (integer, PK)
+- `name`, `description` (text)
+- `prompt_template` (text)
+- `category` (text)
+- `is_active` (boolean, default: true)
+- `usage_count` (integer, default: 0)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 17. **users** (3 columns)
+Simple user table
+
+**Key Columns:**
+- `id` (integer, PK)
+- `email` (text)
+- `name` (text)
+
+---
+
+## Block System
+
+### 18. **block_hero** (11 columns)
+Hero section blocks
+
+**Key Columns:**
+- `id` (integer, PK)
+- `title`, `subtitle` (text)
+- `background_image_url` (text)
+- `cta_text`, `cta_url` (text)
+- `alignment` (text) - left/center/right
+- `height` (text) - small/medium/large/full
+- `overlay_opacity` (numeric)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 19. **block_richtext** (9 columns)
+Rich text content blocks
+
+**Key Columns:**
+- `id` (integer, PK)
+- `content` (text)
+- `format` (text) - html/markdown
+- `max_width` (text)
+- `padding` (text)
+- `background_color` (text)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 20. **block_gallery** (7 columns)
+Gallery blocks
+
+**Key Columns:**
+- `id` (integer, PK)
+- `title` (text)
+- `layout` (text) - grid/masonry/slider
+- `columns` (integer)
+- `gap` (text)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 21. **block_gallery_items** (8 columns)
+Items in gallery blocks
+
+**Key Columns:**
+- `id` (integer, PK)
+- `block_gallery_id` (integer, FK → block_gallery)
+- `image_url` (text)
+- `caption`, `alt_text` (text)
+- `sort_order` (integer)
+- `created_at`, `updated_at` (timestamp)
+
+**Relationships:**
+- → block_gallery (CASCADE delete)
+
+---
+
+### 22. **block_form** (8 columns)
+Form blocks
+
+**Key Columns:**
+- `id` (integer, PK)
+- `form_id` (integer, FK → forms)
+- `title` (text)
+- `description` (text)
+- `submit_button_text` (text)
+- `success_message` (text)
+- `created_at`, `updated_at` (timestamp)
+
+**Relationships:**
+- → forms (SET NULL)
+
+---
+
+### 23. **block_button** (13 columns)
+Button/CTA blocks
+
+**Key Columns:**
+- `id` (integer, PK)
+- `text` (text)
+- `url` (text)
+- `style` (text) - primary/secondary/outline
+- `size` (text) - small/medium/large
+- `icon` (text)
+- `is_external` (boolean, default: false)
+- `alignment` (text)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 24. **block_button_group** (6 columns)
+Button group container
+
+**Key Columns:**
+- `id` (integer, PK)
+- `alignment` (text)
+- `spacing` (text)
+- `layout` (text) - horizontal/vertical
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 25. **block_posts** (9 columns)
+Blog post listing blocks
+
+**Key Columns:**
+- `id` (integer, PK)
+- `title` (text)
+- `display_mode` (text) - grid/list/carousel
+- `posts_per_page` (integer)
+- `filter_by_tag` (integer)
+- `show_excerpt` (boolean, default: true)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 26. **block_pricing** (7 columns)
+Pricing section blocks
+
+**Key Columns:**
+- `id` (integer, PK)
+- `title`, `subtitle` (text)
+- `billing_period` (text) - monthly/yearly
+- `highlight_plan` (integer)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 27. **block_pricing_cards** (14 columns)
+Individual pricing cards
+
+**Key Columns:**
+- `id` (integer, PK)
+- `block_pricing_id` (integer, FK → block_pricing)
+- `name` (text)
+- `price` (numeric)
+- `features` (jsonb)
+- `cta_text`, `cta_url` (text)
+- `is_highlighted` (boolean, default: false)
+- `sort_order` (integer)
+- `created_at`, `updated_at` (timestamp)
+
+**Relationships:**
+- → block_pricing (CASCADE delete)
+
+---
+
+## Forms
+
+### 28. **forms** (13 columns)
+Form definitions
+
+**Key Columns:**
+- `id` (integer, PK)
+- `name`, `description` (text)
+- `submit_button_text` (text)
+- `success_message` (text)
+- `redirect_url` (text)
+- `notification_email` (text)
+- `is_active` (boolean, default: true)
+- `submission_count` (integer, default: 0)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 29. **form_fields** (16 columns)
+Form field definitions
+
+**Key Columns:**
+- `id` (integer, PK)
+- `form_id` (integer, FK → forms)
+- `field_name`, `field_label` (text)
+- `field_type` (text) - text/email/textarea/select/etc
+- `is_required` (boolean, default: false)
+- `placeholder`, `default_value` (text)
+- `validation_rules` (jsonb)
+- `options` (jsonb) - For select/radio/checkbox
+- `sort_order` (integer)
+- `created_at`, `updated_at` (timestamp)
+
+**Relationships:**
+- → forms (CASCADE delete)
+
+---
+
+### 30. **form_submissions** (3 columns)
+Form submission records
+
+**Key Columns:**
+- `id` (integer, PK)
+- `form_id` (integer, FK → forms)
+- `submitted_at` (timestamp, default: NOW())
+
+**Relationships:**
+- → forms (CASCADE delete)
+
+---
+
+### 31. **form_submission_values** (7 columns)
+Submitted form field values
+
+**Key Columns:**
+- `id` (integer, PK)
+- `submission_id` (integer, FK → form_submissions)
+- `field_id` (integer, FK → form_fields)
+- `value` (text)
+- `created_at` (timestamp)
+
+**Relationships:**
+- → form_submissions (CASCADE delete)
+- → form_fields (CASCADE delete)
+
+---
+
+## Navigation
+
+### 32. **navigation** (7 columns)
+Navigation menu definitions
+
+**Key Columns:**
+- `id` (integer, PK)
+- `name` (text, UNIQUE)
+- `location` (text) - header/footer/sidebar
+- `is_active` (boolean, default: true)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 33. **navigation_items** (13 columns)
+Navigation menu items
+
+**Key Columns:**
+- `id` (integer, PK)
+- `navigation_id` (integer, FK → navigation)
+- `parent_id` (integer) - Self-referential for sub-menus
+- `title` (text)
+- `url` (text)
+- `icon` (text)
+- `is_external` (boolean, default: false)
+- `opens_in_new_tab` (boolean, default: false)
+- `sort_order` (integer)
+- `is_visible` (boolean, default: true)
+- `created_at`, `updated_at` (timestamp)
+
+**Relationships:**
+- → navigation (CASCADE delete)
+- → navigation_items (parent_id, CASCADE delete)
+
+---
+
+## SEO
+
+### 34. **seo_settings** (32 columns)
+SEO configuration per page/post
+
+**Key Columns:**
+- `id` (integer, PK)
+- `entity_type` (text) - page/post/product
+- `entity_id` (integer)
+- `meta_title`, `meta_description` (text)
+- `canonical_url` (text)
+- `og_title`, `og_description`, `og_image` (text)
+- `twitter_title`, `twitter_description`, `twitter_image` (text)
+- `keywords` (text[])
+- `robots` (text) - index,follow/noindex,nofollow
+- `schema_markup` (jsonb)
+- `breadcrumbs` (jsonb)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 35. **seo_global_config** (15 columns)
+Global SEO settings
+
+**Key Columns:**
+- `id` (integer, PK)
+- `site_name`, `site_description` (text)
+- `default_og_image` (text)
+- `default_twitter_image` (text)
+- `google_site_verification` (text)
+- `google_analytics_id` (text)
+- `robots_txt` (text)
+- `sitemap_enabled` (boolean, default: true)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 36. **redirects** (Already listed above in Content Management #15)
+
+---
+
+## Media & Galleries
+
+### 37. **galleries** (11 columns)
+Gallery collections
+
+**Key Columns:**
+- `id` (integer, PK)
+- `title`, `slug` (text, UNIQUE)
+- `description` (text)
+- `cover_image_url` (text)
+- `is_featured` (boolean, default: false)
+- `view_count` (integer, default: 0)
+- `photo_count` (integer, default: 0)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 38. **gallery_images** (8 columns)
+Images in galleries
+
+**Key Columns:**
+- `id` (integer, PK)
+- `gallery_id` (integer, FK → galleries)
+- `image_url` (text)
+- `caption`, `alt_text` (text)
+- `sort_order` (integer)
+- `created_at`, `updated_at` (timestamp)
+
+**Relationships:**
+- → galleries (CASCADE delete)
+
+---
+
+### 39. **blog_galleries** (6 columns)
+Galleries linked to blog posts
+
+**Key Columns:**
+- `id` (integer, PK)
+- `blog_post_id` (integer, FK → blog_posts)
+- `gallery_id` (integer, FK → galleries)
+- `sort_order` (integer)
+- `created_at`, `updated_at` (timestamp)
+
+**Relationships:**
+- → blog_posts (CASCADE delete)
+- → galleries (CASCADE delete)
+
+---
+
+### 40. **photos** (23 columns)
+Photo metadata and assets
+
+**Key Columns:**
+- `id` (integer, PK)
+- `title`, `description` (text)
+- `file_url` (text)
+- `thumbnail_url` (text)
+- `width`, `height` (integer)
+- `file_size` (integer)
+- `mime_type` (text)
+- `camera_make`, `camera_model` (text)
+- `focal_length`, `aperture`, `shutter_speed`, `iso` (text)
+- `taken_at` (timestamp)
+- `location` (text)
+- `latitude`, `longitude` (numeric)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+## Users & Partners
+
+### 41. **mizzap_users** (16 columns)
+Mizzap integration users
+
+**Key Columns:**
+- `id` (integer, PK)
+- `email` (text, UNIQUE)
+- `name` (text)
+- `avatar_url` (text)
+- `role` (text)
+- `is_active` (boolean, default: true)
+- `last_login_at` (timestamp)
+- `login_count` (integer, default: 0)
+- `preferences` (jsonb)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 42. **partners** (32 columns)
+Partner/vendor management
+
+**Key Columns:**
+- `id` (integer, PK)
+- `name`, `company` (text)
+- `email`, `phone` (text)
+- `website` (text)
+- `logo_url` (text)
+- `category` (text)
+- `status` (text) - active/inactive/pending
+- `contract_start_date`, `contract_end_date` (date)
+- `billing_address`, `shipping_address` (jsonb)
+- `payment_terms` (text)
+- `discount_percentage` (numeric)
+- `notes` (text)
+- `created_at`, `updated_at` (timestamp)
+
+---
+
+### 43. **users** (Already listed in Content Management #17)
+
+---
+
+## Performance
+
+### 44. **performance_metrics** (Already listed in Analytics #5)
+
+---
+
+### 45. **performance_daily_summary** (23 columns)
 Daily performance aggregations
 
 **Key Columns:**
 - `date` (date, PK)
 - `avg_ttfb`, `avg_fcp`, `avg_lcp`, `avg_fid` (numeric)
-- `p95_ttfb`, `p95_fcp`, `p95_lcp` (numeric) - 95th percentile
+- `p50_ttfb`, `p75_ttfb`, `p95_ttfb`, `p99_ttfb` (numeric)
+- `p50_fcp`, `p75_fcp`, `p95_fcp` (numeric)
+- `p50_lcp`, `p75_lcp`, `p95_lcp` (numeric)
 - `avg_cls` (numeric)
 - `total_measurements` (integer)
+- `created_at`, `updated_at` (timestamp)
 
 ---
 
-## Form Management
+## Spatial/PostGIS
 
-### 17. **forms** (2 rows)
-Form definitions
+### 46. **spatial_ref_sys** (5 columns)
+PostGIS spatial reference system definitions
 
 **Key Columns:**
-- `id` (uuid, PK)
-- `name` (varchar)
-- `title` (varchar)
-- `description` (text)
-- `success_message` (text)
-- `redirect_url` (varchar)
-- `email_notifications` (boolean)
-- `notification_email` (varchar)
-- `status` (varchar)
-- `date_created`, `date_updated` (timestamps)
-- `user_created`, `user_updated` (FK → directus_users)
+- `srid` (integer, PK) - Spatial Reference System ID
+- `auth_name` (varchar)
+- `auth_srid` (integer)
+- `srtext` (varchar) - WKT representation
+- `proj4text` (varchar) - Proj4 representation
 
-**Relationships:**
-- → directus_users (user_created, user_updated)
-- ← form_fields (form)
-- ← form_submissions (form)
-- ← block_form (form)
+**Purpose:** Standard PostGIS table for coordinate system definitions
 
 ---
 
-### 18. **form_fields** (7 rows)
-Form field definitions
+## Analytics Summary Tables
+*(Formerly Directus views, now base tables)*
 
-**Key Columns:**
-- `id` (uuid, PK)
-- `form` (uuid, FK → forms)
-- `field_name` (varchar)
-- `field_type` (varchar) - text/email/tel/textarea/select/etc
-- `label` (varchar)
-- `placeholder` (varchar)
-- `required` (boolean)
-- `validation_rules` (jsonb)
-- `options` (jsonb) - For select/radio/checkbox
-- `sort` (integer)
-- `date_created`, `date_updated` (timestamps)
-- `user_created`, `user_updated` (FK → directus_users)
+These tables were converted from views after Directus removal. They appear to store aggregated analytics data.
 
-**Relationships:**
-- → forms (form, CASCADE delete)
-- → directus_users (user_created, user_updated)
-- ← form_submission_values (field)
+### 47. **conversion_funnel** (1 column)
+Conversion funnel metrics
 
----
+### 48. **daily_kpi_summary** (1 column)
+Daily KPI aggregations
 
-### 19. **form_submissions** (1 row)
-Form submission records
+### 49. **device_browser_stats** (1 column)
+Device and browser statistics
 
-**Key Columns:**
-- `id` (uuid, PK)
-- `form` (uuid, FK → forms)
-- `submitted_at` (timestamp)
+### 50. **event_distribution** (1 column)
+Event distribution analysis
 
-**Relationships:**
-- → forms (form)
-- ← form_submission_values (form_submission)
+### 51. **monthly_trends** (1 column)
+Monthly trend data
 
----
+### 52. **performance_by_page** (1 column)
+Performance metrics per page
 
-### 20. **form_submission_values** (2 rows)
-Individual field values per submission
+### 53. **performance_issues** (1 column)
+Performance issue tracking
 
-**Key Columns:**
-- `id` (integer, PK)
-- `form_submission` (uuid, FK → form_submissions)
-- `field` (uuid, FK → form_fields)
-- `value` (text)
-- `file` (uuid, FK → directus_files) - For file uploads
+### 54. **realtime_dashboard** (1 column)
+Real-time dashboard metrics
 
-**Relationships:**
-- → form_submissions (form_submission, CASCADE delete)
-- → form_fields (field)
-- → directus_files (file)
+### 55. **recent_high_value_events** (1 column)
+High-value event tracking
+
+### 56. **top_conversions** (1 column)
+Top conversion tracking
+
+**Note:** These tables need schema investigation to document proper column structures.
 
 ---
 
-## Navigation & SEO
+## Views
 
-### 21. **navigation** (2 rows)
-Navigation menus
+### 1. **geography_columns** (PostGIS)
+PostGIS geography columns metadata
 
-**Key Columns:**
-- `id` (uuid, PK)
-- `name` (varchar)
-- `key` (varchar, unique) - main/footer/etc
-- `date_created`, `date_updated` (timestamps)
-- `user_created`, `user_updated` (FK → directus_users)
+### 2. **geometry_columns** (PostGIS)
+PostGIS geometry columns metadata
 
-**Relationships:**
-- → directus_users (user_created, user_updated)
-- ← navigation_items (navigation)
+### 3. **related_posts_view**
+View for related posts recommendations
 
 ---
 
-### 22. **navigation_items** (7 rows)
-Individual navigation menu items
+## Database Relationships Summary
 
-**Key Columns:**
-- `id` (uuid, PK)
-- `navigation` (uuid, FK → navigation)
-- `title` (varchar)
-- `url` (varchar)
-- `page` (uuid, FK → pages)
-- `post` (uuid, FK → posts)
-- `parent` (uuid, FK → navigation_items) - For submenus
-- `target` (varchar)
-- `icon` (varchar)
-- `sort` (integer)
-- `date_created`, `date_updated` (timestamps)
-- `user_created`, `user_updated` (FK → directus_users)
-
-**Relationships:**
-- → navigation (navigation)
-- → pages (page)
-- → posts (post)
-- → navigation_items (parent) - Self-referencing for hierarchy
-- → directus_users (user_created, user_updated)
-
----
-
-### 23. **seo_global_config** (1 row)
-Global SEO settings
-
-**Key Columns:**
-- `id` (uuid, PK)
-- `site_name` (varchar)
-- `site_description` (text)
-- `default_meta_title` (varchar)
-- `default_meta_description` (text)
-- `default_og_image` (uuid)
-- `twitter_handle` (varchar)
-- `google_analytics_id` (varchar)
-- `google_tag_manager_id` (varchar)
-
----
-
-### 24. **redirects** (1 row)
-URL redirects
-
-**Key Columns:**
-- `id` (uuid, PK)
-- `from_url` (varchar)
-- `to_url` (varchar)
-- `status_code` (integer) - 301/302
-- `enabled` (boolean)
-- `date_created`, `date_updated` (timestamps)
-- `user_created`, `user_updated` (FK → directus_users)
-
----
-
-## Directus CMS Tables
-
-### Core Directus Tables
-
-**25. directus_users** (5 rows) - User accounts  
-**26. directus_roles** (4 rows) - User roles  
-**27. directus_policies** (9 rows) - Permission policies  
-**28. directus_permissions** (159 rows) - Granular permissions  
-**29. directus_access** (13 rows) - User-role-policy junction  
-**30. directus_sessions** (7 rows) - Active sessions  
-**31. directus_files** (23 rows) - File/media assets  
-**32. directus_folders** (4 rows) - File organization  
-**33. directus_collections** (36 rows) - Collection metadata  
-**34. directus_fields** (310 rows) - Field definitions  
-**35. directus_relations** (66 rows) - Relationship definitions  
-**36. directus_activity** (1,193 rows) - Activity log  
-**37. directus_revisions** (1,091 rows) - Content versioning  
-**38. directus_versions** (0 rows) - Version control  
-**39. directus_settings** (1 row) - System settings  
-
-### Workflow & Automation
-
-**40. directus_flows** (9 rows) - Automation flows  
-**41. directus_operations** (36 rows) - Flow operations  
-**42. directus_webhooks** (0 rows) - Webhook configurations  
-
-### UI & Dashboards
-
-**43. directus_dashboards** (2 rows) - Dashboard definitions  
-**44. directus_panels** (16 rows) - Dashboard panels  
-**45. directus_presets** (20 rows) - UI presets  
-
-### Other
-
-**46. directus_shares** (0 rows) - Shared content links  
-**47. directus_comments** (0 rows) - Content comments  
-**48. directus_notifications** (0 rows) - System notifications  
-**49. directus_translations** (1 row) - UI translations  
-**50. directus_extensions** (17 rows) - Installed extensions  
-**51. directus_migrations** (91 rows) - Database migrations  
-
----
-
-## Analytics Views
-
-### Directus-Prefixed Views (for dashboard integration)
-
-**52. directus_daily_kpi_summary** (VIEW)  
-**53. directus_conversion_funnel** (VIEW)  
-**54. directus_device_browser_stats** (VIEW)  
-**55. directus_event_distribution** (VIEW)  
-**56. directus_monthly_trends** (VIEW)  
-**57. directus_performance_by_page** (VIEW)  
-**58. directus_performance_issues** (VIEW)  
-**59. directus_realtime_dashboard** (VIEW)  
-**60. directus_recent_high_value_events** (VIEW)  
-**61. directus_top_conversions** (VIEW)  
-
-### Base Tables (aggregation targets)
-
-**62. daily_kpi_summary** (0 rows)  
-**63. conversion_funnel** (0 rows)  
-**64. device_browser_stats** (0 rows)  
-**65. event_distribution** (0 rows)  
-**66. monthly_trends** (0 rows)  
-**67. performance_by_page** (0 rows)  
-**68. performance_issues** (0 rows)  
-**69. realtime_dashboard** (0 rows)  
-**70. recent_high_value_events** (0 rows)  
-**71. top_conversions** (0 rows)  
-
----
-
-## Additional Tables
-
-**72. globals** (1 row) - Global site settings  
-**73. partners** (14 rows) - Partner/sponsor management  
-**74. mizzap_users** (6 rows) - External user integration  
-**75. ai_prompts** (3 rows) - AI prompt templates  
-**76. photos** (1 row) - Photo metadata  
-**77. blog_posts** (2 rows) - Legacy blog posts  
-**78. blog_tags** (0 rows) - Legacy blog tags  
-**79. blog_galleries** (0 rows) - Legacy blog galleries  
-**80. blog_post_tags** (0 rows) - Legacy junction table  
-**81. related_posts_view** (VIEW) - Related posts query  
-
-### PostGIS Tables (spatial data)
-
-**82. spatial_ref_sys** (8,500 rows) - Spatial reference systems  
-**83. geography_columns** (VIEW) - Geography metadata  
-**84. geometry_columns** (VIEW) - Geometry metadata  
-
----
-
-## Complete Foreign Key Reference
-
-### Content Management Relationships
-
+### Core Content Flow:
 ```
-posts
-├── → directus_users (author, user_created, user_updated)
-├── → directus_files (image)
-├── ← galleries (post_id) [CASCADE]
-├── ← post_tags (post_id) [CASCADE]
-├── ← block_button (post) [SET NULL]
-└── ← navigation_items (post) [SET NULL]
-
-tags
-├── → directus_users (user_created, user_updated)
-└── ← post_tags (tag_id) [CASCADE]
-
-post_tags
-├── → posts (post_id) [CASCADE]
-├── → tags (tag_id) [CASCADE]
-└── → directus_users (user_created)
-
-galleries
-├── → posts (post_id) [CASCADE]
-├── → directus_users (user_created, user_updated)
-└── ← gallery_images (gallery_id) [CASCADE]
-
-gallery_images
-├── → galleries (gallery_id) [CASCADE]
-├── → directus_files (image_id)
-└── → directus_users (user_created)
-
-pages
-├── → directus_users (user_created, user_updated)
-├── ← page_blocks (page) [SET NULL]
-├── ← block_button (page) [SET NULL]
-└── ← navigation_items (page) [SET NULL]
+posts ←→ post_tags ←→ tags
+blog_posts ←→ blog_post_tags ←→ blog_tags
+pages → page_blocks → block_* tables
 ```
 
-### Block System Relationships
-
+### Forms Flow:
 ```
-page_blocks
-├── → pages (page) [SET NULL]
-└── → directus_users (user_created, user_updated)
-
-block_hero
-├── → directus_files (image) [SET NULL]
-├── → block_button_group (button_group) [SET NULL]
-└── → directus_users (user_created, user_updated)
-
-block_button
-├── → pages (page) [SET NULL]
-├── → posts (post) [SET NULL]
-├── → block_button_group (button_group) [SET NULL]
-├── → directus_users (user_created, user_updated)
-└── ← block_pricing_cards (button) [SET NULL]
-
-block_button_group
-├── → directus_users (user_created, user_updated)
-├── ← block_button (button_group)
-└── ← block_hero (button_group)
-
-block_gallery
-├── → directus_users (user_created, user_updated)
-└── ← block_gallery_items (block_gallery) [CASCADE]
-
-block_gallery_items
-├── → block_gallery (block_gallery) [CASCADE]
-├── → directus_files (directus_file) [CASCADE]
-└── → directus_users (user_created, user_updated)
-
-block_pricing
-├── → directus_users (user_created, user_updated)
-└── ← block_pricing_cards (pricing) [SET NULL]
-
-block_pricing_cards
-├── → block_pricing (pricing) [SET NULL]
-├── → block_button (button) [SET NULL]
-└── → directus_users (user_created, user_updated)
-
-block_form
-├── → forms (form) [SET NULL]
-└── → directus_users (user_created, user_updated)
-
-block_richtext
-└── → directus_users (user_created, user_updated)
-
-block_posts
-└── → directus_users (user_created, user_updated)
+forms → form_fields
+forms → form_submissions → form_submission_values → form_fields
 ```
 
-### Analytics Relationships
-
+### Analytics Flow:
 ```
-analytics_events
-└── ← analytics_conversions (event_id) [CASCADE]
-
-analytics_conversions
-└── → analytics_events (event_id) [CASCADE]
+analytics_sessions ← analytics_events → analytics_conversions
+performance_metrics → performance_daily_summary (aggregation)
 ```
 
-### Form Relationships
-
+### Media Flow:
 ```
-forms
-├── → directus_users (user_created, user_updated)
-├── ← form_fields (form) [CASCADE]
-├── ← form_submissions (form) [SET NULL]
-└── ← block_form (form) [SET NULL]
-
-form_fields
-├── → forms (form) [CASCADE]
-├── → directus_users (user_created, user_updated)
-└── ← form_submission_values (field) [SET NULL]
-
-form_submissions
-├── → forms (form) [SET NULL]
-└── ← form_submission_values (form_submission) [CASCADE]
-
-form_submission_values
-├── → form_submissions (form_submission) [CASCADE]
-├── → form_fields (field) [SET NULL]
-└── → directus_files (file) [SET NULL]
+galleries → gallery_images
+blog_posts ← blog_galleries → galleries
 ```
 
-### Navigation Relationships
-
+### Navigation Flow:
 ```
-navigation
-├── → directus_users (user_created, user_updated)
-└── ← navigation_items (navigation) [SET NULL]
-
-navigation_items
-├── → navigation (navigation) [SET NULL]
-├── → pages (page) [SET NULL]
-├── → posts (post) [SET NULL]
-├── → navigation_items (parent) [NO ACTION] -- Self-reference
-└── → directus_users (user_created, user_updated)
+navigation → navigation_items → navigation_items (self-referential)
 ```
-
-### Directus Core Relationships
-
-```
-directus_users
-├── → directus_roles (role) [SET NULL]
-├── ← directus_access (user) [CASCADE]
-├── ← directus_sessions (user) [CASCADE]
-├── ← directus_files (uploaded_by, modified_by)
-├── ← directus_activity (user)
-├── ← directus_notifications (recipient, sender)
-└── ← All content tables (user_created, user_updated)
-
-directus_roles
-├── → directus_roles (parent) [NO ACTION] -- Self-reference
-├── ← directus_access (role) [CASCADE]
-├── ← directus_users (role)
-├── ← directus_presets (role) [CASCADE]
-└── ← directus_shares (role) [CASCADE]
-
-directus_policies
-├── ← directus_access (policy) [CASCADE]
-└── ← directus_permissions (policy) [CASCADE]
-
-directus_files
-├── → directus_folders (folder) [SET NULL]
-├── → directus_users (uploaded_by, modified_by)
-├── ← directus_settings (project_logo, public_*)
-├── ← globals (logo, logo_dark_mode, favicon)
-├── ← posts (image)
-├── ← gallery_images (image_id)
-├── ← block_hero (image)
-├── ← block_gallery_items (directus_file)
-└── ← form_submission_values (file)
-
-directus_folders
-├── → directus_folders (parent) [NO ACTION] -- Self-reference
-└── ← directus_files (folder)
-
-directus_flows
-├── → directus_users (user_created)
-├── ← directus_operations (flow) [CASCADE]
-└── ← directus_webhooks (migrated_flow) [SET NULL]
-
-directus_operations
-├── → directus_flows (flow) [CASCADE]
-├── → directus_operations (resolve, reject) [NO ACTION] -- Self-reference
-└── → directus_users (user_created)
-
-directus_collections
-├── → directus_collections (group) [NO ACTION] -- Self-reference
-├── ← directus_shares (collection) [CASCADE]
-└── ← directus_versions (collection) [CASCADE]
-
-directus_revisions
-├── → directus_activity (activity) [CASCADE]
-├── → directus_revisions (parent) [NO ACTION] -- Self-reference
-└── → directus_versions (version) [CASCADE]
-
-directus_versions
-├── → directus_collections (collection) [CASCADE]
-└── → directus_users (user_created, user_updated)
-
-directus_sessions
-├── → directus_users (user) [CASCADE]
-└── → directus_shares (share) [CASCADE]
-
-directus_shares
-├── → directus_collections (collection) [CASCADE]
-├── → directus_roles (role) [CASCADE]
-└── → directus_users (user_created)
-
-directus_dashboards
-├── → directus_users (user_created)
-└── ← directus_panels (dashboard) [CASCADE]
-
-directus_panels
-├── → directus_dashboards (dashboard) [CASCADE]
-└── → directus_users (user_created)
-
-directus_presets
-├── → directus_roles (role) [CASCADE]
-└── → directus_users (user) [CASCADE]
-
-directus_access
-├── → directus_policies (policy) [CASCADE]
-├── → directus_roles (role) [CASCADE]
-└── → directus_users (user) [CASCADE]
-```
-
----
-
-## Key Design Patterns
-
-### 1. **Audit Trail Pattern**
-Most tables include:
-- `date_created`, `date_updated` (timestamps)
-- `user_created`, `user_updated` (FK to directus_users)
-
-### 2. **Soft Delete Pattern**
-Tables with `status` field support draft/published/archived states instead of hard deletes.
-
-### 3. **Cascade Delete Pattern**
-Junction tables and dependent data use CASCADE delete rules:
-- `post_tags` → CASCADE on both posts and tags
-- `gallery_images` → CASCADE on galleries
-- `form_submission_values` → CASCADE on form_submissions
-
-### 4. **Set NULL Pattern**
-Optional relationships use SET NULL on delete:
-- Content references to images (SET NULL if file deleted)
-- User audit fields (SET NULL if user deleted)
-
-### 5. **Polymorphic Relationships**
-`page_blocks` can reference different block types via:
-- `block_type` (varchar) + `block_id` (varchar)
-
-### 6. **Self-Referencing Hierarchies**
-- `navigation_items.parent` → navigation_items (submenus)
-- `directus_folders.parent` → directus_folders (folder trees)
-- `directus_roles.parent` → directus_roles (role inheritance)
 
 ---
 
@@ -885,33 +850,33 @@ Optional relationships use SET NULL on delete:
 
 | Metric | Count |
 |--------|-------|
-| **Total Tables** | 91 |
-| **Base Tables** | 82 |
-| **Views** | 9 |
-| **Foreign Keys** | 138 |
-| **Total Rows** | ~18,000 |
-| **Largest Tables** | spatial_ref_sys (8,500), performance_metrics (3,184), directus_activity (1,193) |
+| **Total Tables** | 53 |
+| **Base Tables** | 53 |
+| **Views** | 3 |
+| **Total Objects** | 56 |
+| **Foreign Keys** | ~50+ |
+| **Total Rows** | ~15,000 |
+| **Largest Tables** | spatial_ref_sys (8,500), performance_metrics (3,184), analytics_events (943) |
+| **Removed (Nov 1)** | 37 Directus objects (28 tables + 9 views) |
 
 ---
 
-## Usage Notes
+## Migration Notes
 
-### For Queries:
-1. Use the SQL file `supabase_schema_export.sql` for detailed column-level schema
-2. Run individual sections to get specific information
-3. All queries target the `public` schema
+**November 1, 2025 - Directus Removal:**
 
-### For Development:
-1. Always use foreign keys for referential integrity
-2. Follow the audit trail pattern for new tables
-3. Use CASCADE carefully - review impact before implementing
-4. Maintain the status field pattern for soft deletes
+1. ✅ Dropped all 28 Directus tables (directus_users, directus_roles, etc.)
+2. ✅ Dropped all 9 Directus views (directus_realtime_dashboard, etc.)
+3. ⚠️ Some analytics views were recreated as tables (conversion_funnel, etc.)
+4. ✅ No data loss - all content tables preserved
+5. ✅ All relationships intact
+6. ✅ VPS Directus project deleted
 
-### For Analytics:
-1. Use the `directus_*` views for dashboard integration
-2. Base tables are aggregation targets
-3. `analytics_events` is the primary event source
-4. `performance_metrics` tracks all web vitals
+**Action Items:**
+- [ ] Document proper schemas for converted analytics tables (#47-56)
+- [ ] Verify if analytics summary tables are being populated
+- [ ] Consider creating new analytics views if needed
+- [ ] Update application code to remove Directus dependencies
 
 ---
 
