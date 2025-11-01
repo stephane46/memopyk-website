@@ -10,6 +10,7 @@ Analytics interface: Expects all three filter buttons (7d, 30d, 90d) to be visib
 Language detection priority: Fixed primary browser language detection with console testing capability. Enhanced cross-device compatibility prevents English users overseas from seeing French content by checking ONLY the first browser language preference.
 Accessibility priority: High contrast text is essential - white text on gray backgrounds is completely unreadable and must be avoided throughout admin interface.
 Modal styling: Requires solid white modal backgrounds with dark overlays for proper floating appearance. Framework components like Radix UI need precise CSS targeting to avoid affecting backdrop elements.
+IP Exclusion Accuracy: Excluded IP addresses (e.g., 109.17.150.48 "Capadenac home network") must be completely hidden from all analytics views including "Total Views Details" modal - no exceptions. The "🟠 IP Filtered" badge guarantees complete exclusion.
 
 ### Critical Code Investigation Protocol
 **NEVER remove or modify existing code without understanding its purpose first.**

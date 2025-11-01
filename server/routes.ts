@@ -3089,7 +3089,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         undefined, // language
         true, // **CRITICAL FIX**: Include production data like main analytics endpoint
         country as string, // Add country filtering support
-        true // **BYPASS IP FILTER**: Show all visitors including excluded IPs for detailed view
+        false // **APPLY IP FILTER**: Exclude IPs in exclusion list from detailed view (was bypassing filter)
       );
       
       // Apply filtering logic - includeProduction=true so don't filter test_data
