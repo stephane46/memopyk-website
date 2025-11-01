@@ -156,15 +156,16 @@ export const AnalyticsNewDashboard: React.FC<AnalyticsNewDashboardProps> = ({
               </h1>
             </div>
             {/* Compact Header Info */}
-            <div className="analytics-header-badges flex items-center gap-3 text-xs text-gray-600">
+            <div className="flex items-center gap-2">
               {sinceDateEnabled && sinceDate && (
-                <span className="badge-item">Since: {formatSinceDateForBadge(sinceDate)}</span>
+                <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200 text-xs">
+                  Since: {formatSinceDateForBadge(sinceDate)}
+                </Badge>
               )}
               {activeExclusionsCount > 0 && (
-                <span className="badge-item">
-                  <span className="text-gray-400">•</span>
-                  <span>IPs: {activeExclusionsCount}</span>
-                </span>
+                <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 text-xs">
+                  🟠 IPs: {activeExclusionsCount}
+                </Badge>
               )}
             </div>
           </div>
