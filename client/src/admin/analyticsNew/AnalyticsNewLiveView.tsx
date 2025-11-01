@@ -554,8 +554,9 @@ export const AnalyticsNewLiveView: React.FC = () => {
             ))}
           </div>
         ) : watchingData?.sessions && watchingData.sessions.length > 0 ? (
-          <div className="space-y-4">
-            {watchingData.sessions.map((session) => {
+          <TooltipProvider>
+            <div className="space-y-4">
+              {watchingData.sessions.map((session) => {
               // Helper functions for UI formatting
               const getVideoTitle = () => session.videoTitle || 'Video';
               const getLocationDisplay = () => {
@@ -682,8 +683,9 @@ export const AnalyticsNewLiveView: React.FC = () => {
                   </div>
                 </div>
               );
-            })}
-          </div>
+              })}
+            </div>
+          </TooltipProvider>
         ) : (
           <div className="text-center py-8 text-[var(--analytics-new-text-muted)]">
             <Eye className="w-8 h-8 mx-auto mb-2 text-gray-400" />
