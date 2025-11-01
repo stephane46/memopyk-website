@@ -3054,7 +3054,8 @@ export async function registerRoutes(app: Express): Promise<void> {
         finalEndDate,
         undefined, // language
         true, // **CRITICAL FIX**: Include production data like main analytics endpoint
-        country as string // Add country filtering support
+        country as string, // Add country filtering support
+        true // **BYPASS IP FILTER**: Show all visitors including excluded IPs for detailed view
       );
       
       // Apply filtering logic - includeProduction=true so don't filter test_data

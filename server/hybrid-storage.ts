@@ -3898,23 +3898,27 @@ Allow: /contact`;
     return filtered;
   }
 
-  async getAnalyticsSessions(dateFrom?: string, dateTo?: string, language?: string, includeProduction?: boolean, country?: string): Promise<any[]> {
-    console.log(`📊 Analytics Sessions: ${dateFrom} to ${dateTo}, language: ${language}, includeProduction: ${includeProduction}, country: ${country}`);
+  async getAnalyticsSessions(dateFrom?: string, dateTo?: string, language?: string, includeProduction?: boolean, country?: string, bypassIpFilter?: boolean): Promise<any[]> {
+    console.log(`📊 Analytics Sessions: ${dateFrom} to ${dateTo}, language: ${language}, includeProduction: ${includeProduction}, country: ${country}, bypassIpFilter: ${bypassIpFilter}`);
     
     // Use date ranges as provided by computeParisWindow - they are already correct
     let finalDateFrom = dateFrom;
     let finalDateTo = dateTo;
     
-    // Load excluded IP ranges for filtering (modern system only)
+    // Load excluded IP ranges for filtering (modern system only) - SKIP if bypassIpFilter is true
     let excludedIpRanges: string[] = [];
-    try {
-      const exclusions = await this.getIpExclusions();
-      excludedIpRanges = exclusions
-        .filter((exclusion: any) => exclusion.active)
-        .map((exclusion: any) => exclusion.ip_cidr);
-      console.log(`🚫 IP FILTER: Loaded ${excludedIpRanges.length} excluded IP ranges for filtering`);
-    } catch (error) {
-      console.warn('⚠️ IP FILTER: Failed to load excluded IPs, continuing without filtering:', error);
+    if (!bypassIpFilter) {
+      try {
+        const exclusions = await this.getIpExclusions();
+        excludedIpRanges = exclusions
+          .filter((exclusion: any) => exclusion.active)
+          .map((exclusion: any) => exclusion.ip_cidr);
+        console.log(`🚫 IP FILTER: Loaded ${excludedIpRanges.length} excluded IP ranges for filtering`);
+      } catch (error) {
+        console.warn('⚠️ IP FILTER: Failed to load excluded IPs, continuing without filtering:', error);
+      }
+    } else {
+      console.log(`⚠️ IP FILTER BYPASS: Skipping IP exclusion filtering per bypassIpFilter=true`);
     }
 
     // SMART 7-DAY ROLLING CACHE STRATEGY
