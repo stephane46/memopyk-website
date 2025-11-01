@@ -122,6 +122,14 @@ html, body {
 
 /* REMOVED - Previous IP icon override was causing issues */
 
+/* Analytics Header Badges - Force no list styling */
+.analytics-header-badges .badge-item,
+.analytics-header-badges .badge-item * {
+  list-style: none !important;
+  list-style-type: none !important;
+  display: inline-flex !important;
+}
+
 /* Card Back Gradient Background Fix - Following Modal Transparency Solution Pattern */
 .card-back-gradient {
   background: linear-gradient(to bottom right, rgba(42, 71, 89, 0.85), rgba(1, 21, 38, 0.9), rgba(42, 71, 89, 0.85)) !important;
