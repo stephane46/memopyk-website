@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>GA4 Self Test</title>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-JLRWHE1HV4"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('consent','update',{ad_storage:'granted',analytics_storage:'granted',functionality_storage:'granted'});
+    gtag('js', new Date());
+    gtag('config','G-JLRWHE1HV4',{send_page_view:false, debug_mode:true});
+    function sendTest(){
+      gtag('event','video_progress',{
+        send_to:'G-JLRWHE1HV4',
+        progress_percent:25,
+        video_id:'SELFTEST.mp4',
+        video_title:'Self Test',
+        debug_mode:true,
+        transport_type:'image'
+      });
+      console.log('sent test event');
+    }
+  </script>
+</head>
+<body>
+  <h1>GA4 Self Test</h1>
+  <button onclick="sendTest()">Send video_progress</button>
+</body>
+</html>

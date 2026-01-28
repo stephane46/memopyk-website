@@ -1,0 +1,467 @@
+import { useState, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Editor } from '@tinymce/tinymce-react';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Upload, Loader2, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { createTinyMCEConfig } from './tinymce/config';
+
+import 'tinymce/tinymce';
+import 'tinymce/icons/default';
+import 'tinymce/themes/silver';
+import 'tinymce/models/dom';
+import 'tinymce/plugins/link';
+import 'tinymce/plugins/lists';
+import 'tinymce/plugins/advlist';
+import 'tinymce/plugins/table';
+import 'tinymce/plugins/code';
+import 'tinymce/plugins/image';
+import 'tinymce/plugins/media';
+import 'tinymce/plugins/preview';
+import 'tinymce/plugins/fullscreen';
+import 'tinymce/plugins/charmap';
+import 'tinymce/plugins/autolink';
+import 'tinymce/plugins/searchreplace';
+import 'tinymce/plugins/anchor';
+import 'tinymce/plugins/wordcount';
+import 'tinymce/plugins/codesample';
+import 'tinymce/plugins/visualblocks';
+import 'tinymce/plugins/nonbreaking';
+import 'tinymce/plugins/visualchars';
+import 'tinymce/plugins/directionality';
+import 'tinymce/plugins/autosave';
+import 'tinymce/plugins/insertdatetime';
+import 'tinymce/plugins/quickbars';
+import 'tinymce/skins/ui/oxide/skin.min.css';
+
+interface HtmlEditorProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+export function HtmlEditor({ value, onChange }: HtmlEditorProps) {
+  const editorEngine = import.meta.env.VITE_EDITOR_ENGINE || 'tinymce';
+
+  if (editorEngine === 'quill') {
+    return <QuillEditor value={value} onChange={onChange} />;
+  }
+
+  return <TinyMCEEditor value={value} onChange={onChange} />;
+}
+
+type BlogImage = {
+  name: string;
+  url: string;
+  size: number;
+  created_at: string;
+};
+
+function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
+  // State for image picker modal
+  const [isImagePickerOpen, setIsImagePickerOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const imagePickerCallbackRef = useRef<any>(null);
+
+  // Get admin token for authenticated uploads
+  const getAdminToken = () => {
+    return localStorage.getItem('memopyk-admin-token') || 
+           sessionStorage.getItem('memopyk-admin-token') || '';
+  };
+
+  // Fetch existing blog images for the picker modal
+  const { data: imagesData, isLoading: imagesLoading, refetch: refetchImages } = useQuery({
+    queryKey: ['/api/admin/blog/images'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/blog/images', {
+        headers: {
+          'Authorization': `Bearer ${getAdminToken()}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch images');
+      return response.json();
+    },
+    enabled: isImagePickerOpen
+  });
+
+  const allImages: BlogImage[] = imagesData?.data || [];
+  const filteredImages = searchTerm
+    ? allImages.filter(img => img.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    : allImages;
+
+  // Custom image upload handler - uploads to Directus via our proxy
+  const handleImageUpload = async (blobInfo: any, progress: (percent: number) => void) => {
+    const formData = new FormData();
+    formData.append('file', blobInfo.blob(), blobInfo.filename());
+    
+    const response = await fetch('/api/admin/upload', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${getAdminToken()}`
+      },
+      body: formData
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Upload failed');
+    }
+    
+    const result = await response.json();
+    return result.url; // Returns /assets/{id} URL
+  };
+
+  // Custom file picker - Opens modal for image selection
+  const handleFilePicker = (callback: any, value: any, meta: any) => {
+    // Check if user is authenticated
+    const token = getAdminToken();
+    
+    if (!token) {
+      alert('⚠️ Authentication token not found.\n\nPlease logout and login again to fix this issue.');
+      return;
+    }
+
+    // Only open modal for images (not videos)
+    if (meta.filetype === 'image') {
+      // Store callback and open modal
+      imagePickerCallbackRef.current = callback;
+      setIsImagePickerOpen(true);
+    } else {
+      // For non-image files, fall back to direct file input
+      const input = document.createElement('input');
+      input.setAttribute('type', 'file');
+      input.setAttribute('accept', 'video/mp4,video/webm,video/quicktime');
+      
+      input.onchange = async () => {
+        const file = input.files?.[0];
+        if (!file) return;
+
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          
+          const response = await fetch('/api/admin/upload', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+            body: formData
+          });
+          
+          if (!response.ok) {
+            throw new Error('Upload failed');
+          }
+          
+          const result = await response.json();
+          callback(result.url, { title: file.name, alt: file.name });
+        } catch (error) {
+          console.error('File upload error:', error);
+          alert('Failed to upload file: ' + (error instanceof Error ? error.message : 'Unknown error'));
+        }
+      };
+      input.click();
+    }
+  };
+
+  // Handle file upload from modal
+  const handleModalFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Please select an image smaller than 5MB');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('/api/admin/blog/images', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${getAdminToken()}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const result = await response.json();
+      
+      // Call TinyMCE callback with the uploaded image URL
+      if (imagePickerCallbackRef.current) {
+        imagePickerCallbackRef.current(result.data.url, { title: file.name, alt: file.name });
+      }
+      
+      // Refresh images list
+      refetchImages();
+      
+      // Close modal
+      setIsImagePickerOpen(false);
+    } catch (error) {
+      alert('Failed to upload image: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Handle image selection from modal
+  const handleImageSelect = (url: string, name: string) => {
+    if (imagePickerCallbackRef.current) {
+      imagePickerCallbackRef.current(url, { title: name, alt: name });
+    }
+    setIsImagePickerOpen(false);
+  };
+
+  // Handle paste events to auto-import external file URLs
+  const handlePaste = async (editor: any, e: any) => {
+    const pastedText = e.clipboardData?.getData('text/plain');
+    if (!pastedText) return;
+
+    // Check if it's an image or video URL
+    const urlPattern = /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|mp4|webm)(\?.*)?$/i;
+    const match = pastedText.trim().match(urlPattern);
+    
+    if (match) {
+      e.preventDefault();
+      
+      try {
+        console.log('🔗 Importing external file URL:', pastedText);
+        
+        const response = await fetch('/api/admin/fetch-external', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${getAdminToken()}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ url: pastedText.trim() })
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to import file');
+        }
+        
+        const result = await response.json();
+        const isVideo = result.mimetype?.startsWith('video/');
+        
+        // Insert the imported file into editor
+        if (isVideo) {
+          editor.insertContent(`<video src="${result.url}" controls></video>`);
+        } else {
+          editor.insertContent(`<img src="${result.url}" alt="${result.filename}" loading="lazy" />`);
+        }
+        
+        console.log('✅ External file imported:', result.url);
+      } catch (error) {
+        console.error('❌ Failed to import external file:', error);
+        // Fallback: paste as text
+        editor.insertContent(pastedText);
+      }
+    }
+  };
+
+  return (
+    <>
+      {/* Image Picker Modal */}
+      <Dialog open={isImagePickerOpen} onOpenChange={setIsImagePickerOpen}>
+        <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Select or Upload Image</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Upload Section */}
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+              <div className="text-center">
+                <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                <div className="mt-4">
+                  <label htmlFor="inline-image-upload" className="cursor-pointer">
+                    <span className="mt-2 block text-sm font-medium text-gray-900">
+                      Upload new image
+                    </span>
+                    <span className="mt-1 block text-xs text-gray-500">
+                      PNG, JPG, GIF, WEBP up to 5MB
+                    </span>
+                    <input
+                      id="inline-image-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleModalFileUpload}
+                      disabled={isUploading}
+                      className="hidden"
+                    />
+                    <Button 
+                      type="button" 
+                      className="mt-3"
+                      disabled={isUploading}
+                      onClick={() => document.getElementById('inline-image-upload')?.click()}
+                    >
+                      {isUploading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Uploading...
+                        </>
+                      ) : (
+                        'Choose File'
+                      )}
+                    </Button>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Search and Browse Existing Images */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    type="text"
+                    placeholder="Search images by filename..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+              
+              {imagesLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-[#D67C4A]" />
+                </div>
+              ) : filteredImages.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">
+                  {searchTerm ? 'No images match your search.' : 'No images found. Upload your first image above.'}
+                </div>
+              ) : (
+                <div className="grid grid-cols-4 gap-3">
+                  {filteredImages.map((image) => (
+                    <button
+                      key={image.url}
+                      type="button"
+                      onClick={() => handleImageSelect(image.url, image.name)}
+                      className="relative aspect-video rounded-lg overflow-hidden border-2 border-gray-200 hover:border-[#D67C4A] transition-colors group"
+                    >
+                      <img 
+                        src={image.url} 
+                        alt={image.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
+                        <span className="text-white opacity-0 group-hover:opacity-100 text-sm font-medium">
+                          Insert
+                        </span>
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white text-xs p-1 truncate">
+                        {image.name}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* TinyMCE Editor */}
+      <div className="border rounded-lg overflow-hidden bg-white">
+        <Editor
+          licenseKey="gpl"
+          value={value}
+          init={createTinyMCEConfig({
+            menubar: true,
+            images_upload_handler: handleImageUpload,
+            file_picker_callback: handleFilePicker,
+            setup: (editor: any) => {
+              editor.on('paste', (e: any) => handlePaste(editor, e));
+            }
+          })}
+          onEditorChange={(content) => onChange(content)}
+      />
+      </div>
+    </>
+  );
+}
+
+function QuillEditor({ value, onChange }: HtmlEditorProps) {
+  const [showSource, setShowSource] = useState(false);
+
+  const modules = {
+    toolbar: [
+      [{ 'header': [2, 3, 4, false] }],
+      ['bold', 'italic', 'underline'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['link', 'image'],
+      ['blockquote', 'code-block'],
+      ['clean']
+    ]
+  };
+
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline',
+    'list', 'bullet',
+    'link', 'image',
+    'blockquote', 'code-block'
+  ];
+
+  if (showSource) {
+    return (
+      <div className="border rounded-lg overflow-hidden bg-white">
+        <div className="bg-gray-100 px-3 py-2 border-b">
+          <button 
+            onClick={() => setShowSource(false)}
+            className="text-sm text-blue-600 hover:text-blue-800"
+          >
+            ← Visual Editor
+          </button>
+        </div>
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full p-4 font-mono text-sm"
+          rows={20}
+          style={{ minHeight: '400px' }}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="border rounded-lg overflow-hidden bg-white">
+      <div className="bg-gray-100 px-3 py-2 border-b">
+        <button 
+          onClick={() => setShowSource(true)}
+          className="text-sm text-blue-600 hover:text-blue-800"
+        >
+          View Source (HTML)
+        </button>
+      </div>
+      <ReactQuill
+        theme="snow"
+        value={value}
+        onChange={onChange}
+        modules={modules}
+        formats={formats}
+        style={{ height: '400px', paddingBottom: '42px' }}
+      />
+    </div>
+  );
+}

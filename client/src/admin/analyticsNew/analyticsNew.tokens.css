@@ -1,0 +1,162 @@
+/* MEMOPYK Analytics New - Design Tokens */
+
+:root {
+  /* MEMOPYK Brand Colors */
+  --memopyk-dark-blue: #2A4759;
+  --memopyk-orange: #D67C4A;
+  --memopyk-navy: #011526;
+  --memopyk-cream: #F2EBDC;
+  --memopyk-sky-blue: #89BAD9;
+  
+  /* Analytics New Palette */
+  --analytics-new-primary: var(--memopyk-dark-blue);
+  --analytics-new-accent: var(--memopyk-orange);
+  --analytics-new-background: var(--memopyk-cream);
+  --analytics-new-surface: #FFFFFF;
+  --analytics-new-surface-hover: #F8F9FA;
+  --analytics-new-border: #E2E8F0;
+  --analytics-new-text: var(--memopyk-navy);
+  --analytics-new-text-muted: #64748B;
+  
+  /* Semantic Colors */
+  --analytics-new-success: #10B981;
+  --analytics-new-warning: #F59E0B;
+  --analytics-new-danger: #EF4444;
+  --analytics-new-info: var(--memopyk-sky-blue);
+  
+  /* Typography */
+  --analytics-new-font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+  --analytics-new-font-size-xs: 0.75rem;
+  --analytics-new-font-size-sm: 0.875rem;
+  --analytics-new-font-size-base: 1rem;
+  --analytics-new-font-size-lg: 1.125rem;
+  --analytics-new-font-size-xl: 1.25rem;
+  --analytics-new-font-size-2xl: 1.5rem;
+  --analytics-new-font-size-3xl: 1.875rem;
+  
+  /* Spacing */
+  --analytics-new-space-1: 0.25rem;
+  --analytics-new-space-2: 0.5rem;
+  --analytics-new-space-3: 0.75rem;
+  --analytics-new-space-4: 1rem;
+  --analytics-new-space-5: 1.25rem;
+  --analytics-new-space-6: 1.5rem;
+  --analytics-new-space-8: 2rem;
+  --analytics-new-space-12: 3rem;
+  --analytics-new-space-16: 4rem;
+  
+  /* Borders */
+  --analytics-new-border-radius: 0.375rem;
+  --analytics-new-border-radius-lg: 0.5rem;
+  --analytics-new-border-radius-xl: 0.75rem;
+  
+  /* Shadows */
+  --analytics-new-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --analytics-new-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --analytics-new-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Analytics New Component Base Classes */
+.analytics-new-container {
+  font-family: var(--analytics-new-font-family);
+  color: var(--analytics-new-text);
+  background-color: var(--analytics-new-background);
+  padding: var(--analytics-new-space-6);
+}
+
+.analytics-new-card {
+  background-color: var(--analytics-new-surface);
+  border: 1px solid var(--analytics-new-border);
+  border-radius: var(--analytics-new-border-radius-lg);
+  box-shadow: var(--analytics-new-shadow-sm);
+  padding: var(--analytics-new-space-6);
+}
+
+.analytics-new-card:hover {
+  background-color: var(--analytics-new-surface-hover);
+  box-shadow: var(--analytics-new-shadow-md);
+}
+
+.analytics-new-button-primary {
+  background-color: var(--analytics-new-accent);
+  color: white;
+  border: none;
+  border-radius: var(--analytics-new-border-radius);
+  padding: var(--analytics-new-space-2) var(--analytics-new-space-4);
+  font-size: var(--analytics-new-font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.analytics-new-button-primary:hover {
+  background-color: #C96836;
+  transform: translateY(-1px);
+  box-shadow: var(--analytics-new-shadow-md);
+}
+
+.analytics-new-button-secondary {
+  background-color: transparent;
+  color: var(--analytics-new-primary);
+  border: 1px solid var(--analytics-new-border);
+  border-radius: var(--analytics-new-border-radius);
+  padding: var(--analytics-new-space-2) var(--analytics-new-space-4);
+  font-size: var(--analytics-new-font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.analytics-new-button-secondary:hover {
+  background-color: var(--analytics-new-surface-hover);
+  border-color: var(--analytics-new-primary);
+}
+
+.analytics-new-tab-active {
+  color: var(--analytics-new-accent);
+  border-bottom: 2px solid var(--analytics-new-accent);
+  background-color: var(--analytics-new-surface);
+}
+
+.analytics-new-filter-active {
+  background-color: var(--analytics-new-accent);
+  color: white;
+}
+
+.analytics-new-loading {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: analytics-new-shimmer 1.5s infinite;
+}
+
+@keyframes analytics-new-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Sticky Header Styles - SIMPLIFIED FOR MAXIMUM COMPATIBILITY */
+.analytics-new-sticky-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Apply blur via pseudo-element to avoid creating stacking context */
+.analytics-new-sticky-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: -1;
+}

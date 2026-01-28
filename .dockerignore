@@ -1,0 +1,35 @@
+# Dependencies (will be installed in container)
+node_modules/
+
+# Environment (will be injected by Coolify)
+.env
+.env.*
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# Documentation (not needed in production)
+docs/
+*.md
+!README.md
+
+# Development files
+*.log
+coverage/
+.nyc_output/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local development
+docker-compose.yml
+docker-compose.*.yml
+
+# Source maps (optional - remove if you want debugging)
+*.map
