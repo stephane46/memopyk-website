@@ -18,7 +18,16 @@ RUN npm ci
 
 # Copy source and build
 COPY . .
-RUN npm run build
+
+# Run build and verify output exists
+RUN npm run build && \
+    echo "=== Build complete, checking output ===" && \
+    ls -la dist/ && \
+    ls -la dist/client/ && \
+    ls -la dist/server/
+
+# Ensure server/data exists (even if empty)
+RUN mkdir -p /app/server/data && touch /app/server/data/.gitkeep
 
 # -----------------------------------------------------------------------------
 # Stage 2: Production
@@ -52,7 +61,7 @@ EXPOSE 5000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:5000/api/health || exit 1
+    CMD wget --no-verbose --tries=1 --spider http://localhost:5000/api/health || exit 1
 
 # Start server
 CMD ["node", "dist/server/index.js"]
