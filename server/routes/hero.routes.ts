@@ -25,6 +25,28 @@ import { Router, Request, Response } from 'express';
 const router = Router();
 
 // =============================================================================
+// HERO TEXT ROUTER (for /api/hero-text mount point)
+// =============================================================================
+
+/**
+ * Separate router for /api/hero-text endpoint
+ * Frontend calls /api/hero-text which needs to return hero text settings
+ */
+const heroTextRouter = Router();
+
+heroTextRouter.get('/', async (req: Request, res: Response) => {
+  try {
+    const language = req.query.lang as string;
+    const { hybridStorage } = await import('../services/storage.service');
+    const heroText = await hybridStorage.getHeroTextSettings(language);
+    res.json(heroText);
+  } catch (error) {
+    console.error('Get hero text error:', error);
+    res.status(500).json({ error: 'Failed to get hero text' });
+  }
+});
+
+// =============================================================================
 // HERO VIDEOS
 // =============================================================================
 
@@ -305,4 +327,5 @@ router.delete('/text/:id', async (req: Request, res: Response) => {
   }
 });
 
+export { heroTextRouter };
 export default router;

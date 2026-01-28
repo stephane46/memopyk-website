@@ -10,7 +10,7 @@ import { Router } from "express";
 
 // Import route modules
 import healthRoutes from "./routes/health.routes";
-import heroRoutes from "./routes/hero.routes";
+import heroRoutes, { heroTextRouter } from "./routes/hero.routes";
 import galleryRoutes from "./routes/gallery.routes";
 import faqRoutes from "./routes/faq.routes";
 import contactRoutes from "./routes/contact.routes";
@@ -38,12 +38,8 @@ export async function registerRoutes(app: Express): Promise<void> {
   // Content management routes
   app.use("/api/hero-videos", heroRoutes);  // /api/hero-videos, /api/hero-videos/:id, /api/hero-videos/text
 
-  // Legacy alias: frontend calls /api/hero-text/* but hero router uses /text/*
-  // Rewrite /api/hero-text/* → /api/hero-videos/text/* internally
-  app.use("/api/hero-text", (req, _res, next) => {
-    req.url = `/text${req.url === '/' ? '' : req.url}`;
-    next();
-  }, heroRoutes);
+  // Hero text endpoint - frontend calls /api/hero-text
+  app.use("/api/hero-text", heroTextRouter);
   app.use("/api/gallery", galleryRoutes);   // /api/gallery, /api/gallery/:id, /api/gallery/admin
   app.use("/api", faqRoutes);               // /api/faq-sections, /api/faqs, /api/faq
   app.use("/api", contactRoutes);           // /api/contact, /api/contacts
