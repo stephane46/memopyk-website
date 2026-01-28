@@ -24,7 +24,9 @@ RUN npm run build && \
     echo "=== Build complete, checking output ===" && \
     ls -la dist/ && \
     ls -la dist/client/ && \
-    ls -la dist/server/
+    ls -la dist/server/ && \
+    echo "=== Server entry point:" && \
+    head -5 dist/server/index.js
 
 # Ensure server/data exists (even if empty)
 RUN mkdir -p /app/server/data && touch /app/server/data/.gitkeep
@@ -64,4 +66,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:5000/api/health || exit 1
 
 # Start server
-CMD ["node", "dist/server/server/index.js"]
+CMD ["node", "dist/server/index.js"]

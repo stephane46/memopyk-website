@@ -9,7 +9,7 @@
     "dev:client": "vite",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build",
-    "build:server": "tsc -p tsconfig.server.json",
+    "build:server": "esbuild server/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/server/index.js --external:pg-native --external:sharp --packages=external",
     "start": "node dist/server/index.js",
     "preview": "npm run build && npm run start",
     "lint": "eslint . --ext .ts,.tsx",
@@ -103,6 +103,7 @@
     "zustand": "^5.0.10"
   },
   "devDependencies": {
+    "esbuild": "^0.24.2",
     "@types/compression": "^1.7.5",
     "@types/connect-pg-simple": "^7.0.3",
     "@types/cookie-parser": "^1.4.10",
