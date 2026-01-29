@@ -18,37 +18,37 @@ import { htmlSanitizer } from "@/lib/sanitize-html";
 // Types
 interface FAQ {
   id: string;
-  section_id: string;
-  question_en: string;
-  question_fr: string;
-  answer_en: string;
-  answer_fr: string;
-  order_index: number;
-  is_active: boolean;
+  sectionId: string;
+  questionEn: string;
+  questionFr: string;
+  answerEn: string;
+  answerFr: string;
+  orderIndex: number;
+  isActive: boolean;
 }
 
 interface FAQSection {
   id: string;
-  title_en: string;
-  title_fr: string;
-  order_index: number;
+  titleEn: string;
+  titleFr: string;
+  orderIndex: number;
 }
 
 // Schemas
 const faqSchema = z.object({
-  section_id: z.string(),
-  question_en: z.string().min(1, 'Question en anglais requise'),
-  question_fr: z.string().min(1, 'Question en français requise'),
-  answer_en: z.string().min(1, 'Réponse en anglais requise'),
-  answer_fr: z.string().min(1, 'Réponse en français requise'),
-  order_index: z.number(),
-  is_active: z.boolean()
+  sectionId: z.string(),
+  questionEn: z.string().min(1, 'Question en anglais requise'),
+  questionFr: z.string().min(1, 'Question en français requise'),
+  answerEn: z.string().min(1, 'Réponse en anglais requise'),
+  answerFr: z.string().min(1, 'Réponse en français requise'),
+  orderIndex: z.number(),
+  isActive: z.boolean()
 });
 
 const sectionSchema = z.object({
-  title_en: z.string().min(1, 'Titre en anglais requis'),
-  title_fr: z.string().min(1, 'Titre en français requis'),
-  order_index: z.number()
+  titleEn: z.string().min(1, 'Titre en anglais requis'),
+  titleFr: z.string().min(1, 'Titre en français requis'),
+  orderIndex: z.number()
 });
 
 type FAQFormData = z.infer<typeof faqSchema>;
@@ -77,22 +77,22 @@ export default function FAQManagementWorking() {
   const faqForm = useForm<FAQFormData>({
     resolver: zodResolver(faqSchema),
     defaultValues: {
-      section_id: 'general',
-      question_en: '',
-      question_fr: '',
-      answer_en: '',
-      answer_fr: '',
-      order_index: 0,
-      is_active: true
+      sectionId: 'general',
+      questionEn: '',
+      questionFr: '',
+      answerEn: '',
+      answerFr: '',
+      orderIndex: 0,
+      isActive: true
     }
   });
 
   const sectionForm = useForm<SectionFormData>({
     resolver: zodResolver(sectionSchema),
     defaultValues: {
-      title_en: '',
-      title_fr: '',
-      order_index: 1
+      titleEn: '',
+      titleFr: '',
+      orderIndex: 1
     }
   });
 
@@ -127,7 +127,7 @@ export default function FAQManagementWorking() {
       queryClient.invalidateQueries({ queryKey: ['/api/faqs'] });
       
       // Only reset form and close dialog if this was a form edit, not a visibility toggle
-      if (Object.keys(variables.data).length > 1 || !('is_active' in variables.data)) {
+      if (Object.keys(variables.data).length > 1 || !('isActive' in variables.data)) {
         setShowFaqForm(false);
         setEditingFaq(null);
         faqForm.reset();
@@ -137,7 +137,7 @@ export default function FAQManagementWorking() {
         });
       } else {
         // This was just a visibility toggle - show appropriate message
-        const isActive = variables.data.is_active;
+        const isActive = variables.data.isActive;
         console.log('✅ VISIBILITY TOGGLE SUCCESS - FAQ is now:', isActive ? 'ACTIVE' : 'INACTIVE');
         toast({
           title: isActive ? "FAQ activée" : "FAQ désactivée",
@@ -213,7 +213,7 @@ export default function FAQManagementWorking() {
   // Section ordering mutations
   const reorderSectionMutation = useMutation({
     mutationFn: async ({ sectionId, newOrder }: { sectionId: string; newOrder: number }) => {
-      const result = await apiRequest(`/api/faq-sections/${sectionId}/reorder`, 'PATCH', { order_index: newOrder });
+      const result = await apiRequest(`/api/faq-sections/${sectionId}/reorder`, 'PATCH', { orderIndex: newOrder });
       return await result.json();
     },
     onSuccess: () => {
@@ -228,7 +228,7 @@ export default function FAQManagementWorking() {
   // FAQ ordering mutations
   const reorderFaqMutation = useMutation({
     mutationFn: async ({ faqId, newOrder }: { faqId: string; newOrder: number }) => {
-      const result = await apiRequest(`/api/faqs/${faqId}/reorder`, 'PATCH', { order_index: newOrder });
+      const result = await apiRequest(`/api/faqs/${faqId}/reorder`, 'PATCH', { orderIndex: newOrder });
       return await result.json();
     },
     onSuccess: () => {
@@ -257,21 +257,21 @@ export default function FAQManagementWorking() {
     setEditingFaq(faq);
     
     // Convert plain text answers to HTML if needed (for backward compatibility)
-    const answer_en = htmlSanitizer.isHTML(faq.answer_en) 
-      ? faq.answer_en 
-      : htmlSanitizer.textToHTML(faq.answer_en);
-    const answer_fr = htmlSanitizer.isHTML(faq.answer_fr) 
-      ? faq.answer_fr 
-      : htmlSanitizer.textToHTML(faq.answer_fr);
+    const answerEn = htmlSanitizer.isHTML(faq.answerEn) 
+      ? faq.answerEn 
+      : htmlSanitizer.textToHTML(faq.answerEn);
+    const answerFr = htmlSanitizer.isHTML(faq.answerFr) 
+      ? faq.answerFr 
+      : htmlSanitizer.textToHTML(faq.answerFr);
     
     faqForm.reset({
-      section_id: faq.section_id,
-      question_en: faq.question_en,
-      question_fr: faq.question_fr,
-      answer_en,
-      answer_fr,
-      order_index: faq.order_index,
-      is_active: faq.is_active
+      sectionId: faq.sectionId,
+      questionEn: faq.questionEn,
+      questionFr: faq.questionFr,
+      answerEn,
+      answerFr,
+      orderIndex: faq.orderIndex,
+      isActive: faq.isActive
     });
     setShowFaqForm(true);
     
@@ -287,9 +287,9 @@ export default function FAQManagementWorking() {
   const startEditingSection = (section: FAQSection) => {
     setEditingSection(section);
     sectionForm.reset({
-      title_en: section.title_en,
-      title_fr: section.title_fr,
-      order_index: section.order_index
+      titleEn: section.titleEn,
+      titleFr: section.titleFr,
+      orderIndex: section.orderIndex
     });
     setShowSectionForm(true);
     
@@ -303,11 +303,11 @@ export default function FAQManagementWorking() {
   };
 
   const handleCreateFaq = (data: FAQFormData) => {
-    const sectionFaqs = faqs.filter(faq => faq.section_id === data.section_id);
-    const maxOrder = sectionFaqs.length > 0 ? Math.max(...sectionFaqs.map(f => f.order_index)) : 0;
+    const sectionFaqs = faqs.filter(faq => faq.sectionId === data.sectionId);
+    const maxOrder = sectionFaqs.length > 0 ? Math.max(...sectionFaqs.map(f => f.orderIndex)) : 0;
     const faqData = {
       ...data,
-      order_index: maxOrder + 1
+      orderIndex: maxOrder + 1
     };
     createFaqMutation.mutate(faqData);
   };
@@ -319,10 +319,10 @@ export default function FAQManagementWorking() {
   };
 
   const handleCreateSection = (data: SectionFormData) => {
-    const maxOrder = sections.length > 0 ? Math.max(...sections.map(s => s.order_index)) : 0;
+    const maxOrder = sections.length > 0 ? Math.max(...sections.map(s => s.orderIndex)) : 0;
     const sectionData = {
       ...data,
-      order_index: maxOrder + 1
+      orderIndex: maxOrder + 1
     };
     createSectionMutation.mutate(sectionData);
   };
@@ -334,13 +334,13 @@ export default function FAQManagementWorking() {
   };
 
   const toggleFaqVisibility = (faq: FAQ) => {
-    console.log('👁️ TOGGLE START - FAQ:', faq.id, 'Question:', faq.question_fr);
-    console.log('👁️ Current state:', faq.is_active, '→ New state:', !faq.is_active);
-    console.log('👁️ CRITICAL: This should ONLY update is_active field, NOT delete FAQ!');
+    console.log('👁️ TOGGLE START - FAQ:', faq.id, 'Question:', faq.questionFr);
+    console.log('👁️ Current state:', faq.isActive, '→ New state:', !faq.isActive);
+    console.log('👁️ CRITICAL: This should ONLY update isActive field, NOT delete FAQ!');
     
     updateFaqMutation.mutate({
       id: faq.id,
-      data: { is_active: !faq.is_active }
+      data: { isActive: !faq.isActive }
     });
     
     console.log('👁️ TOGGLE END - Mutation sent for FAQ:', faq.id);
@@ -348,46 +348,46 @@ export default function FAQManagementWorking() {
 
   // Section ordering helpers
   const moveSectionUp = (section: FAQSection) => {
-    const sortedSections = sections.sort((a, b) => a.order_index - b.order_index);
+    const sortedSections = sections.sort((a, b) => a.orderIndex - b.orderIndex);
     const currentIndex = sortedSections.findIndex(s => s.id === section.id);
     if (currentIndex > 0) {
       const targetSection = sortedSections[currentIndex - 1];
-      console.log(`🔄 Moving section ${section.id} UP: current order ${section.order_index} → target order ${targetSection.order_index}`);
+      console.log(`🔄 Moving section ${section.id} UP: current order ${section.orderIndex} → target order ${targetSection.orderIndex}`);
       
-      // Swap the order_index values
+      // Swap the orderIndex values
       reorderSectionMutation.mutate({
         sectionId: section.id,
-        newOrder: targetSection.order_index
+        newOrder: targetSection.orderIndex
       });
       
       // Also move the target section down
       setTimeout(() => {
         reorderSectionMutation.mutate({
           sectionId: targetSection.id,
-          newOrder: section.order_index
+          newOrder: section.orderIndex
         });
       }, 100);
     }
   };
 
   const moveSectionDown = (section: FAQSection) => {
-    const sortedSections = sections.sort((a, b) => a.order_index - b.order_index);
+    const sortedSections = sections.sort((a, b) => a.orderIndex - b.orderIndex);
     const currentIndex = sortedSections.findIndex(s => s.id === section.id);
     if (currentIndex < sortedSections.length - 1) {
       const targetSection = sortedSections[currentIndex + 1];
-      console.log(`🔄 Moving section ${section.id} DOWN: current order ${section.order_index} → target order ${targetSection.order_index}`);
+      console.log(`🔄 Moving section ${section.id} DOWN: current order ${section.orderIndex} → target order ${targetSection.orderIndex}`);
       
-      // Swap the order_index values
+      // Swap the orderIndex values
       reorderSectionMutation.mutate({
         sectionId: section.id,
-        newOrder: targetSection.order_index
+        newOrder: targetSection.orderIndex
       });
       
       // Also move the target section up
       setTimeout(() => {
         reorderSectionMutation.mutate({
           sectionId: targetSection.id,
-          newOrder: section.order_index
+          newOrder: section.orderIndex
         });
       }, 100);
     }
@@ -395,46 +395,46 @@ export default function FAQManagementWorking() {
 
   // FAQ ordering helpers
   const moveFaqUp = (faq: FAQ) => {
-    const sectionFaqs = faqs.filter(f => f.section_id === faq.section_id).sort((a, b) => a.order_index - b.order_index);
+    const sectionFaqs = faqs.filter(f => f.sectionId === faq.sectionId).sort((a, b) => a.orderIndex - b.orderIndex);
     const currentIndex = sectionFaqs.findIndex(f => f.id === faq.id);
     if (currentIndex > 0) {
       const targetFaq = sectionFaqs[currentIndex - 1];
-      console.log(`🔄 Moving FAQ ${faq.id} UP: current order ${faq.order_index} → target order ${targetFaq.order_index}`);
+      console.log(`🔄 Moving FAQ ${faq.id} UP: current order ${faq.orderIndex} → target order ${targetFaq.orderIndex}`);
       
-      // Swap the order_index values
+      // Swap the orderIndex values
       reorderFaqMutation.mutate({
         faqId: faq.id,
-        newOrder: targetFaq.order_index
+        newOrder: targetFaq.orderIndex
       });
       
       // Also move the target FAQ down
       setTimeout(() => {
         reorderFaqMutation.mutate({
           faqId: targetFaq.id,
-          newOrder: faq.order_index
+          newOrder: faq.orderIndex
         });
       }, 100);
     }
   };
 
   const moveFaqDown = (faq: FAQ) => {
-    const sectionFaqs = faqs.filter(f => f.section_id === faq.section_id).sort((a, b) => a.order_index - b.order_index);
+    const sectionFaqs = faqs.filter(f => f.sectionId === faq.sectionId).sort((a, b) => a.orderIndex - b.orderIndex);
     const currentIndex = sectionFaqs.findIndex(f => f.id === faq.id);
     if (currentIndex < sectionFaqs.length - 1) {
       const targetFaq = sectionFaqs[currentIndex + 1];
-      console.log(`🔄 Moving FAQ ${faq.id} DOWN: current order ${faq.order_index} → target order ${targetFaq.order_index}`);
+      console.log(`🔄 Moving FAQ ${faq.id} DOWN: current order ${faq.orderIndex} → target order ${targetFaq.orderIndex}`);
       
-      // Swap the order_index values
+      // Swap the orderIndex values
       reorderFaqMutation.mutate({
         faqId: faq.id,
-        newOrder: targetFaq.order_index
+        newOrder: targetFaq.orderIndex
       });
       
       // Also move the target FAQ up
       setTimeout(() => {
         reorderFaqMutation.mutate({
           faqId: targetFaq.id,
-          newOrder: faq.order_index
+          newOrder: faq.orderIndex
         });
       }, 100);
     }
@@ -443,28 +443,28 @@ export default function FAQManagementWorking() {
   // Group FAQs by section (including orphaned FAQs)
   const groupedFaqs = faqs.reduce((acc, faq) => {
     // FIX: Convert both to strings for comparison (handles type mismatch)
-    const faqSectionIdStr = String(faq.section_id);
+    const faqSectionIdStr = String(faq.sectionId);
     let section = sections.find(s => String(s.id) === faqSectionIdStr);
     
-    // Handle orphaned FAQs (section_id doesn't match any existing section)
+    // Handle orphaned FAQs (sectionId doesn't match any existing section)
     if (!section) {
-      // Check if section_id is "0" or similar - assign to general
-      if (!faq.section_id || faq.section_id === "0") {
+      // Check if sectionId is "0" or similar - assign to general
+      if (!faq.sectionId || faq.sectionId === "0") {
         section = sections.find(s => String(s.id) === "general");
       }
       
       // If still no section found, create a temporary "orphaned" section
       if (!section) {
         section = {
-          id: faq.section_id || "orphaned",
-          title_en: `Orphaned Section (${faq.section_id})`,
-          title_fr: `Section Orpheline (${faq.section_id})`,
-          order_index: 999
+          id: faq.sectionId || "orphaned",
+          titleEn: `Orphaned Section (${faq.sectionId})`,
+          titleFr: `Section Orpheline (${faq.sectionId})`,
+          orderIndex: 999
         };
       }
     }
     
-    const sectionKey = `${section.title_en}|${section.title_fr}`;
+    const sectionKey = `${section.titleEn}|${section.titleFr}`;
     if (!acc[sectionKey]) {
       acc[sectionKey] = [];
     }
@@ -475,8 +475,8 @@ export default function FAQManagementWorking() {
   // Admin FAQ ready
 
   // Create complete section list
-  const allSections = sections.sort((a, b) => a.order_index - b.order_index);
-  const allSectionKeys = allSections.map(section => `${section.title_en}|${section.title_fr}`);
+  const allSections = sections.sort((a, b) => a.orderIndex - b.orderIndex);
+  const allSectionKeys = allSections.map(section => `${section.titleEn}|${section.titleFr}`);
 
   // Ensure all sections have an entry in groupedFaqs
   allSectionKeys.forEach(sectionKey => {
@@ -502,11 +502,11 @@ export default function FAQManagementWorking() {
           variant="outline" 
           className="border-blue-500 text-blue-600 hover:bg-blue-50"
           onClick={() => {
-            const maxOrder = sections.length > 0 ? Math.max(...sections.map(s => s.order_index)) : 0;
+            const maxOrder = sections.length > 0 ? Math.max(...sections.map(s => s.orderIndex)) : 0;
             sectionForm.reset({
-              title_en: '',
-              title_fr: '',
-              order_index: maxOrder + 1
+              titleEn: '',
+              titleFr: '',
+              orderIndex: maxOrder + 1
             });
             setEditingSection(null);
             setShowSectionForm(true);
@@ -519,16 +519,16 @@ export default function FAQManagementWorking() {
         <Button 
           className="bg-orange-500 hover:bg-orange-600"
           onClick={() => {
-            const sectionFaqs = faqs.filter(faq => faq.section_id === (sections[0]?.id || 'general'));
-            const maxOrder = sectionFaqs.length > 0 ? Math.max(...sectionFaqs.map(f => f.order_index)) : 0;
+            const sectionFaqs = faqs.filter(faq => faq.sectionId === (sections[0]?.id || 'general'));
+            const maxOrder = sectionFaqs.length > 0 ? Math.max(...sectionFaqs.map(f => f.orderIndex)) : 0;
             faqForm.reset({
-              section_id: sections[0]?.id || 'general',
-              question_en: '',
-              question_fr: '',
-              answer_en: '',
-              answer_fr: '',
-              order_index: maxOrder + 1,
-              is_active: true
+              sectionId: sections[0]?.id || 'general',
+              questionEn: '',
+              questionFr: '',
+              answerEn: '',
+              answerFr: '',
+              orderIndex: maxOrder + 1,
+              isActive: true
             });
             setEditingFaq(null);
             setShowFaqForm(true);
@@ -550,7 +550,7 @@ export default function FAQManagementWorking() {
               <form onSubmit={faqForm.handleSubmit(editingFaq ? handleUpdateFaq : handleCreateFaq)} className="space-y-4">
                 <FormField
                   control={faqForm.control}
-                  name="section_id"
+                  name="sectionId"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Section</FormLabel>
@@ -563,7 +563,7 @@ export default function FAQManagementWorking() {
                         >
                           {sections.map((section) => (
                             <option key={section.id} value={section.id}>
-                              {section.title_fr} - {section.title_en}
+                              {section.titleFr} - {section.titleEn}
                             </option>
                           ))}
                         </select>
@@ -576,7 +576,7 @@ export default function FAQManagementWorking() {
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={faqForm.control}
-                    name="question_fr"
+                    name="questionFr"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Question (Français)</FormLabel>
@@ -590,7 +590,7 @@ export default function FAQManagementWorking() {
                   
                   <FormField
                     control={faqForm.control}
-                    name="question_en"
+                    name="questionEn"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Question (Anglais)</FormLabel>
@@ -606,7 +606,7 @@ export default function FAQManagementWorking() {
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={faqForm.control}
-                    name="answer_fr"
+                    name="answerFr"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Réponse (Français)</FormLabel>
@@ -624,7 +624,7 @@ export default function FAQManagementWorking() {
                   
                   <FormField
                     control={faqForm.control}
-                    name="answer_en"
+                    name="answerEn"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Réponse (Anglais)</FormLabel>
@@ -681,7 +681,7 @@ export default function FAQManagementWorking() {
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={sectionForm.control}
-                    name="title_fr"
+                    name="titleFr"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Nom (Français)</FormLabel>
@@ -695,7 +695,7 @@ export default function FAQManagementWorking() {
                   
                   <FormField
                     control={sectionForm.control}
-                    name="title_en"
+                    name="titleEn"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Nom (Anglais)</FormLabel>
@@ -740,9 +740,9 @@ export default function FAQManagementWorking() {
       <div className="space-y-4">
         {allSectionKeys.map((sectionKey) => {
           const [sectionNameEn, sectionNameFr] = sectionKey.split('|');
-          const sectionFaqs = (groupedFaqs[sectionKey] || []).sort((a, b) => a.order_index - b.order_index);
+          const sectionFaqs = (groupedFaqs[sectionKey] || []).sort((a, b) => a.orderIndex - b.orderIndex);
           const isExpanded = expandedSections.has(sectionKey);
-          const section = allSections.find(s => `${s.title_en}|${s.title_fr}` === sectionKey);
+          const section = allSections.find(s => `${s.titleEn}|${s.titleFr}` === sectionKey);
 
           return (
             <Card key={sectionKey}>
@@ -769,10 +769,10 @@ export default function FAQManagementWorking() {
                         {sectionFaqs.length} FAQ{sectionFaqs.length > 1 ? 's' : ''}
                       </Badge>
                       <Badge variant="outline" className="text-green-600 border-green-600">
-                        {sectionFaqs.filter(f => f.is_active).length} actives
+                        {sectionFaqs.filter(f => f.isActive).length} actives
                       </Badge>
                       <Badge variant="outline" className="text-gray-600 border-gray-600">
-                        {sectionFaqs.filter(f => !f.is_active).length} inactives
+                        {sectionFaqs.filter(f => !f.isActive).length} inactives
                       </Badge>
                     </div>
                     
@@ -833,23 +833,23 @@ export default function FAQManagementWorking() {
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1 space-y-2">
                             <h4 className="font-medium text-gray-900">
-                              {faq.question_fr}
+                              {faq.questionFr}
                             </h4>
                             <p className="text-sm text-gray-600">
-                              {faq.question_en}
+                              {faq.questionEn}
                             </p>
                             <div className="text-xs text-gray-500">
                               <strong>Réponse (FR):</strong>
                               <div 
                                 className="mt-1 prose prose-sm max-w-none"
-                                dangerouslySetInnerHTML={{ __html: htmlSanitizer.sanitize(faq.answer_fr) }}
+                                dangerouslySetInnerHTML={{ __html: htmlSanitizer.sanitize(faq.answerFr) }}
                               />
                             </div>
                             <div className="text-xs text-gray-500">
                               <strong>Réponse (EN):</strong>
                               <div 
                                 className="mt-1 prose prose-sm max-w-none"
-                                dangerouslySetInnerHTML={{ __html: htmlSanitizer.sanitize(faq.answer_en) }}
+                                dangerouslySetInnerHTML={{ __html: htmlSanitizer.sanitize(faq.answerEn) }}
                               />
                             </div>
                           </div>
@@ -879,9 +879,9 @@ export default function FAQManagementWorking() {
                               variant="ghost"
                               size="sm"
                               onClick={() => toggleFaqVisibility(faq)}
-                              className={faq.is_active ? "text-green-600" : "text-gray-400"}
+                              className={faq.isActive ? "text-green-600" : "text-gray-400"}
                             >
-                              {faq.is_active ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                              {faq.isActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                             </Button>
                             <Button
                               variant="ghost"
@@ -894,7 +894,7 @@ export default function FAQManagementWorking() {
                               variant="ghost"
                               size="sm"
                               onClick={() => {
-                                if (window.confirm(`Supprimer la FAQ "${faq.question_fr}" ?`)) {
+                                if (window.confirm(`Supprimer la FAQ "${faq.questionFr}" ?`)) {
                                   deleteFaqMutation.mutate(faq.id);
                                 }
                               }}

@@ -19,13 +19,13 @@ interface PartnerSubmission {
   country: string;
   submitted: string;
   status: string;
-  is_active: string;
-  show_on_map: string;
+  isActive: string;
+  showOnMap: string;
   lat: string;
   lng: string;
   address: string;
-  address_line2: string;
-  postal_code: string;
+  addressLine2: string;
+  postalCode: string;
   website: string;
 }
 
@@ -143,8 +143,8 @@ export default function PartnersManagement() {
   const copyAddress = (partner: PartnerSubmission) => {
     const fullAddress = [
       partner.address,
-      partner.address_line2,
-      partner.postal_code,
+      partner.addressLine2,
+      partner.postalCode,
       partner.city,
       partner.country
     ].filter(Boolean).join(', ');
@@ -288,7 +288,7 @@ export default function PartnersManagement() {
                             </Button>
                           </div>
                           <p className="text-sm text-gray-700 dark:text-gray-300">
-                            {[partner.address, partner.address_line2, partner.postal_code, partner.city, partner.country]
+                            {[partner.address, partner.addressLine2, partner.postalCode, partner.city, partner.country]
                               .filter(Boolean)
                               .join(', ') || 'Aucune adresse fournie'}
                           </p>
@@ -324,8 +324,8 @@ export default function PartnersManagement() {
                               Is_Active
                             </label>
                             <Select
-                              value={getEditValue(partner, 'is_active')}
-                              onValueChange={(value) => updateEditingData(partner.id, 'is_active', value)}
+                              value={getEditValue(partner, 'isActive')}
+                              onValueChange={(value) => updateEditingData(partner.id, 'isActive', value)}
                             >
                               <SelectTrigger className="bg-white dark:bg-gray-800">
                                 <SelectValue />
@@ -343,8 +343,8 @@ export default function PartnersManagement() {
                               Show_On_Map
                             </label>
                             <Select
-                              value={getEditValue(partner, 'show_on_map')}
-                              onValueChange={(value) => updateEditingData(partner.id, 'show_on_map', value)}
+                              value={getEditValue(partner, 'showOnMap')}
+                              onValueChange={(value) => updateEditingData(partner.id, 'showOnMap', value)}
                             >
                               <SelectTrigger className="bg-white dark:bg-gray-800">
                                 <SelectValue />

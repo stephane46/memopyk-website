@@ -16,12 +16,12 @@ import { FileText, Edit, Trash2, Plus, Eye, EyeOff, Save, X } from 'lucide-react
 interface LegalDocument {
   id: string;
   type: string;
-  title_en: string;
-  title_fr: string;
-  content_en: string;
-  content_fr: string;
-  is_active: boolean;
-  updated_at: string;
+  titleEn: string;
+  titleFr: string;
+  contentEn: string;
+  contentFr: string;
+  isActive: boolean;
+  updatedAt: string;
 }
 
 const DOCUMENT_TYPES = [
@@ -39,11 +39,11 @@ export function LegalDocumentManagement() {
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState({
     type: '',
-    title_en: '',
-    title_fr: '',
-    content_en: '',
-    content_fr: '',
-    is_active: true
+    titleEn: '',
+    titleFr: '',
+    contentEn: '',
+    contentFr: '',
+    isActive: true
   });
 
   const { toast } = useToast();
@@ -105,8 +105,8 @@ export function LegalDocumentManagement() {
 
   // Toggle document visibility
   const toggleVisibilityMutation = useMutation({
-    mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const response = await apiRequest(`/api/legal/${id}`, 'PATCH', { is_active });
+    mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
+      const response = await apiRequest(`/api/legal/${id}`, 'PATCH', { isActive });
       return await response.json();
     },
     onSuccess: () => {
@@ -121,11 +121,11 @@ export function LegalDocumentManagement() {
   const resetForm = () => {
     setFormData({
       type: '',
-      title_en: '',
-      title_fr: '',
-      content_en: '',
-      content_fr: '',
-      is_active: true
+      titleEn: '',
+      titleFr: '',
+      contentEn: '',
+      contentFr: '',
+      isActive: true
     });
     setEditingDocument(null);
     setIsCreating(false);
@@ -143,11 +143,11 @@ export function LegalDocumentManagement() {
 
     setFormData({
       type: doc.type,
-      title_en: doc.title_en,
-      title_fr: doc.title_fr,
-      content_en: ensureHtml(doc.content_en),
-      content_fr: ensureHtml(doc.content_fr),
-      is_active: doc.is_active
+      titleEn: doc.titleEn,
+      titleFr: doc.titleFr,
+      contentEn: ensureHtml(doc.contentEn),
+      contentFr: ensureHtml(doc.contentFr),
+      isActive: doc.isActive
     });
     setEditingDocument(doc);
     setIsCreating(false);
@@ -175,7 +175,7 @@ export function LegalDocumentManagement() {
   };
 
   const handleSubmit = () => {
-    if (!formData.type || !formData.title_en || !formData.title_fr || !formData.content_en || !formData.content_fr) {
+    if (!formData.type || !formData.titleEn || !formData.titleFr || !formData.contentEn || !formData.contentFr) {
       toast({ title: "Erreur", description: "Tous les champs sont requis", variant: "destructive" });
       return;
     }
@@ -191,7 +191,7 @@ export function LegalDocumentManagement() {
   };
 
   const handleDelete = (doc: LegalDocument) => {
-    if (window.confirm(`Êtes-vous sûr de vouloir supprimer "${doc.title_fr}" ?`)) {
+    if (window.confirm(`Êtes-vous sûr de vouloir supprimer "${doc.titleFr}" ?`)) {
       deleteMutation.mutate(doc.id);
     }
   };
@@ -260,20 +260,20 @@ export function LegalDocumentManagement() {
             {/* Titles */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="title_fr">Titre (Français)</Label>
+                <Label htmlFor="titleFr">Titre (Français)</Label>
                 <Input
-                  id="title_fr"
-                  value={formData.title_fr}
-                  onChange={(e) => setFormData({ ...formData, title_fr: e.target.value })}
+                  id="titleFr"
+                  value={formData.titleFr}
+                  onChange={(e) => setFormData({ ...formData, titleFr: e.target.value })}
                   placeholder="Politique de confidentialité"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="title_en">Titre (English)</Label>
+                <Label htmlFor="titleEn">Titre (English)</Label>
                 <Input
-                  id="title_en"
-                  value={formData.title_en}
-                  onChange={(e) => setFormData({ ...formData, title_en: e.target.value })}
+                  id="titleEn"
+                  value={formData.titleEn}
+                  onChange={(e) => setFormData({ ...formData, titleEn: e.target.value })}
                   placeholder="Privacy Policy"
                 />
               </div>
@@ -300,8 +300,8 @@ export function LegalDocumentManagement() {
                 <TabsContent value="french" className="mt-4">
                   <div className="rounded-lg">
                     <RichTextEditor
-                      value={formData.content_fr}
-                      onChange={(value) => setFormData({ ...formData, content_fr: value })}
+                      value={formData.contentFr}
+                      onChange={(value) => setFormData({ ...formData, contentFr: value })}
                       placeholder="Rédigez le contenu juridique en français..."
                     />
                   </div>
@@ -309,8 +309,8 @@ export function LegalDocumentManagement() {
                 <TabsContent value="english" className="mt-4">
                   <div className="rounded-lg">
                     <RichTextEditor
-                      value={formData.content_en}
-                      onChange={(value) => setFormData({ ...formData, content_en: value })}
+                      value={formData.contentEn}
+                      onChange={(value) => setFormData({ ...formData, contentEn: value })}
                       placeholder="Write the legal content in English..."
                     />
                   </div>
@@ -321,11 +321,11 @@ export function LegalDocumentManagement() {
             {/* Visibility Toggle */}
             <div className="flex items-center space-x-2">
               <Switch
-                id="is_active"
-                checked={formData.is_active}
-                onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                id="isActive"
+                checked={formData.isActive}
+                onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
               />
-              <Label htmlFor="is_active">Document visible sur le site public</Label>
+              <Label htmlFor="isActive">Document visible sur le site public</Label>
             </div>
 
             {/* Action Buttons */}
@@ -369,9 +369,9 @@ export function LegalDocumentManagement() {
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <h4 className="text-lg font-semibold text-[#011526]">{doc.title_fr}</h4>
-                        <span className="text-sm text-gray-600">({doc.title_en})</span>
-                        {doc.is_active ? (
+                        <h4 className="text-lg font-semibold text-[#011526]">{doc.titleFr}</h4>
+                        <span className="text-sm text-gray-600">({doc.titleEn})</span>
+                        {doc.isActive ? (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                             <Eye className="w-3 h-3 mr-1" />
                             Visible
@@ -387,7 +387,7 @@ export function LegalDocumentManagement() {
                         <strong>Type:</strong> {getDocumentTypeLabel(doc.type)}
                       </p>
                       <p className="text-sm text-gray-700">
-                        <strong>Dernière modification:</strong> {new Date(doc.updated_at).toLocaleDateString('fr-FR')}
+                        <strong>Dernière modification:</strong> {new Date(doc.updatedAt).toLocaleDateString('fr-FR')}
                       </p>
                     </div>
                     
@@ -397,11 +397,11 @@ export function LegalDocumentManagement() {
                         size="sm"
                         onClick={() => toggleVisibilityMutation.mutate({ 
                           id: doc.id, 
-                          is_active: !doc.is_active 
+                          isActive: !doc.isActive 
                         })}
                         disabled={toggleVisibilityMutation.isPending}
                       >
-                        {doc.is_active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {doc.isActive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </Button>
                       <Button
                         variant="outline"

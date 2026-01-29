@@ -173,65 +173,65 @@ const getFullUrl = (value: string): string => {
 
 // Module-level persistent state that survives component re-creations
 const persistentUploadState = {
-  video_url_en: '',
-  image_url_en: '',
-  video_url_fr: '',
-  image_url_fr: '',
-  video_filename: '',
-  video_filename_en: '', // Added separate EN video filename
-  video_filename_fr: '', // Added separate FR video filename
-  static_image_url: '',
-  static_image_url_en: null as string | null,
-  static_image_url_fr: null as string | null,
+  videoUrlEn: '',
+  imageUrlEn: '',
+  videoUrlFr: '',
+  imageUrlFr: '',
+  videoFilename: '',
+  videoFilename_en: '', // Added separate EN video filename
+  videoFilename_fr: '', // Added separate FR video filename
+  staticImageUrl: '',
+  static_imageUrlEn: null as string | null,
+  static_imageUrlFr: null as string | null,
   reset: () => {
-    persistentUploadState.video_url_en = '';
-    persistentUploadState.image_url_en = '';
-    persistentUploadState.video_url_fr = '';
-    persistentUploadState.image_url_fr = '';
-    persistentUploadState.video_filename = '';
-    persistentUploadState.video_filename_en = '';
-    persistentUploadState.video_filename_fr = '';
-    persistentUploadState.static_image_url = '';
-    persistentUploadState.static_image_url_en = null;
-    persistentUploadState.static_image_url_fr = null;
+    persistentUploadState.videoUrlEn = '';
+    persistentUploadState.imageUrlEn = '';
+    persistentUploadState.videoUrlFr = '';
+    persistentUploadState.imageUrlFr = '';
+    persistentUploadState.videoFilename = '';
+    persistentUploadState.videoFilename_en = '';
+    persistentUploadState.videoFilename_fr = '';
+    persistentUploadState.staticImageUrl = '';
+    persistentUploadState.static_imageUrlEn = null;
+    persistentUploadState.static_imageUrlFr = null;
   }
 };
 
 interface GalleryItem {
   id: string | number;
-  title_en: string;
-  title_fr: string;
-  price_en: string;
-  price_fr: string;
-  source_en: string;
-  source_fr: string;
-  duration_en: string;
-  duration_fr: string;
-  situation_en: string;
-  situation_fr: string;
-  story_en: string;
-  story_fr: string;
-  sorry_message_en: string;
-  sorry_message_fr: string;
-  format_platform_en: string;
-  format_platform_fr: string;
-  format_type_en: string;
-  format_type_fr: string;
-  video_url_en: string;
-  video_url_fr: string;
-  video_filename: string;
-  use_same_video: boolean; // RESTORED: Bilingual video selection toggle
-  video_width: number;
-  video_height: number;
-  video_orientation: string;
-  image_url_en: string;
-  image_url_fr: string;
-  static_image_url: string | null; // Legacy field
-  static_image_url_en?: string | null; // English static image
-  static_image_url_fr?: string | null; // French static image
+  titleEn: string;
+  titleFr: string;
+  priceEn: string;
+  priceFr: string;
+  sourceEn: string;
+  sourceFr: string;
+  durationEn: string;
+  durationFr: string;
+  situationEn: string;
+  situationFr: string;
+  storyEn: string;
+  storyFr: string;
+  sorryMessageEn: string;
+  sorryMessageFr: string;
+  formatPlatformEn: string;
+  formatPlatformFr: string;
+  formatTypeEn: string;
+  formatTypeFr: string;
+  videoUrlEn: string;
+  videoUrlFr: string;
+  videoFilename: string;
+  useSameVideo: boolean; // RESTORED: Bilingual video selection toggle
+  videoWidth: number;
+  videoHeight: number;
+  videoOrientation: string;
+  imageUrlEn: string;
+  imageUrlFr: string;
+  staticImageUrl: string | null; // Legacy field
+  static_imageUrlEn?: string | null; // English static image
+  static_imageUrlFr?: string | null; // French static image
   cropSettings?: any; // Auto-crop settings for badge detection
-  order_index: number;
-  is_active: boolean;
+  orderIndex: number;
+  isActive: boolean;
 }
 
 export default function GalleryManagementNew() {
@@ -251,14 +251,14 @@ export default function GalleryManagementNew() {
   // Helper function to get thumbnail URL - SIMPLIFIED TO FORCE -C VERSION
   const getThumbnailUrl = (item: GalleryItem | null | undefined, language: 'en' | 'fr' = 'en') => {
     // Priority 0: Real-time pending upload preview (admin only)
-    const pendingImageUrl = language === 'fr' ? pendingPreviews.image_url_fr : pendingPreviews.image_url_en;
+    const pendingImageUrl = language === 'fr' ? pendingPreviews.imageUrlFr : pendingPreviews.imageUrlEn;
     if (pendingImageUrl) {
       console.log(`🔍 ADMIN: Using pending preview for ${language}:`, pendingImageUrl);
       return pendingImageUrl;
     }
     
     // Priority 1: Form data (admin only - for newly uploaded images before save)
-    const formImageUrl = language === 'fr' ? formData.image_url_fr : formData.image_url_en;
+    const formImageUrl = language === 'fr' ? formData.imageUrlFr : formData.imageUrlEn;
     if (formImageUrl && !item) { // Only use formData if no existing item (create mode)
       console.log(`🔍 ADMIN: Using form data for ${language}:`, formImageUrl);
       return formImageUrl;
@@ -271,22 +271,22 @@ export default function GalleryManagementNew() {
     
     // 🚨 FORCE ADMIN TO ALWAYS USE -C VERSION (CROPPED)
     console.log(`🔍 ADMIN FORCE -C DEBUG:`, {
-      use_same_video: item.use_same_video,
-      static_image_url_en: item.static_image_url_en,
-      static_image_url_fr: item.static_image_url_fr,
-      image_url_en: item.image_url_en,
-      image_url_fr: item.image_url_fr
+      useSameVideo: item.useSameVideo,
+      static_imageUrlEn: item.static_imageUrlEn,
+      static_imageUrlFr: item.static_imageUrlFr,
+      imageUrlEn: item.imageUrlEn,
+      imageUrlFr: item.imageUrlFr
     });
     
     // FORCE: Always use static cropped version (-C) if available
     let croppedUrl = '';
-    if (item.use_same_video) {
+    if (item.useSameVideo) {
       // Shared mode: Both languages use EN cropped version  
-      croppedUrl = item.static_image_url_en || '';
+      croppedUrl = item.static_imageUrlEn || '';
       console.log(`🚨 ADMIN FORCE SHARED: Using EN cropped (-C): ${croppedUrl}`);
     } else {
       // Separate mode: Use language-specific cropped version
-      croppedUrl = (language === 'fr' ? item.static_image_url_fr : item.static_image_url_en) || '';
+      croppedUrl = (language === 'fr' ? item.static_imageUrlFr : item.static_imageUrlEn) || '';
       console.log(`🚨 ADMIN FORCE SEPARATE: Using ${language} cropped (-C): ${croppedUrl}`);
     }
     
@@ -297,9 +297,9 @@ export default function GalleryManagementNew() {
     }
     
     // If no cropped version exists, fallback to original (shouldn't happen for existing items)
-    const originalUrl = item.use_same_video 
-      ? item.image_url_en 
-      : (language === 'fr' ? item.image_url_fr : item.image_url_en);
+    const originalUrl = item.useSameVideo 
+      ? item.imageUrlEn 
+      : (language === 'fr' ? item.imageUrlFr : item.imageUrlEn);
     
     if (originalUrl) {
       console.log(`⚠️ ADMIN FALLBACK TO ORIGINAL: ${originalUrl}`);
@@ -307,9 +307,9 @@ export default function GalleryManagementNew() {
     }
     
     // Legacy fallback
-    if (item.static_image_url) {
-      console.log(`⚠️ ADMIN LEGACY: ${item.static_image_url}`);
-      return item.static_image_url;
+    if (item.staticImageUrl) {
+      console.log(`⚠️ ADMIN LEGACY: ${item.staticImageUrl}`);
+      return item.staticImageUrl;
     }
     
     console.log(`❌ ADMIN: No image found for ${language}`);
@@ -354,14 +354,14 @@ export default function GalleryManagementNew() {
   
   // Real-time preview state for pending uploads
   const [pendingPreviews, setPendingPreviews] = useState<{
-    video_url_en?: string;
-    video_url_fr?: string;
-    image_url_en?: string;
-    image_url_fr?: string;
-    video_filename?: string;
-    static_image_url?: string;
-    static_image_url_en?: string;
-    static_image_url_fr?: string;
+    videoUrlEn?: string;
+    videoUrlFr?: string;
+    imageUrlEn?: string;
+    imageUrlFr?: string;
+    videoFilename?: string;
+    staticImageUrl?: string;
+    static_imageUrlEn?: string;
+    static_imageUrlFr?: string;
     cropSettings?: any;
   }>({});
 
@@ -380,7 +380,7 @@ export default function GalleryManagementNew() {
     gcTime: 0, // Immediate garbage collection
     refetchOnMount: 'always', // Always refetch on mount
     refetchOnWindowFocus: false,
-    select: (data) => data.sort((a, b) => a.order_index - b.order_index)
+    select: (data) => data.sort((a, b) => a.orderIndex - b.orderIndex)
   });
 
   // Get selected item
@@ -390,112 +390,112 @@ export default function GalleryManagementNew() {
 
   
   const [formData, setFormData] = useState({
-    title_en: '',
-    title_fr: '',
-    price_en: '',
-    price_fr: '',
-    source_en: '',
-    source_fr: '',
-    duration_en: '',
-    duration_fr: '',
-    situation_en: '',
-    situation_fr: '',
-    story_en: '',
-    story_fr: '',
-    sorry_message_en: 'Sorry, we cannot show you the video at this stage',
-    sorry_message_fr: 'Désolé, nous ne pouvons pas vous montrer la vidéo à ce stade',
-    format_platform_en: '',
-    format_platform_fr: '',
-    format_type_en: '',
-    format_type_fr: '',
-    video_url_en: '',
-    video_url_fr: '',
-    video_filename: '', // Legacy field for backward compatibility
-    use_same_video: true, // RESTORED: Bilingual video selection - default to same video
-    video_width: 16,
-    video_height: 9,
-    video_orientation: 'landscape',
-    image_url_en: '',
-    image_url_fr: '',
-    static_image_url: '',
-    static_image_url_en: null as string | null,
-    static_image_url_fr: null as string | null,
+    titleEn: '',
+    titleFr: '',
+    priceEn: '',
+    priceFr: '',
+    sourceEn: '',
+    sourceFr: '',
+    durationEn: '',
+    durationFr: '',
+    situationEn: '',
+    situationFr: '',
+    storyEn: '',
+    storyFr: '',
+    sorryMessageEn: 'Sorry, we cannot show you the video at this stage',
+    sorryMessageFr: 'Désolé, nous ne pouvons pas vous montrer la vidéo à ce stade',
+    formatPlatformEn: '',
+    formatPlatformFr: '',
+    formatTypeEn: '',
+    formatTypeFr: '',
+    videoUrlEn: '',
+    videoUrlFr: '',
+    videoFilename: '', // Legacy field for backward compatibility
+    useSameVideo: true, // RESTORED: Bilingual video selection - default to same video
+    videoWidth: 16,
+    videoHeight: 9,
+    videoOrientation: 'landscape',
+    imageUrlEn: '',
+    imageUrlFr: '',
+    staticImageUrl: '',
+    static_imageUrlEn: null as string | null,
+    static_imageUrlFr: null as string | null,
     cropSettings: null as any,
-    is_active: true
+    isActive: true
   });
 
   // Update form data when selected item changes - SAFE: Check selectedItem exists first  
   useEffect(() => {
     if (selectedItem && !isCreateMode) {
       setFormData({
-        title_en: selectedItem.title_en || '',
-        title_fr: selectedItem.title_fr || '',
-        price_en: selectedItem.price_en || '',
-        price_fr: selectedItem.price_fr || '',
-        source_en: selectedItem.source_en || '',
-        source_fr: selectedItem.source_fr || '',
-        duration_en: selectedItem.duration_en || '',
-        duration_fr: selectedItem.duration_fr || '',
-        situation_en: selectedItem.situation_en || '',
-        situation_fr: selectedItem.situation_fr || '',
-        story_en: selectedItem.story_en || '',
-        story_fr: selectedItem.story_fr || '',
-        sorry_message_en: selectedItem.sorry_message_en || 'Sorry, we cannot show you the video at this stage',
-        sorry_message_fr: selectedItem.sorry_message_fr || 'Désolé, nous ne pouvons pas vous montrer la vidéo à ce stade',
-        format_platform_en: selectedItem.format_platform_en || '',
-        format_platform_fr: selectedItem.format_platform_fr || '',
-        format_type_en: selectedItem.format_type_en || '',
-        format_type_fr: selectedItem.format_type_fr || '',
-        video_url_en: pendingPreviews.video_url_en || persistentUploadState.video_url_en || selectedItem.video_url_en || '',
-        video_url_fr: pendingPreviews.video_url_fr || persistentUploadState.video_url_fr || selectedItem.video_url_fr || '',
-        video_filename: pendingPreviews.video_filename || persistentUploadState.video_filename || selectedItem.video_filename || '',
-        use_same_video: selectedItem.use_same_video !== undefined ? selectedItem.use_same_video : true, // RESTORED: Load bilingual setting
-        video_width: selectedItem.video_width || 16,
-        video_height: selectedItem.video_height || 9,
-        video_orientation: selectedItem.video_orientation || 'landscape',
-        image_url_en: pendingPreviews.image_url_en || persistentUploadState.image_url_en || selectedItem.image_url_en || '',
-        image_url_fr: pendingPreviews.image_url_fr || persistentUploadState.image_url_fr || selectedItem.image_url_fr || '',
-        static_image_url: selectedItem.static_image_url || '',
-        static_image_url_en: selectedItem.static_image_url_en || null,
-        static_image_url_fr: selectedItem.static_image_url_fr || null,
+        titleEn: selectedItem.titleEn || '',
+        titleFr: selectedItem.titleFr || '',
+        priceEn: selectedItem.priceEn || '',
+        priceFr: selectedItem.priceFr || '',
+        sourceEn: selectedItem.sourceEn || '',
+        sourceFr: selectedItem.sourceFr || '',
+        durationEn: selectedItem.durationEn || '',
+        durationFr: selectedItem.durationFr || '',
+        situationEn: selectedItem.situationEn || '',
+        situationFr: selectedItem.situationFr || '',
+        storyEn: selectedItem.storyEn || '',
+        storyFr: selectedItem.storyFr || '',
+        sorryMessageEn: selectedItem.sorryMessageEn || 'Sorry, we cannot show you the video at this stage',
+        sorryMessageFr: selectedItem.sorryMessageFr || 'Désolé, nous ne pouvons pas vous montrer la vidéo à ce stade',
+        formatPlatformEn: selectedItem.formatPlatformEn || '',
+        formatPlatformFr: selectedItem.formatPlatformFr || '',
+        formatTypeEn: selectedItem.formatTypeEn || '',
+        formatTypeFr: selectedItem.formatTypeFr || '',
+        videoUrlEn: pendingPreviews.videoUrlEn || persistentUploadState.videoUrlEn || selectedItem.videoUrlEn || '',
+        videoUrlFr: pendingPreviews.videoUrlFr || persistentUploadState.videoUrlFr || selectedItem.videoUrlFr || '',
+        videoFilename: pendingPreviews.videoFilename || persistentUploadState.videoFilename || selectedItem.videoFilename || '',
+        useSameVideo: selectedItem.useSameVideo !== undefined ? selectedItem.useSameVideo : true, // RESTORED: Load bilingual setting
+        videoWidth: selectedItem.videoWidth || 16,
+        videoHeight: selectedItem.videoHeight || 9,
+        videoOrientation: selectedItem.videoOrientation || 'landscape',
+        imageUrlEn: pendingPreviews.imageUrlEn || persistentUploadState.imageUrlEn || selectedItem.imageUrlEn || '',
+        imageUrlFr: pendingPreviews.imageUrlFr || persistentUploadState.imageUrlFr || selectedItem.imageUrlFr || '',
+        staticImageUrl: selectedItem.staticImageUrl || '',
+        static_imageUrlEn: selectedItem.static_imageUrlEn || null,
+        static_imageUrlFr: selectedItem.static_imageUrlFr || null,
         cropSettings: selectedItem.cropSettings || null,
-        is_active: selectedItem.is_active
+        isActive: selectedItem.isActive
       });
     } else if (isCreateMode) {
       // Reset form for create mode
       setFormData({
-        title_en: '',
-        title_fr: '',
-        price_en: '',
-        price_fr: '',
-        source_en: '',
-        source_fr: '',
-        duration_en: '',
-        duration_fr: '',
-        situation_en: '',
-        situation_fr: '',
-        story_en: '',
-        story_fr: '',
-        sorry_message_en: 'Sorry, we cannot show you the video at this stage',
-        sorry_message_fr: 'Désolé, nous ne pouvons pas vous montrer la vidéo à ce stade',
-        format_platform_en: '',
-        format_platform_fr: '',
-        format_type_en: '',
-        format_type_fr: '',
-        video_url_en: persistentUploadState.video_url_en || '',
-        video_url_fr: persistentUploadState.video_url_fr || '',
-        video_filename: persistentUploadState.video_filename || '',
-        use_same_video: true, // RESTORED: Default to same video for new items
-        video_width: 16,
-        video_height: 9,
-        video_orientation: 'landscape',
-        image_url_en: persistentUploadState.image_url_en || '',
-        image_url_fr: persistentUploadState.image_url_fr || '',
-        static_image_url: '',
-        static_image_url_en: null as string | null,
-        static_image_url_fr: null as string | null,
+        titleEn: '',
+        titleFr: '',
+        priceEn: '',
+        priceFr: '',
+        sourceEn: '',
+        sourceFr: '',
+        durationEn: '',
+        durationFr: '',
+        situationEn: '',
+        situationFr: '',
+        storyEn: '',
+        storyFr: '',
+        sorryMessageEn: 'Sorry, we cannot show you the video at this stage',
+        sorryMessageFr: 'Désolé, nous ne pouvons pas vous montrer la vidéo à ce stade',
+        formatPlatformEn: '',
+        formatPlatformFr: '',
+        formatTypeEn: '',
+        formatTypeFr: '',
+        videoUrlEn: persistentUploadState.videoUrlEn || '',
+        videoUrlFr: persistentUploadState.videoUrlFr || '',
+        videoFilename: persistentUploadState.videoFilename || '',
+        useSameVideo: true, // RESTORED: Default to same video for new items
+        videoWidth: 16,
+        videoHeight: 9,
+        videoOrientation: 'landscape',
+        imageUrlEn: persistentUploadState.imageUrlEn || '',
+        imageUrlFr: persistentUploadState.imageUrlFr || '',
+        staticImageUrl: '',
+        static_imageUrlEn: null as string | null,
+        static_imageUrlFr: null as string | null,
         cropSettings: null as any,
-        is_active: true
+        isActive: true
       });
     }
   }, [selectedItem?.id, isCreateMode]); // Simplified dependencies to avoid undefined access
@@ -607,17 +607,17 @@ export default function GalleryManagementNew() {
   });
 
   const handleReorder = (item: GalleryItem, direction: 'up' | 'down') => {
-    console.log('🔄 REORDER CLICKED:', { itemId: item.id, itemTitle: item.title_en, direction });
+    console.log('🔄 REORDER CLICKED:', { itemId: item.id, itemTitle: item.titleEn, direction });
     
-    const sortedItems = [...galleryItems].sort((a, b) => a.order_index - b.order_index);
-    console.log('🔄 Current sorted items:', sortedItems.map(i => ({ id: i.id, title: i.title_en, order: i.order_index })));
+    const sortedItems = [...galleryItems].sort((a, b) => a.orderIndex - b.orderIndex);
+    console.log('🔄 Current sorted items:', sortedItems.map(i => ({ id: i.id, title: i.titleEn, order: i.orderIndex })));
     
     const currentIndex = sortedItems.findIndex(i => i.id === item.id);
     console.log('🔄 Current index:', currentIndex);
     
     if (direction === 'up' && currentIndex > 0) {
       const targetItem = sortedItems[currentIndex - 1];
-      console.log(`🔄 Moving item ${item.title_en} UP - swapping with ${targetItem.title_en}`);
+      console.log(`🔄 Moving item ${item.titleEn} UP - swapping with ${targetItem.titleEn}`);
       console.log(`🔄 IDs: ${item.id} ↔ ${targetItem.id}`);
       
       // Prevent multiple rapid clicks
@@ -629,7 +629,7 @@ export default function GalleryManagementNew() {
       swapItemsMutation.mutate({ id1: String(item.id), id2: String(targetItem.id) });
     } else if (direction === 'down' && currentIndex < sortedItems.length - 1) {
       const targetItem = sortedItems[currentIndex + 1];
-      console.log(`🔄 Moving item ${item.title_en} DOWN - swapping with ${targetItem.title_en}`);
+      console.log(`🔄 Moving item ${item.titleEn} DOWN - swapping with ${targetItem.titleEn}`);
       console.log(`🔄 IDs: ${item.id} ↔ ${targetItem.id}`);
       
       // Prevent multiple rapid clicks
@@ -735,9 +735,9 @@ export default function GalleryManagementNew() {
   const handleSameVideoToggle = (checked: boolean) => {
     setFormData({ 
       ...formData, 
-      use_same_video: checked,
+      useSameVideo: checked,
       // When switching to same video, copy EN video to FR
-      video_url_fr: checked ? formData.video_url_en : formData.video_url_fr
+      videoUrlFr: checked ? formData.videoUrlEn : formData.videoUrlFr
     });
   };
 
@@ -803,7 +803,7 @@ export default function GalleryManagementNew() {
               <SelectContent>
                 {galleryItems.map((item) => (
                   <SelectItem key={item.id} value={item.id.toString()}>
-                    <span>{item.title_en} - {item.title_fr}</span>
+                    <span>{item.titleEn} - {item.titleFr}</span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -823,7 +823,7 @@ export default function GalleryManagementNew() {
               </h3>
               <div className="flex gap-2">
                 {(() => {
-                  const sortedItems = [...galleryItems].sort((a, b) => a.order_index - b.order_index);
+                  const sortedItems = [...galleryItems].sort((a, b) => a.orderIndex - b.orderIndex);
                   const currentIndex = sortedItems.findIndex(item => item.id === selectedItem.id);
                   const isFirst = currentIndex === 0;
                   const isLast = currentIndex === sortedItems.length - 1;
@@ -851,13 +851,13 @@ export default function GalleryManagementNew() {
                 })()}
               </div>
               {(() => {
-                const sortedItems = [...galleryItems].sort((a, b) => a.order_index - b.order_index);
+                const sortedItems = [...galleryItems].sort((a, b) => a.orderIndex - b.orderIndex);
                 const currentIndex = sortedItems.findIndex(item => item.id === selectedItem.id);
                 console.log('🔍 POSITION CALCULATION:', {
                   selectedItemId: selectedItem.id,
-                  selectedItemTitle: selectedItem.title_en,
-                  selectedItemOrder: selectedItem.order_index,
-                  sortedItems: sortedItems.map(item => ({ id: item.id, title: item.title_en, order: item.order_index })),
+                  selectedItemTitle: selectedItem.titleEn,
+                  selectedItemOrder: selectedItem.orderIndex,
+                  sortedItems: sortedItems.map(item => ({ id: item.id, title: item.titleEn, order: item.orderIndex })),
                   currentIndex,
                   displayPosition: currentIndex + 1
                 });
@@ -886,24 +886,24 @@ export default function GalleryManagementNew() {
                 </h3>
                 <div className="flex flex-col items-center space-y-3">
                   <Switch
-                    checked={formData.is_active}
+                    checked={formData.isActive}
                     onCheckedChange={(checked) => {
                       // Update form data immediately
-                      setFormData({...formData, is_active: checked});
+                      setFormData({...formData, isActive: checked});
                       
-                      // Auto-save the is_active change immediately
+                      // Auto-save the isActive change immediately
                       if (selectedVideoId && !isCreateMode) {
-                        console.log('🔄 Auto-saving is_active change:', checked);
+                        console.log('🔄 Auto-saving isActive change:', checked);
                         updateItemMutation.mutate({ 
                           id: selectedVideoId, 
-                          data: { is_active: checked } 
+                          data: { isActive: checked } 
                         });
                       }
                     }}
                     className="data-[state=checked]:bg-[#2A4759]"
                   />
                   <Label className="text-base font-medium text-[#011526] dark:text-[#F2EBDC] text-center">
-                    {formData.is_active ? 'Actif' : 'Inactif'}
+                    {formData.isActive ? 'Actif' : 'Inactif'}
                     {updateItemMutation.isPending && (
                       <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">(Sauvegarde...)</span>
                     )}
@@ -913,7 +913,7 @@ export default function GalleryManagementNew() {
 
               <div className="flex flex-col gap-8">
                 {/* French Row - Hidden when shared mode is enabled */}
-                {!formData.use_same_video && (
+                {!formData.useSameVideo && (
                 <div className="flex flex-col lg:flex-row gap-8">
                   <div className="flex-1">
                     <h4 className="text-lg font-semibold text-[#011526] dark:text-[#F2EBDC] flex items-center gap-2 mb-4">
@@ -926,7 +926,7 @@ export default function GalleryManagementNew() {
                           <span className="text-xs font-medium text-blue-700 dark:text-blue-300">🇫🇷 Français</span>
 
                         </div>
-                        {!isCreateMode && selectedItem?.image_url_fr && (
+                        {!isCreateMode && selectedItem?.imageUrlFr && (
                           <div className="flex gap-1">
                             <Button
                               onClick={() => {
@@ -942,12 +942,12 @@ export default function GalleryManagementNew() {
                               <Crop className="w-3 h-3 mr-1" />
                               Recadrer FR
                             </Button>
-                            {selectedItem.static_image_url_fr && (
+                            {selectedItem.static_imageUrlFr && (
                               <Button
                                 onClick={async () => {
                                   try {
                                     const updateData = {
-                                      static_image_url_fr: null,
+                                      static_imageUrlFr: null,
                                       cropSettings: null,
                                       language: 'fr'
                                     };
@@ -984,22 +984,22 @@ export default function GalleryManagementNew() {
                       </div>
                       <div className="aspect-video w-full bg-black rounded-lg overflow-hidden border border-blue-200 dark:border-blue-600 relative">
 
-                        {(selectedItem || isCreateMode) && (pendingPreviews.image_url_fr || selectedItem || formData.image_url_fr) ? (
+                        {(selectedItem || isCreateMode) && (pendingPreviews.imageUrlFr || selectedItem || formData.imageUrlFr) ? (
                           <>
                             <img 
                               src={(() => {
                                 // SIMPLIFIED LOGIC: Single cache-busting method
-                                if (pendingPreviews.image_url_fr) {
-                                  return pendingPreviews.image_url_fr; // Priority 1: Fresh uploads
+                                if (pendingPreviews.imageUrlFr) {
+                                  return pendingPreviews.imageUrlFr; // Priority 1: Fresh uploads
                                 }
                                 if (selectedItem) {
                                   const baseUrl = getThumbnailUrl(selectedItem, 'fr');
                                   return baseUrl; // Single cache-busting only
                                 }
-                                return formData.image_url_fr; // Priority 3: New items only
+                                return formData.imageUrlFr; // Priority 3: New items only
                               })()}
                               onLoadStart={() => {
-                                const imageUrl = pendingPreviews.image_url_fr || formData.image_url_fr || 
+                                const imageUrl = pendingPreviews.imageUrlFr || formData.imageUrlFr || 
                                   (selectedItem ? getThumbnailUrl(selectedItem, 'fr') : '');
                                 console.log('🔍 ADMIN FR IMAGE START LOADING:', imageUrl);
                               }} 
@@ -1024,9 +1024,9 @@ export default function GalleryManagementNew() {
                               }}
                             />
                             {/* Show different badges for manual vs automatic cropping */}
-                            {selectedItem?.static_image_url_fr && 
-                             selectedItem.static_image_url_fr !== selectedItem.image_url_fr && 
-                             selectedItem.static_image_url_fr !== formData.image_url_fr && (
+                            {selectedItem?.static_imageUrlFr && 
+                             selectedItem.static_imageUrlFr !== selectedItem.imageUrlFr && 
+                             selectedItem.static_imageUrlFr !== formData.imageUrlFr && (
                               <div className={`absolute top-2 right-2 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg ${
                                 (selectedItem as any).cropSettings?.method === 'triple-layer-white-bg' 
                                   ? 'bg-emerald-500' 
@@ -1040,8 +1040,8 @@ export default function GalleryManagementNew() {
                                   
                                   // CRITICAL FIX: For fresh uploads, ignore existing cropSettings and only use formData
                                   // This ensures new uploads start with "Auto" badge, not inherited "Recadré" badge
-                                  const isUploadingNewImage = pendingPreviews.image_url_fr || 
-                                    (formData.image_url_fr && formData.image_url_fr !== selectedItem?.image_url_fr);
+                                  const isUploadingNewImage = pendingPreviews.imageUrlFr || 
+                                    (formData.imageUrlFr && formData.imageUrlFr !== selectedItem?.imageUrlFr);
                                   
                                   const cropSettings = isUploadingNewImage 
                                     ? formData.cropSettings  // For new uploads, only use formData cropSettings
@@ -1050,8 +1050,8 @@ export default function GalleryManagementNew() {
 
                                   
                                   // Check if we have a static image (indicates any cropping was performed)
-                                  const hasStaticImage = selectedItem?.static_image_url_fr;
-                                  const hasOriginalImage = selectedItem?.image_url_fr;
+                                  const hasStaticImage = selectedItem?.static_imageUrlFr;
+                                  const hasOriginalImage = selectedItem?.imageUrlFr;
                                   
                                   if (hasStaticImage && hasOriginalImage) {
 
@@ -1060,19 +1060,19 @@ export default function GalleryManagementNew() {
                                     if (cropSettings?.method === 'triple-layer-white-bg') {
 
                                       // Manual cropping was performed via the image cropper interface
-                                      return formData.use_same_video ? '✂️ Recadré EN/FR' : '✂️ Recadré FR';
+                                      return formData.useSameVideo ? '✂️ Recadré EN/FR' : '✂️ Recadré FR';
                                     }
                                     
                                     // AUTO CROPPING: Sharp auto-cropping (only shows badge if cropping actually occurred)
                                     else if (cropSettings?.method === 'sharp-auto-thumbnail' && cropSettings?.cropped === true) {
 
-                                      return formData.use_same_video ? '✂️ Auto EN/FR' : '✂️ Auto FR';
+                                      return formData.useSameVideo ? '✂️ Auto EN/FR' : '✂️ Auto FR';
                                     }
                                     
                                     // FALLBACK: If static image exists but no clear method, assume manual cropping
-                                    else if (selectedItem.image_url_fr !== selectedItem.static_image_url_fr) {
+                                    else if (selectedItem.imageUrlFr !== selectedItem.static_imageUrlFr) {
 
-                                      return formData.use_same_video ? '✂️ Recadré EN/FR' : '✂️ Recadré FR';
+                                      return formData.useSameVideo ? '✂️ Recadré EN/FR' : '✂️ Recadré FR';
                                     } else {
 
                                     }
@@ -1110,26 +1110,26 @@ export default function GalleryManagementNew() {
 
                         </div>
                       </div>
-                      {formData.video_url_fr || (formData.use_same_video && formData.video_filename) ? (
+                      {formData.videoUrlFr || (formData.useSameVideo && formData.videoFilename) ? (
                         <div className="relative bg-black rounded-lg overflow-hidden aspect-video w-full border border-blue-200 dark:border-blue-600">
                           <video
                             key={`fr-video-${selectedItem?.id}-${Date.now()}`}
                             controls
                             className="w-full h-full object-contain"
                             style={{ backgroundColor: 'black' }}
-                            onLoadStart={() => console.log('🎬 FR VIDEO: Loading started for', selectedItem?.title_en)}
+                            onLoadStart={() => console.log('🎬 FR VIDEO: Loading started for', selectedItem?.titleEn)}
                           >
                             <source 
                               src={
                                 // FIXED: Match public site logic - use same priority as getVideoUrl()
                                 (() => {
-                                  const videoUrl = formData.video_filename || formData.video_url_en || formData.video_url_fr;
+                                  const videoUrl = formData.videoFilename || formData.videoUrlEn || formData.videoUrlFr;
                                   console.log('🎬 FR VIDEO DEBUG (FIXED):', {
-                                    video_filename: formData.video_filename,
-                                    video_url_en: formData.video_url_en,
-                                    video_url_fr: formData.video_url_fr,
+                                    videoFilename: formData.videoFilename,
+                                    videoUrlEn: formData.videoUrlEn,
+                                    videoUrlFr: formData.videoUrlFr,
                                     selectedVideoUrl: videoUrl,
-                                    selectedItem: selectedItem?.title_en
+                                    selectedItem: selectedItem?.titleEn
                                   });
                                   if (!videoUrl) return '';
                                   const baseUrl = videoUrl.startsWith('http') 
@@ -1161,7 +1161,7 @@ export default function GalleryManagementNew() {
                   <div className="flex-1">
                     <h4 className="text-lg font-semibold text-[#011526] dark:text-[#F2EBDC] flex items-center gap-2 mb-4">
                       <Image className="w-5 h-5" />
-                      {formData.use_same_video ? (
+                      {formData.useSameVideo ? (
                         <>
                           <span>Image Partagée</span>
                           <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">FR + EN</Badge>
@@ -1176,7 +1176,7 @@ export default function GalleryManagementNew() {
                           <span className="text-xs font-medium text-green-700 dark:text-green-300">🇺🇸 English</span>
 
                         </div>
-                        {!isCreateMode && selectedItem?.image_url_en && (
+                        {!isCreateMode && selectedItem?.imageUrlEn && (
                           <div className="flex gap-1">
                             <Button
                               onClick={() => {
@@ -1192,12 +1192,12 @@ export default function GalleryManagementNew() {
                               <Crop className="w-3 h-3 mr-1" />
                               Recadrer EN
                             </Button>
-                            {selectedItem.static_image_url_en && (
+                            {selectedItem.static_imageUrlEn && (
                               <Button
                                 onClick={async () => {
                                   try {
                                     const updateData = {
-                                      static_image_url_en: null,
+                                      static_imageUrlEn: null,
                                       cropSettings: null,
                                       language: 'en'
                                     };
@@ -1233,25 +1233,25 @@ export default function GalleryManagementNew() {
                         )}
                       </div>
                       <div className="aspect-video w-full bg-black rounded-lg overflow-hidden border border-green-200 dark:border-green-600 relative">
-                        {(selectedItem || isCreateMode) && (pendingPreviews.image_url_en || selectedItem || formData.image_url_en) ? (
+                        {(selectedItem || isCreateMode) && (pendingPreviews.imageUrlEn || selectedItem || formData.imageUrlEn) ? (
                           <>
                             <img 
                               key={`en-${selectedItem?.id || 'new'}`}
                               src={(() => {
                                 // SIMPLIFIED LOGIC: Single cache-busting method
-                                if (pendingPreviews.image_url_en) {
-                                  return pendingPreviews.image_url_en; // Priority 1: Fresh uploads
+                                if (pendingPreviews.imageUrlEn) {
+                                  return pendingPreviews.imageUrlEn; // Priority 1: Fresh uploads
                                 }
                                 if (selectedItem) {
                                   const baseUrl = getThumbnailUrl(selectedItem, 'en');
                                   return baseUrl; // Single cache-busting only
                                 }
-                                return formData.image_url_en; // Priority 3: New items only
+                                return formData.imageUrlEn; // Priority 3: New items only
                               })()} 
                               alt="Aperçu English"
                               className="w-full h-full object-contain"
                               onLoadStart={() => {
-                                const imageUrl = pendingPreviews.image_url_en || formData.image_url_en || 
+                                const imageUrl = pendingPreviews.imageUrlEn || formData.imageUrlEn || 
                                   (selectedItem ? getThumbnailUrl(selectedItem, 'en') : '');
                                 console.log('🔍 ADMIN EN IMAGE START LOADING:', imageUrl);
                               }}
@@ -1264,9 +1264,9 @@ export default function GalleryManagementNew() {
                               }}
                             />
                             {/* Show different badges for manual vs automatic cropping */}
-                            {(selectedItem?.static_image_url_en || selectedItem?.static_image_url) && (
-                             (selectedItem?.static_image_url_en && selectedItem.static_image_url_en !== selectedItem.image_url_en) ||
-                             (selectedItem?.static_image_url && selectedItem.static_image_url !== selectedItem.image_url_en)
+                            {(selectedItem?.static_imageUrlEn || selectedItem?.staticImageUrl) && (
+                             (selectedItem?.static_imageUrlEn && selectedItem.static_imageUrlEn !== selectedItem.imageUrlEn) ||
+                             (selectedItem?.staticImageUrl && selectedItem.staticImageUrl !== selectedItem.imageUrlEn)
                             ) && (
                               <div className={`absolute top-2 right-2 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg ${
                                 (selectedItem as any).cropSettings?.method === 'triple-layer-white-bg' 
@@ -1275,9 +1275,9 @@ export default function GalleryManagementNew() {
                               }`}>
                                 {(() => {
                                   console.log('🔍 BADGE DEBUG EN - cropSettings:', (selectedItem as any).cropSettings, 'method:', (selectedItem as any).cropSettings?.method);
-                                  console.log('🔍 BADGE DEBUG EN - static_image_url_en:', selectedItem?.static_image_url_en);
-                                  console.log('🔍 BADGE DEBUG EN - image_url_en:', selectedItem?.image_url_en);
-                                  console.log('🔍 BADGE DEBUG EN - formData.use_same_video:', formData.use_same_video);
+                                  console.log('🔍 BADGE DEBUG EN - static_imageUrlEn:', selectedItem?.static_imageUrlEn);
+                                  console.log('🔍 BADGE DEBUG EN - imageUrlEn:', selectedItem?.imageUrlEn);
+                                  console.log('🔍 BADGE DEBUG EN - formData.useSameVideo:', formData.useSameVideo);
                                   
                                   // Real-time badge: Show current cropping state or saved state
                                   if (activeCroppingState.isActive && activeCroppingState.language === 'en') {
@@ -1286,8 +1286,8 @@ export default function GalleryManagementNew() {
                                   
                                   // CRITICAL FIX: For fresh uploads, ignore existing cropSettings and only use formData
                                   // This ensures new uploads start with "Auto" badge, not inherited "Recadré" badge
-                                  const isUploadingNewImage = pendingPreviews.image_url_en || 
-                                    (formData.image_url_en && formData.image_url_en !== selectedItem?.image_url_en);
+                                  const isUploadingNewImage = pendingPreviews.imageUrlEn || 
+                                    (formData.imageUrlEn && formData.imageUrlEn !== selectedItem?.imageUrlEn);
                                   
                                   const cropSettings = isUploadingNewImage 
                                     ? formData.cropSettings  // For new uploads, only use formData cropSettings
@@ -1299,12 +1299,12 @@ export default function GalleryManagementNew() {
                                   console.log('🎯 BADGE CROP SETTINGS - final cropSettings:', cropSettings);
                                   
                                   console.log('🎯 BADGE DEBUG EN - cropSettings:', cropSettings);
-                                  console.log('🎯 BADGE DEBUG EN - selectedItem.static_image_url_en:', selectedItem?.static_image_url_en);
-                                  console.log('🎯 BADGE DEBUG EN - selectedItem.image_url_en:', selectedItem?.image_url_en);
+                                  console.log('🎯 BADGE DEBUG EN - selectedItem.static_imageUrlEn:', selectedItem?.static_imageUrlEn);
+                                  console.log('🎯 BADGE DEBUG EN - selectedItem.imageUrlEn:', selectedItem?.imageUrlEn);
                                   
                                   // Check if we have a static image (indicates any cropping was performed)
-                                  const hasStaticImage = selectedItem?.static_image_url_en;
-                                  const hasOriginalImage = selectedItem?.image_url_en;
+                                  const hasStaticImage = selectedItem?.static_imageUrlEn;
+                                  const hasOriginalImage = selectedItem?.imageUrlEn;
                                   
                                   if (hasStaticImage && hasOriginalImage) {
                                     console.log('🎯 BADGE DEBUG EN - Has both images, checking crop method...');
@@ -1313,19 +1313,19 @@ export default function GalleryManagementNew() {
                                     if (cropSettings?.method === 'triple-layer-white-bg') {
                                       console.log('🎯 BADGE DEBUG EN - MANUAL CROPPING DETECTED');
                                       // Manual cropping was performed via the image cropper interface
-                                      return formData.use_same_video ? '✂️ Recadré EN/FR' : '✂️ Recadré EN';
+                                      return formData.useSameVideo ? '✂️ Recadré EN/FR' : '✂️ Recadré EN';
                                     }
                                     
                                     // AUTO CROPPING: Sharp auto-cropping (only shows badge if cropping actually occurred)
                                     else if (cropSettings?.method === 'sharp-auto-thumbnail' && cropSettings?.cropped === true) {
                                       console.log('🎯 BADGE DEBUG EN - AUTO CROPPING DETECTED');
-                                      return formData.use_same_video ? '✂️ Auto EN/FR' : '✂️ Auto EN';
+                                      return formData.useSameVideo ? '✂️ Auto EN/FR' : '✂️ Auto EN';
                                     }
                                     
                                     // FALLBACK: If static image exists but no clear method, assume manual cropping
-                                    else if (selectedItem.image_url_en !== selectedItem.static_image_url_en) {
+                                    else if (selectedItem.imageUrlEn !== selectedItem.static_imageUrlEn) {
                                       console.log('🎯 BADGE DEBUG EN - FALLBACK MANUAL CROPPING (different URLs)');
-                                      return formData.use_same_video ? '✂️ Recadré EN/FR' : '✂️ Recadré EN';
+                                      return formData.useSameVideo ? '✂️ Recadré EN/FR' : '✂️ Recadré EN';
                                     } else {
                                       console.log('🎯 BADGE DEBUG EN - No badge conditions met');
                                     }
@@ -1354,7 +1354,7 @@ export default function GalleryManagementNew() {
                   <div className="flex-1">
                     <h4 className="text-lg font-semibold text-[#011526] dark:text-[#F2EBDC] flex items-center gap-2 mb-4">
                       <PlayCircle className="w-5 h-5" />
-                      {formData.use_same_video ? (
+                      {formData.useSameVideo ? (
                         <>
                           <span>Vidéo Partagée</span>
                           <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">FR + EN</Badge>
@@ -1370,26 +1370,26 @@ export default function GalleryManagementNew() {
 
                         </div>
                       </div>
-                      {formData.video_url_en || (formData.use_same_video && formData.video_filename) ? (
+                      {formData.videoUrlEn || (formData.useSameVideo && formData.videoFilename) ? (
                         <div className="relative bg-black rounded-lg overflow-hidden aspect-video w-full border border-green-200 dark:border-green-600">
                           <video
                             key={`en-video-${selectedItem?.id}-${Date.now()}`}
                             controls
                             className="w-full h-full object-contain"
                             style={{ backgroundColor: 'black' }}
-                            onLoadStart={() => console.log('🎬 EN VIDEO: Loading started for', selectedItem?.title_en)}
+                            onLoadStart={() => console.log('🎬 EN VIDEO: Loading started for', selectedItem?.titleEn)}
                           >
                             <source 
                               src={
                                 // FIXED: Match public site logic - use same priority as getVideoUrl()
                                 (() => {
-                                  const videoUrl = formData.video_filename || formData.video_url_en || formData.video_url_fr;
+                                  const videoUrl = formData.videoFilename || formData.videoUrlEn || formData.videoUrlFr;
                                   console.log('🎬 EN VIDEO DEBUG (FIXED):', {
-                                    video_filename: formData.video_filename,
-                                    video_url_en: formData.video_url_en,
-                                    video_url_fr: formData.video_url_fr,
+                                    videoFilename: formData.videoFilename,
+                                    videoUrlEn: formData.videoUrlEn,
+                                    videoUrlFr: formData.videoUrlFr,
                                     selectedVideoUrl: videoUrl,
-                                    selectedItem: selectedItem?.title_en
+                                    selectedItem: selectedItem?.titleEn
                                   });
                                   if (!videoUrl) return '';
                                   const baseUrl = videoUrl.startsWith('http') 
@@ -1429,7 +1429,7 @@ export default function GalleryManagementNew() {
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <h4 className="font-medium text-[#011526] dark:text-[#F2EBDC]">
-                    {formData.use_same_video ? (
+                    {formData.useSameVideo ? (
                       <>
                         English <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 ml-2">Source pour FR + EN</Badge>
                       </>
@@ -1438,39 +1438,39 @@ export default function GalleryManagementNew() {
                     )}
                   </h4>
                   <div>
-                    <Label htmlFor="title_en">Titre</Label>
+                    <Label htmlFor="titleEn">Titre</Label>
                     <Input
-                      id="title_en"
-                      value={formData.title_en}
-                      onChange={(e) => setFormData({ ...formData, title_en: e.target.value })}
+                      id="titleEn"
+                      value={formData.titleEn}
+                      onChange={(e) => setFormData({ ...formData, titleEn: e.target.value })}
                       className="bg-white dark:bg-gray-800"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="price_en">Prix</Label>
+                    <Label htmlFor="priceEn">Prix</Label>
                     <Input
-                      id="price_en"
-                      value={formData.price_en || ''}
-                      onChange={(e) => setFormData({ ...formData, price_en: e.target.value })}
+                      id="priceEn"
+                      value={formData.priceEn || ''}
+                      onChange={(e) => setFormData({ ...formData, priceEn: e.target.value })}
                       className="bg-white dark:bg-gray-800"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="source_en">Source</Label>
+                    <Label htmlFor="sourceEn">Source</Label>
                     <Input
-                      id="source_en"
-                      value={formData.source_en}
-                      onChange={(e) => setFormData({ ...formData, source_en: e.target.value })}
+                      id="sourceEn"
+                      value={formData.sourceEn}
+                      onChange={(e) => setFormData({ ...formData, sourceEn: e.target.value })}
                       placeholder="80 photos & 10 videos"
                       className="bg-white dark:bg-gray-800"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="duration_en">Durée</Label>
+                    <Label htmlFor="durationEn">Durée</Label>
                     <Input
-                      id="duration_en"
-                      value={formData.duration_en}
-                      onChange={(e) => setFormData({ ...formData, duration_en: e.target.value })}
+                      id="durationEn"
+                      value={formData.durationEn}
+                      onChange={(e) => setFormData({ ...formData, durationEn: e.target.value })}
                       placeholder="2 minutes"
                       className="bg-white dark:bg-gray-800"
                     />
@@ -1481,46 +1481,46 @@ export default function GalleryManagementNew() {
                 <div className="space-y-4">
                   <h4 className="font-medium text-[#011526] dark:text-[#F2EBDC]">
                     Français
-                    {formData.use_same_video && (
+                    {formData.useSameVideo && (
                       <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 ml-2">
                         Texte indépendant
                       </Badge>
                     )}
                   </h4>
                   <div>
-                    <Label htmlFor="title_fr">Titre</Label>
+                    <Label htmlFor="titleFr">Titre</Label>
                     <Input
-                      id="title_fr"
-                      value={formData.title_fr}
-                      onChange={(e) => setFormData({ ...formData, title_fr: e.target.value })}
+                      id="titleFr"
+                      value={formData.titleFr}
+                      onChange={(e) => setFormData({ ...formData, titleFr: e.target.value })}
                       className="bg-white dark:bg-gray-800"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="price_fr">Prix</Label>
+                    <Label htmlFor="priceFr">Prix</Label>
                     <Input
-                      id="price_fr"
-                      value={formData.price_fr || ''}
-                      onChange={(e) => setFormData({ ...formData, price_fr: e.target.value })}
+                      id="priceFr"
+                      value={formData.priceFr || ''}
+                      onChange={(e) => setFormData({ ...formData, priceFr: e.target.value })}
                       className="bg-white dark:bg-gray-800"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="source_fr">Source</Label>
+                    <Label htmlFor="sourceFr">Source</Label>
                     <Input
-                      id="source_fr"
-                      value={formData.source_fr}
-                      onChange={(e) => setFormData({ ...formData, source_fr: e.target.value })}
+                      id="sourceFr"
+                      value={formData.sourceFr}
+                      onChange={(e) => setFormData({ ...formData, sourceFr: e.target.value })}
                       placeholder="80 photos et 10 vidéos"
                       className="bg-white dark:bg-gray-800"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="duration_fr">Durée</Label>
+                    <Label htmlFor="durationFr">Durée</Label>
                     <Input
-                      id="duration_fr"
-                      value={formData.duration_fr}
-                      onChange={(e) => setFormData({ ...formData, duration_fr: e.target.value })}
+                      id="durationFr"
+                      value={formData.durationFr}
+                      onChange={(e) => setFormData({ ...formData, durationFr: e.target.value })}
                       placeholder="2 minutes"
                       className="bg-white dark:bg-gray-800"
                     />
@@ -1543,7 +1543,7 @@ export default function GalleryManagementNew() {
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <h4 className="font-medium text-[#011526] dark:text-[#F2EBDC]">
-                    {formData.use_same_video ? (
+                    {formData.useSameVideo ? (
                       <>
                         English <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 ml-2">Source pour FR + EN</Badge>
                       </>
@@ -1552,31 +1552,31 @@ export default function GalleryManagementNew() {
                     )}
                   </h4>
                   <div>
-                    <Label htmlFor="story_en">Histoire du film</Label>
+                    <Label htmlFor="storyEn">Histoire du film</Label>
                     <Textarea
-                      id="story_en"
-                      value={formData.story_en}
-                      onChange={(e) => setFormData({ ...formData, story_en: e.target.value })}
+                      id="storyEn"
+                      value={formData.storyEn}
+                      onChange={(e) => setFormData({ ...formData, storyEn: e.target.value })}
                       placeholder="This film shows..."
                       className="bg-white dark:bg-gray-800 min-h-[80px]"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="situation_en">Situation du client</Label>
+                    <Label htmlFor="situationEn">Situation du client</Label>
                     <Textarea
-                      id="situation_en"
-                      value={formData.situation_en}
-                      onChange={(e) => setFormData({ ...formData, situation_en: e.target.value })}
+                      id="situationEn"
+                      value={formData.situationEn}
+                      onChange={(e) => setFormData({ ...formData, situationEn: e.target.value })}
                       placeholder="The Client is a wife..."
                       className="bg-white dark:bg-gray-800 min-h-[80px]"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="sorry_message_en">Message d'excuses</Label>
+                    <Label htmlFor="sorryMessageEn">Message d'excuses</Label>
                     <Textarea
-                      id="sorry_message_en"
-                      value={formData.sorry_message_en}
-                      onChange={(e) => setFormData({ ...formData, sorry_message_en: e.target.value })}
+                      id="sorryMessageEn"
+                      value={formData.sorryMessageEn}
+                      onChange={(e) => setFormData({ ...formData, sorryMessageEn: e.target.value })}
                       className="bg-white dark:bg-gray-800 min-h-[60px]"
                     />
                   </div>
@@ -1586,38 +1586,38 @@ export default function GalleryManagementNew() {
                 <div className="space-y-4">
                   <h4 className="font-medium text-[#011526] dark:text-[#F2EBDC]">
                     Français
-                    {formData.use_same_video && (
+                    {formData.useSameVideo && (
                       <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 ml-2">
                         Texte indépendant
                       </Badge>
                     )}
                   </h4>
                   <div>
-                    <Label htmlFor="story_fr">Histoire du film</Label>
+                    <Label htmlFor="storyFr">Histoire du film</Label>
                     <Textarea
-                      id="story_fr"
-                      value={formData.story_fr}
-                      onChange={(e) => setFormData({ ...formData, story_fr: e.target.value })}
+                      id="storyFr"
+                      value={formData.storyFr}
+                      onChange={(e) => setFormData({ ...formData, storyFr: e.target.value })}
                       placeholder="Ce film montre..."
                       className="bg-white dark:bg-gray-800 min-h-[80px]"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="situation_fr">Situation du client</Label>
+                    <Label htmlFor="situationFr">Situation du client</Label>
                     <Textarea
-                      id="situation_fr"
-                      value={formData.situation_fr}
-                      onChange={(e) => setFormData({ ...formData, situation_fr: e.target.value })}
+                      id="situationFr"
+                      value={formData.situationFr}
+                      onChange={(e) => setFormData({ ...formData, situationFr: e.target.value })}
                       placeholder="Le client est une épouse..."
                       className="bg-white dark:bg-gray-800 min-h-[80px]"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="sorry_message_fr">Message d'excuses</Label>
+                    <Label htmlFor="sorryMessageFr">Message d'excuses</Label>
                     <Textarea
-                      id="sorry_message_fr"
-                      value={formData.sorry_message_fr}
-                      onChange={(e) => setFormData({ ...formData, sorry_message_fr: e.target.value })}
+                      id="sorryMessageFr"
+                      value={formData.sorryMessageFr}
+                      onChange={(e) => setFormData({ ...formData, sorryMessageFr: e.target.value })}
                       className="bg-white dark:bg-gray-800 min-h-[60px]"
                     />
                   </div>
@@ -1639,7 +1639,7 @@ export default function GalleryManagementNew() {
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                   <div className="flex items-center space-x-3">
                     <Switch
-                      checked={formData.use_same_video}
+                      checked={formData.useSameVideo}
                       onCheckedChange={handleSameVideoToggle}
                     />
                     <Label className="text-blue-900 dark:text-blue-100 font-medium cursor-pointer">
@@ -1647,13 +1647,13 @@ export default function GalleryManagementNew() {
                     </Label>
                   </div>
                   <p className="text-sm text-blue-700 dark:text-blue-300 mt-2">
-                    {formData.use_same_video 
+                    {formData.useSameVideo 
                       ? "✅ La même vidéo et la même photo sera utilisée pour les deux langues" 
                       : "⚠️ Vous pouvez maintenant spécifier des vidéos et photos différentes pour FR et EN"}
                   </p>
                 </div>
 
-                {formData.use_same_video ? (
+                {formData.useSameVideo ? (
                   /* Shared Upload Section (Purple) */
                   <div className="p-4 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-lg border border-purple-200 dark:border-purple-800">
                     <div className="flex items-center gap-2 mb-3">
@@ -1683,26 +1683,26 @@ export default function GalleryManagementNew() {
                             // Real-time preview: Update pending state immediately
                             setPendingPreviews(prev => ({
                               ...prev,
-                              video_url_en: result.url,
-                              video_url_fr: result.url,
-                              video_filename: result.url
+                              videoUrlEn: result.url,
+                              videoUrlFr: result.url,
+                              videoFilename: result.url
                             }));
                             setFormData({
                               ...formData,
-                              video_filename: result.url,
-                              video_url_en: result.url,
-                              video_url_fr: result.url
+                              videoFilename: result.url,
+                              videoUrlEn: result.url,
+                              videoUrlFr: result.url
                             });
-                            persistentUploadState.video_filename = result.url;
-                            persistentUploadState.video_url_en = result.url;
-                            persistentUploadState.video_url_fr = result.url;
+                            persistentUploadState.videoFilename = result.url;
+                            persistentUploadState.videoUrlEn = result.url;
+                            persistentUploadState.videoUrlFr = result.url;
                             toast({ 
                               title: "✅ Preview mise à jour", 
                               description: `Vidéo visible immédiatement: ${result.filename}`,
                               className: "bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800"
                             });
                           }}
-                          currentFilename={formData.video_filename || formData.video_url_en}
+                          currentFilename={formData.videoFilename || formData.videoUrlEn}
                         />
                       </div>
                       <div>
@@ -1721,17 +1721,17 @@ export default function GalleryManagementNew() {
                             // Handle auto-generated thumbnail data
                             const updatedFormData = {
                               ...formData,
-                              image_url_en: result.url,
-                              image_url_fr: result.url
+                              imageUrlEn: result.url,
+                              imageUrlFr: result.url
                             };
 
                             // If auto-thumbnail was generated, store it
-                            if (result.static_image_url) {
+                            if (result.staticImageUrl) {
                               console.log('🎯 Auto-thumbnail detected, updating static URLs');
-                              updatedFormData.static_image_url = result.static_image_url;
+                              updatedFormData.staticImageUrl = result.staticImageUrl;
                               // In shared mode, both EN and FR get the same static image
-                              updatedFormData.static_image_url_en = result.static_image_url;
-                              updatedFormData.static_image_url_fr = result.static_image_url;
+                              updatedFormData.static_imageUrlEn = result.staticImageUrl;
+                              updatedFormData.static_imageUrlFr = result.staticImageUrl;
                               
                               // Store auto-crop settings if available (for badge logic)
                               if (result.auto_crop_settings) {
@@ -1744,21 +1744,21 @@ export default function GalleryManagementNew() {
                             setPendingPreviews(prev => {
                               const newPreviews = {
                                 ...prev,
-                                image_url_en: result.url,
-                                image_url_fr: result.url,
-                                static_image_url: result.static_image_url || prev.static_image_url,
-                                static_image_url_en: result.static_image_url || prev.static_image_url_en,
-                                static_image_url_fr: result.static_image_url || prev.static_image_url_fr
+                                imageUrlEn: result.url,
+                                imageUrlFr: result.url,
+                                staticImageUrl: result.staticImageUrl || prev.staticImageUrl,
+                                static_imageUrlEn: result.staticImageUrl || prev.static_imageUrlEn,
+                                static_imageUrlFr: result.staticImageUrl || prev.static_imageUrlFr
                               };
                               console.log('📸 Updated pending previews (SHARED):', newPreviews);
                               return newPreviews;
                             });
                             
                             setFormData(updatedFormData);
-                            persistentUploadState.image_url_en = result.url;
-                            persistentUploadState.image_url_fr = result.url;
-                            if (result.static_image_url) {
-                              persistentUploadState.static_image_url = result.static_image_url;
+                            persistentUploadState.imageUrlEn = result.url;
+                            persistentUploadState.imageUrlFr = result.url;
+                            if (result.staticImageUrl) {
+                              persistentUploadState.staticImageUrl = result.staticImageUrl;
                             }
                             
                             // Force a component refresh to ensure image displays
@@ -1773,7 +1773,7 @@ export default function GalleryManagementNew() {
                               className: "bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800"
                             });
                           }}
-                          currentFilename={formData.image_url_en}
+                          currentFilename={formData.imageUrlEn}
                         />
                       </div>
                     </div>
@@ -1786,7 +1786,7 @@ export default function GalleryManagementNew() {
                     </h4>
                     
                     {/* French Upload Section (Blue) - Hidden when shared mode is enabled */}
-                    {!formData.use_same_video && (
+                    {!formData.useSameVideo && (
                     <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg border border-blue-200 dark:border-blue-800">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="bg-blue-600 rounded-full p-1">
@@ -1813,22 +1813,22 @@ export default function GalleryManagementNew() {
                               // Real-time preview: Update pending state immediately
                               setPendingPreviews(prev => ({
                                 ...prev,
-                                video_url_fr: result.url
+                                videoUrlFr: result.url
                               }));
                               setFormData(prev => ({
                                 ...prev,
-                                video_url_fr: result.url,
-                                video_filename: result.url
+                                videoUrlFr: result.url,
+                                videoFilename: result.url
                               }));
-                              persistentUploadState.video_url_fr = result.url;
-                              persistentUploadState.video_filename_fr = result.url;
+                              persistentUploadState.videoUrlFr = result.url;
+                              persistentUploadState.videoFilename_fr = result.url;
                               toast({ 
                                 title: "📹 Aperçu instantané", 
                                 description: `Vidéo française visible immédiatement: ${result.filename}`,
                                 className: "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800"
                               });
                             }}
-                            currentFilename={formData.video_url_fr}
+                            currentFilename={formData.videoUrlFr}
                           />
                         </div>
                         <div>
@@ -1848,7 +1848,7 @@ export default function GalleryManagementNew() {
                               setPendingPreviews(prev => {
                                 const newPreviews = {
                                   ...prev,
-                                  image_url_fr: result.url
+                                  imageUrlFr: result.url
                                 };
                                 console.log('📸 Updated pending previews:', newPreviews);
                                 return newPreviews;
@@ -1857,13 +1857,13 @@ export default function GalleryManagementNew() {
                               setFormData(prev => {
                                 const newFormData = {
                                   ...prev,
-                                  image_url_fr: result.url
+                                  imageUrlFr: result.url
                                 };
                                 console.log('📸 Updated form data:', newFormData);
                                 return newFormData;
                               });
                               
-                              persistentUploadState.image_url_fr = result.url;
+                              persistentUploadState.imageUrlFr = result.url;
                               
                               // Force a component refresh to ensure image displays
                               setForceRefreshKey(prev => prev + 1);
@@ -1874,7 +1874,7 @@ export default function GalleryManagementNew() {
                                 className: "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800"
                               });
                             }}
-                            currentFilename={formData.image_url_fr}
+                            currentFilename={formData.imageUrlFr}
                           />
                         </div>
                       </div>
@@ -1888,7 +1888,7 @@ export default function GalleryManagementNew() {
                           <Upload className="h-4 w-4 text-white" />
                         </div>
                         <h4 className="font-semibold text-green-900 dark:text-green-100">
-                          {formData.use_same_video ? (
+                          {formData.useSameVideo ? (
                             <>
                               🌐 Fichiers Partagés <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 ml-2">FR + EN</Badge>
                             </>
@@ -1898,7 +1898,7 @@ export default function GalleryManagementNew() {
                         </h4>
                       </div>
                       <p className="text-sm text-green-800 dark:text-green-200 mb-4">
-                        {formData.use_same_video ? (
+                        {formData.useSameVideo ? (
                           "Téléchargez les fichiers qui seront utilisés pour les deux langues (Français et English)."
                         ) : (
                           "Upload files specific to the English version."
@@ -1909,7 +1909,7 @@ export default function GalleryManagementNew() {
                         <div>
                           <Label className="text-green-900 dark:text-green-100 mb-2 block">
                             <Video className="h-4 w-4 inline mr-1" />
-                            {formData.use_same_video ? "Vidéo (Partagée FR+EN)" : "English Video"}
+                            {formData.useSameVideo ? "Vidéo (Partagée FR+EN)" : "English Video"}
                           </Label>
                           <DirectUpload
                             type="video"
@@ -1918,28 +1918,28 @@ export default function GalleryManagementNew() {
                               // Real-time preview: Update pending state immediately
                               setPendingPreviews(prev => ({
                                 ...prev,
-                                video_url_en: result.url
+                                videoUrlEn: result.url
                               }));
                               setFormData(prev => ({
                                 ...prev,
-                                video_url_en: result.url,
-                                video_filename: result.url
+                                videoUrlEn: result.url,
+                                videoFilename: result.url
                               }));
-                              persistentUploadState.video_url_en = result.url;
-                              persistentUploadState.video_filename_en = result.url;
+                              persistentUploadState.videoUrlEn = result.url;
+                              persistentUploadState.videoFilename_en = result.url;
                               toast({ 
                                 title: "📹 Instant Preview", 
                                 description: `English video visible immediately: ${result.filename}`,
                                 className: "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
                               });
                             }}
-                            currentFilename={formData.video_url_en}
+                            currentFilename={formData.videoUrlEn}
                           />
                         </div>
                         <div>
                           <Label className="text-green-900 dark:text-green-100 mb-2 block">
                             <Image className="h-4 w-4 inline mr-1" />
-                            {formData.use_same_video ? "Image (Partagée FR+EN)" : "English Image"}
+                            {formData.useSameVideo ? "Image (Partagée FR+EN)" : "English Image"}
                           </Label>
                           <DirectUpload
                             type="image"
@@ -1948,27 +1948,27 @@ export default function GalleryManagementNew() {
                             onUploadComplete={(result) => {
                               console.log('✅ English image upload completed:', result);
                               console.log('🎯 Auto-crop settings received:', result.auto_crop_settings);
-                              console.log('🎯 Static image URL received:', result.static_image_url);
+                              console.log('🎯 Static image URL received:', result.staticImageUrl);
                               console.log('📸 Setting pending preview for EN:', result.url);
                               
                               setPendingPreviews(prev => {
                                 const newPreviews = {
                                   ...prev,
-                                  image_url_en: result.url
+                                  imageUrlEn: result.url
                                 };
                                 console.log('📸 Updated pending previews:', newPreviews);
                                 return newPreviews;
                               });
                               
                               // Handle auto-crop settings for new uploads
-                              if (result.auto_crop_settings && result.static_image_url) {
+                              if (result.auto_crop_settings && result.staticImageUrl) {
                                 console.log('🎯 Processing auto-crop settings for new upload');
                                 setFormData(prev => ({
                                   ...prev,
-                                  image_url_en: result.url,
+                                  imageUrlEn: result.url,
                                   // Set static image URLs based on shared mode
-                                  static_image_url_en: formData.use_same_video ? result.static_image_url || null : result.static_image_url || null,
-                                  static_image_url_fr: formData.use_same_video ? result.static_image_url || null : prev.static_image_url_fr,
+                                  static_imageUrlEn: formData.useSameVideo ? result.staticImageUrl || null : result.staticImageUrl || null,
+                                  static_imageUrlFr: formData.useSameVideo ? result.staticImageUrl || null : prev.static_imageUrlFr,
                                   // Store auto-crop settings for badge detection
                                   cropSettings: result.auto_crop_settings
                                 }));
@@ -1976,16 +1976,16 @@ export default function GalleryManagementNew() {
                                 // No auto-cropping needed (image was already 3:2 ratio)
                                 setFormData(prev => ({
                                   ...prev,
-                                  image_url_en: result.url,
+                                  imageUrlEn: result.url,
                                   // Clear static URLs since no cropping was needed
-                                  static_image_url_en: null,
-                                  static_image_url_fr: formData.use_same_video ? null : prev.static_image_url_fr,
+                                  static_imageUrlEn: null,
+                                  static_imageUrlFr: formData.useSameVideo ? null : prev.static_imageUrlFr,
                                   // Clear cropSettings since no cropping occurred
                                   cropSettings: null
                                 }));
                               }
                               
-                              persistentUploadState.image_url_en = result.url;
+                              persistentUploadState.imageUrlEn = result.url;
                               
                               // Force a component refresh to ensure image displays
                               setForceRefreshKey(prev => prev + 1);
@@ -1996,7 +1996,7 @@ export default function GalleryManagementNew() {
                                 className: "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
                               });
                             }}
-                            currentFilename={formData.image_url_en}
+                            currentFilename={formData.imageUrlEn}
                           />
                         </div>
                       </div>
@@ -2010,10 +2010,10 @@ export default function GalleryManagementNew() {
                 <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
                   <h4 className="font-medium text-[#011526] dark:text-[#F2EBDC] mb-4 flex items-center gap-2">
                     <Eye className="w-4 h-4" />
-                    Contenu Actuel {formData.use_same_video ? "(Partagé FR/EN)" : "(Séparé par langue)"}
+                    Contenu Actuel {formData.useSameVideo ? "(Partagé FR/EN)" : "(Séparé par langue)"}
                   </h4>
                   
-                  {formData.use_same_video ? (
+                  {formData.useSameVideo ? (
                     // Shared content display
                     <div className="space-y-3">
                       <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded border border-purple-200 dark:border-purple-800">
@@ -2027,13 +2027,13 @@ export default function GalleryManagementNew() {
                           <div>
                             <Label className="text-purple-800 dark:text-purple-200">URL Vidéo Complète:</Label>
                             <div className="bg-white dark:bg-gray-800 p-2 rounded border text-purple-900 dark:text-purple-100 font-mono break-all">
-                              {getFullUrl(formData.video_filename || formData.video_url_en) || "Aucune vidéo"}
+                              {getFullUrl(formData.videoFilename || formData.videoUrlEn) || "Aucune vidéo"}
                             </div>
                           </div>
                           <div>
                             <Label className="text-purple-800 dark:text-purple-200">URL Image Complète:</Label>
                             <div className="bg-white dark:bg-gray-800 p-2 rounded border text-purple-900 dark:text-purple-100 font-mono break-all">
-                              {getFullUrl(formData.image_url_en) || "Aucune image"}
+                              {getFullUrl(formData.imageUrlEn) || "Aucune image"}
                             </div>
                           </div>
                         </div>
@@ -2052,13 +2052,13 @@ export default function GalleryManagementNew() {
                           <div>
                             <Label className="text-blue-800 dark:text-blue-200">URL Vidéo Complète FR:</Label>
                             <div className="bg-white dark:bg-gray-800 p-2 rounded border text-blue-900 dark:text-blue-100 font-mono break-all">
-                              {getFullUrl(formData.video_url_fr) || "Aucune vidéo FR"}
+                              {getFullUrl(formData.videoUrlFr) || "Aucune vidéo FR"}
                             </div>
                           </div>
                           <div>
                             <Label className="text-blue-800 dark:text-blue-200">URL Image Complète FR:</Label>
                             <div className="bg-white dark:bg-gray-800 p-2 rounded border text-blue-900 dark:text-blue-100 font-mono break-all">
-                              {getFullUrl(formData.image_url_fr) || "Aucune image FR"}
+                              {getFullUrl(formData.imageUrlFr) || "Aucune image FR"}
                             </div>
                           </div>
                         </div>
@@ -2074,13 +2074,13 @@ export default function GalleryManagementNew() {
                           <div>
                             <Label className="text-green-800 dark:text-green-200">Complete URL Video EN:</Label>
                             <div className="bg-white dark:bg-gray-800 p-2 rounded border text-green-900 dark:text-green-100 font-mono break-all">
-                              {getFullUrl(formData.video_url_en) || "No English video"}
+                              {getFullUrl(formData.videoUrlEn) || "No English video"}
                             </div>
                           </div>
                           <div>
                             <Label className="text-green-800 dark:text-green-200">Complete URL Image EN:</Label>
                             <div className="bg-white dark:bg-gray-800 p-2 rounded border text-green-900 dark:text-green-100 font-mono break-all">
-                              {getFullUrl(formData.image_url_en) || "No English image"}
+                              {getFullUrl(formData.imageUrlEn) || "No English image"}
                             </div>
                           </div>
                         </div>
@@ -2100,14 +2100,14 @@ export default function GalleryManagementNew() {
                       <Badge variant="secondary" className="text-xs">Manuel</Badge>
                     </h4>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
-                      {formData.use_same_video 
+                      {formData.useSameVideo 
                         ? "Section avancée pour modifier directement les URLs Supabase partagées entre FR et EN."
                         : "Section avancée pour modifier directement les URLs Supabase spécifiques à chaque langue."
                       }
                     </p>
                   </div>
                   
-                  {formData.use_same_video ? (
+                  {formData.useSameVideo ? (
                     // Shared URLs when using same video for both languages
                     <div className="grid grid-cols-2 gap-6">
                       <div className="space-y-2">
@@ -2118,12 +2118,12 @@ export default function GalleryManagementNew() {
                         </Label>
                         <Input
                           id="video_url_override"
-                          value={getFullUrl(formData.video_url_en || formData.video_filename)}
+                          value={getFullUrl(formData.videoUrlEn || formData.videoFilename)}
                           onChange={(e) => setFormData({ 
                             ...formData, 
-                            video_filename: e.target.value,
-                            video_url_en: e.target.value, 
-                            video_url_fr: e.target.value 
+                            videoFilename: e.target.value,
+                            videoUrlEn: e.target.value, 
+                            videoUrlFr: e.target.value 
                           })}
                           placeholder="https://supabase.memopyk.org/storage/v1/object/public/memopyk-videos/..."
                           className="bg-white dark:bg-gray-800 text-sm font-mono"
@@ -2139,11 +2139,11 @@ export default function GalleryManagementNew() {
                         </Label>
                         <Input
                           id="image_url_override"
-                          value={getFullUrl(formData.image_url_en)}
+                          value={getFullUrl(formData.imageUrlEn)}
                           onChange={(e) => setFormData({ 
                             ...formData, 
-                            image_url_en: e.target.value,
-                            image_url_fr: e.target.value 
+                            imageUrlEn: e.target.value,
+                            imageUrlFr: e.target.value 
                           })}
                           placeholder="https://supabase.memopyk.org/storage/v1/object/public/memopyk-videos/..."
                           className="bg-white dark:bg-gray-800 text-sm font-mono"
@@ -2167,8 +2167,8 @@ export default function GalleryManagementNew() {
                               URL Vidéo FR
                             </Label>
                             <Input
-                              value={getFullUrl(formData.video_url_fr)}
-                              onChange={(e) => setFormData({ ...formData, video_url_fr: e.target.value })}
+                              value={getFullUrl(formData.videoUrlFr)}
+                              onChange={(e) => setFormData({ ...formData, videoUrlFr: e.target.value })}
                               placeholder="https://supabase.memopyk.org/storage/v1/object/public/memopyk-videos/..."
                               className="bg-white dark:bg-gray-800 text-sm font-mono"
                             />
@@ -2179,8 +2179,8 @@ export default function GalleryManagementNew() {
                               URL Image FR
                             </Label>
                             <Input
-                              value={getFullUrl(formData.image_url_fr)}
-                              onChange={(e) => setFormData({ ...formData, image_url_fr: e.target.value })}
+                              value={getFullUrl(formData.imageUrlFr)}
+                              onChange={(e) => setFormData({ ...formData, imageUrlFr: e.target.value })}
                               placeholder="https://supabase.memopyk.org/storage/v1/object/public/memopyk-videos/..."
                               className="bg-white dark:bg-gray-800 text-sm font-mono"
                             />
@@ -2201,8 +2201,8 @@ export default function GalleryManagementNew() {
                               URL Vidéo EN
                             </Label>
                             <Input
-                              value={getFullUrl(formData.video_url_en)}
-                              onChange={(e) => setFormData({ ...formData, video_url_en: e.target.value })}
+                              value={getFullUrl(formData.videoUrlEn)}
+                              onChange={(e) => setFormData({ ...formData, videoUrlEn: e.target.value })}
                               placeholder="https://supabase.memopyk.org/storage/v1/object/public/memopyk-videos/..."
                               className="bg-white dark:bg-gray-800 text-sm font-mono"
                             />
@@ -2213,8 +2213,8 @@ export default function GalleryManagementNew() {
                               URL Image EN
                             </Label>
                             <Input
-                              value={getFullUrl(formData.image_url_en)}
-                              onChange={(e) => setFormData({ ...formData, image_url_en: e.target.value })}
+                              value={getFullUrl(formData.imageUrlEn)}
+                              onChange={(e) => setFormData({ ...formData, imageUrlEn: e.target.value })}
                               placeholder="https://supabase.memopyk.org/storage/v1/object/public/memopyk-videos/..."
                               className="bg-white dark:bg-gray-800 text-sm font-mono"
                             />
@@ -2227,28 +2227,28 @@ export default function GalleryManagementNew() {
                 
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="video_width">Largeur vidéo</Label>
+                    <Label htmlFor="videoWidth">Largeur vidéo</Label>
                     <Input
-                      id="video_width"
+                      id="videoWidth"
                       type="number"
-                      value={formData.video_width}
-                      onChange={(e) => setFormData({ ...formData, video_width: parseInt(e.target.value) || 16 })}
+                      value={formData.videoWidth}
+                      onChange={(e) => setFormData({ ...formData, videoWidth: parseInt(e.target.value) || 16 })}
                       className="bg-white dark:bg-gray-800"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="video_height">Hauteur vidéo</Label>
+                    <Label htmlFor="videoHeight">Hauteur vidéo</Label>
                     <Input
-                      id="video_height"
+                      id="videoHeight"
                       type="number"
-                      value={formData.video_height}
-                      onChange={(e) => setFormData({ ...formData, video_height: parseInt(e.target.value) || 9 })}
+                      value={formData.videoHeight}
+                      onChange={(e) => setFormData({ ...formData, videoHeight: parseInt(e.target.value) || 9 })}
                       className="bg-white dark:bg-gray-800"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="video_orientation">Orientation</Label>
-                    <Select value={formData.video_orientation} onValueChange={(value) => setFormData({ ...formData, video_orientation: value })}>
+                    <Label htmlFor="videoOrientation">Orientation</Label>
+                    <Select value={formData.videoOrientation} onValueChange={(value) => setFormData({ ...formData, videoOrientation: value })}>
                       <SelectTrigger className="bg-white dark:bg-gray-800">
                         <SelectValue />
                       </SelectTrigger>
@@ -2262,11 +2262,11 @@ export default function GalleryManagementNew() {
 
                 <div className="flex items-center space-x-2">
                   <Switch
-                    id="is_active"
-                    checked={formData.is_active}
-                    onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                    id="isActive"
+                    checked={formData.isActive}
+                    onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
                   />
-                  <Label htmlFor="is_active">Élément actif</Label>
+                  <Label htmlFor="isActive">Élément actif</Label>
                 </div>
               </div>
             </CardContent>
@@ -2288,8 +2288,8 @@ export default function GalleryManagementNew() {
                     English <Badge className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 ml-2">Toujours séparé</Badge>
                   </h4>
                   <div>
-                    <Label htmlFor="format_platform_en">Line 1</Label>
-                    <Select value={formData.format_platform_en} onValueChange={(value) => setFormData({ ...formData, format_platform_en: value })}>
+                    <Label htmlFor="formatPlatformEn">Line 1</Label>
+                    <Select value={formData.formatPlatformEn} onValueChange={(value) => setFormData({ ...formData, formatPlatformEn: value })}>
                       <SelectTrigger className="bg-white dark:bg-gray-800">
                         <SelectValue placeholder="Select platform category" />
                       </SelectTrigger>
@@ -2300,8 +2300,8 @@ export default function GalleryManagementNew() {
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="format_type_en">Format Line 2</Label>
-                    <Select value={formData.format_type_en} onValueChange={(value) => setFormData({ ...formData, format_type_en: value })}>
+                    <Label htmlFor="formatTypeEn">Format Line 2</Label>
+                    <Select value={formData.formatTypeEn} onValueChange={(value) => setFormData({ ...formData, formatTypeEn: value })}>
                       <SelectTrigger className="bg-white dark:bg-gray-800">
                         <SelectValue placeholder="Select format type" />
                       </SelectTrigger>
@@ -2322,8 +2322,8 @@ export default function GalleryManagementNew() {
                     Français <Badge className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 ml-2">Toujours séparé</Badge>
                   </h4>
                   <div>
-                    <Label htmlFor="format_platform_fr">Line 1</Label>
-                    <Select value={formData.format_platform_fr} onValueChange={(value) => setFormData({ ...formData, format_platform_fr: value })}>
+                    <Label htmlFor="formatPlatformFr">Line 1</Label>
+                    <Select value={formData.formatPlatformFr} onValueChange={(value) => setFormData({ ...formData, formatPlatformFr: value })}>
                       <SelectTrigger className="bg-white dark:bg-gray-800">
                         <SelectValue placeholder="Sélectionner catégorie plateforme" />
                       </SelectTrigger>
@@ -2334,8 +2334,8 @@ export default function GalleryManagementNew() {
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="format_type_fr">Format Line 2</Label>
-                    <Select value={formData.format_type_fr} onValueChange={(value) => setFormData({ ...formData, format_type_fr: value })}>
+                    <Label htmlFor="formatTypeFr">Format Line 2</Label>
+                    <Select value={formData.formatTypeFr} onValueChange={(value) => setFormData({ ...formData, formatTypeFr: value })}>
                       <SelectTrigger className="bg-white dark:bg-gray-800">
                         <SelectValue placeholder="Sélectionner type de format" />
                       </SelectTrigger>
@@ -2389,8 +2389,8 @@ export default function GalleryManagementNew() {
               )}
             </div>
             
-            <Badge variant={formData.is_active ? "default" : "secondary"}>
-              {formData.is_active ? "✅ Actif" : "⚠️ Inactif"}
+            <Badge variant={formData.isActive ? "default" : "secondary"}>
+              {formData.isActive ? "✅ Actif" : "⚠️ Inactif"}
             </Badge>
           </div>
         </div>
@@ -2400,11 +2400,11 @@ export default function GalleryManagementNew() {
       {selectedItem && cropperOpen && (() => {
         const imageUrl = getFullUrl(
           // Priority 1: Latest uploaded image from formData (fresh uploads)
-          selectedItem.use_same_video 
-            ? (formData.image_url_en || selectedItem.image_url_en)
+          selectedItem.useSameVideo 
+            ? (formData.imageUrlEn || selectedItem.imageUrlEn)
             : (cropperLanguage === 'fr' 
-              ? (formData.image_url_fr || selectedItem.image_url_fr)
-              : (formData.image_url_en || selectedItem.image_url_en))
+              ? (formData.imageUrlFr || selectedItem.imageUrlFr)
+              : (formData.imageUrlEn || selectedItem.imageUrlEn))
         );
         
         console.log("🚨 CROP BUTTON DEBUG - Opening cropper for:", {
@@ -2436,11 +2436,11 @@ export default function GalleryManagementNew() {
                   console.log('🚀 STEP 2b: FormData created');
                   
                   // CACHE-BUSTING: Extract original filename and use -C suffix approach
-                  const originalImageUrl = selectedItem.use_same_video 
-                    ? (formData.image_url_en || selectedItem.image_url_en)
+                  const originalImageUrl = selectedItem.useSameVideo 
+                    ? (formData.imageUrlEn || selectedItem.imageUrlEn)
                     : (cropperLanguage === 'fr' 
-                      ? (formData.image_url_fr || selectedItem.image_url_fr)
-                      : (formData.image_url_en || selectedItem.image_url_en));
+                      ? (formData.imageUrlFr || selectedItem.imageUrlFr)
+                      : (formData.imageUrlEn || selectedItem.imageUrlEn));
                   
                   const originalFilename = originalImageUrl.split('/').pop() || `item_${selectedItem.id}`;
                   console.log('🔄 CACHE-BUSTING APPROACH: Original filename:', originalFilename);

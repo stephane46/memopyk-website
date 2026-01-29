@@ -7,29 +7,29 @@ import { Button } from '../ui/button';
 
 interface HeroVideo {
   id: number;
-  title_fr: string;
-  title_en: string;
-  url_en: string;
-  url_fr: string;
-  order_index: number;
-  is_active: boolean;
+  titleFr: string;
+  titleEn: string;
+  urlEn: string;
+  urlFr: string;
+  orderIndex: number;
+  isActive: boolean;
 }
 
 interface HeroText {
-  id: number;
-  title_fr: string;
-  title_en: string;
-  subtitle_fr: string;
-  subtitle_en: string;
-  font_size: number;
-  font_size_desktop?: number;
-  font_size_tablet?: number;
-  font_size_mobile?: number;
-  title_mobile_fr?: string;
-  title_mobile_en?: string;
-  title_desktop_fr?: string;
-  title_desktop_en?: string;
-  is_active: boolean;
+  id: string;
+  titleFr: string;
+  titleEn: string;
+  subtitleFr: string;
+  subtitleEn: string;
+  fontSize: number;
+  fontSizeDesktop?: number;
+  fontSizeTablet?: number;
+  fontSizeMobile?: number;
+  titleMobileFr?: string;
+  titleMobileEn?: string;
+  titleDesktopFr?: string;
+  titleDesktopEn?: string;
+  isActive: boolean;
 }
 
 export function HeroVideoSection() {
@@ -93,10 +93,10 @@ export function HeroVideoSection() {
 
   // Debug logging removed - anti-flickering solution implemented
 
-  const activeVideos = heroVideos.filter((video: HeroVideo) => video.is_active)
-    .sort((a: HeroVideo, b: HeroVideo) => a.order_index - b.order_index);
+  const activeVideos = heroVideos.filter((video: HeroVideo) => video.isActive)
+    .sort((a: HeroVideo, b: HeroVideo) => a.orderIndex - b.orderIndex);
   
-  const activeHeroText = heroTextData.find((text: HeroText) => text.is_active);
+  const activeHeroText = heroTextData.find((text: HeroText) => text.isActive);
   const currentVideo = activeVideos[currentVideoIndex];
 
   // Auto-advance to next video when current video ends
@@ -186,7 +186,7 @@ export function HeroVideoSection() {
     );
   }
 
-  const videoUrl = language === 'fr-FR' ? currentVideo.url_fr : currentVideo.url_en;
+  const videoUrl = language === 'fr-FR' ? currentVideo.urlFr : currentVideo.urlEn;
 
 
   return (
@@ -254,13 +254,13 @@ export function HeroVideoSection() {
           >
             {(() => {
               // Use separate mobile and desktop fields for responsive display
-              const mobileText = language === 'fr-FR' 
-                ? (activeHeroText?.title_mobile_fr || activeHeroText?.title_fr || "Nous transformons\nvos photos et vidéos personnelles\nen films souvenirs inoubliables")
-                : (activeHeroText?.title_mobile_en || activeHeroText?.title_en || "We transform\nyour personal photos and videos\ninto unforgettable souvenir film");
-                
-              const desktopText = language === 'fr-FR' 
-                ? (activeHeroText?.title_desktop_fr || activeHeroText?.title_fr || "Nous transformons vos photos et vidéos personnelles\nen films souvenirs inoubliables")
-                : (activeHeroText?.title_desktop_en || activeHeroText?.title_en || "We transform your personal photos and videos\ninto unforgettable souvenir films");
+              const mobileText = language === 'fr-FR'
+                ? (activeHeroText?.titleMobileFr || activeHeroText?.titleFr || "Nous transformons\nvos photos et vidéos personnelles\nen films souvenirs inoubliables")
+                : (activeHeroText?.titleMobileEn || activeHeroText?.titleEn || "We transform\nyour personal photos and videos\ninto unforgettable souvenir film");
+
+              const desktopText = language === 'fr-FR'
+                ? (activeHeroText?.titleDesktopFr || activeHeroText?.titleFr || "Nous transformons vos photos et vidéos personnelles\nen films souvenirs inoubliables")
+                : (activeHeroText?.titleDesktopEn || activeHeroText?.titleEn || "We transform your personal photos and videos\ninto unforgettable souvenir films");
               
               // Process mobile text
               let processedMobileText = mobileText;
@@ -300,18 +300,18 @@ export function HeroVideoSection() {
           </h1>
           
           {/* Only render subtitle if it exists and is not empty */}
-          {activeHeroText && ((language === 'fr-FR' && activeHeroText.subtitle_fr && activeHeroText.subtitle_fr.trim()) || 
-                              (language === 'en-US' && activeHeroText.subtitle_en && activeHeroText.subtitle_en.trim())) && (
-            <p 
+          {activeHeroText && ((language === 'fr-FR' && activeHeroText.subtitleFr && activeHeroText.subtitleFr.trim()) ||
+                              (language === 'en-US' && activeHeroText.subtitleEn && activeHeroText.subtitleEn.trim())) && (
+            <p
               className="mb-4 sm:mb-6 lg:mb-8 text-white/95 font-poppins leading-snug text-sm sm:text-base lg:text-xl"
-              style={{ 
-                textShadow: '2px 2px 4px rgba(0,0,0,0.9)' 
+              style={{
+                textShadow: '2px 2px 4px rgba(0,0,0,0.9)'
               }}
             >
               {(() => {
-                const text = language === 'fr-FR' 
-                  ? activeHeroText.subtitle_fr
-                  : activeHeroText.subtitle_en;
+                const text = language === 'fr-FR'
+                  ? activeHeroText.subtitleFr
+                  : activeHeroText.subtitleEn;
                 
                 // Handle multiple escaping scenarios: raw newlines, \n, \\n
                 let processedText = text;

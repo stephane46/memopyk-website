@@ -10,7 +10,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { hybridStorage } from '../services/storage.service';
+import { storage } from '../services/storage.service';
 
 const router = Router();
 
@@ -24,7 +24,7 @@ const router = Router();
  */
 router.get('/legal', async (req: Request, res: Response) => {
   try {
-    const legal = await hybridStorage.getLegalDocuments();
+    const legal = await storage.getLegalDocuments();
     res.json(legal);
   } catch (error) {
     console.error('Get legal documents error:', error);
@@ -39,7 +39,7 @@ router.get('/legal', async (req: Request, res: Response) => {
 router.get('/legal/:type', async (req: Request, res: Response) => {
   try {
     const type = req.params.type;
-    const legal = await hybridStorage.getLegalDocuments();
+    const legal = await storage.getLegalDocuments();
     const document = legal.find((doc: any) => doc.type === type);
     
     if (!document) {
@@ -71,7 +71,7 @@ router.post('/legal', async (req: Request, res: Response) => {
       });
     }
     
-    const newDocument = await hybridStorage.createLegalDocument(document);
+    const newDocument = await storage.createLegalDocument(document);
     res.json({ success: true, document: newDocument });
   } catch (error) {
     console.error('Create legal document error:', error);
@@ -88,7 +88,7 @@ router.patch('/legal/:id', async (req: Request, res: Response) => {
     const docId = req.params.id;
     const updates = req.body;
     
-    const updatedDocument = await hybridStorage.updateLegalDocument(docId, updates);
+    const updatedDocument = await storage.updateLegalDocument(docId, updates);
     res.json({ success: true, document: updatedDocument });
   } catch (error) {
     console.error('Update legal document error:', error);
@@ -103,7 +103,7 @@ router.patch('/legal/:id', async (req: Request, res: Response) => {
 router.delete('/legal/:id', async (req: Request, res: Response) => {
   try {
     const docId = req.params.id;
-    const deletedDocument = await hybridStorage.deleteLegalDocument(docId);
+    const deletedDocument = await storage.deleteLegalDocument(docId);
     res.json({ success: true, deleted: deletedDocument });
   } catch (error) {
     console.error('Delete legal document error:', error);

@@ -20,7 +20,7 @@
  */
 
 import { Router, Request, Response, NextFunction } from "express";
-import { hybridStorage } from "../services/storage.service";
+import { storage } from "../services/storage.service";
 
 const router = Router();
 
@@ -63,7 +63,7 @@ const requireAdmin = (req: AdminRequest, res: Response, next: NextFunction) => {
  */
 router.get("/seo", async (req: Request, res: Response) => {
   try {
-    const seo = await hybridStorage.getSeoSettings();
+    const seo = await storage.getSeoSettings();
     res.json(seo);
   } catch (error) {
     console.error("Error fetching SEO settings:", error);
@@ -78,7 +78,7 @@ router.get("/seo", async (req: Request, res: Response) => {
 router.post("/seo", async (req: Request, res: Response) => {
   try {
     const seoData = req.body;
-    const newSeo = await hybridStorage.createSeoSettings(seoData);
+    const newSeo = await storage.createSeoSettings(seoData);
     res.status(201).json(newSeo);
   } catch (error) {
     console.error("Create SEO settings error:", error);
@@ -94,7 +94,7 @@ router.patch("/seo/:id", async (req: Request, res: Response) => {
   try {
     const seoId = req.params.id;
     const updates = req.body;
-    const updatedSeo = await hybridStorage.updateSeoSettings(seoId, updates);
+    const updatedSeo = await storage.updateSeoSettings(seoId, updates);
     
     if (!updatedSeo) {
       return res.status(404).json({ error: "SEO settings not found" });

@@ -16,7 +16,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { hybridStorage } from '../services/storage.service';
+import { storage } from '../services/storage.service';
 
 const router = Router();
 
@@ -30,7 +30,7 @@ const router = Router();
  */
 router.get('/cta', async (req: Request, res: Response) => {
   try {
-    const cta = await hybridStorage.getCtaSettings();
+    const cta = await storage.getCtaSettings();
     res.json(cta);
   } catch (error) {
     console.error('Get CTA error:', error);
@@ -50,7 +50,7 @@ router.post('/cta', async (req: Request, res: Response) => {
       return res.status(400).json({ error: "All fields required" });
     }
 
-    const newCta = await hybridStorage.createCtaSettings({
+    const newCta = await storage.createCtaSettings({
       id,
       buttonTextFr,
       buttonTextEn,
@@ -75,7 +75,7 @@ router.patch('/cta/:id', async (req: Request, res: Response) => {
     const ctaId = req.params.id;
     const updates = req.body;
     
-    const updatedCta = await hybridStorage.updateCtaSettings(ctaId, updates);
+    const updatedCta = await storage.updateCtaSettings(ctaId, updates);
     
     if (!updatedCta) {
       return res.status(404).json({ error: "CTA setting not found" });
@@ -96,7 +96,7 @@ router.delete('/cta/:id', async (req: Request, res: Response) => {
   try {
     const ctaId = req.params.id;
     
-    const deleted = await hybridStorage.deleteCtaSettings(ctaId);
+    const deleted = await storage.deleteCtaSettings(ctaId);
     
     if (!deleted) {
       return res.status(404).json({ error: "CTA setting not found" });
@@ -119,7 +119,7 @@ router.delete('/cta/:id', async (req: Request, res: Response) => {
  */
 router.get('/why-memopyk-cards', async (req: Request, res: Response) => {
   try {
-    const cards = await hybridStorage.getWhyMemopykCards();
+    const cards = await storage.getWhyMemopykCards();
     res.json(cards);
   } catch (error) {
     console.error('Get Why MEMOPYK cards error:', error);
@@ -149,7 +149,7 @@ router.post('/why-memopyk-cards', async (req: Request, res: Response) => {
       return res.status(400).json({ error: "All fields required" });
     }
 
-    const newCard = await hybridStorage.createWhyMemopykCard({
+    const newCard = await storage.createWhyMemopykCard({
       id,
       titleEn,
       titleFr,
@@ -177,7 +177,7 @@ router.patch('/why-memopyk-cards/:id', async (req: Request, res: Response) => {
     const cardId = req.params.id;
     const updates = req.body;
     
-    const updatedCard = await hybridStorage.updateWhyMemopykCard(cardId, updates);
+    const updatedCard = await storage.updateWhyMemopykCard(cardId, updates);
     
     if (!updatedCard) {
       return res.status(404).json({ error: "Why MEMOPYK card not found" });
@@ -198,7 +198,7 @@ router.delete('/why-memopyk-cards/:id', async (req: Request, res: Response) => {
   try {
     const cardId = req.params.id;
     
-    const deleted = await hybridStorage.deleteWhyMemopykCard(cardId);
+    const deleted = await storage.deleteWhyMemopykCard(cardId);
     
     if (!deleted) {
       return res.status(404).json({ error: "Why MEMOPYK card not found" });

@@ -14,7 +14,7 @@ import { trackCtaClick } from "@/lib/analytics";
 import { trackEvent } from "@/utils/analytics";
 // Removed useVideoAnalytics import - not used in GallerySection, causing unnecessary re-renders
 
-// Gallery item interface using camelCase (transformed from API snake_case)
+// Gallery item interface using camelCase (native from Drizzle API)
 interface GalleryItem {
   id: string | number;
   titleEn: string;
@@ -153,45 +153,45 @@ export default function GallerySection() {
     // 🚨 CRITICAL FIX: Ensure rawData is always an array before calling .filter()
     const safeRawData = Array.isArray(rawData) ? rawData : [];
     
+    // API now returns camelCase directly from Drizzle - no transformation needed
     const filteredData = safeRawData
-      .filter((item: any) => item.is_active)
-      .sort((a: any, b: any) => a.order_index - b.order_index);
-    
+      .filter((item: any) => item.isActive)
+      .sort((a: any, b: any) => a.orderIndex - b.orderIndex);
+
     return filteredData.map((item: any) => ({
-      // Convert snake_case API response to camelCase for TypeScript compatibility
       id: item.id,
-      titleEn: item.title_en,
-      titleFr: item.title_fr,
-      priceEn: item.price_en,
-      priceFr: item.price_fr,
-      sourceEn: item.source_en,
-      sourceFr: item.source_fr,
-      durationEn: item.duration_en,
-      durationFr: item.duration_fr,
-      situationEn: item.situation_en,
-      situationFr: item.situation_fr,
-      storyEn: item.story_en,
-      storyFr: item.story_fr,
-      sorryMessageEn: item.sorry_message_en,
-      sorryMessageFr: item.sorry_message_fr,
-      formatPlatformEn: item.format_platform_en,
-      formatPlatformFr: item.format_platform_fr,
-      formatTypeEn: item.format_type_en,
-      formatTypeFr: item.format_type_fr,
-      videoUrlEn: item.video_url_en,
-      videoUrlFr: item.video_url_fr,
-      videoFilename: item.video_filename || item.video_url_en || item.video_url_fr, // TIMESTAMP PREFIX FIX
-      videoWidth: item.video_width,
-      videoHeight: item.video_height,
-      videoOrientation: item.video_orientation,
-      imageUrlEn: item.image_url_en,
-      imageUrlFr: item.image_url_fr,
-      staticImageUrlEn: item.static_image_url_en,
-      staticImageUrlFr: item.static_image_url_fr,
-      staticImageUrl: item.static_image_url, // Legacy field
-      useSameVideo: item.use_same_video, // Shared mode indicator
-      orderIndex: item.order_index,
-      isActive: item.is_active
+      titleEn: item.titleEn,
+      titleFr: item.titleFr,
+      priceEn: item.priceEn,
+      priceFr: item.priceFr,
+      sourceEn: item.sourceEn,
+      sourceFr: item.sourceFr,
+      durationEn: item.durationEn,
+      durationFr: item.durationFr,
+      situationEn: item.situationEn,
+      situationFr: item.situationFr,
+      storyEn: item.storyEn,
+      storyFr: item.storyFr,
+      sorryMessageEn: item.sorryMessageEn,
+      sorryMessageFr: item.sorryMessageFr,
+      formatPlatformEn: item.formatPlatformEn,
+      formatPlatformFr: item.formatPlatformFr,
+      formatTypeEn: item.formatTypeEn,
+      formatTypeFr: item.formatTypeFr,
+      videoUrlEn: item.videoUrlEn,
+      videoUrlFr: item.videoUrlFr,
+      videoFilename: item.videoFilename || item.videoUrlEn || item.videoUrlFr,
+      videoWidth: item.videoWidth,
+      videoHeight: item.videoHeight,
+      videoOrientation: item.videoOrientation,
+      imageUrlEn: item.imageUrlEn,
+      imageUrlFr: item.imageUrlFr,
+      staticImageUrlEn: item.staticImageUrlEn,
+      staticImageUrlFr: item.staticImageUrlFr,
+      staticImageUrl: item.staticImageUrl, // Legacy field
+      useSameVideo: item.useSameVideo,
+      orderIndex: item.orderIndex,
+      isActive: item.isActive
     }));
   }, [rawData]);
 

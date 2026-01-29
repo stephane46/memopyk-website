@@ -37,8 +37,8 @@ const heroTextRouter = Router();
 heroTextRouter.get('/', async (req: Request, res: Response) => {
   try {
     const language = req.query.lang as string;
-    const { hybridStorage } = await import('../services/storage.service');
-    const heroText = await hybridStorage.getHeroTextSettings(language);
+    const { storage } = await import('../services/storage.service');
+    const heroText = await storage.getHeroTextSettings(language);
     res.json(heroText);
   } catch (error) {
     console.error('Get hero text error:', error);
@@ -52,12 +52,12 @@ heroTextRouter.get('/', async (req: Request, res: Response) => {
 
 /**
  * GET / - List all hero videos
+ * Returns camelCase format (native Drizzle output)
  */
 router.get('/', async (req: Request, res: Response) => {
   try {
-    // TODO: Replace with hybridStorage.getHeroVideos()
-    const { hybridStorage } = await import('../services/storage.service');
-    const videos = await hybridStorage.getHeroVideos();
+    const { storage } = await import('../services/storage.service');
+    const videos = await storage.getHeroVideos();
     res.json(videos);
   } catch (error) {
     console.error('Get hero videos error:', error);
@@ -79,9 +79,9 @@ router.post('/', async (req: Request, res: Response) => {
       });
     }
 
-    // TODO: Replace with hybridStorage.createHeroVideo()
-    const { hybridStorage } = await import('../services/storage.service');
-    const newVideo = await hybridStorage.createHeroVideo({
+    // TODO: Replace with storage.createHeroVideo()
+    const { storage } = await import('../services/storage.service');
+    const newVideo = await storage.createHeroVideo({
       title_en,
       title_fr,
       url_en,
@@ -110,9 +110,9 @@ router.patch('/:id/reorder', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Valid order_index is required' });
     }
 
-    // TODO: Replace with hybridStorage.updateHeroVideoOrder()
-    const { hybridStorage } = await import('../services/storage.service');
-    const result = await hybridStorage.updateHeroVideoOrder(videoId, order_index);
+    // TODO: Replace with storage.updateHeroVideoOrder()
+    const { storage } = await import('../services/storage.service');
+    const result = await storage.updateHeroVideoOrder(videoId, order_index);
     res.json({ success: true, video: result });
   } catch (error) {
     console.error('Reorder hero video error:', error);
@@ -128,9 +128,9 @@ router.patch('/:id/toggle', async (req: Request, res: Response) => {
     const videoId = req.params.id;
     const { is_active } = req.body;
 
-    // TODO: Replace with hybridStorage.updateHeroVideo()
-    const { hybridStorage } = await import('../services/storage.service');
-    const result = await hybridStorage.updateHeroVideo(videoId, {
+    // TODO: Replace with storage.updateHeroVideo()
+    const { storage } = await import('../services/storage.service');
+    const result = await storage.updateHeroVideo(videoId, {
       is_active,
       updated_at: new Date().toISOString()
     });
@@ -150,9 +150,9 @@ router.patch('/:id', async (req: Request, res: Response) => {
     const videoId = req.params.id;
     const { title_en, title_fr, is_active, order_index, url_en, url_fr, use_same_video } = req.body;
 
-    // TODO: Replace with hybridStorage.updateHeroVideo()
-    const { hybridStorage } = await import('../services/storage.service');
-    const result = await hybridStorage.updateHeroVideo(videoId, {
+    // TODO: Replace with storage.updateHeroVideo()
+    const { storage } = await import('../services/storage.service');
+    const result = await storage.updateHeroVideo(videoId, {
       title_en,
       title_fr,
       is_active,
@@ -178,9 +178,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
     const videoId = req.params.id;
     console.log(`🗑️ Deleting hero video with ID: ${videoId}`);
 
-    // TODO: Replace with hybridStorage.deleteHeroVideo()
-    const { hybridStorage } = await import('../services/storage.service');
-    const result = await hybridStorage.deleteHeroVideo(videoId);
+    // TODO: Replace with storage.deleteHeroVideo()
+    const { storage } = await import('../services/storage.service');
+    const result = await storage.deleteHeroVideo(videoId);
     res.json({ success: true, deletedVideo: result });
   } catch (error: any) {
     console.error('Hero video delete error:', error);
@@ -203,9 +203,9 @@ router.get('/text', async (req: Request, res: Response) => {
   try {
     const language = req.query.lang as string;
     
-    // TODO: Replace with hybridStorage.getHeroTextSettings()
-    const { hybridStorage } = await import('../services/storage.service');
-    const heroText = await hybridStorage.getHeroTextSettings(language);
+    // TODO: Replace with storage.getHeroTextSettings()
+    const { storage } = await import('../services/storage.service');
+    const heroText = await storage.getHeroTextSettings(language);
     res.json(heroText);
   } catch (error) {
     console.error('Get hero text error:', error);
@@ -234,9 +234,9 @@ router.post('/text', async (req: Request, res: Response) => {
       });
     }
 
-    // TODO: Replace with hybridStorage.createHeroText()
-    const { hybridStorage } = await import('../services/storage.service');
-    const newText = await hybridStorage.createHeroText({
+    // TODO: Replace with storage.createHeroText()
+    const { storage } = await import('../services/storage.service');
+    const newText = await storage.createHeroText({
       title_fr: title_desktop_fr,
       title_en: title_desktop_en,
       subtitle_fr: '',
@@ -267,9 +267,9 @@ router.patch('/text/:id', async (req: Request, res: Response) => {
     const textId = parseInt(req.params.id);
     const updateData = req.body;
 
-    // TODO: Replace with hybridStorage.updateHeroText()
-    const { hybridStorage } = await import('../services/storage.service');
-    const updatedText = await hybridStorage.updateHeroText(String(textId), updateData);
+    // TODO: Replace with storage.updateHeroText()
+    const { storage } = await import('../services/storage.service');
+    const updatedText = await storage.updateHeroText(String(textId), updateData);
     res.json({ success: true, text: updatedText });
   } catch (error) {
     console.error('Update hero text error:', error);
@@ -285,11 +285,11 @@ router.patch('/text/:id/apply', async (req: Request, res: Response) => {
     const textId = req.params.id;
     const { font_size, font_size_desktop, font_size_tablet, font_size_mobile } = req.body;
 
-    // TODO: Replace with hybridStorage methods
-    const { hybridStorage } = await import('../services/storage.service');
+    // TODO: Replace with storage methods
+    const { storage } = await import('../services/storage.service');
     
     // Deactivate all other hero texts first
-    await hybridStorage.deactivateAllHeroTexts();
+    await storage.deactivateAllHeroTexts();
 
     const updateData: Record<string, any> = {
       is_active: true,
@@ -301,7 +301,7 @@ router.patch('/text/:id/apply', async (req: Request, res: Response) => {
     if (font_size_tablet) updateData.font_size_tablet = Number(font_size_tablet);
     if (font_size_mobile) updateData.font_size_mobile = Number(font_size_mobile);
 
-    const appliedText = await hybridStorage.updateHeroText(textId, updateData);
+    const appliedText = await storage.updateHeroText(textId, updateData);
     res.json({ success: true, text: appliedText });
   } catch (error) {
     console.error('Apply hero text error:', error);
@@ -317,9 +317,9 @@ router.delete('/text/:id', async (req: Request, res: Response) => {
   try {
     const textId = parseInt(req.params.id);
 
-    // TODO: Replace with hybridStorage.deleteHeroText()
-    const { hybridStorage } = await import('../services/storage.service');
-    await hybridStorage.deleteHeroText(String(textId));
+    // TODO: Replace with storage.deleteHeroText()
+    const { storage } = await import('../services/storage.service');
+    await storage.deleteHeroText(String(textId));
     res.json({ success: true, message: 'Hero text deleted successfully' });
   } catch (error) {
     console.error('Delete hero text error:', error);

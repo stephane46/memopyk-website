@@ -35,53 +35,53 @@ import ImageCropperEasyCrop from './ImageCropperEasyCrop';
 
 // Module-level persistent state that survives component re-creations
 const persistentUploadState = {
-  video_url_en: '',
-  image_url_en: '',
-  video_url_fr: '',
-  image_url_fr: '',
-  video_filename: '',
+  videoUrlEn: '',
+  imageUrlEn: '',
+  videoUrlFr: '',
+  imageUrlFr: '',
+  videoFilename: '',
   reset: () => {
-    persistentUploadState.video_url_en = '';
-    persistentUploadState.image_url_en = '';
-    persistentUploadState.video_url_fr = '';
-    persistentUploadState.image_url_fr = '';
-    persistentUploadState.video_filename = '';
+    persistentUploadState.videoUrlEn = '';
+    persistentUploadState.imageUrlEn = '';
+    persistentUploadState.videoUrlFr = '';
+    persistentUploadState.imageUrlFr = '';
+    persistentUploadState.videoFilename = '';
   }
 };
 
 interface GalleryItem {
   id: string;
-  title_en: string;
-  title_fr: string;
-  source_en: string;
-  source_fr: string;
-  duration_en: string;
-  duration_fr: string;
-  situation_en: string;
-  situation_fr: string;
-  story_en: string;
-  story_fr: string;
-  sorry_message_en: string;
-  sorry_message_fr: string;
-  format_platform_en?: string;
-  format_platform_fr?: string;
-  format_type_en?: string;
-  format_type_fr?: string;
-  video_url_en?: string;
-  video_url_fr?: string;
-  video_filename?: string;
-  video_width?: number;
-  video_height?: number;
-  video_orientation?: string;
-  use_same_video?: boolean;
-  image_url_en?: string;
-  image_url_fr?: string;
-  price_en: string;
-  price_fr: string;
-  alt_text_en: string;
-  alt_text_fr: string;
-  order_index: number;
-  is_active: boolean;
+  titleEn: string;
+  titleFr: string;
+  sourceEn: string;
+  sourceFr: string;
+  durationEn: string;
+  durationFr: string;
+  situationEn: string;
+  situationFr: string;
+  storyEn: string;
+  storyFr: string;
+  sorryMessageEn: string;
+  sorryMessageFr: string;
+  formatPlatformEn?: string;
+  formatPlatformFr?: string;
+  formatTypeEn?: string;
+  formatTypeFr?: string;
+  videoUrlEn?: string;
+  videoUrlFr?: string;
+  videoFilename?: string;
+  videoWidth?: number;
+  videoHeight?: number;
+  videoOrientation?: string;
+  useSameVideo?: boolean;
+  imageUrlEn?: string;
+  imageUrlFr?: string;
+  priceEn: string;
+  priceFr: string;
+  altTextEn: string;
+  altTextFr: string;
+  orderIndex: number;
+  isActive: boolean;
   position_x?: number;
   position_y?: number;
   dimensions_width?: number;
@@ -93,8 +93,8 @@ interface GalleryItem {
   aspect_ratio?: string;
   static_image_url?: string;
   crop_settings?: any;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Helper function to add cache-busting timestamp to image URLs
@@ -176,9 +176,9 @@ export default function GalleryManagement() {
     mutationFn: async ({ id, data }: { id: string; data: Partial<GalleryItem> }) => {
       console.log('🚨 UPDATE MUTATION DEBUG - Data being sent to server:', {
         id: id,
-        video_filename: data.video_filename,
-        video_url_en: data.video_url_en,
-        title_en: data.title_en,
+        videoFilename: data.videoFilename,
+        videoUrlEn: data.videoUrlEn,
+        titleEn: data.titleEn,
         fullData: data
       });
       console.log('🚨 API URL:', `/api/gallery/${id}`);
@@ -254,17 +254,17 @@ export default function GalleryManagement() {
   });
 
   const handleReorder = (item: GalleryItem, direction: 'up' | 'down') => {
-    console.log('🔄 REORDER CLICKED:', { itemId: item.id, itemTitle: item.title_en, direction });
+    console.log('🔄 REORDER CLICKED:', { itemId: item.id, itemTitle: item.titleEn, direction });
     
-    const sortedItems = [...galleryItems].sort((a, b) => a.order_index - b.order_index);
-    console.log('🔄 Current sorted items:', sortedItems.map(i => ({ id: i.id, title: i.title_en, order: i.order_index })));
+    const sortedItems = [...galleryItems].sort((a, b) => a.orderIndex - b.orderIndex);
+    console.log('🔄 Current sorted items:', sortedItems.map(i => ({ id: i.id, title: i.titleEn, order: i.orderIndex })));
     
     const currentIndex = sortedItems.findIndex(i => i.id === item.id);
     console.log('🔄 Current index:', currentIndex);
     
     if (direction === 'up' && currentIndex > 0) {
       const targetItem = sortedItems[currentIndex - 1];
-      console.log(`🔄 Moving item ${item.title_en} UP - swapping with ${targetItem.title_en}`);
+      console.log(`🔄 Moving item ${item.titleEn} UP - swapping with ${targetItem.titleEn}`);
       console.log(`🔄 IDs: ${item.id} ↔ ${targetItem.id}`);
       
       // Prevent multiple rapid clicks
@@ -276,7 +276,7 @@ export default function GalleryManagement() {
       swapItemsMutation.mutate({ id1: item.id, id2: targetItem.id });
     } else if (direction === 'down' && currentIndex < sortedItems.length - 1) {
       const targetItem = sortedItems[currentIndex + 1];
-      console.log(`🔄 Moving item ${item.title_en} DOWN - swapping with ${targetItem.title_en}`);
+      console.log(`🔄 Moving item ${item.titleEn} DOWN - swapping with ${targetItem.titleEn}`);
       console.log(`🔄 IDs: ${item.id} ↔ ${targetItem.id}`);
       
       // Prevent multiple rapid clicks
@@ -304,75 +304,75 @@ export default function GalleryManagement() {
       console.log('🔄 Module persistent state during init:', persistentUploadState);
       
       // If we have persistent state from previous uploads, use it
-      const hasPersistedUrls = persistentUploadState.video_url_en || persistentUploadState.image_url_en;
+      const hasPersistedUrls = persistentUploadState.videoUrlEn || persistentUploadState.imageUrlEn;
       console.log('🔄 Has persisted URLs:', hasPersistedUrls);
       
       return {
-        title_en: item?.title_en || '',
-        title_fr: item?.title_fr || '',
-        source_en: item?.source_en || '',
-        source_fr: item?.source_fr || '',
-        duration_en: item?.duration_en || '',
-        duration_fr: item?.duration_fr || '',
-        situation_en: item?.situation_en || '',
-        situation_fr: item?.situation_fr || '',
-        story_en: item?.story_en || '',
-        story_fr: item?.story_fr || '',
-        sorry_message_en: item?.sorry_message_en || 'Sorry, we cannot show you the video at this stage',
-        sorry_message_fr: item?.sorry_message_fr || 'Désolé, nous ne pouvons pas vous montrer la vidéo à ce stade',
-        format_platform_en: item?.format_platform_en || '',
-        format_platform_fr: item?.format_platform_fr || '',
-        format_type_en: item?.format_type_en || '',
-        format_type_fr: item?.format_type_fr || '',
-        video_url_en: persistentUploadState.video_url_en || item?.video_url_en || '',
-        video_url_fr: persistentUploadState.video_url_fr || item?.video_url_fr || '',
-        video_filename: (() => {
+        titleEn: item?.titleEn || '',
+        titleFr: item?.titleFr || '',
+        sourceEn: item?.sourceEn || '',
+        sourceFr: item?.sourceFr || '',
+        durationEn: item?.durationEn || '',
+        durationFr: item?.durationFr || '',
+        situationEn: item?.situationEn || '',
+        situationFr: item?.situationFr || '',
+        storyEn: item?.storyEn || '',
+        storyFr: item?.storyFr || '',
+        sorryMessageEn: item?.sorryMessageEn || 'Sorry, we cannot show you the video at this stage',
+        sorryMessageFr: item?.sorryMessageFr || 'Désolé, nous ne pouvons pas vous montrer la vidéo à ce stade',
+        formatPlatformEn: item?.formatPlatformEn || '',
+        formatPlatformFr: item?.formatPlatformFr || '',
+        formatTypeEn: item?.formatTypeEn || '',
+        formatTypeFr: item?.formatTypeFr || '',
+        videoUrlEn: persistentUploadState.videoUrlEn || item?.videoUrlEn || '',
+        videoUrlFr: persistentUploadState.videoUrlFr || item?.videoUrlFr || '',
+        videoFilename: (() => {
           // PRIORITY FIX: Prioritize uploaded filename over database value
-          const result = persistentUploadState.video_filename || item?.video_filename || '';
+          const result = persistentUploadState.videoFilename || item?.videoFilename || '';
           console.log('🎯 INITIAL VIDEO_FILENAME ASSIGNMENT (FIXED PRIORITY):', {
-            item_video_filename: item?.video_filename,
-            persistent_video_filename: persistentUploadState.video_filename,
+            item_videoFilename: item?.videoFilename,
+            persistent_videoFilename: persistentUploadState.videoFilename,
             final_result: result,
-            priority: persistentUploadState.video_filename ? 'uploaded' : 'database',
+            priority: persistentUploadState.videoFilename ? 'uploaded' : 'database',
             item_id: item?.id
           });
           return result;
         })(),
-        video_width: item?.video_width || 0,
-        video_height: item?.video_height || 0,
-        video_orientation: item?.video_orientation || 'landscape',
-        image_url_en: item?.image_url_en || persistentUploadState.image_url_en || '',
-        image_url_fr: item?.image_url_fr || persistentUploadState.image_url_fr || '',
-        price_en: item?.price_en || '',
-        price_fr: item?.price_fr || '',
-        alt_text_en: item?.alt_text_en || '',
-        alt_text_fr: item?.alt_text_fr || '',
-        order_index: item?.order_index || 999,
-        is_active: item?.is_active ?? true,
-        use_same_video: item?.use_same_video ?? true
+        videoWidth: item?.videoWidth || 0,
+        videoHeight: item?.videoHeight || 0,
+        videoOrientation: item?.videoOrientation || 'landscape',
+        imageUrlEn: item?.imageUrlEn || persistentUploadState.imageUrlEn || '',
+        imageUrlFr: item?.imageUrlFr || persistentUploadState.imageUrlFr || '',
+        priceEn: item?.priceEn || '',
+        priceFr: item?.priceFr || '',
+        altTextEn: item?.altTextEn || '',
+        altTextFr: item?.altTextFr || '',
+        orderIndex: item?.orderIndex || 999,
+        isActive: item?.isActive ?? true,
+        useSameVideo: item?.useSameVideo ?? true
       };
     });
 
     // Debug: Track formData changes (removed to fix infinite loop)
     // useEffect(() => {
     //   console.log('📊 FormData state changed:', {
-    //     video_url_en: formData.video_url_en,
-    //     image_url_en: formData.image_url_en,
-    //     use_same_video: formData.use_same_video
+    //     videoUrlEn: formData.videoUrlEn,
+    //     imageUrlEn: formData.imageUrlEn,
+    //     useSameVideo: formData.useSameVideo
     //   });
-    // }, [formData.video_url_en, formData.image_url_en, formData.use_same_video]);
+    // }, [formData.videoUrlEn, formData.imageUrlEn, formData.useSameVideo]);
 
-    // When use_same_video changes, sync the video URLs
+    // When useSameVideo changes, sync the video URLs
     const handleSameVideoToggle = (useSame: boolean) => {
-      console.log('🔄 TOGGLE CLICKED! Previous state:', formData.use_same_video, '→ New state:', useSame);
+      console.log('🔄 TOGGLE CLICKED! Previous state:', formData.useSameVideo, '→ New state:', useSame);
       console.log('🔄 Current formData before change:', formData);
       
-      if (useSame && formData.video_url_en) {
+      if (useSame && formData.videoUrlEn) {
         setFormData(prev => {
           const newData = { 
             ...prev, 
-            use_same_video: useSame,
-            video_url_fr: prev.video_url_en
+            useSameVideo: useSame,
+            videoUrlFr: prev.videoUrlEn
           };
           console.log('🔄 Updated formData (sync mode):', newData);
           return newData;
@@ -381,7 +381,7 @@ export default function GalleryManagement() {
         setFormData(prev => {
           const newData = { 
             ...prev, 
-            use_same_video: useSame
+            useSameVideo: useSame
           };
           console.log('🔄 Updated formData (separate mode):', newData);
           return newData;
@@ -406,50 +406,50 @@ export default function GalleryManagement() {
             </p>
             
             {/* Current Video Display - UNIFIED SYSTEM v1.0.26 */}
-            {(formData.video_filename || formData.video_url_en) && (
+            {(formData.videoFilename || formData.videoUrlEn) && (
               <div className="mb-3 p-3 bg-green-50 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-800">
                 <p className="text-sm font-medium text-green-800 dark:text-green-200 mb-1">
                   ✅ Vidéo actuelle:
                 </p>
                 <p className="text-xs font-mono text-green-700 dark:text-green-300 break-all">
-                  {formData.video_filename || formData.video_url_en}
+                  {formData.videoFilename || formData.videoUrlEn}
                 </p>
-                {formData.video_filename && formData.video_url_en && (
+                {formData.videoFilename && formData.videoUrlEn && (
                   <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                    🎯 Utilise le système unifié (video_filename)
+                    🎯 Utilise le système unifié (videoFilename)
                   </p>
                 )}
-                {!formData.video_filename && formData.video_url_en && (
+                {!formData.videoFilename && formData.videoUrlEn && (
                   <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
-                    ⚠️ Système legacy (video_url) - Considérez mettre à jour vers video_filename
+                    ⚠️ Système legacy (video_url) - Considérez mettre à jour vers videoFilename
                   </p>
                 )}
                 <div className="mt-2 flex items-center gap-2">
                   <video 
-                    src={`/api/video-proxy?filename=${encodeURIComponent(formData.video_url_en.split('/').pop() || formData.video_url_en)}`}
+                    src={`/api/video-proxy?filename=${encodeURIComponent(formData.videoUrlEn.split('/').pop() || formData.videoUrlEn)}`}
                     className="w-20 h-12 object-cover rounded border"
                     muted
                   />
                   <div className="text-xs text-green-600 dark:text-green-400">
-                    Dimensions: {formData.video_width} × {formData.video_height}px<br/>
-                    Orientation: {formData.video_orientation}
+                    Dimensions: {formData.videoWidth} × {formData.videoHeight}px<br/>
+                    Orientation: {formData.videoOrientation}
                   </div>
                 </div>
               </div>
             )}
 
             {/* Current Image Display */}
-            {formData.image_url_en && (
+            {formData.imageUrlEn && (
               <div className="mb-3 p-3 bg-green-50 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-800">
                 <p className="text-sm font-medium text-green-800 dark:text-green-200 mb-1">
                   ✅ Image actuelle:
                 </p>
                 <p className="text-xs font-mono text-green-700 dark:text-green-300 break-all mb-2">
-                  {formData.image_url_en}
+                  {formData.imageUrlEn}
                 </p>
                 <div className="flex items-center gap-2">
                   <img 
-                    src={`/api/video-proxy?filename=${encodeURIComponent(formData.image_url_en.split('/').pop() || formData.image_url_en)}`}
+                    src={`/api/video-proxy?filename=${encodeURIComponent(formData.imageUrlEn.split('/').pop() || formData.imageUrlEn)}`}
                     alt="Current preview"
                     className="w-20 h-12 object-cover rounded border"
                     onError={(e) => {
@@ -468,7 +468,7 @@ export default function GalleryManagement() {
 
 
           
-          {formData.use_same_video ? (
+          {formData.useSameVideo ? (
             // Shared upload for both languages
             <div className="mt-6 p-4 bg-gradient-to-r from-[#F2EBDC] to-[#89BAD9]/20 dark:from-[#011526]/20 dark:to-[#2A4759]/20 rounded-lg border border-[#89BAD9] dark:border-[#2A4759]">
               <div className="flex items-center gap-2 mb-3">
@@ -496,15 +496,15 @@ export default function GalleryManagement() {
                     uploadId="gallery-video-shared-upload"
                     onUploadComplete={(result) => {
                       const filename = result.url.split('/').pop() || '';
-                      persistentUploadState.video_url_en = filename;
-                      persistentUploadState.video_url_fr = filename;
-                      persistentUploadState.video_filename = filename;
+                      persistentUploadState.videoUrlEn = filename;
+                      persistentUploadState.videoUrlFr = filename;
+                      persistentUploadState.videoFilename = filename;
                       
                       setFormData(prev => ({
                         ...prev,
-                        video_url_en: filename,
-                        video_url_fr: filename,
-                        video_filename: filename
+                        videoUrlEn: filename,
+                        videoUrlFr: filename,
+                        videoFilename: filename
                       }));
                       
                       toast({
@@ -535,13 +535,13 @@ export default function GalleryManagement() {
                     uploadId="gallery-image-shared-upload"
                     onUploadComplete={(result) => {
                       const url = result.url;
-                      persistentUploadState.image_url_en = url;
-                      persistentUploadState.image_url_fr = url;
+                      persistentUploadState.imageUrlEn = url;
+                      persistentUploadState.imageUrlFr = url;
                       
                       setFormData(prev => ({
                         ...prev,
-                        image_url_en: url,
-                        image_url_fr: url
+                        imageUrlEn: url,
+                        imageUrlFr: url
                       }));
                       
                       toast({
@@ -591,11 +591,11 @@ export default function GalleryManagement() {
                       uploadId="gallery-video-fr-upload"
                       onUploadComplete={(result) => {
                         const filename = result.url.split('/').pop() || '';
-                        persistentUploadState.video_url_fr = filename;
+                        persistentUploadState.videoUrlFr = filename;
                         
                         setFormData(prev => ({
                           ...prev,
-                          video_url_fr: filename
+                          videoUrlFr: filename
                         }));
                         
                         toast({
@@ -626,11 +626,11 @@ export default function GalleryManagement() {
                       uploadId="gallery-image-fr-upload"
                       onUploadComplete={(result) => {
                         const url = result.url;
-                        persistentUploadState.image_url_fr = url;
+                        persistentUploadState.imageUrlFr = url;
                         
                         setFormData(prev => ({
                           ...prev,
-                          image_url_fr: url
+                          imageUrlFr: url
                         }));
                         
                         toast({
@@ -678,11 +678,11 @@ export default function GalleryManagement() {
                       uploadId="gallery-video-en-upload"
                       onUploadComplete={(result) => {
                         const filename = result.url.split('/').pop() || '';
-                        persistentUploadState.video_url_en = filename;
+                        persistentUploadState.videoUrlEn = filename;
                         
                         setFormData(prev => ({
                           ...prev,
-                          video_url_en: filename
+                          videoUrlEn: filename
                         }));
                         
                         toast({
@@ -713,11 +713,11 @@ export default function GalleryManagement() {
                       uploadId="gallery-image-en-upload"
                       onUploadComplete={(result) => {
                         const url = result.url;
-                        persistentUploadState.image_url_en = url;
+                        persistentUploadState.imageUrlEn = url;
                         
                         setFormData(prev => ({
                           ...prev,
-                          image_url_en: url
+                          imageUrlEn: url
                         }));
                         
                         toast({
@@ -745,7 +745,7 @@ export default function GalleryManagement() {
               <CheckCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
               <div className="text-xs text-blue-800 dark:text-blue-200">
                 <p className="font-medium mb-1">Guide d'utilisation :</p>
-                {formData.use_same_video ? (
+                {formData.useSameVideo ? (
                   <>
                     <p>1. Téléchargez votre vidéo (sera utilisée pour FR et EN)</p>
                     <p>2. Téléchargez votre image de couverture (sera utilisée pour FR et EN)</p>
@@ -767,7 +767,7 @@ export default function GalleryManagement() {
         <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
           <div className="flex items-center space-x-2">
             <Switch
-              checked={formData.use_same_video}
+              checked={formData.useSameVideo}
               onCheckedChange={handleSameVideoToggle}
             />
             <Label className="text-blue-900 dark:text-blue-100 font-medium">
@@ -775,7 +775,7 @@ export default function GalleryManagement() {
             </Label>
           </div>
           <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-            {formData.use_same_video ? (
+            {formData.useSameVideo ? (
               "✅ ACTIVÉ - Même vidéo pour les deux langues"
             ) : (
               "❌ DÉSACTIVÉ - Vidéos séparées pour FR et EN"
@@ -783,7 +783,7 @@ export default function GalleryManagement() {
           </p>
           <div className="mt-2 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded border border-yellow-200 dark:border-yellow-800">
             <p className="text-xs text-yellow-800 dark:text-yellow-200">
-              🔧 Debug: use_same_video = {String(formData.use_same_video)} | Type: {typeof formData.use_same_video}
+              🔧 Debug: useSameVideo = {String(formData.useSameVideo)} | Type: {typeof formData.useSameVideo}
             </p>
           </div>
         </div>
@@ -795,22 +795,22 @@ export default function GalleryManagement() {
           </h4>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="title_en" className="text-gray-700 dark:text-gray-300">Titre (English) *</Label>
+              <Label htmlFor="titleEn" className="text-gray-700 dark:text-gray-300">Titre (English) *</Label>
               <Input
-                id="title_en"
-                value={formData.title_en}
-                onChange={(e) => setFormData({ ...formData, title_en: e.target.value })}
+                id="titleEn"
+                value={formData.titleEn}
+                onChange={(e) => setFormData({ ...formData, titleEn: e.target.value })}
                 placeholder="Ex: Wedding Memory Film"
                 className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="title_fr" className="text-gray-700 dark:text-gray-300">Titre (Français) *</Label>
+              <Label htmlFor="titleFr" className="text-gray-700 dark:text-gray-300">Titre (Français) *</Label>
               <Input
-                id="title_fr"
-                value={formData.title_fr}
-                onChange={(e) => setFormData({ ...formData, title_fr: e.target.value })}
+                id="titleFr"
+                value={formData.titleFr}
+                onChange={(e) => setFormData({ ...formData, titleFr: e.target.value })}
                 placeholder="Ex: Film Souvenir de Mariage"
                 className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 required
@@ -826,22 +826,22 @@ export default function GalleryManagement() {
           </h4>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="source_en" className="text-gray-700 dark:text-gray-300">Source (English)</Label>
+              <Label htmlFor="sourceEn" className="text-gray-700 dark:text-gray-300">Source (English)</Label>
               <Textarea
-                id="source_en"
-                value={formData.source_en}
-                onChange={(e) => setFormData({ ...formData, source_en: e.target.value })}
+                id="sourceEn"
+                value={formData.sourceEn}
+                onChange={(e) => setFormData({ ...formData, sourceEn: e.target.value })}
                 placeholder="Ex: 80 photos & 10 videos"
                 rows={2}
                 className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
             </div>
             <div>
-              <Label htmlFor="source_fr" className="text-gray-700 dark:text-gray-300">Source (Français)</Label>
+              <Label htmlFor="sourceFr" className="text-gray-700 dark:text-gray-300">Source (Français)</Label>
               <Textarea
-                id="source_fr"
-                value={formData.source_fr}
-                onChange={(e) => setFormData({ ...formData, source_fr: e.target.value })}
+                id="sourceFr"
+                value={formData.sourceFr}
+                onChange={(e) => setFormData({ ...formData, sourceFr: e.target.value })}
                 placeholder="Ex: 80 photos et 10 vidéos"
                 rows={2}
                 className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
@@ -857,21 +857,21 @@ export default function GalleryManagement() {
           </h4>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="duration_en" className="text-gray-700 dark:text-gray-300">Durée (English) - Quelques mots seulement</Label>
+              <Label htmlFor="durationEn" className="text-gray-700 dark:text-gray-300">Durée (English) - Quelques mots seulement</Label>
               <Input
-                id="duration_en"
-                value={formData.duration_en}
-                onChange={(e) => setFormData({ ...formData, duration_en: e.target.value })}
+                id="durationEn"
+                value={formData.durationEn}
+                onChange={(e) => setFormData({ ...formData, durationEn: e.target.value })}
                 placeholder="Ex: 2 minutes"
                 className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
             </div>
             <div>
-              <Label htmlFor="duration_fr" className="text-gray-700 dark:text-gray-300">Durée (Français) - Quelques mots seulement</Label>
+              <Label htmlFor="durationFr" className="text-gray-700 dark:text-gray-300">Durée (Français) - Quelques mots seulement</Label>
               <Input
-                id="duration_fr"
-                value={formData.duration_fr}
-                onChange={(e) => setFormData({ ...formData, duration_fr: e.target.value })}
+                id="durationFr"
+                value={formData.durationFr}
+                onChange={(e) => setFormData({ ...formData, durationFr: e.target.value })}
                 placeholder="Ex: 2 minutes"
                 className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
@@ -886,22 +886,22 @@ export default function GalleryManagement() {
           </h4>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="situation_en" className="text-gray-700 dark:text-gray-300">Situation (English) - Max 5 lignes</Label>
+              <Label htmlFor="situationEn" className="text-gray-700 dark:text-gray-300">Situation (English) - Max 5 lignes</Label>
               <Textarea
-                id="situation_en"
-                value={formData.situation_en}
-                onChange={(e) => setFormData({ ...formData, situation_en: e.target.value })}
+                id="situationEn"
+                value={formData.situationEn}
+                onChange={(e) => setFormData({ ...formData, situationEn: e.target.value })}
                 placeholder="Ex: Intimate wedding ceremony in a beautiful garden setting"
                 rows={4}
                 className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
             </div>
             <div>
-              <Label htmlFor="situation_fr" className="text-gray-700 dark:text-gray-300">Situation (Français) - Max 5 lignes</Label>
+              <Label htmlFor="situationFr" className="text-gray-700 dark:text-gray-300">Situation (Français) - Max 5 lignes</Label>
               <Textarea
-                id="situation_fr"
-                value={formData.situation_fr}
-                onChange={(e) => setFormData({ ...formData, situation_fr: e.target.value })}
+                id="situationFr"
+                value={formData.situationFr}
+                onChange={(e) => setFormData({ ...formData, situationFr: e.target.value })}
                 placeholder="Ex: Cérémonie de mariage intime dans un magnifique cadre de jardin"
                 rows={4}
                 className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
@@ -917,22 +917,22 @@ export default function GalleryManagement() {
           </h4>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="story_en" className="text-gray-700 dark:text-gray-300">Histoire (English) - Max 5 lignes</Label>
+              <Label htmlFor="storyEn" className="text-gray-700 dark:text-gray-300">Histoire (English) - Max 5 lignes</Label>
               <Textarea
-                id="story_en"
-                value={formData.story_en}
-                onChange={(e) => setFormData({ ...formData, story_en: e.target.value })}
+                id="storyEn"
+                value={formData.storyEn}
+                onChange={(e) => setFormData({ ...formData, storyEn: e.target.value })}
                 placeholder="Ex: A heartwarming tale of two souls united in love and commitment"
                 rows={4}
                 className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
             </div>
             <div>
-              <Label htmlFor="story_fr" className="text-gray-700 dark:text-gray-300">Histoire (Français) - Max 5 lignes</Label>
+              <Label htmlFor="storyFr" className="text-gray-700 dark:text-gray-300">Histoire (Français) - Max 5 lignes</Label>
               <Textarea
-                id="story_fr"
-                value={formData.story_fr}
-                onChange={(e) => setFormData({ ...formData, story_fr: e.target.value })}
+                id="storyFr"
+                value={formData.storyFr}
+                onChange={(e) => setFormData({ ...formData, storyFr: e.target.value })}
                 placeholder="Ex: Une histoire touchante de deux âmes unies par l'amour et l'engagement"
                 rows={4}
                 className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
@@ -951,22 +951,22 @@ export default function GalleryManagement() {
           </p>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="sorry_message_en" className="text-gray-700 dark:text-gray-300">Message d'excuse (English)</Label>
+              <Label htmlFor="sorryMessageEn" className="text-gray-700 dark:text-gray-300">Message d'excuse (English)</Label>
               <Textarea
-                id="sorry_message_en"
-                value={formData.sorry_message_en}
-                onChange={(e) => setFormData({ ...formData, sorry_message_en: e.target.value })}
+                id="sorryMessageEn"
+                value={formData.sorryMessageEn}
+                onChange={(e) => setFormData({ ...formData, sorryMessageEn: e.target.value })}
                 placeholder="Ex: Sorry, we cannot show you the video at this stage"
                 rows={3}
                 className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
             </div>
             <div>
-              <Label htmlFor="sorry_message_fr" className="text-gray-700 dark:text-gray-300">Message d'excuse (Français)</Label>
+              <Label htmlFor="sorryMessageFr" className="text-gray-700 dark:text-gray-300">Message d'excuse (Français)</Label>
               <Textarea
-                id="sorry_message_fr"
-                value={formData.sorry_message_fr}
-                onChange={(e) => setFormData({ ...formData, sorry_message_fr: e.target.value })}
+                id="sorryMessageFr"
+                value={formData.sorryMessageFr}
+                onChange={(e) => setFormData({ ...formData, sorryMessageFr: e.target.value })}
                 placeholder="Ex: Désolé, nous ne pouvons pas vous montrer la vidéo à ce stade"
                 rows={3}
                 className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
@@ -988,8 +988,8 @@ export default function GalleryManagement() {
             <div className="space-y-4">
               <h5 className="font-medium text-[#011526] dark:text-[#F2EBDC]">English</h5>
               <div>
-                <Label htmlFor="format_platform_en" className="text-gray-700 dark:text-gray-300">Platform Line 1</Label>
-                <Select value={formData.format_platform_en} onValueChange={(value) => setFormData({ ...formData, format_platform_en: value })}>
+                <Label htmlFor="formatPlatformEn" className="text-gray-700 dark:text-gray-300">Platform Line 1</Label>
+                <Select value={formData.formatPlatformEn} onValueChange={(value) => setFormData({ ...formData, formatPlatformEn: value })}>
                   <SelectTrigger className="bg-white dark:bg-gray-800">
                     <SelectValue placeholder="Select platform category" />
                   </SelectTrigger>
@@ -1002,8 +1002,8 @@ export default function GalleryManagement() {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="format_type_en" className="text-gray-700 dark:text-gray-300">Format Line 2</Label>
-                <Select value={formData.format_type_en} onValueChange={(value) => setFormData({ ...formData, format_type_en: value })}>
+                <Label htmlFor="formatTypeEn" className="text-gray-700 dark:text-gray-300">Format Line 2</Label>
+                <Select value={formData.formatTypeEn} onValueChange={(value) => setFormData({ ...formData, formatTypeEn: value })}>
                   <SelectTrigger className="bg-white dark:bg-gray-800">
                     <SelectValue placeholder="Select format type" />
                   </SelectTrigger>
@@ -1021,8 +1021,8 @@ export default function GalleryManagement() {
             <div className="space-y-4">
               <h5 className="font-medium text-[#011526] dark:text-[#F2EBDC]">Français</h5>
               <div>
-                <Label htmlFor="format_platform_fr" className="text-gray-700 dark:text-gray-300">Platform Line 1</Label>
-                <Select value={formData.format_platform_fr} onValueChange={(value) => setFormData({ ...formData, format_platform_fr: value })}>
+                <Label htmlFor="formatPlatformFr" className="text-gray-700 dark:text-gray-300">Platform Line 1</Label>
+                <Select value={formData.formatPlatformFr} onValueChange={(value) => setFormData({ ...formData, formatPlatformFr: value })}>
                   <SelectTrigger className="bg-white dark:bg-gray-800">
                     <SelectValue placeholder="Sélectionner catégorie plateforme" />
                   </SelectTrigger>
@@ -1035,8 +1035,8 @@ export default function GalleryManagement() {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="format_type_fr" className="text-gray-700 dark:text-gray-300">Format Line 2</Label>
-                <Select value={formData.format_type_fr} onValueChange={(value) => setFormData({ ...formData, format_type_fr: value })}>
+                <Label htmlFor="formatTypeFr" className="text-gray-700 dark:text-gray-300">Format Line 2</Label>
+                <Select value={formData.formatTypeFr} onValueChange={(value) => setFormData({ ...formData, formatTypeFr: value })}>
                   <SelectTrigger className="bg-white dark:bg-gray-800">
                     <SelectValue placeholder="Sélectionner type de format" />
                   </SelectTrigger>
@@ -1073,10 +1073,10 @@ export default function GalleryManagement() {
               <Label className="text-blue-900 dark:text-blue-100 font-medium">🇫🇷 Français</Label>
               <div className="space-y-1">
                 <div className="text-xs text-blue-700 dark:text-blue-300">
-                  Vidéo: <span className="font-mono bg-blue-100 dark:bg-blue-800 px-1 rounded">{formData.video_url_fr || 'Non définie'}</span>
+                  Vidéo: <span className="font-mono bg-blue-100 dark:bg-blue-800 px-1 rounded">{formData.videoUrlFr || 'Non définie'}</span>
                 </div>
                 <div className="text-xs text-blue-700 dark:text-blue-300">
-                  Image: <span className="font-mono bg-blue-100 dark:bg-blue-800 px-1 rounded">{formData.image_url_fr || 'Non définie'}</span>
+                  Image: <span className="font-mono bg-blue-100 dark:bg-blue-800 px-1 rounded">{formData.imageUrlFr || 'Non définie'}</span>
                 </div>
               </div>
             </div>
@@ -1085,19 +1085,19 @@ export default function GalleryManagement() {
               <Label className="text-green-900 dark:text-green-100 font-medium">🇺🇸 English</Label>
               <div className="space-y-1">
                 <div className="text-xs text-green-700 dark:text-green-300">
-                  Video: <span className="font-mono bg-green-100 dark:bg-green-800 px-1 rounded">{formData.video_url_en || 'Not set'}</span>
+                  Video: <span className="font-mono bg-green-100 dark:bg-green-800 px-1 rounded">{formData.videoUrlEn || 'Not set'}</span>
                 </div>
                 <div className="text-xs text-green-700 dark:text-green-300">
-                  Image: <span className="font-mono bg-green-100 dark:bg-green-800 px-1 rounded">{formData.image_url_en || 'Not set'}</span>
+                  Image: <span className="font-mono bg-green-100 dark:bg-green-800 px-1 rounded">{formData.imageUrlEn || 'Not set'}</span>
                 </div>
               </div>
             </div>
           </div>
           
-          {formData.video_filename && (
+          {formData.videoFilename && (
             <div className="mt-3 p-2 bg-gray-100 dark:bg-gray-800 rounded">
               <div className="text-xs text-gray-600 dark:text-gray-400">
-                Legacy filename: <span className="font-mono">{formData.video_filename}</span>
+                Legacy filename: <span className="font-mono">{formData.videoFilename}</span>
               </div>
             </div>
           )}
@@ -1115,12 +1115,12 @@ export default function GalleryManagement() {
           </p>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="video_width" className="text-gray-700 dark:text-gray-300">Largeur (pixels) *</Label>
+              <Label htmlFor="videoWidth" className="text-gray-700 dark:text-gray-300">Largeur (pixels) *</Label>
               <Input
-                id="video_width"
+                id="videoWidth"
                 type="number"
-                value={formData.video_width}
-                onChange={(e) => setFormData({ ...formData, video_width: parseInt(e.target.value) || 0 })}
+                value={formData.videoWidth}
+                onChange={(e) => setFormData({ ...formData, videoWidth: parseInt(e.target.value) || 0 })}
                 placeholder="Ex: 1920"
                 min={1}
                 className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
@@ -1128,12 +1128,12 @@ export default function GalleryManagement() {
               />
             </div>
             <div>
-              <Label htmlFor="video_height" className="text-gray-700 dark:text-gray-300">Hauteur (pixels) *</Label>
+              <Label htmlFor="videoHeight" className="text-gray-700 dark:text-gray-300">Hauteur (pixels) *</Label>
               <Input
-                id="video_height"
+                id="videoHeight"
                 type="number"
-                value={formData.video_height}
-                onChange={(e) => setFormData({ ...formData, video_height: parseInt(e.target.value) || 0 })}
+                value={formData.videoHeight}
+                onChange={(e) => setFormData({ ...formData, videoHeight: parseInt(e.target.value) || 0 })}
                 placeholder="Ex: 1080"
                 min={1}
                 className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
@@ -1141,10 +1141,10 @@ export default function GalleryManagement() {
               />
             </div>
             <div>
-              <Label htmlFor="video_orientation" className="text-gray-700 dark:text-gray-300">Orientation (Auto-détectée)</Label>
+              <Label htmlFor="videoOrientation" className="text-gray-700 dark:text-gray-300">Orientation (Auto-détectée)</Label>
               <div className="w-full p-2 border rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                {formData.video_width && formData.video_height 
-                  ? (formData.video_width > formData.video_height ? 'Paysage (Landscape)' : 'Portrait')
+                {formData.videoWidth && formData.videoHeight 
+                  ? (formData.videoWidth > formData.videoHeight ? 'Paysage (Landscape)' : 'Portrait')
                   : 'Entrez les dimensions pour voir l\'orientation'
                 }
               </div>
@@ -1160,21 +1160,21 @@ export default function GalleryManagement() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="price_en" className="text-gray-700 dark:text-gray-300">Prix (English)</Label>
+            <Label htmlFor="priceEn" className="text-gray-700 dark:text-gray-300">Prix (English)</Label>
             <Input
-              id="price_en"
-              value={formData.price_en}
-              onChange={(e) => setFormData({ ...formData, price_en: e.target.value })}
+              id="priceEn"
+              value={formData.priceEn}
+              onChange={(e) => setFormData({ ...formData, priceEn: e.target.value })}
               placeholder="$299"
               className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             />
           </div>
           <div>
-            <Label htmlFor="price_fr" className="text-gray-700 dark:text-gray-300">Prix (Français)</Label>
+            <Label htmlFor="priceFr" className="text-gray-700 dark:text-gray-300">Prix (Français)</Label>
             <Input
-              id="price_fr"
-              value={formData.price_fr}
-              onChange={(e) => setFormData({ ...formData, price_fr: e.target.value })}
+              id="priceFr"
+              value={formData.priceFr}
+              onChange={(e) => setFormData({ ...formData, priceFr: e.target.value })}
               placeholder="299€"
               className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             />
@@ -1183,21 +1183,21 @@ export default function GalleryManagement() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="alt_text_en" className="text-gray-700 dark:text-gray-300">Texte Alt (English)</Label>
+            <Label htmlFor="altTextEn" className="text-gray-700 dark:text-gray-300">Texte Alt (English)</Label>
             <Input
-              id="alt_text_en"
-              value={formData.alt_text_en}
-              onChange={(e) => setFormData({ ...formData, alt_text_en: e.target.value })}
+              id="altTextEn"
+              value={formData.altTextEn}
+              onChange={(e) => setFormData({ ...formData, altTextEn: e.target.value })}
               placeholder="Alternative text for accessibility"
               className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             />
           </div>
           <div>
-            <Label htmlFor="alt_text_fr" className="text-gray-700 dark:text-gray-300">Texte Alt (Français)</Label>
+            <Label htmlFor="altTextFr" className="text-gray-700 dark:text-gray-300">Texte Alt (Français)</Label>
             <Input
-              id="alt_text_fr"
-              value={formData.alt_text_fr}
-              onChange={(e) => setFormData({ ...formData, alt_text_fr: e.target.value })}
+              id="altTextFr"
+              value={formData.altTextFr}
+              onChange={(e) => setFormData({ ...formData, altTextFr: e.target.value })}
               placeholder="Texte alternatif pour l'accessibilité"
               className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             />
@@ -1206,23 +1206,23 @@ export default function GalleryManagement() {
 
         <div className="grid grid-cols-2 gap-4 items-center">
           <div>
-            <Label htmlFor="order_index" className="text-gray-700 dark:text-gray-300">Ordre d'affichage</Label>
+            <Label htmlFor="orderIndex" className="text-gray-700 dark:text-gray-300">Ordre d'affichage</Label>
             <Input
-              id="order_index"
+              id="orderIndex"
               type="number"
-              value={formData.order_index}
-              onChange={(e) => setFormData({ ...formData, order_index: parseInt(e.target.value) })}
+              value={formData.orderIndex}
+              onChange={(e) => setFormData({ ...formData, orderIndex: parseInt(e.target.value) })}
               min={1}
               className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             />
           </div>
           <div className="flex items-center space-x-2">
             <Switch
-              id="is_active"
-              checked={formData.is_active}
-              onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+              id="isActive"
+              checked={formData.isActive}
+              onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
             />
-            <Label htmlFor="is_active" className="text-gray-700 dark:text-gray-300">Actif</Label>
+            <Label htmlFor="isActive" className="text-gray-700 dark:text-gray-300">Actif</Label>
           </div>
         </div>
 
@@ -1239,9 +1239,9 @@ export default function GalleryManagement() {
               try {
                 console.log('🚨 SAVE BUTTON CLICKED!!! This should appear first');
                 console.log('🚨 SAVE BUTTON - Current formData state:', {
-                  video_filename: formData.video_filename,
-                  video_url_en: formData.video_url_en,
-                  title_en: formData.title_en
+                  videoFilename: formData.videoFilename,
+                  videoUrlEn: formData.videoUrlEn,
+                  titleEn: formData.titleEn
                 });
                 
                 // Prevent any default behavior that might interfere
@@ -1249,7 +1249,7 @@ export default function GalleryManagement() {
                 e.stopPropagation();
                 
                 // Validate required fields
-                if (!formData.title_en || !formData.title_fr) {
+                if (!formData.titleEn || !formData.titleFr) {
                   console.log('🚨 VALIDATION FAILED - Missing titles');
                   toast({ 
                     title: "Erreur", 
@@ -1265,7 +1265,7 @@ export default function GalleryManagement() {
               }
               
               // Validate video dimensions if video URL is provided
-              if ((formData.video_url_en || formData.video_url_fr) && (!formData.video_width || !formData.video_height)) {
+              if ((formData.videoUrlEn || formData.videoUrlFr) && (!formData.videoWidth || !formData.videoHeight)) {
                 toast({ 
                   title: "Erreur", 
                   description: "Les dimensions vidéo (largeur, hauteur) sont obligatoires quand une vidéo est fournie", 
@@ -1277,20 +1277,20 @@ export default function GalleryManagement() {
               // Auto-calculate orientation based on dimensions
               const finalData = {
                 ...formData,
-                video_orientation: formData.video_width > formData.video_height ? 'landscape' : 'portrait'
+                videoOrientation: formData.videoWidth > formData.videoHeight ? 'landscape' : 'portrait'
               };
               
               console.log('📐 AUTO-ORIENTATION CALCULATION:', {
-                width: formData.video_width,
-                height: formData.video_height,
-                calculatedOrientation: finalData.video_orientation
+                width: formData.videoWidth,
+                height: formData.videoHeight,
+                calculatedOrientation: finalData.videoOrientation
               });
               
               console.log('🚨 SAVE DEBUG - Final data being sent:', {
-                video_filename: finalData.video_filename,
-                video_url_en: finalData.video_url_en,
-                video_url_fr: finalData.video_url_fr,
-                title_en: finalData.title_en,
+                videoFilename: finalData.videoFilename,
+                videoUrlEn: finalData.videoUrlEn,
+                videoUrlFr: finalData.videoUrlFr,
+                titleEn: finalData.titleEn,
                 id: item?.id
               });
               
@@ -1312,7 +1312,7 @@ export default function GalleryManagement() {
     return <div className="text-center py-8">Chargement de la galerie...</div>;
   }
 
-  const sortedItems = [...galleryItems].sort((a, b) => a.order_index - b.order_index);
+  const sortedItems = [...galleryItems].sort((a, b) => a.orderIndex - b.orderIndex);
 
   return (
     <div className="space-y-6">
@@ -1356,37 +1356,37 @@ export default function GalleryManagement() {
                 {/* Preview - Show static cropped image or original image thumbnail with video overlay icon */}
                 <div className="space-y-3">
                   <div className="aspect-[3/2] bg-gray-100 dark:bg-gray-800 rounded-lg relative overflow-hidden">
-                    {(item.static_image_url || item.image_url_en) ? (
+                    {(item.static_image_url || item.imageUrlEn) ? (
                       <div 
                         className="w-full h-full cursor-pointer group relative"
                         onClick={() => {
                           // If has video, show video preview; otherwise show image
-                          if (item.video_url_en) {
-                            const filename = item.video_url_en!.split('/').pop()!;
+                          if (item.videoUrlEn) {
+                            const filename = item.videoUrlEn!.split('/').pop()!;
                             const proxyUrl = `/api/video-proxy?filename=${encodeURIComponent(filename)}`;
-                            setShowPreview({ type: 'video', url: proxyUrl, title: item.title_en });
+                            setShowPreview({ type: 'video', url: proxyUrl, title: item.titleEn });
                           } else {
-                            setShowPreview({ type: 'image', url: item.static_image_url || item.image_url_en!, title: item.title_en });
+                            setShowPreview({ type: 'image', url: item.static_image_url || item.imageUrlEn!, title: item.titleEn });
                           }
                         }}
                       >
                         <img
                           src={(() => {
-                            const finalUrl = addCacheBuster(item.static_image_url || item.image_url_en!);
-                            console.log(`🖼️ Admin list image for ${item.title_en}:`, {
+                            const finalUrl = addCacheBuster(item.static_image_url || item.imageUrlEn!);
+                            console.log(`🖼️ Admin list image for ${item.titleEn}:`, {
                               static_image_url: item.static_image_url,
-                              image_url_en: item.image_url_en,
+                              imageUrlEn: item.imageUrlEn,
                               final_url: finalUrl
                             });
                             return finalUrl;
                           })()}
-                          alt={item.alt_text_en}
+                          alt={item.altTextEn}
                           className="w-full h-full object-cover"
                           onError={(e) => {
-                            console.warn('❌ Image failed to load:', item.static_image_url || item.image_url_en);
+                            console.warn('❌ Image failed to load:', item.static_image_url || item.imageUrlEn);
                             // If static image fails, try original image
-                            if (item.static_image_url && item.image_url_en) {
-                              const fallbackUrl = addCacheBuster(item.image_url_en);
+                            if (item.static_image_url && item.imageUrlEn) {
+                              const fallbackUrl = addCacheBuster(item.imageUrlEn);
                               console.log(`🔄 Trying fallback image:`, fallbackUrl);
                               e.currentTarget.src = fallbackUrl;
                             } else {
@@ -1396,7 +1396,7 @@ export default function GalleryManagement() {
                         />
                         
                         {/* Video indicator overlay */}
-                        {item.video_url_en && (
+                        {item.videoUrlEn && (
                           <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
                             <Play className="h-3 w-3" />
                             Video
@@ -1405,24 +1405,24 @@ export default function GalleryManagement() {
                         
                         {/* Hover overlay */}
                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
-                          {item.video_url_en ? (
+                          {item.videoUrlEn ? (
                             <Play className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-all" />
                           ) : (
                             <Eye className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-all" />
                           )}
                         </div>
                       </div>
-                    ) : item.video_url_en ? (
+                    ) : item.videoUrlEn ? (
                       <div 
                         className="w-full h-full cursor-pointer group"
                         onClick={() => {
-                          const filename = item.video_url_en!.split('/').pop()!;
+                          const filename = item.videoUrlEn!.split('/').pop()!;
                           const proxyUrl = `/api/video-proxy?filename=${encodeURIComponent(filename)}`;
-                          setShowPreview({ type: 'video', url: proxyUrl, title: item.title_en });
+                          setShowPreview({ type: 'video', url: proxyUrl, title: item.titleEn });
                         }}
                       >
                         <video
-                          src={`/api/video-proxy?filename=${encodeURIComponent(item.video_url_en!.split('/').pop()!)}`}
+                          src={`/api/video-proxy?filename=${encodeURIComponent(item.videoUrlEn!.split('/').pop()!)}`}
                           className="w-full h-full object-cover"
                           muted
                           preload="metadata"
@@ -1439,10 +1439,10 @@ export default function GalleryManagement() {
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <Badge variant={item.is_active ? "default" : "secondary"} className="text-xs">
-                      {item.is_active ? "Actif" : "Inactif"}
+                    <Badge variant={item.isActive ? "default" : "secondary"} className="text-xs">
+                      {item.isActive ? "Actif" : "Inactif"}
                     </Badge>
-                    <span className="text-xs text-gray-500">#{item.order_index}</span>
+                    <span className="text-xs text-gray-500">#{item.orderIndex}</span>
                   </div>
                   
                   {/* Updated streaming status for gallery items */}
@@ -1470,26 +1470,26 @@ export default function GalleryManagement() {
                   ) : (
                     <div className="space-y-3">
                       <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white">{item.title_en}</h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{item.title_fr}</p>
+                        <h4 className="font-semibold text-gray-900 dark:text-white">{item.titleEn}</h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{item.titleFr}</p>
                       </div>
                       
                       <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
                         <div>
                           <p className="text-xs text-gray-500">Source:</p>
-                          <p className="mb-1">{item.source_en}</p>
-                          <p className="italic">{item.source_fr}</p>
+                          <p className="mb-1">{item.sourceEn}</p>
+                          <p className="italic">{item.sourceFr}</p>
                         </div>
                         <div>
                           <p className="text-xs text-gray-500">Duration:</p>
-                          <p className="mb-1">{item.duration_en}</p>
-                          <p className="italic">{item.duration_fr}</p>
+                          <p className="mb-1">{item.durationEn}</p>
+                          <p className="italic">{item.durationFr}</p>
                         </div>
                       </div>
                       
                       <div className="flex items-center gap-4 text-sm">
-                        <span className="font-medium text-green-600 dark:text-green-400">{item.price_en}</span>
-                        <span className="font-medium text-green-600 dark:text-green-400">{item.price_fr}</span>
+                        <span className="font-medium text-green-600 dark:text-green-400">{item.priceEn}</span>
+                        <span className="font-medium text-green-600 dark:text-green-400">{item.priceFr}</span>
                       </div>
                     </div>
                   )}
@@ -1531,11 +1531,11 @@ export default function GalleryManagement() {
 
                   
                   {/* Static Image Cropper Button */}
-                  {item.image_url_en && (
+                  {item.imageUrlEn && (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setShowImageCropper({ imageUrl: item.image_url_en!, item })}
+                      onClick={() => setShowImageCropper({ imageUrl: item.imageUrlEn!, item })}
                       className="w-full justify-start text-memopyk-orange hover:text-memopyk-orange"
                     >
                       <Crop className="h-3 w-3 mr-1" />
@@ -1548,12 +1548,12 @@ export default function GalleryManagement() {
                     size="sm"
                     onClick={() => updateItemMutation.mutate({ 
                       id: item.id, 
-                      data: { is_active: !item.is_active }
+                      data: { isActive: !item.isActive }
                     })}
                     className="w-full justify-start"
                   >
-                    {item.is_active ? <EyeOff className="h-3 w-3 mr-1" /> : <Eye className="h-3 w-3 mr-1" />}
-                    {item.is_active ? "Masquer" : "Afficher"}
+                    {item.isActive ? <EyeOff className="h-3 w-3 mr-1" /> : <Eye className="h-3 w-3 mr-1" />}
+                    {item.isActive ? "Masquer" : "Afficher"}
                   </Button>
                   
                   <Button
@@ -1624,7 +1624,7 @@ export default function GalleryManagement() {
           <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto bg-white dark:bg-gray-900">
             <DialogHeader>
               <DialogTitle className="text-gray-900 dark:text-white">
-                Génération d'Image Statique - {showImageCropper.item?.title_en || 'Article de galerie'}
+                Génération d'Image Statique - {showImageCropper.item?.titleEn || 'Article de galerie'}
               </DialogTitle>
               <DialogDescription>
                 Glissez pour repositionner l'image et générez une image statique 300×200 pour la galerie.

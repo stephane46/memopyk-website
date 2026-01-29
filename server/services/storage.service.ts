@@ -266,7 +266,7 @@ async function updateSeoSettings(id: string, data: Record<string, unknown>) {
 // Public API
 // ---------------------------------------------------------------------------
 
-export const hybridStorage = {
+export const storage = {
   // Hero
   getHeroVideos,
   createHeroVideo,

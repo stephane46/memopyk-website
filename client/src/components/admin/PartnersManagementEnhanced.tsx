@@ -19,35 +19,35 @@ import { PHOTO_FORMATS, FILM_FORMATS, VIDEO_CASSETTES, DELIVERY } from '@/../../
 interface Partner {
   id: number;
   timestamp: string;
-  partner_type: string;
-  partner_name: string;
-  contact_name: string;
+  partnerType: string;
+  partnerName: string;
+  contactName: string;
   email: string;
-  email_public: string;
+  emailPublic: string;
   phone: string;
-  phone_public: string;
+  phonePublic: string;
   website: string;
   address: string;
-  address_line2: string;
+  addressLine2: string;
   city: string;
-  postal_code: string;
+  postalCode: string;
   country: string;
-  photo_formats?: string;
-  other_photo?: string;
-  film_formats?: string;
-  other_film?: string;
-  video_cassettes?: string;
-  other_video?: string;
+  photoFormats?: string;
+  otherPhoto?: string;
+  filmFormats?: string;
+  otherFilm?: string;
+  videoCassettes?: string;
+  otherVideo?: string;
   delivery?: string;
-  other_delivery?: string;
-  public_description?: string;
+  otherDelivery?: string;
+  publicDescription?: string;
   status: string;
-  is_active: boolean;
-  show_on_map: boolean;
+  isActive: boolean;
+  showOnMap: boolean;
   lat: number | null;
   lng: number | null;
   slug?: string;
-  submitted_at: string;
+  submittedAt: string;
 }
 
 interface PartnersResponse {
@@ -138,7 +138,7 @@ export default function PartnersManagementEnhanced() {
     });
     if (search) params.append('search', search);
     if (statusFilter !== 'all') params.append('status', statusFilter);
-    if (typeFilter !== 'all') params.append('partner_type', typeFilter);
+    if (typeFilter !== 'all') params.append('partnerType', typeFilter);
     return `/api/partners?${params.toString()}`;
   };
 
@@ -231,11 +231,11 @@ export default function PartnersManagementEnhanced() {
   };
 
   const toggleActive = (partnerId: number, currentValue: boolean) => {
-    quickUpdateMutation.mutate({ id: partnerId, updates: { is_active: !currentValue } });
+    quickUpdateMutation.mutate({ id: partnerId, updates: { isActive: !currentValue } });
   };
 
   const toggleShowOnMap = (partnerId: number, currentValue: boolean) => {
-    quickUpdateMutation.mutate({ id: partnerId, updates: { show_on_map: !currentValue } });
+    quickUpdateMutation.mutate({ id: partnerId, updates: { showOnMap: !currentValue } });
   };
 
   const importTsvMutation = useMutation({
@@ -293,12 +293,12 @@ export default function PartnersManagementEnhanced() {
   const handleAddNew = () => {
     setIsAddingNew(true);
     setEditData({
-      partner_type: 'digitization',
+      partnerType: 'digitization',
       status: 'Pending',
-      is_active: false,
-      show_on_map: false,
-      email_public: 'FALSE',
-      phone_public: 'FALSE',
+      isActive: false,
+      showOnMap: false,
+      emailPublic: 'FALSE',
+      phonePublic: 'FALSE',
     });
   };
 
@@ -413,32 +413,32 @@ export default function PartnersManagementEnhanced() {
               <TableRow className="border-gray-200 hover:bg-gray-50">
                 <TableHead 
                   className="text-gray-700 font-semibold cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort('submitted_at')}
+                  onClick={() => handleSort('submittedAt')}
                 >
                   <div className="flex items-center gap-1">
                     Date
-                    {sortBy === 'submitted_at' && (sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}
-                    {sortBy !== 'submitted_at' && <ArrowUpDown className="h-3 w-3 opacity-30" />}
+                    {sortBy === 'submittedAt' && (sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}
+                    {sortBy !== 'submittedAt' && <ArrowUpDown className="h-3 w-3 opacity-30" />}
                   </div>
                 </TableHead>
                 <TableHead 
                   className="text-gray-700 font-semibold cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort('partner_name')}
+                  onClick={() => handleSort('partnerName')}
                 >
                   <div className="flex items-center gap-1">
                     Partner
-                    {sortBy === 'partner_name' && (sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}
-                    {sortBy !== 'partner_name' && <ArrowUpDown className="h-3 w-3 opacity-30" />}
+                    {sortBy === 'partnerName' && (sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}
+                    {sortBy !== 'partnerName' && <ArrowUpDown className="h-3 w-3 opacity-30" />}
                   </div>
                 </TableHead>
                 <TableHead 
                   className="text-gray-700 font-semibold cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort('partner_type')}
+                  onClick={() => handleSort('partnerType')}
                 >
                   <div className="flex items-center gap-1">
                     Type
-                    {sortBy === 'partner_type' && (sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}
-                    {sortBy !== 'partner_type' && <ArrowUpDown className="h-3 w-3 opacity-30" />}
+                    {sortBy === 'partnerType' && (sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}
+                    {sortBy !== 'partnerType' && <ArrowUpDown className="h-3 w-3 opacity-30" />}
                   </div>
                 </TableHead>
                 <TableHead className="text-gray-700 font-semibold">Contact</TableHead>
@@ -487,15 +487,15 @@ export default function PartnersManagementEnhanced() {
                       {formatFrenchDateTime(partner.timestamp)}
                     </TableCell>
                     <TableCell className="text-gray-900 font-medium">
-                      {partner.partner_name}
+                      {partner.partnerName}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-xs text-gray-700 border-gray-300">
-                        {partner.partner_type}
+                        {partner.partnerType}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-gray-700 text-sm">
-                      <div>{partner.contact_name}</div>
+                      <div>{partner.contactName}</div>
                       <div className="text-xs text-gray-500">{partner.email}</div>
                     </TableCell>
                     <TableCell className="text-gray-700 text-sm">
@@ -513,11 +513,11 @@ export default function PartnersManagementEnhanced() {
                     </TableCell>
                     <TableCell>
                       <button 
-                        onClick={() => toggleActive(partner.id, partner.is_active)}
+                        onClick={() => toggleActive(partner.id, partner.isActive)}
                         className="cursor-pointer hover:opacity-80 transition-opacity"
                         data-testid={`button-toggle-active-${partner.id}`}
                       >
-                        {partner.is_active ? (
+                        {partner.isActive ? (
                           <Badge className="text-xs !bg-green-100 !text-green-700 !border-green-300 !important">
                             Active
                           </Badge>
@@ -530,11 +530,11 @@ export default function PartnersManagementEnhanced() {
                     </TableCell>
                     <TableCell>
                       <button 
-                        onClick={() => toggleShowOnMap(partner.id, partner.show_on_map)}
+                        onClick={() => toggleShowOnMap(partner.id, partner.showOnMap)}
                         className="cursor-pointer hover:opacity-80 transition-opacity"
                         data-testid={`button-toggle-map-${partner.id}`}
                       >
-                        {partner.show_on_map ? (
+                        {partner.showOnMap ? (
                           <Badge className="text-xs !bg-[#89BAD9] !text-white !border-[#89BAD9] !important">
                             <MapPin className="h-3 w-3 mr-1" />
                             On Map
@@ -625,7 +625,7 @@ export default function PartnersManagementEnhanced() {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
           <DialogHeader>
             <DialogTitle className="text-gray-900 text-xl">
-              {isAddingNew ? 'Add New Partner' : `Edit Partner: ${editingPartner?.partner_name}`}
+              {isAddingNew ? 'Add New Partner' : `Edit Partner: ${editingPartner?.partnerName}`}
             </DialogTitle>
           </DialogHeader>
           
@@ -667,8 +667,8 @@ export default function PartnersManagementEnhanced() {
                 <div className="space-y-2">
                   <Label className="text-gray-700">Partner Type</Label>
                   <Select 
-                    value={editData.partner_type || ''} 
-                    onValueChange={(val) => setEditData({ ...editData, partner_type: val })}
+                    value={editData.partnerType || ''} 
+                    onValueChange={(val) => setEditData({ ...editData, partnerType: val })}
                   >
                     <SelectTrigger className="bg-white border-gray-300 text-gray-900">
                       <SelectValue />
@@ -703,8 +703,8 @@ export default function PartnersManagementEnhanced() {
                 <div className="space-y-2">
                   <Label className="text-gray-700">Partner Name</Label>
                   <Input
-                    value={editData.partner_name || ''}
-                    onChange={(e) => setEditData({ ...editData, partner_name: e.target.value })}
+                    value={editData.partnerName || ''}
+                    onChange={(e) => setEditData({ ...editData, partnerName: e.target.value })}
                     className="bg-white border-gray-300 text-gray-900"
                   />
                 </div>
@@ -712,8 +712,8 @@ export default function PartnersManagementEnhanced() {
                 <div className="space-y-2">
                   <Label className="text-gray-700">Contact Name</Label>
                   <Input
-                    value={editData.contact_name || ''}
-                    onChange={(e) => setEditData({ ...editData, contact_name: e.target.value })}
+                    value={editData.contactName || ''}
+                    onChange={(e) => setEditData({ ...editData, contactName: e.target.value })}
                     className="bg-white border-gray-300 text-gray-900"
                   />
                 </div>
@@ -729,8 +729,8 @@ export default function PartnersManagementEnhanced() {
                   />
                   <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
                     <Checkbox
-                      checked={editData.email_public === 'TRUE'}
-                      onCheckedChange={(checked) => setEditData({ ...editData, email_public: checked ? 'TRUE' : 'FALSE' })}
+                      checked={editData.emailPublic === 'TRUE'}
+                      onCheckedChange={(checked) => setEditData({ ...editData, emailPublic: checked ? 'TRUE' : 'FALSE' })}
                     />
                     Show email publicly
                   </label>
@@ -745,8 +745,8 @@ export default function PartnersManagementEnhanced() {
                   />
                   <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
                     <Checkbox
-                      checked={editData.phone_public === 'TRUE'}
-                      onCheckedChange={(checked) => setEditData({ ...editData, phone_public: checked ? 'TRUE' : 'FALSE' })}
+                      checked={editData.phonePublic === 'TRUE'}
+                      onCheckedChange={(checked) => setEditData({ ...editData, phonePublic: checked ? 'TRUE' : 'FALSE' })}
                     />
                     Show phone publicly
                   </label>
@@ -765,14 +765,14 @@ export default function PartnersManagementEnhanced() {
               <div className="space-y-2">
                 <Label className="text-gray-700">Public Description</Label>
                 <Textarea
-                  value={editData.public_description || ''}
-                  onChange={(e) => setEditData({ ...editData, public_description: e.target.value })}
+                  value={editData.publicDescription || ''}
+                  onChange={(e) => setEditData({ ...editData, publicDescription: e.target.value })}
                   maxLength={500}
                   className="bg-white border-gray-300 text-gray-900 min-h-[100px]"
                   placeholder="Description visible on partner directory"
                 />
                 <div className="text-sm text-gray-500 text-right">
-                  {500 - (editData.public_description?.length || 0)} caractères restants
+                  {500 - (editData.publicDescription?.length || 0)} caractères restants
                 </div>
               </div>
             </TabsContent>
@@ -792,8 +792,8 @@ export default function PartnersManagementEnhanced() {
               <div className="space-y-2">
                 <Label className="text-gray-700">Address Line 2</Label>
                 <Input
-                  value={editData.address_line2 || ''}
-                  onChange={(e) => setEditData({ ...editData, address_line2: e.target.value })}
+                  value={editData.addressLine2 || ''}
+                  onChange={(e) => setEditData({ ...editData, addressLine2: e.target.value })}
                   className="bg-white border-gray-300 text-gray-900"
                   placeholder="Apartment, suite, etc."
                 />
@@ -812,8 +812,8 @@ export default function PartnersManagementEnhanced() {
                 <div className="space-y-2">
                   <Label className="text-gray-700">Postal Code</Label>
                   <Input
-                    value={editData.postal_code || ''}
-                    onChange={(e) => setEditData({ ...editData, postal_code: e.target.value })}
+                    value={editData.postalCode || ''}
+                    onChange={(e) => setEditData({ ...editData, postalCode: e.target.value })}
                     className="bg-white border-gray-300 text-gray-900"
                   />
                 </div>
@@ -897,18 +897,18 @@ export default function PartnersManagementEnhanced() {
                 </div>
                 <div className="grid grid-cols-2 gap-3 pl-7">
                   {PHOTO_FORMATS.map((format) => {
-                    const selected = editData.photo_formats?.split(',').map(f => f.trim()).includes(format.v) || false;
+                    const selected = editData.photoFormats?.split(',').map(f => f.trim()).includes(format.v) || false;
                     return (
                       <div key={format.v} className="flex items-center space-x-2">
                         <Checkbox
                           id={`photo-${format.v}`}
                           checked={selected}
                           onCheckedChange={(checked) => {
-                            const currentFormats = editData.photo_formats?.split(',').map(f => f.trim()).filter(f => f) || [];
+                            const currentFormats = editData.photoFormats?.split(',').map(f => f.trim()).filter(f => f) || [];
                             const newFormats = checked
                               ? [...currentFormats, format.v]
                               : currentFormats.filter(f => f !== format.v);
-                            setEditData({ ...editData, photo_formats: newFormats.join(', ') });
+                            setEditData({ ...editData, photoFormats: newFormats.join(', ') });
                           }}
                         />
                         <label htmlFor={`photo-${format.v}`} className="text-sm text-gray-800 cursor-pointer">
@@ -928,18 +928,18 @@ export default function PartnersManagementEnhanced() {
                 </div>
                 <div className="grid grid-cols-2 gap-3 pl-7">
                   {FILM_FORMATS.map((format) => {
-                    const selected = editData.film_formats?.split(',').map(f => f.trim()).includes(format.v) || false;
+                    const selected = editData.filmFormats?.split(',').map(f => f.trim()).includes(format.v) || false;
                     return (
                       <div key={format.v} className="flex items-center space-x-2">
                         <Checkbox
                           id={`film-${format.v}`}
                           checked={selected}
                           onCheckedChange={(checked) => {
-                            const currentFormats = editData.film_formats?.split(',').map(f => f.trim()).filter(f => f) || [];
+                            const currentFormats = editData.filmFormats?.split(',').map(f => f.trim()).filter(f => f) || [];
                             const newFormats = checked
                               ? [...currentFormats, format.v]
                               : currentFormats.filter(f => f !== format.v);
-                            setEditData({ ...editData, film_formats: newFormats.join(', ') });
+                            setEditData({ ...editData, filmFormats: newFormats.join(', ') });
                           }}
                         />
                         <label htmlFor={`film-${format.v}`} className="text-sm text-gray-800 cursor-pointer">
@@ -959,18 +959,18 @@ export default function PartnersManagementEnhanced() {
                 </div>
                 <div className="grid grid-cols-2 gap-3 pl-7">
                   {VIDEO_CASSETTES.map((format) => {
-                    const selected = editData.video_cassettes?.split(',').map(f => f.trim()).includes(format.v) || false;
+                    const selected = editData.videoCassettes?.split(',').map(f => f.trim()).includes(format.v) || false;
                     return (
                       <div key={format.v} className="flex items-center space-x-2">
                         <Checkbox
                           id={`video-${format.v}`}
                           checked={selected}
                           onCheckedChange={(checked) => {
-                            const currentFormats = editData.video_cassettes?.split(',').map(f => f.trim()).filter(f => f) || [];
+                            const currentFormats = editData.videoCassettes?.split(',').map(f => f.trim()).filter(f => f) || [];
                             const newFormats = checked
                               ? [...currentFormats, format.v]
                               : currentFormats.filter(f => f !== format.v);
-                            setEditData({ ...editData, video_cassettes: newFormats.join(', ') });
+                            setEditData({ ...editData, videoCassettes: newFormats.join(', ') });
                           }}
                         />
                         <label htmlFor={`video-${format.v}`} className="text-sm text-gray-800 cursor-pointer">
@@ -989,8 +989,8 @@ export default function PartnersManagementEnhanced() {
                 <div className="space-y-2">
                   <Label className="text-sm text-gray-700">Other Photo Formats</Label>
                   <Input
-                    value={editData.other_photo || ''}
-                    onChange={(e) => setEditData({ ...editData, other_photo: e.target.value })}
+                    value={editData.otherPhoto || ''}
+                    onChange={(e) => setEditData({ ...editData, otherPhoto: e.target.value })}
                     className="bg-white border-gray-300 text-gray-900"
                     placeholder="Custom photo formats"
                   />
@@ -999,8 +999,8 @@ export default function PartnersManagementEnhanced() {
                 <div className="space-y-2">
                   <Label className="text-sm text-gray-700">Other Film Formats</Label>
                   <Input
-                    value={editData.other_film || ''}
-                    onChange={(e) => setEditData({ ...editData, other_film: e.target.value })}
+                    value={editData.otherFilm || ''}
+                    onChange={(e) => setEditData({ ...editData, otherFilm: e.target.value })}
                     className="bg-white border-gray-300 text-gray-900"
                     placeholder="Custom film formats"
                   />
@@ -1009,8 +1009,8 @@ export default function PartnersManagementEnhanced() {
                 <div className="space-y-2">
                   <Label className="text-sm text-gray-700">Other Video Formats</Label>
                   <Input
-                    value={editData.other_video || ''}
-                    onChange={(e) => setEditData({ ...editData, other_video: e.target.value })}
+                    value={editData.otherVideo || ''}
+                    onChange={(e) => setEditData({ ...editData, otherVideo: e.target.value })}
                     className="bg-white border-gray-300 text-gray-900"
                     placeholder="Custom video formats"
                   />
@@ -1047,8 +1047,8 @@ export default function PartnersManagementEnhanced() {
                 <div className="space-y-2 pt-2">
                   <Label className="text-sm text-gray-700">Other Delivery Methods</Label>
                   <Input
-                    value={editData.other_delivery || ''}
-                    onChange={(e) => setEditData({ ...editData, other_delivery: e.target.value })}
+                    value={editData.otherDelivery || ''}
+                    onChange={(e) => setEditData({ ...editData, otherDelivery: e.target.value })}
                     className="bg-white border-gray-300 text-gray-900"
                     placeholder="Custom delivery methods"
                   />
@@ -1062,8 +1062,8 @@ export default function PartnersManagementEnhanced() {
                 <label className="flex items-center gap-3 cursor-pointer p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
                   <input
                     type="checkbox"
-                    checked={editData.is_active || false}
-                    onChange={(e) => setEditData({ ...editData, is_active: e.target.checked })}
+                    checked={editData.isActive || false}
+                    onChange={(e) => setEditData({ ...editData, isActive: e.target.checked })}
                     className="w-5 h-5 rounded border-gray-300"
                   />
                   <div>
@@ -1075,8 +1075,8 @@ export default function PartnersManagementEnhanced() {
                 <label className="flex items-center gap-3 cursor-pointer p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
                   <input
                     type="checkbox"
-                    checked={editData.show_on_map || false}
-                    onChange={(e) => setEditData({ ...editData, show_on_map: e.target.checked })}
+                    checked={editData.showOnMap || false}
+                    onChange={(e) => setEditData({ ...editData, showOnMap: e.target.checked })}
                     className="w-5 h-5 rounded border-gray-300"
                   />
                   <div>

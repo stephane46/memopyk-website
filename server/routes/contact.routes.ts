@@ -11,7 +11,7 @@
 
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { hybridStorage } from '../services/storage.service';
+import { storage } from '../services/storage.service';
 
 const router = Router();
 
@@ -39,7 +39,7 @@ const contactStatusSchema = z.enum(['new', 'responded', 'closed']);
  */
 router.get('/contact', async (req: Request, res: Response) => {
   try {
-    const contact = await hybridStorage.getContacts();
+    const contact = await storage.getContacts();
     res.json(contact);
   } catch (error) {
     console.error('Get contact info error:', error);
@@ -57,7 +57,7 @@ router.post('/contacts', async (req: Request, res: Response) => {
     console.log("📧 Contact form submission:", result);
     
     // Store contact in hybrid storage
-    const contact = await hybridStorage.createContact(result);
+    const contact = await storage.createContact(result);
     
     res.json({ success: true, message: "Message sent successfully", contact });
   } catch (error) {
@@ -79,7 +79,7 @@ router.post('/contacts', async (req: Request, res: Response) => {
  */
 router.get('/contacts', async (req: Request, res: Response) => {
   try {
-    const contacts = await hybridStorage.getContacts();
+    const contacts = await storage.getContacts();
     res.json(contacts);
   } catch (error) {
     console.error('Get contacts error:', error);
@@ -104,7 +104,7 @@ router.patch('/contacts/:id', async (req: Request, res: Response) => {
       });
     }
     
-    const contact = await hybridStorage.updateContactStatus(contactId, status);
+    const contact = await storage.updateContactStatus(contactId, status);
     res.json({ success: true, contact });
   } catch (error) {
     console.error('Update contact status error:', error);
@@ -119,7 +119,7 @@ router.patch('/contacts/:id', async (req: Request, res: Response) => {
 router.delete('/contacts/:id', async (req: Request, res: Response) => {
   try {
     const contactId = req.params.id;
-    const deletedContact = await hybridStorage.deleteContact(contactId);
+    const deletedContact = await storage.deleteContact(contactId);
     res.json({ success: true, deleted: deletedContact });
   } catch (error) {
     console.error('Delete contact error:', error);

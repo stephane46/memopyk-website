@@ -20,7 +20,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { hybridStorage } from '../services/storage.service';
+import { storage } from '../services/storage.service';
 
 const router = Router();
 
@@ -34,7 +34,7 @@ const router = Router();
  */
 router.get('/faq-sections', async (req: Request, res: Response) => {
   try {
-    const sections = await hybridStorage.getFaqSections();
+    const sections = await storage.getFaqSections();
     res.json(sections);
   } catch (error) {
     console.error('Get FAQ sections error:', error);
@@ -54,7 +54,7 @@ router.post('/faq-sections', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'French and English titles are required' });
     }
     
-    const newSection = await hybridStorage.createFAQSection({
+    const newSection = await storage.createFAQSection({
       title_fr,
       title_en,
       order_index: order_index || 0
@@ -76,7 +76,7 @@ router.patch('/faq-sections/:id', async (req: Request, res: Response) => {
     const sectionId = req.params.id;
     const updates = req.body;
     
-    const section = await hybridStorage.updateFAQSection(sectionId, updates);
+    const section = await storage.updateFAQSection(sectionId, updates);
     res.json(section);
   } catch (error) {
     console.error('Update FAQ section error:', error);
@@ -92,7 +92,7 @@ router.delete('/faq-sections/:id', async (req: Request, res: Response) => {
   try {
     const sectionId = req.params.id;
     
-    await hybridStorage.deleteFAQSection(sectionId);
+    await storage.deleteFAQSection(sectionId);
     res.json({ success: true });
   } catch (error) {
     console.error('Delete FAQ section error:', error);
@@ -114,7 +114,7 @@ router.patch('/faq-sections/:id/reorder', async (req: Request, res: Response) =>
     }
     
     console.log(`🔄 Reordering FAQ section: ${sectionId} to order ${order_index}`);
-    const updatedSection = await hybridStorage.updateFAQSection(sectionId, { order_index });
+    const updatedSection = await storage.updateFAQSection(sectionId, { order_index });
     res.json({ success: true, section: updatedSection });
   } catch (error) {
     console.error('Reorder FAQ section error:', error);
@@ -132,7 +132,7 @@ router.patch('/faq-sections/:id/reorder', async (req: Request, res: Response) =>
  */
 router.get('/faqs', async (req: Request, res: Response) => {
   try {
-    const faqs = await hybridStorage.getFaqs();
+    const faqs = await storage.getFaqs();
     res.json(faqs);
   } catch (error) {
     console.error('Get FAQs error:', error);
@@ -152,7 +152,7 @@ router.post('/faqs', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'All fields are required' });
     }
     
-    const newFaq = await hybridStorage.createFAQ({
+    const newFaq = await storage.createFAQ({
       section_id,
       question_en,
       question_fr,
@@ -182,7 +182,7 @@ router.patch('/faqs/:id', async (req: Request, res: Response) => {
     const faqId = req.params.id;
     const updates = req.body;
     
-    const faq = await hybridStorage.updateFAQ(faqId, updates);
+    const faq = await storage.updateFAQ(faqId, updates);
     
     console.log('✅ FAQ update completed successfully:', faq);
     res.json(faq);
@@ -201,7 +201,7 @@ router.delete('/faqs/:id', async (req: Request, res: Response) => {
     const faqId = req.params.id;
     console.log('🗑️ DELETE /faqs/:id - ID:', faqId);
     
-    await hybridStorage.deleteFAQ(faqId);
+    await storage.deleteFAQ(faqId);
     res.json({ success: true });
   } catch (error) {
     console.error('Delete FAQ error:', error);
@@ -223,7 +223,7 @@ router.patch('/faqs/:id/reorder', async (req: Request, res: Response) => {
     }
     
     console.log(`🔄 Reordering FAQ: ${faqId} to order ${order_index}`);
-    const updatedFaq = await hybridStorage.updateFAQ(faqId, { order_index });
+    const updatedFaq = await storage.updateFAQ(faqId, { order_index });
     res.json({ success: true, faq: updatedFaq });
   } catch (error) {
     console.error('Reorder FAQ error:', error);
@@ -241,7 +241,7 @@ router.patch('/faqs/:id/reorder', async (req: Request, res: Response) => {
  */
 router.get('/faq', async (req: Request, res: Response) => {
   try {
-    const faqs = await hybridStorage.getFaqs();
+    const faqs = await storage.getFaqs();
     res.json(faqs);
   } catch (error) {
     console.error('Get FAQ content error:', error);

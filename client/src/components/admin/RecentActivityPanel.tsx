@@ -10,11 +10,11 @@ interface ActivitySession {
   country?: string;
   city?: string;
   language?: string;
-  page_url?: string;
+  pageUrl?: string;
   duration: number;
-  video_views: string[];
-  user_agent?: string;
-  is_active: boolean;
+  videoViews: string[];
+  userAgent?: string;
+  isActive: boolean;
 }
 
 interface RecentActivityData {
@@ -44,7 +44,7 @@ export function RecentActivityPanel() {
         .then(response => { 
           const activityData: RecentActivityData = {
             activities: response.activities || [],
-            total: response.activities ? response.activities.filter((a: ActivitySession) => a.is_active && a.video_views.length > 0).length : 0,
+            total: response.activities ? response.activities.filter((a: ActivitySession) => a.isActive && a.videoViews.length > 0).length : 0,
             timestamp: new Date().toISOString()
           };
           
@@ -136,12 +136,12 @@ export function RecentActivityPanel() {
               <div className="text-sm font-medium text-gray-600">Live activity:</div>
               <div className="space-y-3 max-h-64 overflow-y-auto">
                 {data.activities
-                  .filter(session => session.is_active)
+                  .filter(session => session.isActive)
                   .slice(0, 10)
                   .map((session) => {
                     const timeAgo = getTimeAgo(session.timestamp);
                     const duration = formatDuration(session.duration);
-                    const deviceType = getDeviceType(session.user_agent || '');
+                    const deviceType = getDeviceType(session.userAgent || '');
                     
                     return (
                       <div key={session.id} className="border-b last:border-b-0 pb-2 text-sm">
@@ -174,9 +174,9 @@ export function RecentActivityPanel() {
                               <span>on site {duration}</span>
                             </div>
                           )}
-                          {session.video_views.length > 0 && (
+                          {session.videoViews.length > 0 && (
                             <Badge variant="outline" className="text-xs px-1 py-0">
-                              {session.video_views.length} videos
+                              {session.videoViews.length} videos
                             </Badge>
                           )}
                         </div>

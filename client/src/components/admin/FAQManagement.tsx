@@ -14,40 +14,40 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { Plus, Edit2, Trash2, Eye, EyeOff, ChevronDown, ChevronUp, ArrowUp, ArrowDown } from 'lucide-react';
 
-// Types
+// Types - using camelCase to match Drizzle schema
 interface FAQ {
   id: number | string;
-  section_id: number | string;
-  question_en: string;
-  question_fr: string;
-  answer_en: string;
-  answer_fr: string;
-  order_index: number;
-  is_active: boolean;
+  sectionId: number | string;
+  questionEn: string;
+  questionFr: string;
+  answerEn: string;
+  answerFr: string;
+  orderIndex: number;
+  isActive: boolean;
 }
 
 interface FAQSection {
   id: number;
-  title_en: string;
-  title_fr: string;
-  order_index: number;
+  titleEn: string;
+  titleFr: string;
+  orderIndex: number;
 }
 
-// Schemas
+// Schemas - using camelCase to match Drizzle schema
 const faqSchema = z.object({
-  section_id: z.number(),
-  question_en: z.string().min(1, 'Question en anglais requise'),
-  question_fr: z.string().min(1, 'Question en français requise'),
-  answer_en: z.string().min(1, 'Réponse en anglais requise'),
-  answer_fr: z.string().min(1, 'Réponse en français requise'),
-  order_index: z.number(),
-  is_active: z.boolean()
+  sectionId: z.number(),
+  questionEn: z.string().min(1, 'Question en anglais requise'),
+  questionFr: z.string().min(1, 'Question en français requise'),
+  answerEn: z.string().min(1, 'Réponse en anglais requise'),
+  answerFr: z.string().min(1, 'Réponse en français requise'),
+  orderIndex: z.number(),
+  isActive: z.boolean()
 });
 
 const sectionSchema = z.object({
-  title_en: z.string().min(1, 'Titre en anglais requis'),
-  title_fr: z.string().min(1, 'Titre en français requis'),
-  order_index: z.number()
+  titleEn: z.string().min(1, 'Titre en anglais requis'),
+  titleFr: z.string().min(1, 'Titre en français requis'),
+  orderIndex: z.number()
 });
 
 type FAQFormData = z.infer<typeof faqSchema>;
@@ -76,22 +76,22 @@ export default function FAQManagement() {
   const faqForm = useForm<FAQFormData>({
     resolver: zodResolver(faqSchema),
     defaultValues: {
-      section_id: 1,
-      question_en: '',
-      question_fr: '',
-      answer_en: '',
-      answer_fr: '',
-      order_index: 0,
-      is_active: true
+      sectionId: 1,
+      questionEn: '',
+      questionFr: '',
+      answerEn: '',
+      answerFr: '',
+      orderIndex: 0,
+      isActive: true
     }
   });
 
   const sectionForm = useForm<SectionFormData>({
     resolver: zodResolver(sectionSchema),
     defaultValues: {
-      title_en: '',
-      title_fr: '',
-      order_index: 1
+      titleEn: '',
+      titleFr: '',
+      orderIndex: 1
     }
   });
 
@@ -205,13 +205,13 @@ export default function FAQManagement() {
   const startEditingFaq = (faq: FAQ) => {
     setEditingFaq(faq);
     faqForm.reset({
-      section_id: faq.section_id,
-      question_en: faq.question_en,
-      question_fr: faq.question_fr,
-      answer_en: faq.answer_en,
-      answer_fr: faq.answer_fr,
-      order_index: faq.order_index,
-      is_active: faq.is_active
+      sectionId: faq.sectionId as number,
+      questionEn: faq.questionEn,
+      questionFr: faq.questionFr,
+      answerEn: faq.answerEn,
+      answerFr: faq.answerFr,
+      orderIndex: faq.orderIndex,
+      isActive: faq.isActive
     });
     setShowCreateDialog(true);
   };
@@ -219,19 +219,19 @@ export default function FAQManagement() {
   const startEditingSection = (section: FAQSection) => {
     setEditingSection(section);
     sectionForm.reset({
-      title_en: section.title_en,
-      title_fr: section.title_fr,
-      order_index: section.order_index
+      titleEn: section.titleEn,
+      titleFr: section.titleFr,
+      orderIndex: section.orderIndex
     });
     setShowSectionDialog(true);
   };
 
   const handleCreateFaq = (data: FAQFormData) => {
-    const sectionFaqs = faqs.filter(faq => faq.section_id === data.section_id);
-    const maxOrder = sectionFaqs.length > 0 ? Math.max(...sectionFaqs.map(f => f.order_index)) : 0;
+    const sectionFaqs = faqs.filter(faq => faq.sectionId === data.sectionId);
+    const maxOrder = sectionFaqs.length > 0 ? Math.max(...sectionFaqs.map(f => f.orderIndex)) : 0;
     const faqData = {
       ...data,
-      order_index: maxOrder + 1
+      orderIndex: maxOrder + 1
     };
     createFaqMutation.mutate(faqData);
   };
@@ -243,10 +243,10 @@ export default function FAQManagement() {
   };
 
   const handleCreateSection = (data: SectionFormData) => {
-    const maxOrder = sections.length > 0 ? Math.max(...sections.map(s => s.order_index)) : 0;
+    const maxOrder = sections.length > 0 ? Math.max(...sections.map(s => s.orderIndex)) : 0;
     const sectionData = {
       ...data,
-      order_index: maxOrder + 1
+      orderIndex: maxOrder + 1
     };
     createSectionMutation.mutate(sectionData);
   };
@@ -260,7 +260,7 @@ export default function FAQManagement() {
   const toggleFaqVisibility = (faq: FAQ) => {
     updateFaqMutation.mutate({
       id: faq.id.toString(),
-      data: { is_active: !faq.is_active }
+      data: { isActive: !faq.isActive }
     });
   };
 
@@ -275,24 +275,24 @@ export default function FAQManagement() {
   // Group FAQs by section - SHOW ALL FAQs even with invalid section IDs
   const groupedFaqs = faqs.reduce((acc, faq) => {
     // Convert both to numbers for comparison (handles string vs number mismatch)
-    const faqSectionId = typeof faq.section_id === 'string' ? parseInt(faq.section_id) : faq.section_id;
+    const faqSectionId = typeof faq.sectionId === 'string' ? parseInt(faq.sectionId) : faq.sectionId;
     const section = sections.find(s => s.id === faqSectionId);
-    
+
     console.log('🔍 FAQ Matching:', {
       faqId: faq.id,
-      faqSectionId_original: faq.section_id,
+      faqSectionId_original: faq.sectionId,
       faqSectionId_converted: faqSectionId,
-      matchedSection: section?.title_en || 'NO MATCH'
+      matchedSection: section?.titleEn || 'NO MATCH'
     });
-    
+
     if (section) {
-      const sectionKey = `${section.title_en}|${section.title_fr}`;
+      const sectionKey = `${section.titleEn}|${section.titleFr}`;
       if (!acc[sectionKey]) {
         acc[sectionKey] = [];
       }
       acc[sectionKey].push(faq);
     } else {
-      // FAQs with invalid/missing section_id go to "Uncategorized"
+      // FAQs with invalid/missing sectionId go to "Uncategorized"
       const uncategorizedKey = 'Uncategorized|Non catégorisé';
       if (!acc[uncategorizedKey]) {
         acc[uncategorizedKey] = [];
@@ -305,8 +305,8 @@ export default function FAQManagement() {
   console.log('🔍 GROUPED FAQs:', groupedFaqs);
 
   // Create complete section list - sorted by order
-  const allSections = sections.sort((a, b) => a.order_index - b.order_index);
-  const allSectionKeys = allSections.map(section => `${section.title_en}|${section.title_fr}`);
+  const allSections = sections.sort((a, b) => a.orderIndex - b.orderIndex);
+  const allSectionKeys = allSections.map(section => `${section.titleEn}|${section.titleFr}`);
 
   // Add "Uncategorized" section at the end if there are any uncategorized FAQs
   const uncategorizedKey = 'Uncategorized|Non catégorisé';
@@ -334,15 +334,15 @@ export default function FAQManagement() {
 
       {/* Action buttons */}
       <div className="flex gap-3">
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           className="border-[#2A4759] text-[#2A4759] hover:bg-[#F2EBDC]"
           onClick={() => {
-            const maxOrder = sections.length > 0 ? Math.max(...sections.map(s => s.order_index)) : 0;
+            const maxOrder = sections.length > 0 ? Math.max(...sections.map(s => s.orderIndex)) : 0;
             sectionForm.reset({
-              title_en: '',
-              title_fr: '',
-              order_index: maxOrder + 1
+              titleEn: '',
+              titleFr: '',
+              orderIndex: maxOrder + 1
             });
             setEditingSection(null);
             setShowSectionDialog(true);
@@ -371,7 +371,7 @@ export default function FAQManagement() {
               <form onSubmit={faqForm.handleSubmit(editingFaq ? handleUpdateFaq : handleCreateFaq)} className="space-y-4">
                 <FormField
                   control={faqForm.control}
-                  name="section_id"
+                  name="sectionId"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Section</FormLabel>
@@ -384,7 +384,7 @@ export default function FAQManagement() {
                         >
                           {sections.map((section) => (
                             <option key={section.id} value={section.id}>
-                              {section.title_fr} - {section.title_en}
+                              {section.titleFr} - {section.titleEn}
                             </option>
                           ))}
                         </select>
@@ -397,7 +397,7 @@ export default function FAQManagement() {
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={faqForm.control}
-                    name="question_fr"
+                    name="questionFr"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Question (Français)</FormLabel>
@@ -408,10 +408,10 @@ export default function FAQManagement() {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={faqForm.control}
-                    name="question_en"
+                    name="questionEn"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Question (Anglais)</FormLabel>
@@ -427,7 +427,7 @@ export default function FAQManagement() {
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={faqForm.control}
-                    name="answer_fr"
+                    name="answerFr"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Réponse (Français)</FormLabel>
@@ -438,10 +438,10 @@ export default function FAQManagement() {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={faqForm.control}
-                    name="answer_en"
+                    name="answerEn"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Réponse (Anglais)</FormLabel>
@@ -484,9 +484,9 @@ export default function FAQManagement() {
       <div className="space-y-4">
         {allSectionKeys.map((sectionKey) => {
           const [sectionNameEn, sectionNameFr] = sectionKey.split('|');
-          const sectionFaqs = (groupedFaqs[sectionKey] || []).sort((a, b) => a.order_index - b.order_index);
+          const sectionFaqs = (groupedFaqs[sectionKey] || []).sort((a, b) => a.orderIndex - b.orderIndex);
           const isExpanded = expandedSections.has(sectionKey);
-          const section = allSections.find(s => `${s.title_en}|${s.title_fr}` === sectionKey);
+          const section = allSections.find(s => `${s.titleEn}|${s.titleFr}` === sectionKey);
           const isUncategorized = sectionKey === 'Uncategorized|Non catégorisé';
 
           return (
@@ -553,27 +553,27 @@ export default function FAQManagement() {
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1 space-y-2">
                             <h4 className="font-medium text-gray-900">
-                              {faq.question_fr}
+                              {faq.questionFr}
                             </h4>
                             <p className="text-sm text-gray-600">
-                              {faq.question_en}
+                              {faq.questionEn}
                             </p>
                             <div className="text-xs text-gray-500">
-                              Réponse (FR): {faq.answer_fr.substring(0, 100)}...
+                              Réponse (FR): {faq.answerFr.substring(0, 100)}...
                             </div>
                             <div className="text-xs text-gray-500">
-                              Réponse (EN): {faq.answer_en.substring(0, 100)}...
+                              Réponse (EN): {faq.answerEn.substring(0, 100)}...
                             </div>
                           </div>
-                          
+
                           <div className="flex items-center gap-2">
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => toggleFaqVisibility(faq)}
-                              className={faq.is_active ? "text-green-600" : "text-gray-400"}
+                              className={faq.isActive ? "text-green-600" : "text-gray-400"}
                             >
-                              {faq.is_active ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                              {faq.isActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                             </Button>
                             <Button
                               variant="ghost"
@@ -616,7 +616,7 @@ export default function FAQManagement() {
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={sectionForm.control}
-                  name="title_fr"
+                  name="titleFr"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nom (Français)</FormLabel>
@@ -627,10 +627,10 @@ export default function FAQManagement() {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={sectionForm.control}
-                  name="title_en"
+                  name="titleEn"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nom (Anglais)</FormLabel>

@@ -373,6 +373,12 @@ router.get("/performance", (_req: Request, res: Response) => {
   });
 });
 
+// POST /performance - Accept performance metrics from frontend
+router.post("/performance", express.json(), (_req: Request, res: Response) => {
+  // Accept performance data from frontend but just acknowledge (stub)
+  res.json({ success: true, ...stubMsg });
+});
+
 router.get("/conversions", (_req: Request, res: Response) => {
   res.json({ conversions: emptyArray, ...stubMsg });
 });

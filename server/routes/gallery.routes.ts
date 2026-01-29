@@ -30,7 +30,7 @@ import { createClient } from '@supabase/supabase-js';
 
 const router = Router();
 
-import { hybridStorage } from '../services/storage.service';
+import { storage } from '../services/storage.service';
 import { videoCache } from '../services/media/video-cache.service';
 
 function createCacheHitHeaders(source: string): Record<string, string> {
@@ -225,7 +225,7 @@ router.get('/', async (req: Request, res: Response) => {
     }
     
     // Fetch fresh data
-    const items = await hybridStorage.getGalleryItems();
+    const items = await storage.getGalleryItems();
     galleryCache = { data: items, timestamp: now };
     console.log(`🔄 Gallery fetched from database and cached`);
     
@@ -247,7 +247,7 @@ router.get('/', async (req: Request, res: Response) => {
  */
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const item = await hybridStorage.createGalleryItem(req.body);
+    const item = await storage.createGalleryItem(req.body);
     clearGalleryCache();
     res.json(item);
   } catch (error) {
@@ -261,7 +261,7 @@ router.post('/', async (req: Request, res: Response) => {
  */
 router.get('/admin', async (req: Request, res: Response) => {
   try {
-    const items = await hybridStorage.getGalleryItems();
+    const items = await storage.getGalleryItems();
     console.log(`🔄 Admin gallery fetched (bypassing cache)`);
     res.json(items);
   } catch (error) {
@@ -289,7 +289,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Gallery item ID is required' });
     }
     
-    const item = await hybridStorage.updateGalleryItem(itemId, updates);
+    const item = await storage.updateGalleryItem(itemId, updates);
     clearGalleryCache();
     
     res.json(item);
@@ -311,7 +311,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Invalid gallery item ID' });
     }
     
-    const deleted = await hybridStorage.deleteGalleryItem(itemId);
+    const deleted = await storage.deleteGalleryItem(itemId);
     if (!deleted) {
       return res.json({ success: true, message: 'Item was already deleted or does not exist', alreadyDeleted: true });
     }
@@ -349,7 +349,7 @@ router.patch('/:id/reorder', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Invalid gallery item ID' });
     }
     
-    const item = await hybridStorage.updateGalleryItemOrder(itemId, order_index);
+    const item = await storage.updateGalleryItemOrder(itemId, order_index);
     clearGalleryCache();
     
     res.json(item);
@@ -372,7 +372,7 @@ router.patch('/:id1/swap/:id2', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Invalid gallery item IDs' });
     }
     
-    const result = await hybridStorage.swapGalleryItemOrder(id1, id2);
+    const result = await storage.swapGalleryItemOrder(id1, id2);
     clearGalleryCache();
     
     res.json(result);
@@ -568,7 +568,7 @@ router.post('/upload-static-image', uploadImage.single('image'), async (req: Req
         ? { static_image_url_fr: staticImageUrl, cropSettings }
         : { static_image_url_en: staticImageUrl, cropSettings };
       
-      await hybridStorage.updateGalleryItem(itemId, updateData);
+      await storage.updateGalleryItem(itemId, updateData);
       clearGalleryCache();
       console.log(`✅ Database updated for item ${itemId}`);
     } catch (dbError) {
