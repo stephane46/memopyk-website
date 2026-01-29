@@ -47,15 +47,21 @@ import sharp from 'sharp';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import { createClient } from '@supabase/supabase-js';
+import { videoCache } from '../services/media/video-cache.service';
 
 const router = Router();
 
-// TODO: Import from services once migrated
-// import { hybridStorage } from '../services/storage.service';
-// import { videoCache } from '../services/media/video-cache.service';
-declare const hybridStorage: any;
-declare const videoCache: any;
-declare let galleryCache: { data: any[], timestamp: number } | null;
+// hybridStorage is deprecated - Supabase is the single source of truth
+// This stub prevents errors if any legacy code still references it
+const hybridStorage = {
+  updateGalleryItem: async (id: any, data: any) => {
+    console.warn('⚠️ hybridStorage.updateGalleryItem called but hybridStorage is deprecated');
+    return null;
+  }
+};
+
+// Gallery cache for performance
+let galleryCache: { data: any[], timestamp: number } | null = null;
 
 // Lazy Supabase client (created on first use, not at import time)
 let _supabase: any = null;

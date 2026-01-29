@@ -199,6 +199,67 @@ export class VideoCache {
   }
 
   // ---------------------------------------------------------------------------
+  // Compatibility methods (for legacy media.routes.ts calls)
+  // ---------------------------------------------------------------------------
+
+  /** Legacy alias for downloadAndCacheVideo - caches a video from a Response object */
+  async cacheVideo(filename: string, _response?: any): Promise<void> {
+    // The old code passed a Response, but we just re-download from Supabase
+    await this.downloadAndCacheVideo(filename);
+  }
+
+  /** Legacy alias for removeVideo */
+  clearSpecificFile(filename: string): void {
+    this.removeVideo(filename);
+  }
+
+  /** Legacy alias for getUnifiedStats */
+  getCacheStats(): UnifiedCacheStats & { totalSize: number } {
+    const stats = this.getUnifiedStats();
+    return {
+      ...stats,
+      totalSize: stats.total.totalSize
+    };
+  }
+
+  /** Legacy alias for getUnifiedStats */
+  getDetailedCacheBreakdown(): UnifiedCacheStats {
+    return this.getUnifiedStats();
+  }
+
+  /** Legacy alias for clearAll */
+  async clearCacheCompletely(): Promise<{ videosRemoved: number; imagesRemoved: number }> {
+    return this.clearAll();
+  }
+
+  /** Preload all hero videos and gallery videos (not yet implemented) */
+  async forceCacheAllMedia(): Promise<{ success: boolean; message: string; cached: number }> {
+    console.log('🎬 forceCacheAllMedia: Preloading hero videos...');
+    const heroVideos = ['VideoHero1.mp4', 'VideoHero2.mp4', 'VideoHero3.mp4'];
+    let cached = 0;
+
+    for (const filename of heroVideos) {
+      try {
+        if (!this.isVideoCached(filename)) {
+          await this.downloadAndCacheVideo(filename);
+          cached++;
+          console.log(`✅ Cached: ${filename}`);
+        } else {
+          console.log(`⏭️ Already cached: ${filename}`);
+        }
+      } catch (err) {
+        console.error(`❌ Failed to cache ${filename}:`, err);
+      }
+    }
+
+    return {
+      success: true,
+      message: `Cached ${cached} hero videos`,
+      cached
+    };
+  }
+
+  // ---------------------------------------------------------------------------
   // Private helpers
   // ---------------------------------------------------------------------------
 
