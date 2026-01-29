@@ -8,6 +8,7 @@ import { z } from 'zod';
 import * as XLSX from 'xlsx';
 import { Resend } from 'resend';
 import { generateSlug } from '@shared/utils/slugify';
+import * as partnersService from '../services/partners.service';
 
 const router = Router();
 
@@ -217,10 +218,9 @@ router.post('/intake', async (req: Request, res: Response) => {
       slug: ''
     };
 
-    // TODO: Save via hybrid storage service
-    // const partner = await hybridStorage.createPartner(partnerData);
+    const partner = await partnersService.createPartner(partnerData);
     console.log(`✅ Partner intake received: ${partnerData.partner_name}`);
-    
+
     try {
       await sendPartnerNotification(data);
       console.log(`✅ Email notification sent for partner: ${data.partner_name}`);
@@ -228,7 +228,7 @@ router.post('/intake', async (req: Request, res: Response) => {
       console.error(`⚠️ Email notification failed:`, emailError.message);
     }
 
-    return res.json({ ok: true, saved: 'supabase', partnerId: 0, reqId });
+    return res.json({ ok: true, saved: 'supabase', partnerId: partner.id, reqId });
   } catch (e: any) {
     console.error('INTAKE_ERR', reqId, e?.message || e);
     return res.status(500).json({ ok: false, error: 'server_error', reqId });
@@ -242,13 +242,17 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseInt(req.query.limit as string) || 1000;
     const transform = req.query.transform === 'true';
 
-    // TODO: Fetch from hybrid storage
-    // const filters = { status, is_active, show_on_map, search };
-    // const allPartners = await hybridStorage.getPartners(filters);
-    const allPartners: any[] = [];
-    
+    // Build filters from query params
+    const filters: any = {};
+    if (req.query.status) filters.status = req.query.status as string;
+    if (req.query.is_active !== undefined) filters.isActive = req.query.is_active === 'true';
+    if (req.query.show_on_map !== undefined) filters.showOnMap = req.query.show_on_map === 'true';
+    if (req.query.search) filters.search = req.query.search as string;
+
+    const allPartners = await partnersService.getPartners(filters);
+
     const processedPartners = transform ? allPartners.map(transformPartnerData) : allPartners;
-    
+
     const total = processedPartners.length;
     const startIndex = (page - 1) * limit;
     const partners = processedPartners.slice(startIndex, startIndex + limit);
@@ -263,10 +267,8 @@ router.get('/', async (req: Request, res: Response) => {
 // Download Excel export
 router.get('/download', async (req: Request, res: Response) => {
   try {
-    // TODO: Fetch from hybrid storage
-    // const partners = await hybridStorage.getPartners({});
-    const partners: any[] = [];
-    
+    const partners = await partnersService.getPartners({});
+
     if (!partners || partners.length === 0) {
       return res.status(404).json({ error: 'No partner submissions found' });
     }
@@ -359,8 +361,7 @@ router.post('/import-tsv', async (req: Request, res: Response) => {
           slug: row['slug'] || ''
         };
 
-        // TODO: Save via hybrid storage
-        // const result = await hybridStorage.createPartner(newPartner);
+        const result = await partnersService.createPartner(newPartner);
         importedCount++;
         console.log(`✅ Imported partner ${i + 1}: ${newPartner.partner_name}`);
       } catch (rowError: any) {
@@ -413,10 +414,9 @@ router.post('/create', async (req: Request, res: Response) => {
       slug: slug
     };
 
-    // TODO: Save via hybrid storage
-    // const result = await hybridStorage.createPartner(newPartner);
+    const result = await partnersService.createPartner(newPartner);
     console.log(`✅ Partner created: ${newPartner.partner_name}`);
-    return res.json({ ok: true, message: 'Partner created successfully', partner: newPartner });
+    return res.json({ ok: true, message: 'Partner created successfully', partner: result });
   } catch (e: any) {
     console.error('Create error:', e);
     return res.status(500).json({ error: 'Server error' });
@@ -441,10 +441,9 @@ router.patch('/:id/update', async (req: Request, res: Response) => {
     if ('email_public' in updates) updates.email_public = Boolean(updates.email_public);
     if ('phone_public' in updates) updates.phone_public = Boolean(updates.phone_public);
 
-    // TODO: Update via hybrid storage
-    // const result = await hybridStorage.updatePartner(partnerId, updates);
+    const result = await partnersService.updatePartner(partnerId, updates);
     console.log(`✅ Partner updated: ${partnerId}`);
-    return res.json({ ok: true, message: 'Partner updated successfully' });
+    return res.json({ ok: true, message: 'Partner updated successfully', partner: result });
   } catch (e: any) {
     console.error('Update error:', e);
     return res.status(500).json({ error: e.message || 'Server error' });
@@ -456,8 +455,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const partnerId = parseInt(req.params.id);
 
-    // TODO: Delete via hybrid storage
-    // await hybridStorage.deletePartner(partnerId);
+    await partnersService.deletePartner(partnerId);
     console.log(`✅ Partner deleted: ${partnerId}`);
     return res.json({ ok: true, message: 'Partner deleted successfully' });
   } catch (e: any) {
