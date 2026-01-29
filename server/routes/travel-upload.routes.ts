@@ -673,21 +673,24 @@ router.post('/api/travel-upload/submit', async (req, res) => {
   // Get all travel upload submissions (for admin use) - uses hybrid storage
   router.get('/api/travel-upload/submissions', requireAdmin, async (req, res) => {
     try {
+      console.log('🔍 [Travel] GET /api/travel-upload/submissions - Starting request');
       const { agencyCode, startDate, endDate, search } = req.query;
-      
+
       const filters: any = {};
       if (agencyCode) filters.agencyCode = agencyCode as string;
       if (startDate) filters.startDate = startDate as string;
       if (endDate) filters.endDate = endDate as string;
       if (search) filters.search = search as string;
-      
+
+      console.log('🔍 [Travel] Calling travelService.getTravelUploadSubmissions with filters:', filters);
       const submissions = await travelService.getTravelUploadSubmissions(
         Object.keys(filters).length > 0 ? filters : undefined
       );
-      
+      console.log(`✅ [Travel] Retrieved ${Array.isArray(submissions) ? submissions.length : 0} submissions`);
+
       res.json(submissions);
     } catch (error) {
-      console.error('Error reading travel upload submissions:', error);
+      console.error('❌ [Travel] Error reading travel upload submissions:', error);
       res.status(500).json({ error: 'Failed to read submissions' });
     }
   });
@@ -1177,15 +1180,18 @@ router.post('/api/travel-upload/submit', async (req, res) => {
   // Get all agency codes
   router.get('/api/travel-agency-codes', requireAdmin, async (req, res) => {
     try {
+      console.log('🔍 [Travel] GET /api/travel-agency-codes - Starting request');
       const { isActive, search } = req.query;
       const filters: any = {};
       if (isActive !== undefined) filters.isActive = isActive === 'true';
       if (search) filters.search = search as string;
-      
+
+      console.log('🔍 [Travel] Calling travelService.getTravelAgencyCodes with filters:', filters);
       const codes = await travelService.getTravelAgencyCodes(filters);
+      console.log(`✅ [Travel] Retrieved ${Array.isArray(codes) ? codes.length : 0} agency codes`);
       res.json(codes);
     } catch (error) {
-      console.error('Error getting agency codes:', error);
+      console.error('❌ [Travel] Error getting agency codes:', error);
       res.status(500).json({ error: 'Failed to get agency codes' });
     }
   });

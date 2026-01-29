@@ -33,6 +33,7 @@ export async function getTravelUploadSubmissions(filters?: {
   endDate?: string;
   search?: string;
 }) {
+  console.log('🔍 [Service] getTravelUploadSubmissions called with filters:', filters);
   let sqlQuery = `SELECT * FROM travel_upload_submissions WHERE 1=1`;
 
   if (filters) {
@@ -53,8 +54,11 @@ export async function getTravelUploadSubmissions(filters?: {
 
   sqlQuery += ` ORDER BY created_at DESC`;
 
+  console.log('📝 [Service] Executing SQL:', sqlQuery.substring(0, 150));
   const result = await db.execute(sql.raw(sqlQuery));
-  return result.rows || result;
+  const data = result.rows || result;
+  console.log(`✅ [Service] Query returned ${Array.isArray(data) ? data.length : 0} rows`);
+  return data;
 }
 
 export async function getTravelUploadSubmissionById(id: number) {
@@ -111,6 +115,7 @@ export async function getTravelAgencyCodes(filters?: {
   isActive?: boolean;
   search?: string;
 }) {
+  console.log('🔍 [Service] getTravelAgencyCodes called with filters:', filters);
   let sqlQuery = `SELECT * FROM travel_agency_codes WHERE 1=1`;
 
   if (filters) {
@@ -125,8 +130,11 @@ export async function getTravelAgencyCodes(filters?: {
 
   sqlQuery += ` ORDER BY agency_name ASC`;
 
+  console.log('📝 [Service] Executing SQL:', sqlQuery.substring(0, 150));
   const result = await db.execute(sql.raw(sqlQuery));
-  return result.rows || result;
+  const data = result.rows || result;
+  console.log(`✅ [Service] Query returned ${Array.isArray(data) ? data.length : 0} rows`);
+  return data;
 }
 
 export async function getTravelAgencyCodeById(id: number) {
