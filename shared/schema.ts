@@ -952,3 +952,61 @@ export type InsertEngagementHeatmap = z.infer<typeof insertEngagementHeatmapSche
 export type InsertConversionFunnel = z.infer<typeof insertConversionFunnelSchema>;
 export type InsertWhyMemopykCards = z.infer<typeof insertWhyMemopykCardsSchema>;
 export type InsertAnalyticsExclusion = z.infer<typeof insertAnalyticsExclusionSchema>;
+
+// ==================== TRAVEL UPLOAD PORTAL ====================
+
+export const travelAgencyCodes = pgTable("travel_agency_codes", {
+  id: serial("id").primaryKey(),
+
+  agencyName: text("agency_name").notNull(),
+  agencyCode: text("agency_code").notNull().unique(), // Stored uppercase for case-insensitive matching
+  contactEmail: text("contact_email"),
+  contactPhone: text("contact_phone"),
+  notes: text("notes"),
+  isActive: boolean("is_active").default(true),
+
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const insertTravelAgencyCodeSchema = createInsertSchema(travelAgencyCodes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true
+});
+
+export type TravelAgencyCode = typeof travelAgencyCodes.$inferSelect;
+export type InsertTravelAgencyCode = z.infer<typeof insertTravelAgencyCodeSchema>;
+
+export const travelUploadSubmissions = pgTable("travel_upload_submissions", {
+  id: serial("id").primaryKey(),
+
+  firstName: text("first_name").notNull(),
+  lastName: text("last_name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  agencyCode: text("agency_code").notNull(),
+  agencyName: text("agency_name"),
+  language: text("language").notNull(),
+
+  folderPath: text("folder_path").notNull(),
+  shareUrl: text("share_url").notNull(),
+  shareId: text("share_id").notNull(),
+  shareToken: text("share_token").notNull(),
+
+  status: text("status").default("active"),
+  agencyEmailSent: boolean("agency_email_sent").default(false),
+  ngocEmailSent: boolean("ngoc_email_sent").default(false),
+
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const insertTravelUploadSubmissionSchema = createInsertSchema(travelUploadSubmissions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true
+});
+
+export type TravelUploadSubmission = typeof travelUploadSubmissions.$inferSelect;
+export type InsertTravelUploadSubmission = z.infer<typeof insertTravelUploadSubmissionSchema>;

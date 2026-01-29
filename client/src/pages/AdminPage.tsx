@@ -35,6 +35,7 @@ import { BlogManagement } from '@/admin/BlogManagement';
 import CryptoJS from 'crypto-js';
 import ContentProductionHub from '@/components/admin/ContentProductionHub';
 import TravelUploadsAdmin from '@/components/admin/TravelUploadsAdmin';
+import TravelAgencyCodesAdmin from '@/components/admin/TravelAgencyCodesAdmin';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
@@ -271,7 +272,7 @@ export default function AdminPage() {
   };
 
   const sidebarItems = [
-    { id: 'travel-uploads', label: 'Uploads', icon: Upload },
+    { id: 'travel-agencies', label: 'Travel Agencies', icon: Upload },
     { id: 'analytics-new', label: 'Analytics', icon: BarChart3 },
     { id: 'seo', label: 'SEO Management', icon: Globe },
     { id: 'content-production', label: 'Blog Posts', icon: FileText },
@@ -1298,9 +1299,22 @@ export default function AdminPage() {
             <AnalyticsDashboard />
           )}
 
-          {/* Travel Uploads Admin */}
-          {activeSection === 'travel-uploads' && (
-            <TravelUploadsAdmin />
+          {/* Travel Agencies Admin (Uploads + Agency Codes) */}
+          {activeSection === 'travel-agencies' && (
+            <Tabs defaultValue="uploads" className="w-full">
+              <TabsList className="mb-4">
+                <TabsTrigger value="uploads">Uploads</TabsTrigger>
+                <TabsTrigger value="agency-codes">Agency Codes</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="uploads">
+                <TravelUploadsAdmin />
+              </TabsContent>
+
+              <TabsContent value="agency-codes">
+                <TravelAgencyCodesAdmin />
+              </TabsContent>
+            </Tabs>
           )}
 
           {/* Analytics New Dashboard */}
