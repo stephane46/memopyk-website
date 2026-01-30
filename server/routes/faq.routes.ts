@@ -25,6 +25,46 @@ import { storage } from '../services/storage.service';
 const router = Router();
 
 // =============================================================================
+// HELPER: Transform camelCase to snake_case for frontend compatibility
+// =============================================================================
+
+/**
+ * Transform FAQ object from Drizzle's camelCase to snake_case
+ * Frontend expects: section_id, question_en, question_fr, answer_en, answer_fr, order_index, is_active
+ */
+function transformFaqToSnakeCase(faq: Record<string, unknown>) {
+  return {
+    id: faq.id,
+    section_id: faq.sectionId,
+    question_en: faq.questionEn,
+    question_fr: faq.questionFr,
+    answer_en: faq.answerEn,
+    answer_fr: faq.answerFr,
+    order_index: faq.orderIndex,
+    is_active: faq.isActive,
+    created_at: faq.createdAt,
+    updated_at: faq.updatedAt,
+  };
+}
+
+/**
+ * Transform FAQ section object from Drizzle's camelCase to snake_case
+ * Frontend expects: title_en, title_fr, order_index
+ */
+function transformSectionToSnakeCase(section: Record<string, unknown>) {
+  return {
+    id: section.id,
+    title_en: section.titleEn,
+    title_fr: section.titleFr,
+    name_en: section.titleEn, // Alias for compatibility
+    name_fr: section.titleFr, // Alias for compatibility
+    order_index: section.orderIndex,
+    created_at: section.createdAt,
+    updated_at: section.updatedAt,
+  };
+}
+
+// =============================================================================
 // FAQ SECTIONS ROUTES
 // =============================================================================
 
@@ -35,7 +75,9 @@ const router = Router();
 router.get('/faq-sections', async (req: Request, res: Response) => {
   try {
     const sections = await storage.getFaqSections();
-    res.json(sections);
+    // Transform to snake_case for frontend compatibility
+    const transformed = sections.map((s: Record<string, unknown>) => transformSectionToSnakeCase(s));
+    res.json(transformed);
   } catch (error) {
     console.error('Get FAQ sections error:', error);
     res.status(500).json({ error: 'Failed to get FAQ sections' });
@@ -133,7 +175,9 @@ router.patch('/faq-sections/:id/reorder', async (req: Request, res: Response) =>
 router.get('/faqs', async (req: Request, res: Response) => {
   try {
     const faqs = await storage.getFaqs();
-    res.json(faqs);
+    // Transform to snake_case for frontend compatibility
+    const transformed = faqs.map((f: Record<string, unknown>) => transformFaqToSnakeCase(f));
+    res.json(transformed);
   } catch (error) {
     console.error('Get FAQs error:', error);
     res.status(500).json({ error: 'Failed to get FAQs' });
@@ -242,7 +286,9 @@ router.patch('/faqs/:id/reorder', async (req: Request, res: Response) => {
 router.get('/faq', async (req: Request, res: Response) => {
   try {
     const faqs = await storage.getFaqs();
-    res.json(faqs);
+    // Transform to snake_case for frontend compatibility
+    const transformed = faqs.map((f: Record<string, unknown>) => transformFaqToSnakeCase(f));
+    res.json(transformed);
   } catch (error) {
     console.error('Get FAQ content error:', error);
     res.status(500).json({ error: 'Failed to get FAQ content' });
