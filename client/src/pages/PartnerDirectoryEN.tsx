@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { MapContainer, TileLayer, Marker, Tooltip, useMapEvents, useMap } from 'react-leaflet';
-import MarkerClusterGroup from 'react-leaflet-cluster';
+// import MarkerClusterGroup from 'react-leaflet-cluster'; // TEMPORARY: Disabled for testing
 import { MapPin, Phone, Mail, Globe, Filter, Search, Package, X, Navigation, ChevronDown, ChevronUp, Camera, Film as FilmIcon, Video } from 'lucide-react';
 import { ensureUniquePartnerSlugs } from '@shared/utils/slugify';
 import { Input } from '@/components/ui/input';
@@ -531,35 +531,9 @@ export default function PartnerDirectoryEN() {
                 />
                 <MapFitBounds partners={mappablePartners} />
                 <MapAutoZoomToSearch searchText={searchText} filteredPartners={mappablePartners} />
-                <ClusterClickHandler clusterRef={clusterRef} />
-                <MarkerClusterGroup
-                  ref={clusterRef}
-                  chunkedLoading
-                  maxClusterRadius={(zoom: number) => zoom >= 13 ? 5 : 50}
-                  iconCreateFunction={(cluster: any) => {
-                    const count = cluster.getChildCount();
-                    return L.divIcon({
-                      html: `
-                        <div style="position: relative; width: 25px; height: 41px;">
-                          <svg width="25" height="41" viewBox="0 0 25 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12.5 0C5.59644 0 0 5.59644 0 12.5C0 21.875 12.5 41 12.5 41C12.5 41 25 21.875 25 12.5C25 5.59644 19.4036 0 12.5 0Z" fill="#2A4759"/>
-                            <circle cx="12.5" cy="12.5" r="8" fill="white"/>
-                          </svg>
-                          <div style="position: absolute; top: 4.5px; left: 50%; transform: translateX(-50%); color: #2A4759; font-weight: bold; font-size: 13px; line-height: 1; pointer-events: none; font-family: Arial, sans-serif;">
-                            ${count}
-                          </div>
-                        </div>
-                      `,
-                      className: '',
-                      iconSize: [25, 41],
-                      iconAnchor: [12.5, 41]
-                    });
-                  }}
-                  spiderfyOnMaxZoom={true}
-                  spiderfyDistanceMultiplier={2}
-                  showCoverageOnHover={false}
-                  zoomToBoundsOnClick={false}
-                >
+                {/* <ClusterClickHandler clusterRef={clusterRef} /> */}
+                {/* TEMPORARY: MarkerClusterGroup disabled for testing */}
+                <>
                   {mappablePartners.map((partner, index) => (
                     partner.lat && partner.lng && (
                       <Marker
@@ -571,9 +545,9 @@ export default function PartnerDirectoryEN() {
                             userInitiatedExpansionRef.current = true;
                             setSelectedPartner(partner.slug);
                             setExpandedCard(partner.slug);
-                            setZoomTo({ 
-                              lat: partner.lat!, 
-                              lng: partner.lng!, 
+                            setZoomTo({
+                              lat: partner.lat!,
+                              lng: partner.lng!,
                               zoom: 17,
                               timestamp: Date.now()
                             });
@@ -587,7 +561,7 @@ export default function PartnerDirectoryEN() {
                       </Marker>
                     )
                   ))}
-                </MarkerClusterGroup>
+                </>
               </MapContainer>
             </div>
           </div>
