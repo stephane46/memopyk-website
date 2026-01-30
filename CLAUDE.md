@@ -2,9 +2,26 @@
 
 ## CURRENT WORK IN PROGRESS
 
-**Last session:** 2026-01-29
-**Working on:** Phase 9 Deployment - camelCase refactor complete
-**Status:** Staging live. camelCase standardization complete. Ready for staging verification + production cutover.
+**Last session:** 2026-01-30
+**Working on:** Partner Directory Leaflet bug - RESOLVED (minimal deploy)
+**Status:** Staging live and functional. Partner Directory map working. Mapbox GL JS upgrade planned for next sprint.
+
+### Session Summary (2026-01-30)
+
+**Problem:** Partner Directory page crashed with "Maximum call stack size exceeded" in Leaflet.
+
+**Root Cause:** Incompatibility between Leaflet 1.9.4's class extension system and react-leaflet hooks (`useMap()`, `useMapEvents()`) in Vite production build. Same code worked on Replit but crashed on Coolify.
+
+**Solution:** Deployed minimal working map configuration:
+- Removed crashing components: MapBoundsTracker, MapFitBounds, MapZoomController, MapAutoZoomToSearch, ClusterClickHandler, MarkerClusterGroup
+- Kept working components: MapContainer, TileLayer, Markers, Tooltips
+- Added MapErrorBoundary as safety net
+
+**Commit:** 7dfd312 - "feat: Deploy minimal working Partner Directory map"
+
+**Planned:** Migrate to Mapbox GL JS in future sprint (cleaner API, better React integration, no class system bugs)
+
+**Full diagnostic report:** PARTNER_DIRECTORY_LEAFLET_BUG_REPORT.md
 
 ### What's Done (Phases 1-3G + Fixes)
 
@@ -177,4 +194,4 @@ Key categories:
 
 ---
 
-*Last updated: January 27, 2026*
+*Last updated: January 30, 2026*
