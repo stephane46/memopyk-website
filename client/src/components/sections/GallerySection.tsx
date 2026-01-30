@@ -893,7 +893,7 @@ export default function GallerySection() {
                   </div>
 
                   {/* BACK SIDE - Sorry Message */}
-                  <div className="card-back">
+                  <div className="card-back card-back-gradient">
                     <div className="text-center text-white">
                       <div className="text-2xl font-bold mb-4">
                         {language === 'fr-FR' ? 'Vidéo Non Disponible' : 'Video Not Available'}
@@ -1101,7 +1101,7 @@ export default function GallerySection() {
                   </div>
 
                   {/* BACK SIDE - Sorry Message */}
-                  <div className="card-back">
+                  <div className="card-back card-back-gradient">
                     <div className="text-center text-white">
                       <div className="text-2xl font-bold mb-4">
                         {language === 'fr-FR' ? 'Vidéo Non Disponible' : 'Video Not Available'}
