@@ -2027,6 +2027,7 @@ img.img-full {
 
   .footer-main-link {
     color: #F2EBDC !important; /* Cream for links */
+    cursor: pointer !important;
   }
 
   .footer-main-link:hover {
