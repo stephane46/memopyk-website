@@ -44,16 +44,22 @@ import {
   DELIVERY,
 } from "@shared/partnerFormats";
 
-// Create custom icon without prototype manipulation (Vite-compatible)
-const customMarkerIcon = new L.Icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
+// Lazy icon creation - only create when first accessed to avoid module-load race conditions
+let customMarkerIcon: L.Icon | null = null;
+const getMarkerIcon = () => {
+  if (!customMarkerIcon) {
+    customMarkerIcon = new L.Icon({
+      iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+      iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+      shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+  }
+  return customMarkerIcon;
+};
 
 // Component to track map bounds changes
 function MapBoundsTracker({
@@ -668,7 +674,7 @@ export default function PartnerDirectoryEN() {
                         <Marker
                           key={index}
                           position={[partner.lat, partner.lng]}
-                          icon={customMarkerIcon}
+                          icon={getMarkerIcon()}
                           eventHandlers={{
                             click: () => {
                               userInitiatedExpansionRef.current = true;
