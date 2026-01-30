@@ -903,7 +903,7 @@ export default function GallerySection() {
                       </div>
                       <button
                         onClick={(e) => handlePlayClick(item, e, index)}
-                        className="mt-6 bg-white text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                        className="mt-6 bg-white text-gray-800 px-6 py-2 rounded-full hover:bg-gray-100 hover:scale-105 transition-colors transition-transform"
                       >
                         {language === 'fr-FR' ? 'Retour' : 'Back'}
                       </button>
@@ -1111,7 +1111,7 @@ export default function GallerySection() {
                       </div>
                       <button
                         onClick={(e) => handlePlayClick(item, e, actualIndex)}
-                        className="mt-6 bg-white text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                        className="mt-6 bg-white text-gray-800 px-6 py-2 rounded-full hover:bg-gray-100 hover:scale-105 transition-colors transition-transform"
                       >
                         {language === 'fr-FR' ? 'Retour' : 'Back'}
                       </button>
