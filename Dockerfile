@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build && \
     echo "=== Build complete, checking output ===" && \
     ls -la dist/ && \
-    ls -la dist/client/ && \
+    ls -la dist/public/ && \
     ls -la dist/server/ && \
     echo "=== Server entry point:" && \
     head -5 dist/server/index.js
