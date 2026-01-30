@@ -2049,6 +2049,13 @@ img.img-full {
   color: #D67C4A !important;
 }
 
+/* Preserve dark text for buttons with white backgrounds on card-back */
+.card-back .bg-white,
+.card-back .bg-white button,
+.card-back button.bg-white {
+  color: #1f2937 !important;
+}
+
 /* NUCLEAR OPTION: Force white text on back cards with unique class */
 .force-white-text-back-card,
 .force-white-text-back-card *,
