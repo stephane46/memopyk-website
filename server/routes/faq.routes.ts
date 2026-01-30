@@ -49,16 +49,19 @@ function transformFaqToSnakeCase(faq: Record<string, unknown>) {
 
 /**
  * Transform FAQ section object from Drizzle's camelCase to snake_case
- * Frontend expects: title_en, title_fr, order_index
+ * Schema uses: nameEn, nameFr (Drizzle camelCase)
+ * Frontend expects: title_en, title_fr (snake_case)
  */
 function transformSectionToSnakeCase(section: Record<string, unknown>) {
   return {
     id: section.id,
-    title_en: section.titleEn,
-    title_fr: section.titleFr,
-    name_en: section.titleEn, // Alias for compatibility
-    name_fr: section.titleFr, // Alias for compatibility
+    key: section.key,
+    title_en: section.nameEn,  // Map nameEn → title_en for frontend
+    title_fr: section.nameFr,  // Map nameFr → title_fr for frontend
+    name_en: section.nameEn,   // Also provide name_en alias
+    name_fr: section.nameFr,   // Also provide name_fr alias
     order_index: section.orderIndex,
+    is_active: section.isActive,
     created_at: section.createdAt,
     updated_at: section.updatedAt,
   };
