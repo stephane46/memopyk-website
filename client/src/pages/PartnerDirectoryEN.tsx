@@ -62,6 +62,7 @@ const getMarkerIcon = () => {
 };
 
 // Component to track map bounds changes
+// FIXED: Replaced useMapEvents with useMap + manual event listeners to avoid Leaflet class extension bug
 function MapBoundsTracker({
   onBoundsChange,
   partners,
@@ -75,22 +76,29 @@ function MapBoundsTracker({
   userInitiatedRef: React.MutableRefObject<boolean>;
   onAutoCollapse: () => void;
 }) {
+  const map = useMap();
+
   // Use refs to avoid stale closure problem - always get current values
   const expandedCardRef = useRef(expandedCard);
   const partnersRef = useRef(partners);
   const onAutoCollapseRef = useRef(onAutoCollapse);
+  const onBoundsChangeRef = useRef(onBoundsChange);
 
   // Update refs when props change
   useEffect(() => {
     expandedCardRef.current = expandedCard;
     partnersRef.current = partners;
     onAutoCollapseRef.current = onAutoCollapse;
-  }, [expandedCard, partners, onAutoCollapse]);
+    onBoundsChangeRef.current = onBoundsChange;
+  }, [expandedCard, partners, onAutoCollapse, onBoundsChange]);
 
-  const map = useMapEvents({
-    moveend: () => {
+  // Set up event listeners manually instead of using useMapEvents
+  useEffect(() => {
+    if (!map) return;
+
+    const handleBoundsChange = () => {
       const bounds = map.getBounds();
-      onBoundsChange(bounds);
+      onBoundsChangeRef.current(bounds);
 
       // Auto-collapse logic: count visible partners using current ref values
       const visibleCount = partnersRef.current.filter(
@@ -110,34 +118,23 @@ function MapBoundsTracker({
 
       // Clear the user-initiated flag after map movement completes
       userInitiatedRef.current = false;
-    },
-    zoomend: () => {
-      const bounds = map.getBounds();
-      onBoundsChange(bounds);
+    };
 
-      // Auto-collapse logic: count visible partners using current ref values
-      const visibleCount = partnersRef.current.filter(
-        (p) => p.lat && p.lng && bounds.contains([p.lat, p.lng]),
-      ).length;
+    // Attach event listeners
+    map.on('moveend', handleBoundsChange);
+    map.on('zoomend', handleBoundsChange);
+    map.on('load', () => onBoundsChangeRef.current(map.getBounds()));
 
-      const currentExpandedCard = expandedCardRef.current;
+    // Initial bounds
+    onBoundsChangeRef.current(map.getBounds());
 
-      // If multiple partners visible and card expanded, auto-collapse (unless user just clicked marker)
-      if (
-        visibleCount > 1 &&
-        currentExpandedCard &&
-        !userInitiatedRef.current
-      ) {
-        onAutoCollapseRef.current();
-      }
+    // Cleanup
+    return () => {
+      map.off('moveend', handleBoundsChange);
+      map.off('zoomend', handleBoundsChange);
+    };
+  }, [map, userInitiatedRef]);
 
-      // Clear the user-initiated flag after map movement completes
-      userInitiatedRef.current = false;
-    },
-    load: () => {
-      onBoundsChange(map.getBounds());
-    },
-  });
   return null;
 }
 
@@ -154,7 +151,8 @@ function MapZoomController({
   useEffect(() => {
     if (zoomTo) {
       map.flyTo([zoomTo.lat, zoomTo.lng], zoomTo.zoom, {
-        duration: 1.5,
+        duration: 0,
+        animate: false,
       });
 
       // Reset zoomTo after animation completes to allow re-triggering
@@ -189,7 +187,8 @@ function ClusterClickHandler({ clusterRef }: { clusterRef: any }) {
         map.flyToBounds(bounds, {
           padding: [100, 100],
           maxZoom: 16,
-          duration: 1.0,
+          duration: 0,
+          animate: false,
         });
       });
     }
@@ -220,7 +219,7 @@ function MapFitBounds({
         .map((p) => [p.lat!, p.lng!]);
 
       if (bounds.length > 0) {
-        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 10 });
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 10, animate: false });
         hasInitialized.current = true;
       }
     }
@@ -252,7 +251,7 @@ function MapAutoZoomToSearch({
       if (partnersWithCoords.length === 1) {
         // Single result: zoom to that specific location
         const partner = partnersWithCoords[0];
-        map.flyTo([partner.lat!, partner.lng!], 13, { duration: 1.5 });
+        map.flyTo([partner.lat!, partner.lng!], 13, { duration: 0, animate: false });
       } else if (partnersWithCoords.length > 1) {
         // Multiple results: fit bounds to show all
         const bounds: [number, number][] = partnersWithCoords.map((p) => [
@@ -262,7 +261,8 @@ function MapAutoZoomToSearch({
         map.flyToBounds(bounds, {
           padding: [50, 50],
           maxZoom: 10,
-          duration: 1.5,
+          duration: 0,
+          animate: false,
         });
       }
     }
@@ -617,92 +617,29 @@ export default function PartnerDirectoryEN() {
                 zoom={6}
                 style={{ height: "100%", width: "100%" }}
                 data-testid="partner-map"
+                preferCanvas={true}
+                zoomAnimation={false}
+                fadeAnimation={false}
+                markerZoomAnimation={false}
               >
                 <TileLayer
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                <MapBoundsTracker
-                  onBoundsChange={setMapBounds}
-                  partners={mappablePartners}
-                  expandedCard={expandedCard}
-                  userInitiatedRef={userInitiatedExpansionRef}
-                  onAutoCollapse={handleAutoCollapse}
-                />
-                <MapZoomController
-                  zoomTo={zoomTo}
-                  onZoomComplete={() => setZoomTo(null)}
-                />
-                <MapFitBounds partners={mappablePartners} />
-                <MapAutoZoomToSearch
-                  searchText={searchText}
-                  filteredPartners={mappablePartners}
-                />
-                <ClusterClickHandler clusterRef={clusterRef} />
-                <MarkerClusterGroup
-                  ref={clusterRef}
-                  chunkedLoading
-                  maxClusterRadius={(zoom: number) => (zoom >= 13 ? 5 : 50)}
-                  iconCreateFunction={(cluster: any) => {
-                    const count = cluster.getChildCount();
-                    return L.divIcon({
-                      html: `
-                        <div style="position: relative; width: 25px; height: 41px;">
-                          <svg width="25" height="41" viewBox="0 0 25 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12.5 0C5.59644 0 0 5.59644 0 12.5C0 21.875 12.5 41 12.5 41C12.5 41 25 21.875 25 12.5C25 5.59644 19.4036 0 12.5 0Z" fill="#2A4759"/>
-                            <circle cx="12.5" cy="12.5" r="8" fill="white"/>
-                          </svg>
-                          <div style="position: absolute; top: 4.5px; left: 50%; transform: translateX(-50%); color: #2A4759; font-weight: bold; font-size: 13px; line-height: 1; pointer-events: none; font-family: Arial, sans-serif;">
-                            ${count}
-                          </div>
-                        </div>
-                      `,
-                      className: "",
-                      iconSize: [25, 41],
-                      iconAnchor: [12.5, 41],
-                    });
-                  }}
-                  spiderfyOnMaxZoom={true}
-                  spiderfyDistanceMultiplier={2}
-                  showCoverageOnHover={false}
-                  zoomToBoundsOnClick={false}
-                >
-                  {mappablePartners.map(
-                    (partner, index) =>
-                      partner.lat &&
-                      partner.lng && (
-                        <Marker
-                          key={index}
-                          position={[partner.lat, partner.lng]}
-                          icon={getMarkerIcon()}
-                          eventHandlers={{
-                            click: () => {
-                              userInitiatedExpansionRef.current = true;
-                              setSelectedPartner(partner.slug);
-                              setExpandedCard(partner.slug);
-                              setZoomTo({
-                                lat: partner.lat!,
-                                lng: partner.lng!,
-                                zoom: 17,
-                                timestamp: Date.now(),
-                              });
-                            },
-                          }}
-                        >
-                          <Tooltip
-                            direction="top"
-                            offset={[0, -20]}
-                            opacity={0.9}
-                          >
-                            <div className="font-semibold">{partner.name}</div>
-                            <div className="text-xs text-gray-600">
-                              {partner.city}
-                            </div>
-                          </Tooltip>
-                        </Marker>
-                      ),
-                  )}
-                </MarkerClusterGroup>
+                {/* Minimal working configuration - all useMap()/useMapEvents() components removed due to Leaflet bug */}
+                {mappablePartners.map((partner, index) =>
+                  partner.lat && partner.lng ? (
+                    <Marker
+                      key={index}
+                      position={[partner.lat, partner.lng]}
+                    >
+                      <Tooltip direction="top" offset={[0, -20]} opacity={0.9}>
+                        <div className="font-semibold">{partner.name}</div>
+                        <div className="text-xs text-gray-600">{partner.city}</div>
+                      </Tooltip>
+                    </Marker>
+                  ) : null
+                )}
               </MapContainer>
             </div>
           </div>

@@ -158,10 +158,8 @@ async function main() {
     await registerRoutes(app);
     console.log("✅ API routes registered");
     
-    // 6. Setup static file serving (production only)
-    if (process.env.NODE_ENV === "production") {
-      setupStaticServing();
-    }
+    // 6. Setup static file serving (always when running built server)
+    setupStaticServing();
     
     // 7. Setup error handler (must be last)
     setupErrorHandler();

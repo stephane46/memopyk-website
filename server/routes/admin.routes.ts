@@ -10,14 +10,20 @@ import { parse } from 'csv-parse';
 import { stringify } from 'csv-stringify/sync';
 import { Pool } from 'pg';
 import countries from 'i18n-iso-countries';
-import en from 'i18n-iso-countries/langs/en.json' assert { type: 'json' };
-import fr from 'i18n-iso-countries/langs/fr.json' assert { type: 'json' };
 
 const router = Router();
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
-countries.registerLocale(en);
-countries.registerLocale(fr);
+// Load locales dynamically to work with ESM + esbuild bundling
+Promise.all([
+  import('i18n-iso-countries/langs/en.json', { with: { type: 'json' } }),
+  import('i18n-iso-countries/langs/fr.json', { with: { type: 'json' } })
+]).then(([enModule, frModule]) => {
+  countries.registerLocale(enModule.default);
+  countries.registerLocale(frModule.default);
+}).catch(err => {
+  console.error('Failed to load country locales:', err);
+});
 
 // TODO: Replace with real auth/ACL check
 function assertAdmin(req: Request) {
