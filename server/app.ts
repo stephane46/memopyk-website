@@ -69,9 +69,9 @@ export function setupErrorHandler() {
 // STATIC FILE SERVING (Production)
 // ============================================================================
 export function setupStaticServing() {
-  // Vite builds to dist/client/, server compiles to dist/server/
-  const clientDist = path.resolve(process.cwd(), "dist/client");
-  
+  // Vite builds to dist/public/, server compiles to dist/server/
+  const clientDist = path.resolve(process.cwd(), "dist/public");
+
   // Serve static files for non-API routes
   app.use((req: Request, res: Response, next: NextFunction) => {
     if (req.path.startsWith("/api")) {
@@ -79,8 +79,8 @@ export function setupStaticServing() {
     }
     express.static(clientDist, { index: false })(req, res, next);
   });
-  
-  // Flags and other static assets are included in dist/client via Vite's publicDir
+
+  // Flags and other static assets are included in dist/public via Vite's publicDir
   app.use('/flags', express.static(path.join(clientDist, 'flags')));
   
   // SPA fallback - serve index.html for all non-API routes
