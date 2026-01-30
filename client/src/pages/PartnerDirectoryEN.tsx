@@ -250,6 +250,8 @@ interface Partner {
 }
 
 export default function PartnerDirectoryEN() {
+  console.log('🔍 PartnerDirectoryEN: Component function called');
+
   const [searchText, setSearchText] = useState('');
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
@@ -257,11 +259,13 @@ export default function PartnerDirectoryEN() {
   const [zoomTo, setZoomTo] = useState<{ lat: number; lng: number; zoom: number; timestamp: number } | null>(null);
   const [modalPartner, setModalPartner] = useState<Partner | null>(null);
   const [expandedCard, setExpandedCardState] = useState<string | null>(null);
-  
+
   const setExpandedCard = (value: string | null) => {
     setExpandedCardState(value);
   };
   const clusterRef = useRef<any>(null);
+
+  console.log('🔍 PartnerDirectoryEN: About to call useQuery');
 
   const { data: partnersResponse, isLoading, refetch } = useQuery<{ partners: Partner[], total: number }>({
     queryKey: ['/api/partners', { limit: 1000, status: 'Approved', is_active: true, show_on_map: true, transform: true }],
@@ -283,6 +287,8 @@ export default function PartnerDirectoryEN() {
     refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
+
+  console.log('🔍 PartnerDirectoryEN: useQuery complete, data:', partnersResponse);
 
   const partners = partnersResponse?.partners || [];
 
@@ -430,6 +436,8 @@ export default function PartnerDirectoryEN() {
 
   // Default map center (France)
   const mapCenter: [number, number] = [46.603354, 1.888334];
+
+  console.log('🔍 PartnerDirectoryEN: About to render JSX');
 
   return (
     <div className="min-h-screen bg-[#F2EBDC]">
