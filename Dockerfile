@@ -6,11 +6,12 @@
 # -----------------------------------------------------------------------------
 FROM node:20-alpine AS builder
 WORKDIR /app
-# Force development mode during build to install ALL dependencies (including vite)
+# Install all dependencies first (including vite) in development mode
 ENV NODE_ENV=development
-# Install dependencies first (better caching)
 COPY package*.json ./
 RUN npm ci
+# Switch to production mode for build (use production versions of libraries)
+ENV NODE_ENV=production
 # Copy source and build
 COPY . .
 # Run build and verify output exists
