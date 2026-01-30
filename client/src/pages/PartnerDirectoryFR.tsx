@@ -28,8 +28,6 @@ const DefaultIcon = L.icon({
   shadowSize: [41, 41]
 });
 
-L.Marker.prototype.options.icon = DefaultIcon;
-
 // Component to track map bounds changes
 function MapBoundsTracker({ 
   onBoundsChange, 
@@ -567,6 +565,7 @@ export default function PartnerDirectoryFR() {
                       <Marker
                         key={index}
                         position={[partner.lat, partner.lng]}
+                        icon={DefaultIcon}
                         eventHandlers={{
                           click: () => {
                             userInitiatedExpansionRef.current = true;

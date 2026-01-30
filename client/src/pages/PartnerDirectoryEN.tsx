@@ -28,8 +28,6 @@ const DefaultIcon = L.icon({
   shadowSize: [41, 41]
 });
 
-L.Marker.prototype.options.icon = DefaultIcon;
-
 // Component to track map bounds changes
 function MapBoundsTracker({ 
   onBoundsChange, 
@@ -250,8 +248,6 @@ interface Partner {
 }
 
 export default function PartnerDirectoryEN() {
-  console.log('🔍 PartnerDirectoryEN: Component function called');
-
   const [searchText, setSearchText] = useState('');
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
@@ -264,8 +260,6 @@ export default function PartnerDirectoryEN() {
     setExpandedCardState(value);
   };
   const clusterRef = useRef<any>(null);
-
-  console.log('🔍 PartnerDirectoryEN: About to call useQuery');
 
   const { data: partnersResponse, isLoading, refetch } = useQuery<{ partners: Partner[], total: number }>({
     queryKey: ['/api/partners', { limit: 1000, status: 'Approved', is_active: true, show_on_map: true, transform: true }],
@@ -287,8 +281,6 @@ export default function PartnerDirectoryEN() {
     refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
-
-  console.log('🔍 PartnerDirectoryEN: useQuery complete, data:', partnersResponse);
 
   const partners = partnersResponse?.partners || [];
 
@@ -437,8 +429,6 @@ export default function PartnerDirectoryEN() {
   // Default map center (France)
   const mapCenter: [number, number] = [46.603354, 1.888334];
 
-  console.log('🔍 PartnerDirectoryEN: About to render JSX');
-
   return (
     <div className="min-h-screen bg-[#F2EBDC]">
       {/* Header */}
@@ -575,6 +565,7 @@ export default function PartnerDirectoryEN() {
                       <Marker
                         key={index}
                         position={[partner.lat, partner.lng]}
+                        icon={DefaultIcon}
                         eventHandlers={{
                           click: () => {
                             userInitiatedExpansionRef.current = true;
