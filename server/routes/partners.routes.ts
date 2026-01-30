@@ -54,17 +54,17 @@ function transformPartnerData(dbPartner: any) {
   };
 
   const services: string[] = [];
-  const photoFormats = parseList(dbPartner.photo_formats);
-  const filmFormats = parseList(dbPartner.film_formats);
-  const videoFormats = parseList(dbPartner.video_cassettes);
-  
-  if (photoFormats.length > 0 || dbPartner.other_photo) services.push('Photo');
-  if (filmFormats.length > 0 || dbPartner.other_film) services.push('Film');
-  if (videoFormats.length > 0 || dbPartner.other_video) services.push('Video');
+  const photoFormats = parseList(dbPartner.photoFormats);
+  const filmFormats = parseList(dbPartner.filmFormats);
+  const videoFormats = parseList(dbPartner.videoCassettes);
+
+  if (photoFormats.length > 0 || dbPartner.otherPhoto) services.push('Photo');
+  if (filmFormats.length > 0 || dbPartner.otherFilm) services.push('Film');
+  if (videoFormats.length > 0 || dbPartner.otherVideo) services.push('Video');
 
   return {
     id: dbPartner.id,
-    name: dbPartner.partner_name,
+    name: dbPartner.partnerName,
     city: dbPartner.city || '',
     country: dbPartner.country || '',
     lat: dbPartner.lat,
@@ -73,22 +73,22 @@ function transformPartnerData(dbPartner: any) {
     formats: { photo: photoFormats, film: filmFormats, video: videoFormats },
     website: dbPartner.website || '',
     phone: dbPartner.phone || '',
-    phone_public: dbPartner.phone_public || false,
+    phone_public: dbPartner.phonePublic || false,
     email: dbPartner.email || '',
-    email_public: dbPartner.email_public || false,
-    public_description: dbPartner.public_description || '',
+    email_public: dbPartner.emailPublic || false,
+    public_description: dbPartner.publicDescription || '',
     slug: dbPartner.slug || '',
     address: dbPartner.address || '',
-    address_line2: dbPartner.address_line2 || '',
-    postal_code: dbPartner.postal_code || '',
+    address_line2: dbPartner.addressLine2 || '',
+    postal_code: dbPartner.postalCode || '',
     delivery: parseList(dbPartner.delivery),
-    other_photo: dbPartner.other_photo || '',
-    other_film: dbPartner.other_film || '',
-    other_video: dbPartner.other_video || '',
-    other_delivery: dbPartner.other_delivery || '',
+    other_photo: dbPartner.otherPhoto || '',
+    other_film: dbPartner.otherFilm || '',
+    other_video: dbPartner.otherVideo || '',
+    other_delivery: dbPartner.otherDelivery || '',
     status: dbPartner.status,
-    is_active: dbPartner.is_active,
-    show_on_map: dbPartner.show_on_map
+    is_active: dbPartner.isActive,
+    show_on_map: dbPartner.showOnMap
   };
 }
 
