@@ -32,6 +32,7 @@ import { initGA4, trackPageView } from '@/config/ga4.config';
 import { initTestMode } from '@/lib/analytics';
 import { initPerformanceMonitoring, trackPageLoadMetrics } from '@/utils/performance';
 import { SessionTracker } from '@/components/SessionTracker';
+import { MapErrorBoundary } from '@/components/MapErrorBoundary';
 
 // Routes configured for gallery
 // Language-specific upload system v1.0.82 ready
@@ -101,10 +102,22 @@ function AnalyticsRouter() {
           {/* Partner Routes */}
           <Route path="/fr-FR/annuaire-pro/devenir" component={PartnerIntakeFR} />
           <Route path="/fr-FR/devenir/partenaire" component={PartnerIntakeFR} />
-          <Route path="/fr-FR/annuaire-pro" component={PartnerDirectoryFR} />
+          <Route path="/fr-FR/annuaire-pro">
+            {() => (
+              <MapErrorBoundary>
+                <PartnerDirectoryFR />
+              </MapErrorBoundary>
+            )}
+          </Route>
           <Route path="/en-US/directory-pro/join" component={PartnerIntakeEN} />
           <Route path="/en-US/become/partner" component={PartnerIntakeEN} />
-          <Route path="/en-US/directory-pro" component={PartnerDirectoryEN} />
+          <Route path="/en-US/directory-pro">
+            {() => (
+              <MapErrorBoundary>
+                <PartnerDirectoryEN />
+              </MapErrorBoundary>
+            )}
+          </Route>
 
           {/* Homepage Routes - MUST be last (most general) */}
           <Route path="/fr-FR" component={HomePage} />
