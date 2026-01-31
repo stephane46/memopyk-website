@@ -59,6 +59,70 @@ All endpoints in `analytics-legacy.routes.ts` return empty data:
 | **P5** | Dashboard Stats | High — visual reporting | Low | P3, P4 |
 | **P6** | Realtime Visitors | Medium — nice to have | Low | P3 |
 | **P7** | GA4 Sync | Low — enhancement only | High | P5 |
+| **P8** | Data Validation | Critical — verify numbers match reality | Medium | P1-P6 |
+
+---
+
+## P8: Data Validation Phase (After P1-P6)
+
+**Business Need:** A dashboard that *looks* correct but shows wrong numbers is worse than no dashboard. Before trusting this data for business decisions, we must validate that what we see matches reality.
+
+**The Risk:**
+- Counting wrong (duplicates, missing data)
+- Calculating wrong (wrong formula for bounce rate, session duration)
+- Querying wrong (wrong date filters, wrong joins)
+- Not matching reality (what GA4 shows vs what we show)
+
+### Validation Tasks
+
+**1. Cross-Reference with GA4**
+- Compare our session count vs GA4 session count for same 7-day period
+- Compare our unique visitors vs GA4 users
+- Compare our bounce rate vs GA4 bounce rate
+- Expected: Numbers should be in same ballpark (±20%), not exact match
+- Document any significant discrepancies and why
+
+**2. Manual Database Audit**
+- Run raw SQL queries to verify dashboard numbers
+- Example checks:
+  - Dashboard says "X sessions" → `SELECT COUNT(*) FROM analytics_sessions WHERE date_range`
+  - Dashboard says "Y unique visitors" → `SELECT COUNT(DISTINCT ip_address) FROM analytics_sessions`
+  - Dashboard says "Z% bounce rate" → Manual calculation from raw data
+
+**3. Document the Formulas**
+Create clear documentation of what each metric means IN OUR SYSTEM:
+
+| Metric | Our Definition | GA4 Definition | Notes |
+|--------|----------------|----------------|-------|
+| Session | 30-min inactivity timeout | Similar | Should match closely |
+| Unique Visitor | Distinct IP per period | User ID / Client ID | Will differ |
+| Bounce Rate | Sessions with 1 page view / total | Engaged sessions metric | Different formula |
+| Session Duration | Last event - first event | Time on page sum | May differ |
+| Video Completion | watch_duration / video_length | Event-based | Ours more accurate |
+
+**4. Test with Known Data**
+- Visit site from known IP (not excluded)
+- Record: time, pages visited, videos watched, duration
+- Verify this visit appears correctly in dashboard
+- Verify counts increase by 1
+- Then add IP to exclusion list
+- Visit again — verify this visit is NOT counted
+
+**5. Edge Case Testing**
+- What happens with very short sessions (<5 seconds)?
+- What happens with very long sessions (>1 hour)?
+- What happens with rapid page refreshes?
+- What happens with bot traffic (if any gets through)?
+
+### Acceptance Criteria for P8
+
+- [ ] GA4 comparison document created with findings
+- [ ] All dashboard metrics verified against raw SQL
+- [ ] Formula documentation complete
+- [ ] Manual visit test passed
+- [ ] IP exclusion test passed
+- [ ] Any discrepancies explained or fixed
+- [ ] Stéphane confident the numbers are trustworthy
 
 ---
 
@@ -356,7 +420,7 @@ memopyk-clean/server/services/analytics/
 | Jan 31 | Updated analytics-legacy.routes.ts | 2 endpoints implemented |
 | Jan 31 | Tested session creation/reuse | Working |
 | Jan 31 | Tested stats aggregation | 91 sessions (7d), stats correct |
-| Jan 31 | Committed | `pending` |
+| Jan 31 | Committed (with dashboard endpoints) | `2cf575b` |
 
 ### Phase: P4 - Video Analytics
 | Date | Action | Result |
@@ -375,6 +439,16 @@ memopyk-clean/server/services/analytics/
 |------|--------|--------|
 | | | |
 
+### Phase: P7 - GA4 Sync (Deferred)
+| Date | Action | Result |
+|------|--------|--------|
+| | | |
+
+### Phase: P8 - Data Validation
+| Date | Action | Result |
+|------|--------|--------|
+| | | |
+
 ---
 
 ## Estimated Effort
@@ -388,9 +462,11 @@ memopyk-clean/server/services/analytics/
 | P5 | Dashboard Stats | 2-3 hours | 15 hours |
 | P6 | Realtime Visitors | 1-2 hours | 17 hours |
 | P7 | GA4 Sync | 4-6 hours | 23 hours |
+| P8 | Data Validation | 2-4 hours | 27 hours |
 
 **Total (P1-P6):** ~15-17 hours of focused work  
-**Total (all):** ~20-25 hours including GA4 sync
+**Total (P1-P8):** ~25-27 hours including validation  
+**Total (all with GA4 sync):** ~30 hours
 
 ---
 

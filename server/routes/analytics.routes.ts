@@ -13,6 +13,7 @@ import { BetaAnalyticsDataClient } from '@google-analytics/data';
 import { db } from '../db';
 import { analyticsSessions } from '@shared/schema';
 import { gte, lte, eq, and, sql, desc } from 'drizzle-orm';
+import videoAnalyticsService from '../services/analytics/video-analytics.service';
 
 const router = Router();
 
@@ -638,6 +639,130 @@ router.get('/ga4/realtime', async (req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
       cached: false,
       error: error.message,
+    });
+  }
+});
+
+// ============================================================================
+// Video Analytics Endpoints
+// ============================================================================
+
+/**
+ * GET /ga4/top-videos - Top performing videos
+ * Returns array of videos with plays, avgWatchSeconds, completionRate
+ */
+router.get('/ga4/top-videos', async (req: Request, res: Response) => {
+  try {
+    const startDate = String(req.query.startDate || req.query.start || '');
+    const endDate = String(req.query.endDate || req.query.end || '');
+    const period = String(req.query.period || '30d');
+    const limit = parseInt(String(req.query.limit || '10'), 10);
+
+    console.log(`📊 [Top Videos] Request: period=${period}, limit=${limit}`);
+
+    const topVideos = await videoAnalyticsService.getTopVideos(
+      period,
+      limit,
+      startDate || undefined,
+      endDate || undefined
+    );
+
+    // Return in the format expected by frontend (TopVideosResponse)
+    res.json({
+      topVideos: topVideos.map(v => ({
+        videoId: v.video_id,
+        title: v.title,
+        views: v.plays,
+        uniqueViewers: 0, // Would need session tracking
+        averageWatchTime: v.avgWatchSeconds,
+        completionRate: v.completePct,
+        engagement: Math.min(100, Math.round((v.avgWatchSeconds / 60) * 10)),
+        // Legacy fields for backward compatibility
+        plays: v.plays,
+        avgWatchSeconds: v.avgWatchSeconds,
+        reach50Pct: v.reach50Pct,
+        completePct: v.completePct,
+      })),
+      timestamp: new Date().toISOString(),
+      cached: false,
+    });
+  } catch (error: any) {
+    console.error('❌ [Top Videos] Error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch top videos',
+      message: error.message,
+    });
+  }
+});
+
+/**
+ * GET /ga4/videos - Video stats overview
+ * Returns per-video metrics
+ */
+router.get('/ga4/videos', async (req: Request, res: Response) => {
+  try {
+    const startDate = String(req.query.startDate || req.query.start || '');
+    const endDate = String(req.query.endDate || req.query.end || '');
+    const period = String(req.query.period || '30d');
+
+    console.log(`📊 [Videos] Request: period=${period}`);
+
+    const [videoStats, engagement] = await Promise.all([
+      videoAnalyticsService.getVideoStats(period, startDate || undefined, endDate || undefined),
+      videoAnalyticsService.getVideoEngagement(period, startDate || undefined, endDate || undefined),
+    ]);
+
+    res.json({
+      videos: videoStats,
+      engagement,
+      timestamp: new Date().toISOString(),
+      cached: false,
+    });
+  } catch (error: any) {
+    console.error('❌ [Videos] Error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch video stats',
+      message: error.message,
+    });
+  }
+});
+
+/**
+ * GET /ga4/funnel - Video progress funnel
+ * Returns progress bucket counts for a specific video
+ */
+router.get('/ga4/funnel', async (req: Request, res: Response) => {
+  try {
+    const videoId = String(req.query.videoId || '');
+    const startDate = String(req.query.startDate || req.query.start || '');
+    const endDate = String(req.query.endDate || req.query.end || '');
+    const period = String(req.query.period || '30d');
+
+    if (!videoId) {
+      return res.status(400).json({ error: 'Missing videoId parameter' });
+    }
+
+    console.log(`📊 [Funnel] Request: videoId=${videoId}, period=${period}`);
+
+    const funnel = await videoAnalyticsService.getVideoFunnel(
+      videoId,
+      period,
+      startDate || undefined,
+      endDate || undefined
+    );
+
+    res.json({
+      funnel,
+      timestamp: new Date().toISOString(),
+      cached: false,
+    });
+  } catch (error: any) {
+    console.error('❌ [Funnel] Error:', error);
+    res.json({
+      funnel: [10, 25, 50, 75, 90].map(bucket => ({ bucket, count: 0 })),
+      timestamp: new Date().toISOString(),
+      cached: false,
+      note: 'fallback: error occurred',
     });
   }
 });
