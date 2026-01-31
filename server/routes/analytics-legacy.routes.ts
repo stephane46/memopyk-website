@@ -19,6 +19,7 @@ import { Router, Request, Response } from "express";
 import express from "express";
 import ipExclusionService from "../services/analytics/ip-exclusion.service";
 import eventRecorder, { extractClientIP } from "../services/analytics/event-recorder.service";
+import sessionService from "../services/analytics/session.service";
 
 const router = Router();
 
@@ -359,9 +360,45 @@ router.get("/live-tracking", (_req: Request, res: Response) => {
   res.json({ activeUsers: 0, sessions: emptyArray, ...stubMsg });
 });
 
-// GET /sessions
-router.get("/sessions", (_req: Request, res: Response) => {
-  res.json({ sessions: emptyArray, total: 0, ...stubMsg });
+// GET /sessions — List sessions with filters
+router.get("/sessions", async (req: Request, res: Response) => {
+  try {
+    const { period, dateFrom, dateTo, country, device } = req.query;
+    const sessions = await sessionService.getSessions({
+      period: period as "7d" | "30d" | "90d" | "all",
+      dateFrom: dateFrom as string,
+      dateTo: dateTo as string,
+      country: country as string,
+      device: device as string,
+      excludeTestData: true,
+    });
+    res.json({ sessions, total: sessions.length });
+  } catch (error) {
+    console.error("Error fetching sessions:", error);
+    res.status(500).json({ sessions: [], total: 0, error: "Failed to fetch sessions" });
+  }
+});
+
+// GET /stats — Aggregated session statistics
+router.get("/stats", async (req: Request, res: Response) => {
+  try {
+    const { period } = req.query;
+    const stats = await sessionService.getSessionStats(
+      (period as "7d" | "30d" | "90d") || "30d"
+    );
+    res.json(stats);
+  } catch (error) {
+    console.error("Error fetching stats:", error);
+    res.status(500).json({
+      totalSessions: 0,
+      uniqueVisitors: 0,
+      bounceRate: 0,
+      avgSessionDuration: 0,
+      newVisitors: 0,
+      returningVisitors: 0,
+      error: "Failed to fetch stats",
+    });
+  }
 });
 
 // POST /cleanup

@@ -10,6 +10,7 @@ import { db } from "../../db";
 import { analyticsViews, analyticsSessions, performanceMetrics } from "@shared/schema";
 import { eq, and, gte } from "drizzle-orm";
 import { isExcludedIP } from "./ip-exclusion.service";
+import { getOrCreateSession } from "./session.service";
 
 // Deduplication cache: key -> timestamp
 const recentEvents = new Map<string, number>();
@@ -121,7 +122,7 @@ export interface RecordResult {
  */
 export async function recordPageView(data: PageViewData): Promise<RecordResult> {
   try {
-    // Check IP exclusion
+    // Check IP exclusion (done in getOrCreateSession, but check early for dedup)
     if (await isExcludedIP(data.ipAddress)) {
       return { success: false, reason: "ip_excluded" };
     }
@@ -132,8 +133,24 @@ export async function recordPageView(data: PageViewData): Promise<RecordResult> 
       return { success: false, reason: "duplicate" };
     }
 
+    // Get or create session (this also updates session page count)
+    let sessionId = data.sessionId;
+    if (!sessionId) {
+      const sessionResult = await getOrCreateSession(
+        data.ipAddress,
+        data.userAgent || "",
+        data.referrer,
+        data.language
+      );
+      if (sessionResult) {
+        sessionId = sessionResult.sessionId;
+      } else {
+        // Session creation failed (likely IP excluded)
+        return { success: false, reason: "session_failed" };
+      }
+    }
+
     const viewId = generateViewId();
-    const sessionId = data.sessionId || generateSessionId();
 
     const rows = await db
       .insert(analyticsViews)
@@ -152,7 +169,7 @@ export async function recordPageView(data: PageViewData): Promise<RecordResult> 
       })
       .returning();
 
-    console.log(`📊 Page view recorded: ${data.pageUrl} (${viewId})`);
+    console.log(`📊 Page view recorded: ${data.pageUrl} (${viewId}, session: ${sessionId})`);
     return { success: true, id: rows[0]?.id };
   } catch (error) {
     console.error("Error recording page view:", error);
@@ -176,8 +193,21 @@ export async function recordVideoEvent(data: VideoEventData): Promise<RecordResu
       return { success: false, reason: "duplicate" };
     }
 
+    // Get or create session
+    let sessionId = data.sessionId;
+    if (!sessionId) {
+      const sessionResult = await getOrCreateSession(
+        data.ipAddress,
+        data.userAgent || ""
+      );
+      if (sessionResult) {
+        sessionId = sessionResult.sessionId;
+      } else {
+        return { success: false, reason: "session_failed" };
+      }
+    }
+
     const viewId = generateViewId();
-    const sessionId = data.sessionId || generateSessionId();
 
     // Calculate completion percentage for progress/complete events
     let completionPercentage: string | null = null;
