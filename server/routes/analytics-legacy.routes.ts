@@ -118,8 +118,9 @@ router.get("/re-engagement", (_req: Request, res: Response) => {
 });
 
 // GET /recent-visitors
+// Frontend expects an array directly (calls .forEach on response)
 router.get("/recent-visitors", (_req: Request, res: Response) => {
-  res.json({ visitors: emptyArray, total: 0, ...stubMsg });
+  res.json([]);  // Return empty array, not object
 });
 
 // GET /returning-visitors
@@ -252,66 +253,69 @@ router.post("/blog/view", express.json(), (_req: Request, res: Response) => {
 });
 
 // Blog analytics — local DB variants
+// Frontend expects arrays directly (calls .reduce, .map on response)
 router.get("/blog/popular", (_req: Request, res: Response) => {
-  res.json({ posts: emptyArray, ...stubMsg });
+  res.json([]);  // PopularBlogPost[]
 });
 
 router.get("/blog/trends", (_req: Request, res: Response) => {
-  res.json({ trends: emptyArray, ...stubMsg });
+  res.json([]);  // BlogTrendData[]
 });
 
 router.get("/blog/topics", (_req: Request, res: Response) => {
-  res.json({ topics: emptyArray, ...stubMsg });
+  res.json([]);  // TopTopic[]
 });
 
 router.get("/blog/keywords", (_req: Request, res: Response) => {
-  res.json({ keywords: emptyArray, ...stubMsg });
+  res.json([]);  // TopKeyword[]
 });
 
 router.get("/blog/categories", (_req: Request, res: Response) => {
-  res.json({ categories: emptyArray, ...stubMsg });
+  res.json([]);  // CategoryPerformance[]
 });
 
 // Blog analytics — GA4 variants
+// Frontend expects arrays directly
 router.get("/blog/ga4/popular", (_req: Request, res: Response) => {
-  res.json({ posts: emptyArray, source: "ga4", ...stubMsg });
+  res.json([]);
 });
 
 router.get("/blog/ga4/trends", (_req: Request, res: Response) => {
-  res.json({ trends: emptyArray, source: "ga4", ...stubMsg });
+  res.json([]);
 });
 
 router.get("/blog/ga4/topics", (_req: Request, res: Response) => {
-  res.json({ topics: emptyArray, source: "ga4", ...stubMsg });
+  res.json([]);
 });
 
 router.get("/blog/ga4/keywords", (_req: Request, res: Response) => {
-  res.json({ keywords: emptyArray, source: "ga4", ...stubMsg });
+  res.json([]);
 });
 
 router.get("/blog/ga4/categories", (_req: Request, res: Response) => {
-  res.json({ categories: emptyArray, source: "ga4", ...stubMsg });
+  res.json([]);
 });
 
 // Blog analytics — unfiltered variants
+// Frontend expects arrays directly
 router.get("/blog/unfiltered/popular", (_req: Request, res: Response) => {
-  res.json({ posts: emptyArray, ...stubMsg });
+  res.json([]);
 });
 
 router.get("/blog/unfiltered/trends", (_req: Request, res: Response) => {
-  res.json({ trends: emptyArray, ...stubMsg });
+  res.json([]);
 });
 
 router.get("/blog/unfiltered/topics", (_req: Request, res: Response) => {
-  res.json({ topics: emptyArray, ...stubMsg });
+  res.json([]);
 });
 
 router.get("/blog/unfiltered/keywords", (_req: Request, res: Response) => {
-  res.json({ keywords: emptyArray, ...stubMsg });
+  res.json([]);
 });
 
 router.get("/blog/unfiltered/categories", (_req: Request, res: Response) => {
-  res.json({ categories: emptyArray, ...stubMsg });
+  res.json([]);
 });
 
 // ---------------------------------------------------------------------------
