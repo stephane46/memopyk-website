@@ -931,6 +931,140 @@ router.get('/ga4/funnel', async (req: Request, res: Response) => {
 });
 
 // ============================================================================
+// GA4 Geo Endpoint (Geographic distribution)
+// ============================================================================
+
+router.get('/ga4/geo', async (req: Request, res: Response) => {
+  try {
+    const startDateStr = String(req.query.startDate || req.query.start || '');
+    const endDateStr = String(req.query.endDate || req.query.end || '');
+
+    console.log(`📊 [Geo] Request: startDate=${startDateStr}, endDate=${endDateStr}`);
+
+    // Default to last 30 days if not provided
+    const now = new Date();
+    const defaultStart = new Date(now);
+    defaultStart.setDate(defaultStart.getDate() - 30);
+
+    const startDate = startDateStr ? parseDate(startDateStr) : defaultStart;
+    const endDate = endDateStr ? parseDate(endDateStr) : now;
+    const endDateEnd = new Date(endDate);
+    endDateEnd.setHours(23, 59, 59, 999);
+
+    // Query sessions with country data
+    const sessions = await db
+      .select()
+      .from(analyticsSessions)
+      .where(
+        and(
+          gte(analyticsSessions.createdAt, startDate),
+          lte(analyticsSessions.createdAt, endDateEnd),
+          eq(analyticsSessions.isTestData, false)
+        )
+      );
+
+    // Aggregate by country
+    const countryMap = new Map<string, { sessions: number; uniqueIPs: Set<string> }>();
+
+    for (const session of sessions) {
+      const country = session.countryCode || 'Unknown';
+      if (!countryMap.has(country)) {
+        countryMap.set(country, { sessions: 0, uniqueIPs: new Set() });
+      }
+      const data = countryMap.get(country)!;
+      data.sessions++;
+      if (session.ipAddress) data.uniqueIPs.add(session.ipAddress);
+    }
+
+    // Convert to array and sort by sessions
+    const countries = Array.from(countryMap.entries())
+      .map(([code, data]) => ({
+        country: code,
+        countryCode: code,
+        sessions: data.sessions,
+        users: data.uniqueIPs.size,
+        percentage: sessions.length > 0 ? Math.round((data.sessions / sessions.length) * 100) : 0,
+      }))
+      .sort((a, b) => b.sessions - a.sessions);
+
+    console.log(`✅ [Geo] Returning ${countries.length} countries from ${sessions.length} sessions`);
+
+    res.json({
+      countries,
+      topCountries: countries.slice(0, 10),
+      totalSessions: sessions.length,
+      totalUsers: new Set(sessions.map(s => s.ipAddress).filter(Boolean)).size,
+      timestamp: new Date().toISOString(),
+      cached: false,
+    });
+  } catch (error: any) {
+    console.error('❌ [Geo] Error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch geo data',
+      message: error.message,
+    });
+  }
+});
+
+// ============================================================================
+// GA4 CTA Endpoint (Call-to-Action tracking)
+// ============================================================================
+
+router.get('/ga4/cta', async (req: Request, res: Response) => {
+  try {
+    const startDateStr = String(req.query.startDate || req.query.start || '');
+    const endDateStr = String(req.query.endDate || req.query.end || '');
+
+    console.log(`📊 [CTA] Request: startDate=${startDateStr}, endDate=${endDateStr}`);
+
+    // Stub response - CTA tracking not yet implemented
+    // Would need a separate analytics_cta_clicks table
+    res.json({
+      ctaClicks: [],
+      topCTAs: [],
+      totalClicks: 0,
+      conversionRate: 0,
+      byLocation: {},
+      timestamp: new Date().toISOString(),
+      cached: false,
+      stub: true,
+      message: 'CTA tracking not yet implemented - would require separate tracking table',
+    });
+  } catch (error: any) {
+    console.error('❌ [CTA] Error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch CTA data',
+      message: error.message,
+    });
+  }
+});
+
+// ============================================================================
+// Tracker Currently Watching Endpoint (Live video viewers)
+// ============================================================================
+
+router.get('/tracker/currently-watching', async (_req: Request, res: Response) => {
+  try {
+    // Stub response - realtime video tracking not yet implemented
+    // Would need realtime_visitors table populated by frontend heartbeats
+    res.json({
+      totalActive: 0,
+      sessions: [],
+      byVideo: {},
+      timestamp: new Date().toISOString(),
+      stub: true,
+      message: 'Realtime video tracking not yet implemented',
+    });
+  } catch (error: any) {
+    console.error('❌ [Currently Watching] Error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch currently watching data',
+      message: error.message,
+    });
+  }
+});
+
+// ============================================================================
 // Frontend Event Logging (to Supabase)
 // ============================================================================
 
