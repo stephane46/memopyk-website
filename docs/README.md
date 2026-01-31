@@ -79,6 +79,7 @@ memopyk-clean/
 | guides/ANALYTICS.md | Analytics system guide |
 | guides/BLOG_WORKFLOW.md | Blog post management |
 | guides/TRAVEL_PORTAL.md | Travel upload portal |
+| guides/NEXTCLOUD_INTEGRATION.md | Nextcloud integration design (reference) |
 
 ### Migration History
 | Document | Description |
