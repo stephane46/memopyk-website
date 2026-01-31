@@ -56,15 +56,36 @@ It's been a while. Please also check:
 
 ## Deployment
 
-Auto-deploy is enabled. Every push to main:
+Two branches, two environments:
 
+| Branch | Deploys To | URL |
+|--------|------------|-----|
+| `staging` | Staging | https://memopyk.memopyk.com |
+| `main` | Production | https://memopyk.com |
+
+**Daily workflow:**
+
+```bash
+# 1. Work on staging branch
+git checkout staging
+# ... make changes ...
+git add . && git commit -m "feat: description"
+git push origin staging
+# → Auto-deploys to memopyk.memopyk.com (~1-2 min)
+
+# 2. Test on staging site
+
+# 3. When ready for production, merge to main
+git checkout main
+git merge staging
+git push origin main
+# → Auto-deploys to memopyk.com (~1-2 min)
+
+# 4. Return to staging for next work
+git checkout staging
 ```
-git push origin main → GitHub webhook → Coolify builds (~1-2 min) → memopyk.memopyk.com updated
-```
 
-No manual action needed. Just push and wait.
-
-To verify: Check Coolify Deployments tab or visit https://memopyk.memopyk.com
+To verify: Check Coolify Deployments tab or visit the appropriate URL
 
 ---
 

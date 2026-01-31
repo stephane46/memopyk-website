@@ -3,8 +3,10 @@
 ## Current Status
 
 **Last updated:** January 31, 2026
-**Staging:** https://memopyk.memopyk.com (auto-deploys on push)
-**Production:** https://memopyk.com
+**Staging:** https://memopyk.memopyk.com (auto-deploys on push to `staging` branch)
+**Production:** https://memopyk.com (auto-deploys on push to `main` branch)
+
+**Branches:** `staging` → memopyk.memopyk.com | `main` → memopyk.com
 
 | Component | Status |
 |-----------|--------|
@@ -32,6 +34,7 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-01-31: Staging/production branch workflow established
 - 2026-01-31: Documentation restructure (roles, workflow, single source of truth)
 - 2026-01-31: Analytics rebuild complete (P1-P8)
 - 2026-01-31: Auto-deploy webhook configured

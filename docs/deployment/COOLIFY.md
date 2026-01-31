@@ -173,15 +173,60 @@ Coolify provides:
 
 ---
 
-## Staging Environment
+## Staging & Production Environments
 
-For staging, create a separate application:
+Two Coolify applications deploy from the same repository but different branches:
 
-1. **Domain:** `staging.memopyk.com` or `memopyk.memopyk.com`
-2. **Branch:** `main` (or `staging` if you use branches)
-3. **Environment:** Same as production, but can use test API keys
+| Application | Branch | Domain | Purpose |
+|-------------|--------|--------|---------|
+| memopyk-staging | `staging` | memopyk.memopyk.com | Test changes before production |
+| memopyk-production | `main` | memopyk.com | Live production site |
 
-**Current staging:** `https://memopyk.memopyk.com`
+### Setup (One-Time)
+
+1. Create two applications in Coolify from the same GitHub repo
+2. Configure each with different branch:
+   - Staging app → Branch: `staging`
+   - Production app → Branch: `main`
+3. Set domains accordingly
+4. Both use same environment variables (copy from one to other)
+
+### Git Workflow
+
+```bash
+# Daily development - work on staging
+git checkout staging
+# ... make changes ...
+git add . && git commit -m "feat: description"
+git push origin staging
+# → Coolify auto-deploys to memopyk.memopyk.com
+
+# Test on staging site, then promote to production
+git checkout main
+git merge staging
+git push origin main
+# → Coolify auto-deploys to memopyk.com
+
+# Return to staging for next work
+git checkout staging
+```
+
+### Quick Reference
+
+```bash
+# Check current branch
+git branch
+
+# Switch to staging
+git checkout staging
+
+# Switch to main (production)
+git checkout main
+
+# See what's different between branches
+git log staging..main --oneline
+git log main..staging --oneline
+```
 
 ---
 
