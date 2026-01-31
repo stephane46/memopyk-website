@@ -18,6 +18,7 @@
 import { Router, Request, Response } from "express";
 import express from "express";
 import ipExclusionService from "../services/analytics/ip-exclusion.service";
+import eventRecorder, { extractClientIP } from "../services/analytics/event-recorder.service";
 
 const router = Router();
 
@@ -399,8 +400,52 @@ router.get("/export/sql", (_req: Request, res: Response) => {
 // (frontend calls /api/analytics/event and /api/analytics/performance)
 // ---------------------------------------------------------------------------
 
-router.post("/event", express.json(), (_req: Request, res: Response) => {
-  res.json({ success: true, ...stubMsg });
+router.post("/event", express.json(), async (req: Request, res: Response) => {
+  try {
+    const { type, page, pageTitle, referrer, language, videoId, videoTitle, videoType, action, progress, watchTime, sessionId } = req.body;
+    const ipAddress = extractClientIP(req.headers as Record<string, string | string[] | undefined>) || req.socket.remoteAddress || "unknown";
+    const userAgent = req.headers["user-agent"] || undefined;
+
+    let result;
+
+    if (type === "video" && videoId) {
+      // Video event
+      result = await eventRecorder.recordVideoEvent({
+        sessionId,
+        videoId,
+        videoTitle,
+        videoType,
+        action: action || "play",
+        progress,
+        watchTime,
+        ipAddress,
+        userAgent,
+      });
+    } else if (type === "pageview" || page) {
+      // Page view event
+      result = await eventRecorder.recordPageView({
+        sessionId,
+        pageUrl: page || req.body.pageUrl || "/",
+        pageTitle,
+        referrer,
+        language,
+        ipAddress,
+        userAgent,
+      });
+    } else {
+      return res.status(400).json({ success: false, error: "Invalid event type. Use 'pageview' or 'video'." });
+    }
+
+    if (result.success) {
+      res.json({ success: true, id: result.id });
+    } else {
+      // Still return 200 for excluded/duplicate events (client doesn't need to know)
+      res.json({ success: true, filtered: result.reason });
+    }
+  } catch (error) {
+    console.error("Error processing event:", error);
+    res.status(500).json({ success: false, error: "Failed to process event" });
+  }
 });
 
 router.get("/performance", (_req: Request, res: Response) => {
@@ -415,9 +460,34 @@ router.get("/performance", (_req: Request, res: Response) => {
 });
 
 // POST /performance - Accept performance metrics from frontend
-router.post("/performance", express.json(), (_req: Request, res: Response) => {
-  // Accept performance data from frontend but just acknowledge (stub)
-  res.json({ success: true, ...stubMsg });
+router.post("/performance", express.json(), async (req: Request, res: Response) => {
+  try {
+    const { lcp, fid, cls, fcp, ttfb, pageUrl, sessionId } = req.body;
+    const ipAddress = extractClientIP(req.headers as Record<string, string | string[] | undefined>) || req.socket.remoteAddress || "unknown";
+    const userAgent = req.headers["user-agent"] || undefined;
+
+    const result = await eventRecorder.recordPerformanceMetrics({
+      sessionId,
+      lcp,
+      fid,
+      cls,
+      fcp,
+      ttfb,
+      pageUrl,
+      ipAddress,
+      userAgent,
+    });
+
+    if (result.success) {
+      res.json({ success: true });
+    } else {
+      // Still return 200 for excluded/duplicate events
+      res.json({ success: true, filtered: result.reason });
+    }
+  } catch (error) {
+    console.error("Error processing performance metrics:", error);
+    res.status(500).json({ success: false, error: "Failed to process performance metrics" });
+  }
 });
 
 router.get("/conversions", (_req: Request, res: Response) => {
