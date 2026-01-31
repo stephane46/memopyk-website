@@ -11,10 +11,33 @@ import express from 'express';
 import { randomUUID } from 'crypto';
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
 import { db } from '../db';
-import { analyticsSessions } from '@shared/schema';
-import { gte, lte, eq, and, sql, desc } from 'drizzle-orm';
+import { analyticsSessions, analyticsExclusions } from '@shared/schema';
+import { gte, lte, eq, and, sql, desc, notInArray, isNull, or } from 'drizzle-orm';
 import videoAnalyticsService from '../services/analytics/video-analytics.service';
 import realtimeService from '../services/analytics/realtime.service';
+
+// ============================================================================
+// IP Exclusion Helper
+// ============================================================================
+
+/**
+ * Get list of excluded IP addresses from analytics_exclusions table
+ * Returns IPs without CIDR suffix (e.g., "109.17.150.48" not "109.17.150.48/32")
+ */
+async function getExcludedIPs(): Promise<string[]> {
+  try {
+    const exclusions = await db
+      .select({ ipCidr: analyticsExclusions.ipCidr })
+      .from(analyticsExclusions)
+      .where(eq(analyticsExclusions.active, true));
+
+    // Extract IP addresses (remove /32 or other CIDR suffixes)
+    return exclusions.map(e => e.ipCidr.replace(/\/\d+$/, ''));
+  } catch (error) {
+    console.error('❌ [IP Exclusion] Error fetching exclusions:', error);
+    return [];
+  }
+}
 
 const router = Router();
 
@@ -518,7 +541,10 @@ router.get('/ga4/trend', async (req: Request, res: Response) => {
 
     console.log(`📊 [Trends] Fetching data from ${startDate.toISOString()} to ${endDateEnd.toISOString()}`);
 
-    // Query sessions in the date range (exclude test data)
+    // Get excluded IPs for filtering
+    const excludedIPs = await getExcludedIPs();
+
+    // Query sessions in the date range (exclude test data and excluded IPs)
     const sessions = await db
       .select()
       .from(analyticsSessions)
@@ -526,7 +552,13 @@ router.get('/ga4/trend', async (req: Request, res: Response) => {
         and(
           gte(analyticsSessions.createdAt, startDate),
           lte(analyticsSessions.createdAt, endDateEnd),
-          eq(analyticsSessions.isTestData, false)
+          eq(analyticsSessions.isTestData, false),
+          excludedIPs.length > 0
+            ? or(
+                isNull(analyticsSessions.ipAddress),
+                notInArray(analyticsSessions.ipAddress, excludedIPs)
+              )
+            : sql`true`
         )
       )
       .orderBy(desc(analyticsSessions.createdAt));
@@ -590,7 +622,13 @@ router.get('/ga4/trend', async (req: Request, res: Response) => {
         and(
           gte(analyticsSessions.createdAt, prevPeriodStart),
           lte(analyticsSessions.createdAt, prevPeriodEnd),
-          eq(analyticsSessions.isTestData, false)
+          eq(analyticsSessions.isTestData, false),
+          excludedIPs.length > 0
+            ? or(
+                isNull(analyticsSessions.ipAddress),
+                notInArray(analyticsSessions.ipAddress, excludedIPs)
+              )
+            : sql`true`
         )
       );
 
@@ -647,7 +685,10 @@ router.get('/ga4/kpis', async (req: Request, res: Response) => {
 
     console.log(`📊 [KPIs] Fetching data from ${startDate.toISOString()} to ${endDateEnd.toISOString()}`);
 
-    // Query current period sessions
+    // Get excluded IPs for filtering
+    const excludedIPs = await getExcludedIPs();
+
+    // Query current period sessions (exclude test data and excluded IPs)
     const sessions = await db
       .select()
       .from(analyticsSessions)
@@ -655,7 +696,13 @@ router.get('/ga4/kpis', async (req: Request, res: Response) => {
         and(
           gte(analyticsSessions.createdAt, startDate),
           lte(analyticsSessions.createdAt, endDateEnd),
-          eq(analyticsSessions.isTestData, false)
+          eq(analyticsSessions.isTestData, false),
+          excludedIPs.length > 0
+            ? or(
+                isNull(analyticsSessions.ipAddress),
+                notInArray(analyticsSessions.ipAddress, excludedIPs)
+              )
+            : sql`true`
         )
       );
 
@@ -679,7 +726,13 @@ router.get('/ga4/kpis', async (req: Request, res: Response) => {
         and(
           gte(analyticsSessions.createdAt, prevPeriodStart),
           lte(analyticsSessions.createdAt, prevPeriodEnd),
-          eq(analyticsSessions.isTestData, false)
+          eq(analyticsSessions.isTestData, false),
+          excludedIPs.length > 0
+            ? or(
+                isNull(analyticsSessions.ipAddress),
+                notInArray(analyticsSessions.ipAddress, excludedIPs)
+              )
+            : sql`true`
         )
       );
 
@@ -952,7 +1005,10 @@ router.get('/ga4/geo', async (req: Request, res: Response) => {
     const endDateEnd = new Date(endDate);
     endDateEnd.setHours(23, 59, 59, 999);
 
-    // Query sessions with country data
+    // Get excluded IPs for filtering
+    const excludedIPs = await getExcludedIPs();
+
+    // Query sessions with country data (exclude test data and excluded IPs)
     const sessions = await db
       .select()
       .from(analyticsSessions)
@@ -960,7 +1016,13 @@ router.get('/ga4/geo', async (req: Request, res: Response) => {
         and(
           gte(analyticsSessions.createdAt, startDate),
           lte(analyticsSessions.createdAt, endDateEnd),
-          eq(analyticsSessions.isTestData, false)
+          eq(analyticsSessions.isTestData, false),
+          excludedIPs.length > 0
+            ? or(
+                isNull(analyticsSessions.ipAddress),
+                notInArray(analyticsSessions.ipAddress, excludedIPs)
+              )
+            : sql`true`
         )
       );
 

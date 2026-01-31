@@ -7,9 +7,25 @@
  */
 
 import { db } from "../../db";
-import { analyticsSessions } from "@shared/schema";
-import { eq, and, gte, lte, desc, sql } from "drizzle-orm";
+import { analyticsSessions, analyticsExclusions } from "@shared/schema";
+import { eq, and, gte, lte, desc, sql, notInArray, isNull, or } from "drizzle-orm";
 import { isExcludedIP } from "./ip-exclusion.service";
+
+/**
+ * Get list of excluded IP addresses from analytics_exclusions table
+ */
+async function getExcludedIPs(): Promise<string[]> {
+  try {
+    const exclusions = await db
+      .select({ ipCidr: analyticsExclusions.ipCidr })
+      .from(analyticsExclusions)
+      .where(eq(analyticsExclusions.active, true));
+    return exclusions.map(e => e.ipCidr.replace(/\/\d+$/, ''));
+  } catch (error) {
+    console.error('Error fetching excluded IPs:', error);
+    return [];
+  }
+}
 
 // Session timeout: 30 minutes of inactivity = new session
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
@@ -278,6 +294,17 @@ export async function getSessions(filters: SessionFilters = {}): Promise<Session
       conditions.push(eq(analyticsSessions.isTestData, false));
     }
 
+    // Exclude IPs from analytics_exclusions table
+    const excludedIPs = await getExcludedIPs();
+    if (excludedIPs.length > 0) {
+      conditions.push(
+        or(
+          isNull(analyticsSessions.ipAddress),
+          notInArray(analyticsSessions.ipAddress, excludedIPs)
+        )
+      );
+    }
+
     const query = conditions.length > 0
       ? db.select().from(analyticsSessions).where(and(...conditions))
       : db.select().from(analyticsSessions);
@@ -300,14 +327,23 @@ export async function getSessionStats(period: "7d" | "30d" | "90d" = "30d"): Pro
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    // Get all sessions in period (excluding test data)
+    // Get excluded IPs for filtering
+    const excludedIPs = await getExcludedIPs();
+
+    // Get all sessions in period (excluding test data and excluded IPs)
     const sessions = await db
       .select()
       .from(analyticsSessions)
       .where(
         and(
           gte(analyticsSessions.createdAt, startDate),
-          eq(analyticsSessions.isTestData, false)
+          eq(analyticsSessions.isTestData, false),
+          excludedIPs.length > 0
+            ? or(
+                isNull(analyticsSessions.ipAddress),
+                notInArray(analyticsSessions.ipAddress, excludedIPs)
+              )
+            : sql`true`
         )
       );
 
