@@ -90,6 +90,28 @@ Any component using `useMap()` or `useMapEvents()` triggered infinite recursion 
 1. Dockerfile verification commands
 2. Server static file serving paths
 
+### CSS Architecture Fix (2026-01-30)
+
+**Problem:** Multiple invisible UI elements on staging — submit buttons, homepage banner, gallery card-back buttons. Elements were functional (clickable) but not visible.
+
+**Root Cause:** `tailwind.config.ts` used `hsl(var(--xxx))` color format, but CSS variables contained hex values (e.g., `#D67C4A`). This produced invalid CSS like `hsl(#D67C4A)` → browser renders as transparent.
+
+**Additional Issues Found:**
+- Missing MEMOPYK brand colors (`bg-memopyk-orange`, `text-navy`)
+- Missing `@tailwindcss/typography` plugin
+- Wrong default font (Inter instead of Poppins)
+
+**Resolution:**
+1. Replaced `tailwind.config.ts` with source version (commit 1d0ffe8)
+2. Installed `@tailwindcss/typography` plugin
+3. Added `card-back-gradient` class to gallery flip cards
+4. Added CSS exception for buttons on dark backgrounds
+5. Styled Retour button with `rounded-full` + `hover:scale-105`
+
+**Key Insight:** When identical code displays correctly in one environment but has invisible elements in another, compare CSS/Tailwind configuration before modifying component code.
+
+**Full Analysis:** `docs/migration/CSS_ARCHITECTURE_ANALYSIS.md`
+
 ---
 
 ## Planned Work
@@ -127,6 +149,10 @@ Any component using `useMap()` or `useMapEvents()` triggered infinite recursion 
 
 | Commit | Description | Date |
 |--------|-------------|------|
+| (latest) | Style gallery card-back button | 2026-01-30 |
+| (latest) | CSS exception for buttons on dark backgrounds | 2026-01-30 |
+| (latest) | Add card-back-gradient to gallery flip cards | 2026-01-30 |
+| 1d0ffe8 | Replace tailwind.config.ts - fixes invisible elements | 2026-01-30 |
 | 7dfd312 | Minimal working Partner Directory map | 2026-01-30 |
 | 1e368b6 | Server serves from dist/public | 2026-01-30 |
 | 81210ee | Align vite.config.ts with Replit | 2026-01-30 |

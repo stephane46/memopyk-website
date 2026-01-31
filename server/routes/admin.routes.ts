@@ -1,15 +1,18 @@
 /**
  * Admin Routes
  * - Country names management (localization)
- * - Analytics cleanup tasks
+ * - Analytics IP exclusions management
+ * - Cache statistics
  */
 
 import { Router, Request, Response } from 'express';
+import express from 'express';
 import multer from 'multer';
 import { parse } from 'csv-parse';
 import { stringify } from 'csv-stringify/sync';
 import { Pool } from 'pg';
 import countries from 'i18n-iso-countries';
+import ipExclusionService from '../services/analytics/ip-exclusion.service';
 
 const router = Router();
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -200,6 +203,99 @@ router.post('/country-names/sync-from-library', async (req: Request, res: Respon
   } catch (err: any) {
     console.error('[admin country-names sync] error:', err);
     return res.status(500).json({ error: err.message || 'Sync failed' });
+  }
+});
+
+// ============================================================================
+// Analytics IP Exclusions Management
+// ============================================================================
+
+// GET all IP exclusions
+router.get('/analytics/exclusions', async (_req: Request, res: Response) => {
+  try {
+    const exclusions = await ipExclusionService.getAllExclusions();
+    res.json(exclusions);
+  } catch (error: any) {
+    console.error('❌ Get IP exclusions error:', error);
+    res.status(500).json({ error: 'Failed to get IP exclusions' });
+  }
+});
+
+// POST create new IP exclusion
+router.post('/analytics/exclusions', express.json(), async (req: Request, res: Response) => {
+  try {
+    const { ip_cidr, label, active = true } = req.body;
+
+    if (!ip_cidr || !label) {
+      return res.status(400).json({ error: 'IP/CIDR and label are required' });
+    }
+
+    const exclusion = await ipExclusionService.addExclusion(
+      ip_cidr.trim(),
+      label.trim()
+    );
+
+    console.log(`✅ IP exclusion created: ${ip_cidr} (${label})`);
+    res.json(exclusion);
+  } catch (error: any) {
+    console.error('❌ Create IP exclusion error:', error);
+    res.status(500).json({ error: 'Failed to create IP exclusion' });
+  }
+});
+
+// PUT update IP exclusion
+router.put('/analytics/exclusions/:id', express.json(), async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { label, active } = req.body;
+
+    // Get existing exclusion first
+    const exclusions = await ipExclusionService.getAllExclusions();
+    const existing = exclusions.find(e => String(e.id) === id);
+
+    if (!existing) {
+      return res.status(404).json({ error: 'IP exclusion not found' });
+    }
+
+    // Update the exclusion reason/label
+    if (label) {
+      const updated = await ipExclusionService.updateExclusion(existing.ipCidr, label);
+      if (updated) {
+        console.log(`✅ IP exclusion updated: ${existing.ipCidr}`);
+        return res.json(updated);
+      }
+    }
+
+    res.json(existing);
+  } catch (error: any) {
+    console.error('❌ Update IP exclusion error:', error);
+    res.status(500).json({ error: 'Failed to update IP exclusion' });
+  }
+});
+
+// DELETE IP exclusion
+router.delete('/analytics/exclusions/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Get existing exclusion first
+    const exclusions = await ipExclusionService.getAllExclusions();
+    const existing = exclusions.find(e => String(e.id) === id);
+
+    if (!existing) {
+      return res.status(404).json({ error: 'IP exclusion not found' });
+    }
+
+    const success = await ipExclusionService.removeExclusion(existing.ipCidr);
+    if (success) {
+      console.log(`✅ IP exclusion deleted: ${existing.ipCidr}`);
+      return res.json({ success: true });
+    }
+
+    res.status(500).json({ error: 'Failed to delete IP exclusion' });
+  } catch (error: any) {
+    console.error('❌ Delete IP exclusion error:', error);
+    res.status(500).json({ error: 'Failed to delete IP exclusion' });
   }
 });
 

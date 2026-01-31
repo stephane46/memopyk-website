@@ -3,12 +3,16 @@
  * - Frontend event logging to Supabase
  * - GA4 Measurement Protocol relay (ad-blocker bypass)
  * - GA4 Realtime API endpoints
+ * - Trends data aggregation
  */
 
 import { Router, Request, Response } from 'express';
 import express from 'express';
 import { randomUUID } from 'crypto';
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
+import { db } from '../db';
+import { analyticsSessions } from '@shared/schema';
+import { gte, lte, eq, and, sql, desc } from 'drizzle-orm';
 
 const router = Router();
 
@@ -302,6 +306,343 @@ router.get('/ga4/realtime/video-progress', async (req: Request, res: Response) =
 });
 
 // ============================================================================
+// Trends Data Endpoint (Daily aggregated analytics)
+// ============================================================================
+
+/**
+ * Parse date from various formats (YYYYMMDD, YYYY-MM-DD, ISO)
+ */
+function parseDate(dateStr: string): Date {
+  // Handle YYYYMMDD format
+  if (/^\d{8}$/.test(dateStr)) {
+    const year = parseInt(dateStr.substring(0, 4));
+    const month = parseInt(dateStr.substring(4, 6)) - 1;
+    const day = parseInt(dateStr.substring(6, 8));
+    return new Date(year, month, day);
+  }
+  return new Date(dateStr);
+}
+
+/**
+ * Format date to YYYYMMDD for response
+ */
+function formatDateToYYYYMMDD(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}${month}${day}`;
+}
+
+router.get('/ga4/trend', async (req: Request, res: Response) => {
+  try {
+    // Parse date parameters
+    const startDateStr = String(req.query.startDate || req.query.start || '');
+    const endDateStr = String(req.query.endDate || req.query.end || '');
+
+    // Default to last 30 days if not provided
+    const now = new Date();
+    const defaultStart = new Date(now);
+    defaultStart.setDate(defaultStart.getDate() - 30);
+
+    const startDate = startDateStr ? parseDate(startDateStr) : defaultStart;
+    const endDate = endDateStr ? parseDate(endDateStr) : now;
+
+    // Add time to end date to include the full day
+    const endDateEnd = new Date(endDate);
+    endDateEnd.setHours(23, 59, 59, 999);
+
+    console.log(`📊 [Trends] Fetching data from ${startDate.toISOString()} to ${endDateEnd.toISOString()}`);
+
+    // Query sessions in the date range (exclude test data)
+    const sessions = await db
+      .select()
+      .from(analyticsSessions)
+      .where(
+        and(
+          gte(analyticsSessions.createdAt, startDate),
+          lte(analyticsSessions.createdAt, endDateEnd),
+          eq(analyticsSessions.isTestData, false)
+        )
+      )
+      .orderBy(desc(analyticsSessions.createdAt));
+
+    // Group sessions by date
+    const dailyMap = new Map<string, {
+      sessions: number;
+      uniqueIPs: Set<string>;
+      totalDuration: number;
+      bounces: number;
+    }>();
+
+    for (const session of sessions) {
+      const dateKey = formatDateToYYYYMMDD(session.createdAt || new Date());
+
+      if (!dailyMap.has(dateKey)) {
+        dailyMap.set(dateKey, {
+          sessions: 0,
+          uniqueIPs: new Set(),
+          totalDuration: 0,
+          bounces: 0,
+        });
+      }
+
+      const day = dailyMap.get(dateKey)!;
+      day.sessions++;
+      if (session.ipAddress) day.uniqueIPs.add(session.ipAddress);
+      day.totalDuration += session.sessionDuration || 0;
+      if (session.isBounce) day.bounces++;
+    }
+
+    // Convert to array format
+    const dailyData = Array.from(dailyMap.entries())
+      .map(([date, data]) => ({
+        date,
+        sessions: data.sessions,
+        users: data.uniqueIPs.size,
+        avgSessionDuration: data.sessions > 0 ? Math.round(data.totalDuration / data.sessions) : 0,
+        bounceRate: data.sessions > 0 ? Math.round((data.bounces / data.sessions) * 100) : 0,
+        totalEngagementSeconds: data.totalDuration,
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    // Calculate period aggregates
+    const totalSessions = sessions.length;
+    const uniqueUsers = new Set(sessions.map(s => s.ipAddress).filter(Boolean)).size;
+    const totalDuration = sessions.reduce((sum, s) => sum + (s.sessionDuration || 0), 0);
+    const totalBounces = sessions.filter(s => s.isBounce).length;
+
+    // Calculate previous period for comparison
+    const periodDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const prevPeriodEnd = new Date(startDate);
+    prevPeriodEnd.setDate(prevPeriodEnd.getDate() - 1);
+    const prevPeriodStart = new Date(prevPeriodEnd);
+    prevPeriodStart.setDate(prevPeriodStart.getDate() - periodDays);
+
+    const prevSessions = await db
+      .select()
+      .from(analyticsSessions)
+      .where(
+        and(
+          gte(analyticsSessions.createdAt, prevPeriodStart),
+          lte(analyticsSessions.createdAt, prevPeriodEnd),
+          eq(analyticsSessions.isTestData, false)
+        )
+      );
+
+    const prevTotalSessions = prevSessions.length;
+    const prevUniqueUsers = new Set(prevSessions.map(s => s.ipAddress).filter(Boolean)).size;
+    const prevTotalDuration = prevSessions.reduce((sum, s) => sum + (s.sessionDuration || 0), 0);
+
+    const periodAggregates = {
+      periodSessions: totalSessions,
+      periodUsers: uniqueUsers,
+      periodAverageWatchTime: totalSessions > 0 ? Math.round(totalDuration / totalSessions) : 0,
+      periodTotalEngagement: totalDuration,
+      periodBounceRate: totalSessions > 0 ? Math.round((totalBounces / totalSessions) * 100) : 0,
+      prevPeriodSessions: prevTotalSessions,
+      prevPeriodUsers: prevUniqueUsers,
+      prevPeriodAverageWatchTime: prevTotalSessions > 0 ? Math.round(prevTotalDuration / prevTotalSessions) : 0,
+      prevPeriodTotalEngagement: prevTotalDuration,
+    };
+
+    console.log(`✅ [Trends] Returning ${dailyData.length} days of data, ${totalSessions} total sessions`);
+
+    res.json({
+      dailyData,
+      periodAggregates,
+    });
+  } catch (error: any) {
+    console.error('❌ [Trends] Error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch trends data',
+      message: error.message,
+    });
+  }
+});
+
+// ============================================================================
+// GA4 KPIs Endpoint (Key Performance Indicators)
+// ============================================================================
+
+router.get('/ga4/kpis', async (req: Request, res: Response) => {
+  try {
+    // Parse date parameters
+    const startDateStr = String(req.query.startDate || req.query.start || '');
+    const endDateStr = String(req.query.endDate || req.query.end || '');
+
+    // Default to last 30 days if not provided
+    const now = new Date();
+    const defaultStart = new Date(now);
+    defaultStart.setDate(defaultStart.getDate() - 30);
+
+    const startDate = startDateStr ? parseDate(startDateStr) : defaultStart;
+    const endDate = endDateStr ? parseDate(endDateStr) : now;
+    const endDateEnd = new Date(endDate);
+    endDateEnd.setHours(23, 59, 59, 999);
+
+    console.log(`📊 [KPIs] Fetching data from ${startDate.toISOString()} to ${endDateEnd.toISOString()}`);
+
+    // Query current period sessions
+    const sessions = await db
+      .select()
+      .from(analyticsSessions)
+      .where(
+        and(
+          gte(analyticsSessions.createdAt, startDate),
+          lte(analyticsSessions.createdAt, endDateEnd),
+          eq(analyticsSessions.isTestData, false)
+        )
+      );
+
+    const totalViews = sessions.length;
+    const uniqueVisitors = new Set(sessions.map(s => s.ipAddress).filter(Boolean)).size;
+    const returnVisitors = sessions.filter(s => s.isReturning).length;
+    const totalDuration = sessions.reduce((sum, s) => sum + (s.sessionDuration || 0), 0);
+    const bounces = sessions.filter(s => s.isBounce).length;
+
+    // Calculate previous period for comparison
+    const periodDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const prevPeriodEnd = new Date(startDate);
+    prevPeriodEnd.setDate(prevPeriodEnd.getDate() - 1);
+    const prevPeriodStart = new Date(prevPeriodEnd);
+    prevPeriodStart.setDate(prevPeriodStart.getDate() - periodDays);
+
+    const prevSessions = await db
+      .select()
+      .from(analyticsSessions)
+      .where(
+        and(
+          gte(analyticsSessions.createdAt, prevPeriodStart),
+          lte(analyticsSessions.createdAt, prevPeriodEnd),
+          eq(analyticsSessions.isTestData, false)
+        )
+      );
+
+    const prevTotalViews = prevSessions.length;
+    const prevUniqueVisitors = new Set(prevSessions.map(s => s.ipAddress).filter(Boolean)).size;
+    const prevReturnVisitors = prevSessions.filter(s => s.isReturning).length;
+
+    // Calculate percentage change
+    const calculateChange = (current: number, previous: number): number => {
+      if (previous === 0) return current > 0 ? 100 : 0;
+      return Math.round(((current - previous) / previous) * 100);
+    };
+
+    const kpis = {
+      totalViews: { value: totalViews, trend: [], change: calculateChange(totalViews, prevTotalViews) },
+      uniqueVisitors: { value: uniqueVisitors, trend: [], change: calculateChange(uniqueVisitors, prevUniqueVisitors) },
+      returnVisitors: { value: returnVisitors, trend: [], change: calculateChange(returnVisitors, prevReturnVisitors) },
+      sessions: { value: totalViews, trend: [], change: calculateChange(totalViews, prevTotalViews) },
+      plays: { value: 0, trend: [], change: 0 },
+      avgWatch: { value: totalViews > 0 ? Math.round(totalDuration / totalViews) : 0, trend: [], change: 0 },
+      completions: { value: 0, trend: [], change: 0 },
+      bounceRate: { value: totalViews > 0 ? Math.round((bounces / totalViews) * 100) : 0, trend: [], change: 0 },
+    };
+
+    const previousPeriod = {
+      kpis: {
+        totalViews: { value: prevTotalViews, trend: [] },
+        uniqueVisitors: { value: prevUniqueVisitors, trend: [] },
+        returnVisitors: { value: prevReturnVisitors, trend: [] },
+        sessions: { value: prevTotalViews, trend: [] },
+        plays: { value: 0, trend: [] },
+        avgWatch: { value: 0, trend: [] },
+        completions: { value: 0, trend: [] },
+      },
+    };
+
+    console.log(`✅ [KPIs] Returning: ${totalViews} views, ${uniqueVisitors} unique visitors`);
+
+    res.json({
+      kpis,
+      previousPeriod,
+      sparklines: {},
+      timestamp: new Date().toISOString(),
+      cached: false,
+    });
+  } catch (error: any) {
+    console.error('❌ [KPIs] Error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch KPIs',
+      message: error.message,
+    });
+  }
+});
+
+// ============================================================================
+// GA4 Realtime Endpoint (Active Users)
+// ============================================================================
+
+router.get('/ga4/realtime', async (req: Request, res: Response) => {
+  try {
+    // Try to get realtime data from GA4 API
+    const client = getGA4Client();
+
+    let activeUsers = 0;
+    let byCountry: Array<{ country: string; users: number }> = [];
+    let byDevice: Array<{ device: string; users: number }> = [];
+
+    try {
+      // Get active users
+      const [activeUsersResponse] = await client.runRealtimeReport({
+        property: GA4_PROPERTY,
+        metrics: [{ name: 'activeUsers' }],
+      });
+      activeUsers = Number(activeUsersResponse.rows?.[0]?.metricValues?.[0]?.value || 0);
+
+      // Get active users by country
+      const [countryResponse] = await client.runRealtimeReport({
+        property: GA4_PROPERTY,
+        dimensions: [{ name: 'country' }],
+        metrics: [{ name: 'activeUsers' }],
+        orderBys: [{ metric: { metricName: 'activeUsers' }, desc: true }],
+        limit: 5,
+      });
+      byCountry = (countryResponse.rows || []).map(row => ({
+        country: row.dimensionValues?.[0]?.value || 'Unknown',
+        users: Number(row.metricValues?.[0]?.value || 0),
+      }));
+
+      // Get active users by device
+      const [deviceResponse] = await client.runRealtimeReport({
+        property: GA4_PROPERTY,
+        dimensions: [{ name: 'deviceCategory' }],
+        metrics: [{ name: 'activeUsers' }],
+        orderBys: [{ metric: { metricName: 'activeUsers' }, desc: true }],
+      });
+      byDevice = (deviceResponse.rows || []).map(row => ({
+        device: row.dimensionValues?.[0]?.value || 'Unknown',
+        users: Number(row.metricValues?.[0]?.value || 0),
+      }));
+
+      console.log(`✅ [GA4 Realtime] ${activeUsers} active users`);
+    } catch (ga4Error: any) {
+      // GA4 API failed, return stubbed data
+      console.log(`⚠️ [GA4 Realtime] API unavailable, returning stub: ${ga4Error.message}`);
+    }
+
+    res.json({
+      activeUsers,
+      byCountry,
+      byDevice,
+      timestamp: new Date().toISOString(),
+      cached: false,
+    });
+  } catch (error: any) {
+    console.error('❌ [GA4 Realtime] Error:', error);
+    // Return stub data on error
+    res.json({
+      activeUsers: 0,
+      byCountry: [],
+      byDevice: [],
+      timestamp: new Date().toISOString(),
+      cached: false,
+      error: error.message,
+    });
+  }
+});
+
+// ============================================================================
 // Frontend Event Logging (to Supabase)
 // ============================================================================
 
@@ -379,13 +720,46 @@ router.post('/performance', async (req: Request, res: Response) => {
 router.get('/health', (req: Request, res: Response) => {
   // TODO: Check analytics DB service status
   const isReady = !!process.env.DATABASE_URL;
-  
+
   res.json({
     success: true,
     analytics_db_enabled: isReady,
     ga4_configured: !!GA4_MID,
     message: isReady ? 'Analytics service operational' : 'Analytics service disabled'
   });
+});
+
+// ============================================================================
+// Unified Cache Stats Endpoint
+// ============================================================================
+
+router.get('/unified-cache/stats', (_req: Request, res: Response) => {
+  try {
+    // Return stub cache stats since video cache service isn't migrated yet
+    const stats = {
+      video: {
+        totalSize: 0,
+        itemCount: 0,
+        hitRate: 0,
+        missRate: 0,
+      },
+      image: {
+        totalSize: 0,
+        itemCount: 0,
+        hitRate: 0,
+        missRate: 0,
+      },
+      total: 0,
+      timestamp: new Date().toISOString(),
+      stub: true,
+      message: 'Cache service not yet migrated',
+    };
+
+    res.json(stats);
+  } catch (error: any) {
+    console.error('❌ Unified cache stats error:', error);
+    res.status(500).json({ error: 'Failed to get cache stats' });
+  }
 });
 
 export default router;

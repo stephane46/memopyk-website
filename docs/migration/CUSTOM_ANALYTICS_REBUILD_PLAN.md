@@ -1,0 +1,406 @@
+# Custom Analytics Rebuild Plan
+
+**Created:** January 31, 2026  
+**Status:** PLANNING  
+**Approach:** Incremental rebuild, one feature at a time  
+
+---
+
+## Philosophy
+
+> "GA4 does give me enough for now. But there are specific analytics features I absolutely need for business decisions and that is why I run my own system side by side. I'm totally open to doing it step by step. As long as we track the plan, what we do, what works, and add to it. But in the end, I want something similar to what I built, except I need it to work."
+> — Stéphane, January 30, 2026
+
+**Guiding Principles:**
+1. **Don't fix the mess** — The 8,295-line `hybrid-storage.ts` is too tangled. Extract what we need into clean, focused modules.
+2. **One feature at a time** — Each feature gets built, tested, and verified before moving to the next.
+3. **Track everything** — Every change logged in this document.
+4. **GA4 is the fallback** — If custom analytics isn't ready, GA4 covers basic needs.
+
+---
+
+## Current State
+
+### What Works Now
+| Feature | Status | Notes |
+|---------|--------|-------|
+| GA4 client-side tracking | ✅ Working | Events fire to Google Analytics |
+| Frontend analytics calls | ✅ Working | Components make API calls |
+| Database tables | ✅ Exist | 7 tables ready in Supabase |
+
+### What's Stubbed (58 Endpoints)
+All endpoints in `analytics-legacy.routes.ts` return empty data:
+- Sessions/views: `[]`
+- Stats: `{ totalViews: 0, uniqueVisitors: 0, ... }`
+- Realtime: `{ activeVisitors: 0, ... }`
+
+### Database Schema (Ready to Use)
+
+| Table | Key Columns | Purpose |
+|-------|-------------|---------|
+| `analytics_sessions` | session_id, ip_address, country_code, device_category, session_duration, is_bounce | Visitor sessions |
+| `analytics_views` | view_id, session_id, video_id, video_type, view_duration, completion_percentage | Page/video views |
+| `realtime_visitors` | visitor_id, page_url, last_seen, is_active | Live visitors |
+| `performance_metrics` | metric_id, lcp, fid, cls, ttfb | Core Web Vitals |
+| `engagement_heatmap` | event_id, x_position, y_position, event_type | Click/scroll tracking |
+| `conversion_funnel` | funnel_id, step_name, completed_at | Funnel tracking |
+| `analytics_exclusions` | ip_address, reason, created_at | IP blocking |
+
+---
+
+## Priority Matrix
+
+| Priority | Feature | Business Value | Complexity | Dependencies |
+|----------|---------|----------------|------------|--------------|
+| **P1** | IP Exclusion | Critical — affects ALL data accuracy | Low | None |
+| **P2** | Event Recording | Critical — foundation for all tracking | Medium | P1 |
+| **P3** | Session Tracking | High — visitor counts, bounce rates | Medium | P2 |
+| **P4** | Video Analytics | High — watch time, completion % | Medium | P2, P3 |
+| **P5** | Dashboard Stats | High — visual reporting | Low | P3, P4 |
+| **P6** | Realtime Visitors | Medium — nice to have | Low | P3 |
+| **P7** | GA4 Sync | Low — enhancement only | High | P5 |
+
+---
+
+## Feature Specifications
+
+### P1: IP Exclusion System
+
+**Business Need:** Exclude Stéphane, developers, and bots from analytics to get accurate visitor counts.
+
+**Endpoints to Implement:**
+```
+GET    /api/ip-exclusions         → List all excluded IPs
+POST   /api/ip-exclusions         → Add new exclusion
+PATCH  /api/ip-exclusions/:ip     → Update exclusion comment  
+DELETE /api/ip-exclusions/:ip     → Remove exclusion
+```
+
+**Database Table:** `analytics_exclusions`
+```sql
+ip_address  VARCHAR PRIMARY KEY
+reason      TEXT
+created_at  TIMESTAMP DEFAULT NOW()
+```
+
+**Implementation:**
+1. Create `server/services/analytics/ip-exclusion.service.ts` (~50 lines)
+2. Update `analytics-legacy.routes.ts` to use real service
+3. Export `isExcludedIP(ip: string): Promise<boolean>` for use by other services
+
+**Source Reference:** `hybrid-storage.ts` lines containing "exclusion" or "ip_exclus"
+
+**Acceptance Criteria:**
+- [ ] Can add IP via admin panel
+- [ ] Can remove IP via admin panel
+- [ ] `isExcludedIP()` returns true for excluded IPs
+- [ ] Dashboard shows "🟠 IP Filtered" badge for excluded traffic
+
+---
+
+### P2: Event Recording
+
+**Business Need:** Record page views and video plays to the database.
+
+**Endpoints to Implement:**
+```
+POST /api/analytics/event         → Record any analytics event
+POST /api/analytics/performance   → Record Core Web Vitals
+```
+
+**Implementation:**
+1. Create `server/services/analytics/event-recorder.service.ts` (~100 lines)
+2. Check IP exclusion before recording
+3. Deduplicate events within 30-second window
+4. Insert to appropriate table based on event type
+
+**Key Logic:**
+```typescript
+async function recordEvent(event: AnalyticsEvent): Promise<void> {
+  // 1. Check IP exclusion
+  if (await isExcludedIP(event.ip)) return;
+  
+  // 2. Deduplicate (30-second window)
+  if (await isDuplicate(event)) return;
+  
+  // 3. Insert to database
+  await db.insert(analyticsViews).values(event);
+}
+```
+
+**Source Reference:** `analytics-service.ts` (260 lines)
+
+**Acceptance Criteria:**
+- [ ] Page view events recorded to `analytics_views`
+- [ ] Video play events recorded with duration
+- [ ] Excluded IPs not recorded
+- [ ] No duplicate events within 30 seconds
+
+---
+
+### P3: Session Tracking
+
+**Business Need:** Group events into sessions, calculate bounce rate, session duration.
+
+**Endpoints to Implement:**
+```
+GET /api/analytics/sessions       → List sessions with filters
+GET /api/analytics/stats          → Aggregated statistics
+```
+
+**Implementation:**
+1. Create `server/services/analytics/session.service.ts` (~150 lines)
+2. Session creation on first event from IP
+3. Session update on subsequent events
+4. 30-minute timeout = new session
+
+**Key Metrics:**
+- Total sessions
+- Unique visitors (by IP)
+- Bounce rate (single-page sessions)
+- Avg session duration
+- New vs returning visitors
+
+**Source Reference:** `analytics-db-service.ts` (341 lines)
+
+**Acceptance Criteria:**
+- [ ] Sessions created automatically from events
+- [ ] Session duration calculated correctly
+- [ ] Bounce rate accurate
+- [ ] Stats endpoint returns real data
+
+---
+
+### P4: Video Analytics
+
+**Business Need:** Track which videos are watched, for how long, and completion rates.
+
+**Endpoints to Implement:**
+```
+GET /api/analytics/video-stats    → Video performance metrics
+GET /api/analytics/top-videos     → Ranking by views/completion
+```
+
+**Key Metrics:**
+- Views per video
+- Average watch duration
+- Completion percentage
+- Hero vs Gallery breakdown
+
+**Implementation:**
+1. Create `server/services/analytics/video-analytics.service.ts` (~100 lines)
+2. Aggregate from `analytics_views` where `video_id IS NOT NULL`
+3. Calculate completion % from `view_duration / video_length`
+
+**Source Reference:** Video tracking logic in `hybrid-storage.ts`
+
+**Acceptance Criteria:**
+- [ ] Video views counted correctly
+- [ ] Watch duration tracked
+- [ ] Completion % calculated
+- [ ] Hero/Gallery breakdown available
+
+---
+
+### P5: Dashboard Stats
+
+**Business Need:** Display all metrics in admin dashboard.
+
+**Endpoints to Implement:**
+```
+GET /api/analytics/dashboard      → All dashboard data in one call
+```
+
+**Response Structure:**
+```typescript
+{
+  period: "7d" | "30d" | "90d",
+  overview: {
+    totalViews: number,
+    uniqueVisitors: number,
+    bounceRate: number,
+    avgSessionDuration: number,
+    newVsReturning: { new: number, returning: number }
+  },
+  videos: {
+    totalPlays: number,
+    avgCompletion: number,
+    topVideos: Array<{ id, title, views, completion }>
+  },
+  geography: {
+    countries: Array<{ code, name, visits }>
+  },
+  timeline: {
+    daily: Array<{ date, views, visitors }>
+  }
+}
+```
+
+**Implementation:**
+1. Create `server/services/analytics/dashboard.service.ts` (~200 lines)
+2. Single endpoint aggregates all stats
+3. Support period filter (7d, 30d, 90d)
+
+**Acceptance Criteria:**
+- [ ] Dashboard shows real data
+- [ ] Period filters work
+- [ ] All cards populated
+- [ ] No "0" values when data exists
+
+---
+
+### P6: Realtime Visitors
+
+**Business Need:** Show currently active visitors on site.
+
+**Endpoints:**
+```
+GET /api/analytics/realtime       → Current active visitors
+```
+
+**Implementation:**
+1. Create `server/services/analytics/realtime.service.ts` (~50 lines)
+2. Track via `realtime_visitors` table
+3. Consider "active" = last_seen within 5 minutes
+4. Cleanup old entries periodically
+
+**Acceptance Criteria:**
+- [ ] Shows count of active visitors
+- [ ] Updates within 30 seconds
+- [ ] Excludes filtered IPs
+
+---
+
+### P7: GA4 Sync (Deferred)
+
+**Business Need:** Sync GA4 BigQuery data to local database for unified reporting.
+
+**Complexity:** High — requires BigQuery credentials, scheduled jobs, data mapping
+
+**Decision:** Defer until P1-P6 complete. GA4 dashboard available separately.
+
+---
+
+## Source File Reference
+
+| Source File | Lines | Extract For |
+|-------------|-------|-------------|
+| `hybrid-storage.ts` | 8,295 | ~2,000 lines of analytics methods |
+| `ga4-service.ts` | 1,700 | P7 only — copy when needed |
+| `location-service.ts` | 257 | IP geolocation (P3 enhancement) |
+| `analytics-db-service.ts` | 341 | P3 session queries |
+| `analytics-service.ts` | 260 | P2 event recording |
+| `location-enrichment.ts` | 257 | Country detection |
+
+---
+
+## Implementation Approach
+
+### For Each Priority:
+
+1. **Read source** — Find relevant code in source files
+2. **Extract minimal** — Only what's needed, no extra complexity
+3. **Write clean** — New file in `server/services/analytics/`
+4. **Update routes** — Replace stub with real implementation
+5. **Test endpoint** — Verify with curl or browser
+6. **Test dashboard** — Verify admin panel shows data
+7. **Document** — Update this file with completion status
+
+### File Structure (Target)
+```
+memopyk-clean/server/services/analytics/
+├── ip-exclusion.service.ts      # P1
+├── event-recorder.service.ts    # P2
+├── session.service.ts           # P3
+├── video-analytics.service.ts   # P4
+├── dashboard.service.ts         # P5
+├── realtime.service.ts          # P6
+└── index.ts                     # Re-exports all services
+```
+
+---
+
+## Progress Log
+
+### Phase: Planning
+| Date | Action | Result |
+|------|--------|--------|
+| Jan 30 | Created ADMIN_ANALYTICS_GUIDE.md | ✅ Requirements documented |
+| Jan 31 | Claude Code inventory analysis | ✅ 7 tables, 58 endpoints, source files identified |
+| Jan 31 | Created this rebuild plan | ✅ Priorities defined |
+
+### Phase: P1 - IP Exclusion ✅ COMPLETE
+| Date | Action | Result |
+|------|--------|--------|
+| Jan 31 | Created ip-exclusion.service.ts | 109 lines, CIDR support |
+| Jan 31 | Updated analytics-legacy.routes.ts | 4 endpoints implemented |
+| Jan 31 | Tested all CRUD operations | All passing |
+| Jan 31 | Committed | `6f39c6f` |
+
+### Phase: P2 - Event Recording ✅ COMPLETE
+| Date | Action | Result |
+|------|--------|--------|
+| Jan 31 | Created event-recorder.service.ts | 267 lines, IP check + dedup |
+| Jan 31 | Updated analytics-legacy.routes.ts | 2 endpoints implemented |
+| Jan 31 | Tested page view + video events | All passing |
+| Jan 31 | Tested IP exclusion integration | Working |
+| Jan 31 | Tested deduplication | Working |
+| Jan 31 | Note: performance_metrics table missing | Deferred |
+| Jan 31 | Committed | `3bcb6fd` |
+
+### Phase: P3 - Session Tracking ✅ COMPLETE
+| Date | Action | Result |
+|------|--------|--------|
+| Jan 31 | Created session.service.ts | 320 lines, 30-min timeout, cache |
+| Jan 31 | Updated event-recorder.service.ts | Links views to sessions |
+| Jan 31 | Updated analytics-legacy.routes.ts | 2 endpoints implemented |
+| Jan 31 | Tested session creation/reuse | Working |
+| Jan 31 | Tested stats aggregation | 91 sessions (7d), stats correct |
+| Jan 31 | Committed | `pending` |
+
+### Phase: P4 - Video Analytics
+| Date | Action | Result |
+|------|--------|--------|
+| | | |
+
+### Phase: P5 - Dashboard Stats (IN PROGRESS)
+| Date | Action | Result |
+|------|--------|--------|
+| Jan 31 | Added /api/ga4/trend endpoint | analytics.routes.ts, daily aggregates |
+| Jan 31 | Fixed Trends tab loading error | Returns dailyData + periodAggregates |
+| Jan 31 | Tested with 322 sessions in January | Working, 31 days of data |
+
+### Phase: P6 - Realtime Visitors
+| Date | Action | Result |
+|------|--------|--------|
+| | | |
+
+---
+
+## Estimated Effort
+
+| Priority | Feature | Estimated Time | Cumulative |
+|----------|---------|----------------|------------|
+| P1 | IP Exclusion | 1-2 hours | 2 hours |
+| P2 | Event Recording | 2-3 hours | 5 hours |
+| P3 | Session Tracking | 3-4 hours | 9 hours |
+| P4 | Video Analytics | 2-3 hours | 12 hours |
+| P5 | Dashboard Stats | 2-3 hours | 15 hours |
+| P6 | Realtime Visitors | 1-2 hours | 17 hours |
+| P7 | GA4 Sync | 4-6 hours | 23 hours |
+
+**Total (P1-P6):** ~15-17 hours of focused work  
+**Total (all):** ~20-25 hours including GA4 sync
+
+---
+
+## Notes
+
+- **Don't block production cutover** — Analytics rebuild happens AFTER cutover
+- **GA4 covers basics** — Custom analytics is enhancement, not requirement
+- **Test with real traffic** — Best testing is on production after cutover
+- **Iterate based on need** — If P1-P3 covers 80% of needs, defer P4-P7
+
+---
+
+*Last Updated: January 31, 2026*
