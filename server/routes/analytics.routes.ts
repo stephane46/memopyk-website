@@ -14,6 +14,7 @@ import { db } from '../db';
 import { analyticsSessions } from '@shared/schema';
 import { gte, lte, eq, and, sql, desc } from 'drizzle-orm';
 import videoAnalyticsService from '../services/analytics/video-analytics.service';
+import realtimeService from '../services/analytics/realtime.service';
 
 const router = Router();
 
@@ -1045,21 +1046,14 @@ router.get('/ga4/cta', async (req: Request, res: Response) => {
 
 router.get('/tracker/currently-watching', async (_req: Request, res: Response) => {
   try {
-    // Stub response - realtime video tracking not yet implemented
-    // Would need realtime_visitors table populated by frontend heartbeats
+    const data = await realtimeService.getCurrentlyWatching();
+    res.json(data);
+  } catch (error: any) {
+    console.error('❌ [Currently Watching] Error:', error);
     res.json({
       totalActive: 0,
       sessions: [],
-      byVideo: {},
       timestamp: new Date().toISOString(),
-      stub: true,
-      message: 'Realtime video tracking not yet implemented',
-    });
-  } catch (error: any) {
-    console.error('❌ [Currently Watching] Error:', error);
-    res.status(500).json({
-      error: 'Failed to fetch currently watching data',
-      message: error.message,
     });
   }
 });

@@ -20,6 +20,7 @@ import express from "express";
 import ipExclusionService from "../services/analytics/ip-exclusion.service";
 import eventRecorder, { extractClientIP } from "../services/analytics/event-recorder.service";
 import sessionService from "../services/analytics/session.service";
+import realtimeService from "../services/analytics/realtime.service";
 
 const router = Router();
 
@@ -119,8 +120,15 @@ router.get("/re-engagement", (_req: Request, res: Response) => {
 
 // GET /recent-visitors
 // Frontend expects an array directly (calls .forEach on response)
-router.get("/recent-visitors", (_req: Request, res: Response) => {
-  res.json([]);  // Return empty array, not object
+router.get("/recent-visitors", async (req: Request, res: Response) => {
+  try {
+    const datePreset = String(req.query.datePreset || "today");
+    const visitors = await realtimeService.getRecentVisitors(datePreset, 50);
+    res.json(visitors); // Return array directly
+  } catch (error) {
+    console.error("❌ [Recent Visitors] Error:", error);
+    res.json([]); // Return empty array on error
+  }
 });
 
 // GET /returning-visitors
@@ -360,8 +368,14 @@ router.get("/recent-activity", (_req: Request, res: Response) => {
 });
 
 // GET /live-tracking
-router.get("/live-tracking", (_req: Request, res: Response) => {
-  res.json({ activeUsers: 0, sessions: emptyArray, ...stubMsg });
+router.get("/live-tracking", async (_req: Request, res: Response) => {
+  try {
+    const data = await realtimeService.getLiveTracking(30); // 30 minute window
+    res.json(data);
+  } catch (error) {
+    console.error("❌ [Live Tracking] Error:", error);
+    res.json({ activeUsers: 0, byCountry: [], byDevice: [], timestamp: new Date().toISOString() });
+  }
 });
 
 // GET /sessions — List sessions with filters
