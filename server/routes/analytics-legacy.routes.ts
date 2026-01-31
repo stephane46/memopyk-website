@@ -17,6 +17,7 @@
 
 import { Router, Request, Response } from "express";
 import express from "express";
+import ipExclusionService from "../services/analytics/ip-exclusion.service";
 
 const router = Router();
 
@@ -124,24 +125,64 @@ router.get("/returning-visitors", (_req: Request, res: Response) => {
   res.json({ visitors: emptyArray, total: 0, ...stubMsg });
 });
 
-// POST /exclude-ip
-router.post("/exclude-ip", express.json(), (_req: Request, res: Response) => {
-  res.json({ success: true, ...stubMsg });
+// POST /exclude-ip — Add IP to exclusion list
+router.post("/exclude-ip", express.json(), async (req: Request, res: Response) => {
+  try {
+    const { ip, reason } = req.body;
+    if (!ip) {
+      return res.status(400).json({ success: false, error: "IP address is required" });
+    }
+    const exclusion = await ipExclusionService.addExclusion(ip, reason);
+    res.json({ success: true, exclusion });
+  } catch (error) {
+    console.error("Error adding IP exclusion:", error);
+    res.status(500).json({ success: false, error: "Failed to add IP exclusion" });
+  }
 });
 
-// PATCH /exclude-ip/:ipAddress/comment
-router.patch("/exclude-ip/:ipAddress/comment", express.json(), (_req: Request, res: Response) => {
-  res.json({ success: true, ...stubMsg });
+// PATCH /exclude-ip/:ipAddress/comment — Update reason for an IP exclusion
+router.patch("/exclude-ip/:ipAddress/comment", express.json(), async (req: Request, res: Response) => {
+  try {
+    const { ipAddress } = req.params;
+    const { reason } = req.body;
+    if (!reason) {
+      return res.status(400).json({ success: false, error: "Reason is required" });
+    }
+    const exclusion = await ipExclusionService.updateExclusion(ipAddress, reason);
+    if (!exclusion) {
+      return res.status(404).json({ success: false, error: "IP exclusion not found" });
+    }
+    res.json({ success: true, exclusion });
+  } catch (error) {
+    console.error("Error updating IP exclusion:", error);
+    res.status(500).json({ success: false, error: "Failed to update IP exclusion" });
+  }
 });
 
-// DELETE /exclude-ip/:ipAddress
-router.delete("/exclude-ip/:ipAddress", (_req: Request, res: Response) => {
-  res.json({ success: true, ...stubMsg });
+// DELETE /exclude-ip/:ipAddress — Remove IP from exclusion list
+router.delete("/exclude-ip/:ipAddress", async (req: Request, res: Response) => {
+  try {
+    const { ipAddress } = req.params;
+    const deleted = await ipExclusionService.removeExclusion(ipAddress);
+    if (!deleted) {
+      return res.status(404).json({ success: false, error: "IP exclusion not found" });
+    }
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error removing IP exclusion:", error);
+    res.status(500).json({ success: false, error: "Failed to remove IP exclusion" });
+  }
 });
 
-// GET /exclude-ip
-router.get("/exclude-ip", (_req: Request, res: Response) => {
-  res.json({ excluded: emptyArray, ...stubMsg });
+// GET /exclude-ip — List all IP exclusions
+router.get("/exclude-ip", async (_req: Request, res: Response) => {
+  try {
+    const exclusions = await ipExclusionService.getAllExclusions();
+    res.json({ excluded: exclusions });
+  } catch (error) {
+    console.error("Error fetching IP exclusions:", error);
+    res.status(500).json({ excluded: [], error: "Failed to fetch IP exclusions" });
+  }
 });
 
 // POST /reset
