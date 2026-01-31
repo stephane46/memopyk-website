@@ -135,6 +135,7 @@ memopyk-clean/
 1. **Start with CLAUDE.md** — Contains current work status and project context
 2. **Check this docs/ folder** — Architecture, deployment, and operational guides
 3. **Read migration history** — Explains why things are built this way
+4. **Working with Claude** — See [WORKING_WITH_CLAUDE.md](WORKING_WITH_CLAUDE.md) for session templates and workflows
 
 ---
 
