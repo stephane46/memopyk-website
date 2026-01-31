@@ -36,7 +36,7 @@ See deployment/ENVIRONMENT.md for required variables.
 ## Project Structure
 
 ```
-memopyk-clean/
+memopyk-website/
 ├── CLAUDE.md           # Current status (Claude Code reads first)
 ├── client/             # React frontend
 │   ├── public/         # Static assets
