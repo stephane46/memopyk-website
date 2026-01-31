@@ -26,7 +26,7 @@
 ### What's Done (Phases 1-3G + Fixes)
 
 **Phase 1-2:** Server infrastructure
-- Created clean folder structure, base config, shared/schema.ts (43KB, 28 tables)
+- Created clean folder structure, base config, shared/schema.ts (43KB, 40 tables)
 - Set up server entry point (index.ts, app.ts)
 - Created route aggregator (routes.ts) — 15 route modules
 - Extracted all 14 route files from monolithic routes.ts
@@ -154,12 +154,45 @@ memopyk-clean/
 │   ├── jobs/         # Background jobs
 │   └── utils/        # Server utilities
 ├── shared/           # Shared code
-│   ├── schema.ts     # Drizzle schema (28 tables)
+│   ├── schema.ts     # Drizzle schema (40 tables)
 │   ├── partnerFormats.ts
 │   ├── partnerSchema.ts
 │   └── utils/        # Shared utilities
-└── docs/             # Documentation
+└── docs/             # Documentation (see Documentation Structure below)
 ```
+
+## Documentation Structure
+
+**IMPORTANT:** This codebase is the main website for MEMOPYK EURL and will be maintained for years. Proper documentation is essential for any Claude instance to understand, navigate, and extend the code.
+
+**Reference:** Full specification in `memopyk-website/docs/Migration/TARGET_FOLDER_STRUCTURE.md`
+
+```
+docs/
+├── README.md                # Docs index (navigation guide)
+│
+├── architecture/            # Architecture documentation
+│   ├── OVERVIEW.md          # System overview, data flow diagrams
+│   ├── DATABASE.md          # Schema documentation, table purposes
+│   ├── API.md               # API reference (all endpoints)
+│   └── DECISIONS.md         # Architecture Decision Records (ADRs)
+│
+├── deployment/              # Deployment documentation
+│   ├── COOLIFY.md           # Coolify setup, configuration
+│   ├── DOCKER.md            # Dockerfile explanation, build process
+│   └── ENVIRONMENT.md       # All environment variables explained
+│
+├── guides/                  # How-to guides for operations
+│   ├── BLOG_WORKFLOW.md     # How to create/edit blog posts
+│   ├── TRAVEL_PORTAL.md     # Travel upload portal SOP
+│   └── ANALYTICS.md         # Analytics dashboard guide
+│
+└── migration/               # Migration history (archive)
+    ├── *.md                 # Migration phase documents
+    └── PERFORMANCE_COMPARISON.md  # Replit vs Coolify benchmarks
+```
+
+**Status:** Documentation structure incomplete. The folders exist but most files need to be created.
 
 ## Route Modules (15 total)
 
