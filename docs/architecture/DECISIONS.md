@@ -320,7 +320,7 @@ Stub all 58 analytics endpoints to return empty data. Rebuild analytics from scr
 - Must track analytics rebuild as priority work
 - Need to document what analytics features are needed
 
-**Follow-up:** See `docs/migration/CUSTOM_ANALYTICS_REBUILD_PLAN.md`
+**Update (Jan 31, 2026):** Analytics rebuild completed (P1-P8). See `docs/guides/ANALYTICS.md`.
 
 ---
 

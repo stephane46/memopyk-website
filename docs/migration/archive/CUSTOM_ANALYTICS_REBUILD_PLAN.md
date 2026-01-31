@@ -1,7 +1,14 @@
+# ARCHIVED - Analytics rebuild completed January 31, 2026
+
+> This document tracked the analytics rebuild work. The rebuild is complete.
+> For current analytics documentation, see: `docs/guides/ANALYTICS.md`
+
+---
+
 # Custom Analytics Rebuild Plan
 
-**Created:** January 31, 2026  
-**Status:** P1-P8 COMPLETE — Analytics rebuild finished  
+**Created:** January 31, 2026
+**Status:** P1-P8 COMPLETE — Analytics rebuild finished
 **Approach:** Incremental rebuild, one feature at a time  
 
 ---

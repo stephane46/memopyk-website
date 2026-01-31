@@ -262,7 +262,7 @@ Google Analytics 4 tracking.
 
 ### 12. Analytics Legacy (`analytics-legacy.routes.ts`)
 
-Custom analytics endpoints (currently stubbed).
+Custom analytics endpoints (rebuilt January 31, 2026).
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
@@ -272,7 +272,7 @@ Custom analytics endpoints (currently stubbed).
 | GET | `/api/analytics/geo` | Admin | Geographic data |
 | ... | ... | ... | 58 endpoints total |
 
-**Note:** These endpoints return empty data. Custom analytics rebuild is planned. See `docs/migration/CUSTOM_ANALYTICS_REBUILD_PLAN.md`.
+**Status:** ✅ Functional. See `docs/guides/ANALYTICS.md` for details.
 
 ---
 

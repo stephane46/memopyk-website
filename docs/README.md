@@ -61,8 +61,8 @@ npm run start
 |----------|-------------|
 | [MIGRATION_PROGRESS.md](migration/MIGRATION_PROGRESS.md) | Overall migration status |
 | [PERFORMANCE_COMPARISON.md](migration/PERFORMANCE_COMPARISON.md) | Replit vs Coolify benchmarks |
-| [ANALYTICS_INVENTORY.md](migration/ANALYTICS_INVENTORY.md) | Analytics endpoints audit |
-| [CUSTOM_ANALYTICS_REBUILD_PLAN.md](migration/CUSTOM_ANALYTICS_REBUILD_PLAN.md) | Analytics rebuild roadmap |
+
+**Archived:** `migration/archive/` contains completed work tracking documents.
 
 ---
 
