@@ -1,7 +1,7 @@
 # Custom Analytics Rebuild Plan
 
 **Created:** January 31, 2026  
-**Status:** PLANNING  
+**Status:** P1-P8 COMPLETE — Analytics rebuild finished  
 **Approach:** Incremental rebuild, one feature at a time  
 
 ---
@@ -422,31 +422,96 @@ memopyk-clean/server/services/analytics/
 | Jan 31 | Tested stats aggregation | 91 sessions (7d), stats correct |
 | Jan 31 | Committed (with dashboard endpoints) | `2cf575b` |
 
-### Phase: P4 - Video Analytics
+### Phase: P4 - Video Analytics ✅ COMPLETE
 | Date | Action | Result |
 |------|--------|--------|
-| | | |
+| Jan 31 | Created video-analytics.service.ts | 290 lines |
+| Jan 31 | Added /api/ga4/top-videos, /videos, /funnel | Working |
+| Jan 31 | Added unified /api/ga4/report endpoint | Routes by report type |
+| Jan 31 | Tested Video tab on staging | Data loads ✅ |
+| Jan 31 | Committed | `1d5ab90`, `52e257b` |
 
-### Phase: P5 - Dashboard Stats (IN PROGRESS)
+### Phase: P5 - Dashboard Stats ✅ COMPLETE
 | Date | Action | Result |
 |------|--------|--------|
 | Jan 31 | Added /api/ga4/trend endpoint | analytics.routes.ts, daily aggregates |
 | Jan 31 | Fixed Trends tab loading error | Returns dailyData + periodAggregates |
 | Jan 31 | Tested with 322 sessions in January | Working, 31 days of data |
+| Jan 31 | Added /api/ga4/geo endpoint | Real data from analytics_sessions |
+| Jan 31 | Added /api/ga4/cta endpoint | Stub (CTA tracking not implemented) |
+| Jan 31 | Added /api/tracker/currently-watching | Stub (awaiting P6) |
+| Jan 31 | Fixed 16 blog/visitor endpoints | Return arrays not objects |
+| Jan 31 | Committed | `ad446ec`, `fb753e1` |
 
-### Phase: P6 - Realtime Visitors
+**All Dashboard Tabs Status:**
+| Tab | Status | Data Source |
+|-----|--------|-------------|
+| Overview | ✅ | Real (KPIs, sessions) |
+| Live View | ✅ | Stub (awaiting P6) |
+| Trends | ✅ | Real (analytics_sessions) |
+| Video | ✅ | Real (analytics_views) |
+| Geo | ✅ | Real (analytics_sessions) |
+| CTA | ✅ | Stub |
+| Blog | ✅ | Stub |
+| Clarity | ✅ | Placeholder |
+| Fallback | ✅ | Placeholder |
+| Exclusions | ✅ | Real (analytics_exclusions) |
+
+### Phase: P6 - Realtime Visitors ✅ COMPLETE
 | Date | Action | Result |
 |------|--------|--------|
+| Jan 31 | Created realtime.service.ts | 270 lines |
+| Jan 31 | getLiveTracking() | Active users by country/device |
+| Jan 31 | getRecentVisitors() | Visitor list with location |
+| Jan 31 | getCurrentlyWatching() | Active video sessions |
+| Jan 31 | Updated 3 endpoints | Real data, IP exclusion applied |
+| Jan 31 | Tested Live View tab | Working ✅ |
+| Jan 31 | Committed | `68f5f9a` |
 | | | |
 
-### Phase: P7 - GA4 Sync (Deferred)
+### Phase: P7 - GA4 Comparison ✅ COMPLETE (Documented)
 | Date | Action | Result |
 |------|--------|--------|
-| | | |
+| Jan 31 | Queried custom analytics for Jan 22-28 | 37 sessions, 31 visitors |
+| Jan 31 | Found data quality issues | See findings below |
+| Jan 31 | Decision: Compare after production cutover | Old data unreliable |
 
-### Phase: P8 - Data Validation
+**P7 Findings: Old System Had Broken Tracking**
+
+| Table | Records | Issue |
+|-------|---------|-------|
+| analytics_sessions | 9,018 | ✅ Sessions recorded correctly |
+| analytics_views | 71 | ❌ Only 0.8% of sessions have views |
+
+| Metric | Distribution | Status |
+|--------|--------------|--------|
+| Session Duration | 94% are 0 sec | ❌ Not tracked |
+| Bounce Rate | 82% true but data unreliable | ❌ Logic broken |
+| Page Count | Most = 1 | ❌ Not updated |
+
+**Root Cause:** The old Replit `hybrid-storage.ts` system:
+- Created sessions but didn't record page views to `analytics_views`
+- Never updated `session_duration` after session start
+- Set `is_bounce` inconsistently
+
+**Conclusion:** 
+- GA4 comparison with old data is meaningless
+- New P1-P6 services fix all these issues
+- Compare GA4 vs MEMOPYK after 48+ hours of production traffic on new system
+
+**Metrics safe to compare (old data):** Sessions, Unique Visitors only
+**Metrics NOT reliable (old data):** Page views, bounce rate, session duration, video analytics
+
+### Phase: P8 - Data Validation ✅ COMPLETE
 | Date | Action | Result |
 |------|--------|--------|
+| Jan 31 | Ran internal consistency check | SQL vs Dashboard comparison |
+| Jan 31 | Found: Stats endpoints match raw SQL | ✅ 91 sessions, 22 visitors |
+| Jan 31 | Found: Video analytics match | ✅ 0 views (correct) |
+| Jan 31 | Found: IP exclusion gap | ⚠️ Stats/KPIs didn't filter excluded IPs |
+| Jan 31 | Fixed: Added IP exclusion to all endpoints | session.service.ts, analytics.routes.ts |
+| Jan 31 | Added 0.0.0.0/32 exclusion | Local dev traffic (66 sessions) |
+| Jan 31 | Committed | `2bc7fa8` |
 | | | |
 
 ---

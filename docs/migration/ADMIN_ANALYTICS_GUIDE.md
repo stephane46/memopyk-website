@@ -90,6 +90,7 @@ In Admin Dashboard → Analytics:
 | IP | Comment |
 |----|---------|
 | 109.17.150.48 | Capdenac home network |
+| 0.0.0.0 | Local development traffic |
 
 ---
 
@@ -252,6 +253,25 @@ GET /api/ga4/countries            - Geographic breakdown
 
 ---
 
+## Historical Data Quality (Pre-January 31, 2026)
+
+**Important:** Analytics data collected before January 31, 2026 has known quality issues due to bugs in the old Replit `hybrid-storage.ts` system:
+
+| Metric | Status | Notes |
+|--------|--------|-------|
+| Sessions | ✅ Reliable | 9,018 sessions since Aug 2025 |
+| Unique Visitors | ✅ Reliable | Based on IP address |
+| Page Views | ❌ Unreliable | Only 71 records vs 9,018 sessions |
+| Session Duration | ❌ Unreliable | 94% show 0 seconds |
+| Bounce Rate | ❌ Unreliable | Logic was broken |
+| Video Analytics | ❌ Unreliable | Sparse data |
+
+**For historical analysis:** Use GA4 for pre-2026 data.
+
+**For current analysis:** The new analytics system (rebuilt Jan 31, 2026) properly tracks all metrics.
+
+---
+
 ## Best Practices
 
 1. **Regular IP Exclusion Review**: Add new team members' IPs promptly
@@ -262,4 +282,4 @@ GET /api/ga4/countries            - Geographic breakdown
 
 ---
 
-*Last Updated: January 30, 2026*
+*Last Updated: January 31, 2026*
