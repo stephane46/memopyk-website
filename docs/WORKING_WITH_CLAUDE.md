@@ -4,58 +4,81 @@ Quick reference for reporting issues and requesting changes.
 
 ---
 
+## Roles
+
+| Who | Responsibility |
+|-----|----------------|
+| **Stéphane** | Makes decisions, approves plans, tests results in browser |
+| **Claude Chat** | Planning, verification, reads files to verify Claude Code's work, creates prompts |
+| **Claude Code** | Executes file changes and commands, reports back |
+
+Key rules:
+- Claude Chat creates prompts. Claude Code executes. Claude Chat verifies.
+- Claude Chat MUST put Claude Code prompts in a single code block (for easy copy-paste), separate from explanations.
+
+---
+
 ## Starting a Session
 
-**Always start by giving Claude Chat context:**
+Always start by giving Claude Chat context:
 
 ```
-MEMOPYK session start.
-
-Project: memopyk-clean
-Location: C:\Users\ngocn\OneDrive\1 Personal\1 NOUS\MEMOPYK EURL\Systems\MEMOPYK Website\memopyk-clean
+MEMOPYK session.
 
 Please read:
-1. CLAUDE.md (project root)
-2. docs/migration/MIGRATION_PROGRESS.md (current status)
+1. CLAUDE.md (current status)
+2. docs/WORKING_WITH_CLAUDE.md (workflow)
 
 [Then state what you want to work on]
 ```
 
-**After a long break (weeks/months), add:**
+After a long break (weeks/months), add:
 
 ```
 It's been a while. Please also check:
-- Recent git commits: what changed lately?
-- docs/README.md for documentation structure
+- git log --oneline -10 (recent changes)
+- docs/README.md (documentation index)
 ```
 
 ---
 
-## The Flow
+## The Workflow
 
-1. **You** → Give context + describe request (templates below)
-2. **Claude Chat** → Reads files, asks questions if needed, creates Claude Code prompt
-3. **You** → Paste prompt to Claude Code
-4. **Claude Code** → Executes, reports back
-5. **Claude Chat** → Verifies the work (reads files to confirm)
-6. **You** → Test in browser, confirm done
+1. YOU        → Describe request to Claude Chat
+2. CLAUDE CHAT → Reads files, asks questions, creates Claude Code prompt
+3. YOU        → Paste prompt to Claude Code
+4. CLAUDE CODE → Executes, reports back
+5. CLAUDE CHAT → Verifies by reading files
+6. YOU        → Test in browser, confirm done
+7. AUTO       → Push triggers deploy to staging
 
 ---
 
-## Templates (Copy & Paste)
+## Deployment
+
+Auto-deploy is enabled. Every push to main:
+
+```
+git push origin main → GitHub webhook → Coolify builds (~1-2 min) → memopyk.memopyk.com updated
+```
+
+No manual action needed. Just push and wait.
+
+To verify: Check Coolify Deployments tab or visit https://memopyk.memopyk.com
+
+---
+
+## Templates
 
 ### Bug Report
 
 ```
 BUG: [Short description]
 
-Project: memopyk-clean
 Where: [Page URL or admin section]
 What happens:
 Expected:
-Steps to reproduce: [if not obvious]
 Screenshot: [if visual]
-Console errors: [if any]
 ```
 
 ### Feature Request
@@ -63,11 +86,9 @@ Console errors: [if any]
 ```
 FEATURE: [Short description]
 
-Project: memopyk-clean
 Goal:
 Where: [Which page/section]
 Details:
-Related files: [if you know them]
 Priority: [Nice-to-have / Important / Critical]
 ```
 
@@ -76,8 +97,6 @@ Priority: [Nice-to-have / Important / Critical]
 ```
 UI CHANGE: [Component/page]
 
-Project: memopyk-clean
-Page/Component: [URL or component name]
 Current:
 Desired:
 Reference: [screenshot or example]
@@ -88,7 +107,6 @@ Reference: [screenshot or example]
 ```
 DOC UPDATE: [File path]
 
-Project: memopyk-clean
 File: docs/[path]
 Current:
 Should be:
@@ -100,15 +118,10 @@ Why:
 ```
 ADMIN FEATURE: [Short description]
 
-Project: memopyk-clean
 Goal:
 Location: [Which admin section]
-User flow:
-  1. Admin clicks...
-  2. Sees...
-  3. Can do...
-Data needed: [Database tables/fields involved]
-Priority:
+User flow: [Step by step]
+Data needed: [Database tables involved]
 ```
 
 ### Database/Schema Change
@@ -116,45 +129,23 @@ Priority:
 ```
 SCHEMA CHANGE: [Table or field]
 
-Project: memopyk-clean
 Schema file: shared/schema.ts
-Current state:
-Desired state:
+Current:
+Desired:
 Reason:
-Affected features: [What code uses this data]
 ```
-
----
-
-## Key Project Info (for Claude Chat reference)
-
-| Item | Value |
-|------|-------|
-| Project name | memopyk-clean |
-| Local path | C:\Users\ngocn\OneDrive\1 Personal\1 NOUS\MEMOPYK EURL\Systems\MEMOPYK Website\memopyk-clean |
-| Staging URL | https://memopyk.memopyk.com |
-| Production URL | https://memopyk.com |
-| Tech stack | React 18 + TypeScript + Vite (frontend), Express + Drizzle (backend), Supabase PostgreSQL |
-| Key docs | CLAUDE.md, docs/README.md, docs/migration/MIGRATION_PROGRESS.md |
 
 ---
 
 ## Tips
 
-- **One request at a time** — Easier to track and verify
-- **Include file paths** when you know them — Saves Claude time searching
-- **Screenshots for visual issues** — Worth 1000 words
-- **Always test** Claude Code's changes in browser before confirming done
-- **Update CLAUDE.md** at end of major work sessions
+- One request at a time — Easier to track and verify
+- Include file paths when you know them
+- Screenshots for visual issues
+- Always test Claude Code's changes before confirming done
 
 ---
 
 ## End of Session
 
-Ask Claude Code:
-
-```
-Update CLAUDE.md with what we accomplished today, current status, and next steps.
-```
-
-This ensures future sessions have context.
+Ask Claude Code: Update CLAUDE.md "Recent Work" section with what we accomplished today.
