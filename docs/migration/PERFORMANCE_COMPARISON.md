@@ -69,23 +69,79 @@
 
 ---
 
-## Part 3: Lighthouse Audit
+## Part 3: Full Page Load (Lighthouse Mobile Simulation)
 
-*Note: Lighthouse requires a browser environment and was not available in this CLI context. For full Lighthouse audits, run manually:*
+### Automated Testing Note
+
+Lighthouse CLI could not run due to Windows permission issues with Chrome launcher temp directories. PageSpeed Insights API returned rate limit errors.
+
+### Manual Testing Required
+
+Run these commands in a browser-capable environment or use Chrome DevTools:
 
 ```bash
-# Install globally
-npm install -g lighthouse
+# Option 1: CLI (Linux/Mac or Windows with admin privileges)
+lighthouse https://memopyk.com \
+  --only-categories=performance \
+  --output=json \
+  --output-path=./replit-lighthouse.json \
+  --chrome-flags="--headless --no-sandbox"
 
-# Run audits
-lighthouse https://memopyk.com --output html --output-path ./replit-audit.html
-lighthouse https://memopyk.memopyk.com --output html --output-path ./coolify-audit.html
+lighthouse https://memopyk.memopyk.com \
+  --only-categories=performance \
+  --output=json \
+  --output-path=./coolify-lighthouse.json \
+  --chrome-flags="--headless --no-sandbox"
+
+# Option 2: Use Chrome DevTools
+# 1. Open Chrome DevTools (F12)
+# 2. Go to Lighthouse tab
+# 3. Select "Performance" category
+# 4. Click "Analyze page load"
 ```
 
-**Expected improvements on Coolify based on TTFB data:**
-- Faster First Contentful Paint (FCP)
-- Better Time to Interactive (TTI)
-- Improved Largest Contentful Paint (LCP)
+### Metrics to Compare
+
+| Metric | What it Measures | Target |
+|--------|------------------|--------|
+| **Performance Score** | Overall 0-100 | >90 |
+| **First Contentful Paint (FCP)** | First content visible | <1.8s |
+| **Largest Contentful Paint (LCP)** | Main content visible | <2.5s |
+| **Total Blocking Time (TBT)** | JS blocking interactivity | <200ms |
+| **Cumulative Layout Shift (CLS)** | Visual stability | <0.1 |
+| **Speed Index** | How fast content fills the page | <3.4s |
+| **Time to Interactive (TTI)** | Page fully usable | <3.8s |
+| **TTFB** | Server response time | <200ms |
+
+### Template for Results
+
+| Metric | Replit | Coolify | Target | Winner |
+|--------|--------|---------|--------|--------|
+| Performance Score | _/100 | _/100 | >90 | |
+| First Contentful Paint | _s | _s | <1.8s | |
+| Largest Contentful Paint | _s | _s | <2.5s | |
+| Total Blocking Time | _ms | _ms | <200ms | |
+| Cumulative Layout Shift | _ | _ | <0.1 | |
+| Speed Index | _s | _s | <3.4s | |
+| Time to Interactive | _s | _s | <3.8s | |
+| TTFB | _ms | _ms | <200ms | |
+
+### What These Mean
+
+- **FCP:** When user first sees something (not blank page)
+- **LCP:** When main content (hero video, main image) is visible
+- **TBT:** How long JavaScript blocks the page
+- **CLS:** Does the page jump around while loading?
+- **Speed Index:** Overall visual loading speed
+- **TTI:** When user can fully interact with the page
+
+### Expected Results Based on TTFB Data
+
+Given Coolify's 2-3x faster TTFB, we expect:
+- **Faster FCP** - Server responds sooner, content appears earlier
+- **Better LCP** - Main content loads faster
+- **Improved TTI** - Less waiting for server = faster interactivity
+- **Similar TBT/CLS** - These are client-side metrics, should be similar
 
 ---
 
