@@ -1,6 +1,6 @@
 # MEMOPYK Migration Progress Report
 
-**Last Updated:** 2026-01-30
+**Last Updated:** 2026-01-31
 **Status:** Staging Live - Ready for Production Cutover
 
 ---
@@ -24,10 +24,18 @@
 
 ## Performance Comparison
 
+**Full Report:** `docs/migration/PERFORMANCE_COMPARISON.md`
+
 | Metric | Replit | Coolify | Improvement |
 |--------|--------|---------|-------------|
-| Avg Response Time | 450ms | 150ms | **67% faster** |
-| Some Endpoints | 600ms | 100ms | **6x faster** |
+| Homepage TTFB (avg) | 348ms | 121ms | **2.9x faster** |
+| French Page TTFB | 275ms | 131ms | **2.1x faster** |
+| API Response (avg) | 508ms | 141ms | **3.6x faster** |
+| Gallery API | 984ms | 129ms | **7.6x faster** |
+| FAQ API | 760ms | 121ms | **6.3x faster** |
+| Blog Posts API | 250ms | 97ms | **2.6x faster** |
+
+*Tested 2026-01-31 with 5 runs per endpoint*
 
 ---
 
@@ -179,6 +187,8 @@ Any component using `useMap()` or `useMapEvents()` triggered infinite recursion 
 | `CLAUDE.md` | Project context for Claude Code sessions |
 | `PARTNER_DIRECTORY_LEAFLET_BUG_REPORT.md` | Full Leaflet crash diagnostic |
 | `docs/migration/MIGRATION_PROGRESS.md` | This file |
+| `docs/migration/PERFORMANCE_COMPARISON.md` | Detailed Replit vs Coolify benchmarks |
+| `docs/migration/ADMIN_ANALYTICS_GUIDE.md` | Analytics system documentation |
 | `vite.config.ts` | Build configuration (aligned with working setup) |
 | `Dockerfile` | Production container definition |
 
