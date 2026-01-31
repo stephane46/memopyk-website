@@ -129,6 +129,169 @@ router.post('/ga4/mp', express.json(), async (req: Request, res: Response) => {
 });
 
 // ============================================================================
+// Unified GA4 Report Endpoint
+// Routes to different handlers based on ?report= parameter
+// ============================================================================
+
+router.get('/ga4/report', async (req: Request, res: Response) => {
+  const reportType = String(req.query.report || '');
+  const startDate = String(req.query.startDate || req.query.start || '');
+  const endDate = String(req.query.endDate || req.query.end || '');
+  const period = String(req.query.period || req.query.preset || '30d');
+  const videoId = String(req.query.videoId || '');
+  const limit = parseInt(String(req.query.limit || '10'), 10);
+
+  console.log(`📊 [GA4 Report] type=${reportType}, period=${period}`);
+
+  try {
+    switch (reportType) {
+      case 'topVideos': {
+        const videoStats = await videoAnalyticsService.getVideoStats(
+          period,
+          startDate || undefined,
+          endDate || undefined
+        );
+
+        // Return in format expected by frontend (with 'videos' key)
+        res.json({
+          videos: videoStats.map(v => ({
+            videoId: v.videoId,
+            title: v.title,
+            views: v.views,
+            uniqueViewers: v.uniqueViewers,
+            averageWatchTime: v.averageWatchTime,
+            completionRate: v.completionRate,
+            engagement: v.engagement,
+            // Legacy aliases
+            video_id: v.videoId,
+            plays: v.views,
+            avgWatchSeconds: v.averageWatchTime,
+            reach50Pct: v.reach50Pct,
+            completePct: v.completionRate,
+          })),
+          topVideos: videoStats.map(v => ({
+            videoId: v.videoId,
+            title: v.title,
+            views: v.views,
+            uniqueViewers: v.uniqueViewers,
+            averageWatchTime: v.averageWatchTime,
+            completionRate: v.completionRate,
+            engagement: v.engagement,
+          })),
+          totalViews: videoStats.reduce((sum, v) => sum + v.views, 0),
+          totalUniqueViewers: videoStats.reduce((sum, v) => sum + v.uniqueViewers, 0),
+          averageCompletionRate: videoStats.length > 0
+            ? Math.round(videoStats.reduce((sum, v) => sum + v.completionRate, 0) / videoStats.length)
+            : 0,
+          timestamp: new Date().toISOString(),
+          cached: false,
+        });
+        break;
+      }
+
+      case 'videoFunnel': {
+        if (!videoId) {
+          return res.status(400).json({ error: 'Missing videoId parameter' });
+        }
+        const funnel = await videoAnalyticsService.getVideoFunnel(
+          videoId,
+          period,
+          startDate || undefined,
+          endDate || undefined
+        );
+        res.json({
+          funnel,
+          timestamp: new Date().toISOString(),
+          cached: false,
+        });
+        break;
+      }
+
+      case 'geo': {
+        // Stub for geo data - would need a geo analytics service
+        res.json({
+          countries: [],
+          topCountries: [],
+          timestamp: new Date().toISOString(),
+          cached: false,
+          stub: true,
+        });
+        break;
+      }
+
+      case 'trends': {
+        // Redirect to the trends endpoint logic
+        // Parse dates
+        const now = new Date();
+        const defaultStart = new Date(now);
+        defaultStart.setDate(defaultStart.getDate() - 30);
+
+        const parsedStartDate = startDate ? parseDate(startDate) : defaultStart;
+        const parsedEndDate = endDate ? parseDate(endDate) : now;
+
+        const sessions = await db
+          .select()
+          .from(analyticsSessions)
+          .where(
+            and(
+              gte(analyticsSessions.createdAt, parsedStartDate),
+              lte(analyticsSessions.createdAt, parsedEndDate),
+              eq(analyticsSessions.isTestData, false)
+            )
+          )
+          .orderBy(desc(analyticsSessions.createdAt));
+
+        // Group by date
+        const dailyMap = new Map<string, { sessions: number; uniqueIPs: Set<string>; totalDuration: number }>();
+
+        for (const session of sessions) {
+          const dateKey = formatDateToYYYYMMDD(session.createdAt || new Date());
+          if (!dailyMap.has(dateKey)) {
+            dailyMap.set(dateKey, { sessions: 0, uniqueIPs: new Set(), totalDuration: 0 });
+          }
+          const day = dailyMap.get(dateKey)!;
+          day.sessions++;
+          if (session.ipAddress) day.uniqueIPs.add(session.ipAddress);
+          day.totalDuration += session.sessionDuration || 0;
+        }
+
+        const dailyData = Array.from(dailyMap.entries())
+          .map(([date, data]) => ({
+            date,
+            sessions: data.sessions,
+            users: data.uniqueIPs.size,
+            avgSessionDuration: data.sessions > 0 ? Math.round(data.totalDuration / data.sessions) : 0,
+          }))
+          .sort((a, b) => a.date.localeCompare(b.date));
+
+        res.json({
+          dailyData,
+          periodAggregates: {
+            periodSessions: sessions.length,
+            periodUsers: new Set(sessions.map(s => s.ipAddress).filter(Boolean)).size,
+          },
+          timestamp: new Date().toISOString(),
+          cached: false,
+        });
+        break;
+      }
+
+      default:
+        res.status(400).json({
+          error: 'Invalid report type',
+          message: `Unknown report type: ${reportType}. Valid types: topVideos, videoFunnel, geo, trends`,
+        });
+    }
+  } catch (error: any) {
+    console.error(`❌ [GA4 Report] Error for ${reportType}:`, error);
+    res.status(500).json({
+      error: 'Failed to fetch report',
+      message: error.message,
+    });
+  }
+});
+
+// ============================================================================
 // GA4 Realtime API
 // ============================================================================
 
