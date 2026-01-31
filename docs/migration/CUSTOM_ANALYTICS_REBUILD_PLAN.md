@@ -389,7 +389,7 @@ memopyk-clean/server/services/analytics/
 ### Phase: Planning
 | Date | Action | Result |
 |------|--------|--------|
-| Jan 30 | Created ADMIN_ANALYTICS_GUIDE.md | ✅ Requirements documented |
+| Jan 30 | Created ADMIN_ANALYTICS_GUIDE.md | ✅ Requirements documented (merged into docs/guides/ANALYTICS.md) |
 | Jan 31 | Claude Code inventory analysis | ✅ 7 tables, 58 endpoints, source files identified |
 | Jan 31 | Created this rebuild plan | ✅ Priorities defined |
 

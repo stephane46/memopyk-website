@@ -188,7 +188,7 @@ Any component using `useMap()` or `useMapEvents()` triggered infinite recursion 
 | `PARTNER_DIRECTORY_LEAFLET_BUG_REPORT.md` | Full Leaflet crash diagnostic |
 | `docs/migration/MIGRATION_PROGRESS.md` | This file |
 | `docs/migration/PERFORMANCE_COMPARISON.md` | Detailed Replit vs Coolify benchmarks |
-| `docs/migration/ADMIN_ANALYTICS_GUIDE.md` | Analytics system documentation |
+| `docs/guides/ANALYTICS.md` | Analytics system documentation |
 | `vite.config.ts` | Build configuration (aligned with working setup) |
 | `Dockerfile` | Production container definition |
 

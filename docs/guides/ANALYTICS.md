@@ -1,40 +1,84 @@
 # Analytics System Guide
 
-**Last verified:** January 31, 2026  
-**Status:** GA4 active, custom analytics functional
+**Last verified:** January 31, 2026
+**Status:** GA4 active, custom analytics functional (P1-P8 rebuild complete)
 
 ---
 
-## Current Analytics Stack
+## Overview
 
-| Service | Purpose | Status |
-|---------|---------|--------|
-| **Google Analytics 4** | Primary web analytics | ✅ Active |
-| **Microsoft Clarity** | Session recordings, heatmaps | ✅ Active |
-| **OpenReplay** | Session replay, debugging | ✅ Active |
-| **Custom Analytics** | Video tracking, admin dashboard | ✅ Functional |
+MEMOPYK uses a **dual-stream analytics architecture**:
+
+| Service | Purpose | Data Location | Latency |
+|---------|---------|---------------|---------|
+| **Custom Supabase** | Video tracking, admin dashboard, IP exclusion | VPS PostgreSQL | Real-time |
+| **Google Analytics 4** | Long-term trends, audience demographics, SEO | Google BigQuery | 24-48h delay |
+| **Microsoft Clarity** | Session recordings, heatmaps, rage clicks | Microsoft cloud | Real-time |
+| **OpenReplay** | Session replay, debugging | Self-hosted option | Real-time |
+
+### When to Use Which
+
+- **Custom Analytics**: Day-to-day monitoring, real-time visitors, video performance, IP exclusion accuracy
+- **GA4**: Long-term trends, audience demographics, Google Ads integration, monthly reports
+- **Clarity/OpenReplay**: UX debugging, identifying friction points
+
+---
+
+## Database Tables
+
+Analytics data is stored in 8 Supabase tables:
+
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| `analytics_sessions` | Visitor sessions | session_id, ip_address, country_code, device_category, session_duration, is_bounce, is_returning |
+| `analytics_views` | Page/video views | view_id, session_id, video_id, video_type, completion_percentage, watched_to_end |
+| `realtime_visitors` | Currently active | session_id, current_page, last_seen, is_active |
+| `performance_metrics` | Page/video load times | metric_type, metric_name, value, unit |
+| `engagement_heatmap` | Click/scroll tracking | page_url, element_id, event_type, x_position, y_position |
+| `conversion_funnel` | Funnel step completion | funnel_step, step_order, completed_at |
+| `analytics_exclusions` | IP filtering rules | ip_cidr, label, active, applies_from |
+| `blog_post_views` | Blog-specific tracking | post_slug, session_id, time_on_page |
+
+**Note:** Legacy tables `analytics_events` (8,512 rows) and `analytics_conversions` (10 rows) exist in database but are NOT in schema.ts — these are from old Replit system and should eventually be dropped.
+
+---
+
+## Custom vs GA4 Comparison
+
+| Feature | Custom Supabase | Google Analytics 4 |
+|---------|-----------------|-------------------|
+| Data ownership | 100% owned | Google-hosted |
+| Real-time | Yes, instant | 24-48 hour delay |
+| IP exclusion | Full control, immediate | Limited, delayed |
+| Video watch duration | ✅ Seconds precision | ❌ Not tracked |
+| Video completion % | ✅ Yes | ❌ Not tracked |
+| Session deduplication | 30-second window | Google's algorithm |
+| Admin interface | Integrated in /admin | Separate GA4 UI |
 
 ---
 
 ## Admin Dashboard
 
-Access: `/admin` → Analytics section
+**Access:** `/admin` → Analytics section
+
+### Time Period Filters
+- **7d** / **30d** (default) / **90d**
+- Active filter shows orange highlight
 
 ### Dashboard Sections
 
-| Section | Data Source | Description |
-|---------|-------------|-------------|
-| Overview | Custom + GA4 | Visitors, sessions, page views |
-| Video Performance | Custom | Play counts, completion rates, engagement |
-| Geographic | Custom | Visitor locations, country breakdown |
+| Section | Data Source | Metrics |
+|---------|-------------|---------|
+| Overview | Custom + GA4 | Total views, unique visitors, new vs returning, bounce rate, avg session duration |
+| Video Performance | Custom | Views per video, watch duration, completion %, hero vs gallery breakdown |
+| Geographic | Custom | Country breakdown with flags, top countries |
 | Trends | Custom | Traffic over time, patterns |
 | Live Visitors | Custom | Real-time active users |
+| Blog Analytics | Custom | Post views by language (FR/EN), popular posts |
 
 ---
 
 ## Video Tracking
-
-The custom analytics system tracks video interactions throughout the site.
 
 ### Tracked Events
 
@@ -47,102 +91,43 @@ The custom analytics system tracks video interactions throughout the site.
 
 ### Video Types
 
-| Type | Location | Purpose |
-|------|----------|---------|
-| `hero` | Homepage hero section | Showcase videos |
-| `gallery` | Gallery section | Portfolio items |
+| Type | Location |
+|------|----------|
+| `hero` | Homepage hero section |
+| `gallery` | Gallery section portfolio items |
 
 ---
 
-## Database Tables
+## IP Exclusion System
 
-Analytics data is stored across several tables:
+Exclude internal traffic (developers, team, bots) from analytics.
 
-| Table | Purpose |
-|-------|---------|
-| `analytics_sessions` | Session tracking with device/geo data |
-| `analytics_views` | Page and video view events |
-| `realtime_visitors` | Currently active visitors |
-| `performance_metrics` | Page load, video load times |
-| `engagement_heatmap` | Click/scroll tracking |
-| `conversion_funnel` | Funnel step completion |
-| `analytics_exclusions` | IP/visitor filtering rules |
-| `blog_post_views` | Blog-specific view tracking |
+### How It Works
+1. IP addresses stored in `analytics_exclusions` table
+2. Every analytics event checks against exclusion list before recording
+3. Excluded IPs get "🟠 IP Filtered" badge in dashboard
+4. Exclusions are complete — no partial data leaks
 
----
+### Managing Exclusions (Admin Dashboard)
+- **Add IP**: Enter IP address and optional comment
+- **Edit**: Update comments for existing exclusions
+- **Delete**: Remove exclusion to start tracking that IP
 
-## GA4 Configuration
+### Current Exclusions
 
-### Environment Variables
+| IP | Label |
+|----|-------|
+| 109.17.150.48 | Capdenac home network |
+| 0.0.0.0 | Local development traffic |
 
-```env
-GA4_API_SECRET=your-ga4-secret
-GA4_MEASUREMENT_ID=G-XXXXXXXXXX
-```
-
-### Tracked Events (GA4)
-
-| Event | Category | Description |
-|-------|----------|-------------|
-| `page_view` | Navigation | All page loads |
-| `video_start` | Engagement | Video play initiated |
-| `video_complete` | Engagement | Video watched to end |
-| `form_submit` | Conversion | Contact form submission |
-| `cta_click` | Engagement | CTA button clicks |
-
----
-
-## Microsoft Clarity
-
-Provides session recordings and heatmaps.
-
-### Configuration
-
-```env
-CLARITY_PROJECT_ID=your-clarity-id
-```
-
-### Features Used
-
-- Session recordings
-- Heatmaps (click, scroll)
-- Rage click detection
-- Dead click detection
-
----
-
-## OpenReplay
-
-Session replay for debugging and UX analysis.
-
-### Configuration
-
-```env
-OPENREPLAY_PROJECT_KEY=your-project-key
-```
-
----
-
-## IP Exclusions
-
-Filter out internal traffic from analytics.
-
-### Managing Exclusions
-
-Exclusions are stored in `analytics_exclusions` table:
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `ip_cidr` | TEXT | IP address or CIDR range |
-| `label` | TEXT | Human-readable reason |
-| `active` | BOOLEAN | Whether exclusion is active |
-| `applies_from` | TIMESTAMP | When exclusion takes effect |
-
-### Adding Exclusions
-
+### SQL Example
 ```sql
+-- Add exclusion
 INSERT INTO analytics_exclusions (ip_cidr, label, active)
 VALUES ('192.168.1.0/24', 'Office network', true);
+
+-- View active exclusions
+SELECT * FROM analytics_exclusions WHERE active = true;
 ```
 
 ---
@@ -167,45 +152,43 @@ VALUES ('192.168.1.0/24', 'Office network', true);
 | `/api/analytics/realtime` | GET | Current active visitors |
 | `/api/analytics/trends` | GET | Traffic trends |
 
+### IP Exclusions
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/ip-exclusions` | GET | List all excluded IPs |
+| `/api/ip-exclusions` | POST | Add new exclusion |
+| `/api/ip-exclusions/:ip` | PATCH | Update exclusion comment |
+| `/api/ip-exclusions/:ip` | DELETE | Remove exclusion |
+
+### GA4 Data
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/ga4/kpis` | GET | Key performance indicators |
+| `/api/ga4/top-videos` | GET | Top performing videos |
+| `/api/ga4/countries` | GET | Geographic breakdown |
+
 ---
 
-## Troubleshooting
+## Configuration
 
-### No Data Appearing
+### Environment Variables
+```env
+# GA4
+GA4_API_SECRET=your-ga4-secret
+GA4_MEASUREMENT_ID=G-XXXXXXXXXX
 
-1. **Check GA4 configuration:**
-   ```bash
-   echo $GA4_MEASUREMENT_ID
-   echo $GA4_API_SECRET
-   ```
+# Microsoft Clarity
+CLARITY_PROJECT_ID=your-clarity-id
 
-2. **Verify tracking script loads:**
-   - Open browser DevTools → Network
-   - Filter by "analytics" or "gtag"
-   - Check for successful requests
+# OpenReplay (optional)
+OPENREPLAY_PROJECT_KEY=your-project-key
+```
 
-3. **Check for IP exclusions:**
-   ```sql
-   SELECT * FROM analytics_exclusions WHERE active = true;
-   ```
-
-### Video Events Not Tracking
-
-1. Check browser console for errors
-2. Verify video elements have correct data attributes
-3. Test in incognito mode (no ad blockers)
-
-### GA4 Data Delayed
-
-GA4 data can be delayed up to 24-48 hours. Check:
-- Realtime report in GA4 dashboard for immediate data
-- Custom analytics tables for instant data
-
-### Session Not Creating
-
-1. Check session cookie settings
-2. Verify `SESSION_SECRET` environment variable is set
-3. Check server logs for session errors
+### GA4 Property
+- **Property ID**: 501023254
+- **Measurement ID**: Stored in `GA4_MEASUREMENT_ID` secret
 
 ---
 
@@ -219,28 +202,70 @@ GA4 data can be delayed up to 24-48 hours. Check:
 | Performance metrics | 30 days | Sampled for trends |
 
 ### Cleanup Query
-
 ```sql
 -- Remove old sessions
-DELETE FROM analytics_sessions 
+DELETE FROM analytics_sessions
 WHERE created_at < NOW() - INTERVAL '90 days';
 
 -- Remove old video views
-DELETE FROM analytics_views 
+DELETE FROM analytics_views
 WHERE created_at < NOW() - INTERVAL '90 days';
 ```
 
 ---
 
-## Future Enhancements
+## Historical Data Quality
 
-Planned improvements:
+**Important:** Analytics data collected before January 31, 2026 has known quality issues from old Replit `hybrid-storage.ts` bugs:
 
-- [ ] A/B testing integration
-- [ ] Custom funnel builder
-- [ ] Automated reports
-- [ ] Cohort analysis
-- [ ] Attribution modeling
+| Metric | Pre-2026 Status | Notes |
+|--------|-----------------|-------|
+| Sessions | ✅ Reliable | 9,018 sessions since Aug 2025 |
+| Unique Visitors | ✅ Reliable | Based on IP address |
+| Page Views | ❌ Unreliable | Only 71 records vs 9,018 sessions |
+| Session Duration | ❌ Unreliable | 94% show 0 seconds |
+| Bounce Rate | ❌ Unreliable | Logic was broken |
+| Video Analytics | ❌ Unreliable | Sparse data |
+
+**Recommendation:** Use GA4 for pre-2026 historical analysis. New system (rebuilt Jan 31, 2026) properly tracks all metrics.
+
+---
+
+## Troubleshooting
+
+### No Data in Dashboard
+1. Check date range filter (try 30d)
+2. Verify your IP is not excluded
+3. Check browser console for API errors
+4. Verify Supabase connection is healthy
+
+### IP Exclusion Not Working
+1. Verify IP format (e.g., `109.17.150.48`)
+2. Check if using VPN/proxy
+3. Clear browser cache and reload
+4. Verify exclusion exists in admin panel
+
+### Video Events Not Tracking
+1. Check browser console for errors
+2. Verify video elements have correct data attributes
+3. Test in incognito mode (no ad blockers)
+
+### GA4 Data Delayed
+- Normal: GA4 has 24-48 hour processing delay
+- Check Realtime report in GA4 dashboard for immediate data
+- Custom analytics provides instant data
+
+---
+
+## Files Reference
+
+| File | Purpose |
+|------|---------|
+| `shared/schema.ts` | Database table definitions |
+| `server/routes/analytics.routes.ts` | Analytics API routes |
+| `server/services/analytics/` | Analytics service modules |
+| `client/src/components/admin/AnalyticsDashboard.tsx` | Admin dashboard component |
+| `client/src/components/admin/GA4AnalyticsSection.tsx` | GA4 dashboard component |
 
 ---
 
