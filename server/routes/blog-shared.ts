@@ -5,11 +5,10 @@
  */
 
 import { Response } from 'express';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // Supabase client (lazy loaded)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let supabase: any;
+let supabase: SupabaseClient | null = null;
 
 export function getSupabase() {
   if (!supabase) {
