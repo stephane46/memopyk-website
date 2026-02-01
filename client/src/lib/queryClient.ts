@@ -1,7 +1,7 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 function getAdminAuthHeaders(): HeadersInit {
-  const isAdmin = window.location.pathname.startsWith('/admin');
+  const isAdmin = window.location.pathname.includes('/admin');
   if (isAdmin) {
     const token = import.meta.env.VITE_ADMIN_SECRET || '';
     if (token) {
