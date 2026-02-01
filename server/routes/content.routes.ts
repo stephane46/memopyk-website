@@ -243,15 +243,53 @@ router.patch('/topics/:id', requireAdmin, async (req: Request, res: Response) =>
 
 /**
  * DELETE /topics/:id
- * Delete topic
+ * Delete topic (with dependency check)
  */
 router.delete('/topics/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const sb = getSupabase();
+    const topicId = req.params.id;
+
+    // Check for dependent assignments
+    const { data: assignments, error: assignmentError } = await sb
+      .from('content_daily_assignments')
+      .select('id')
+      .eq('topic_id', topicId)
+      .limit(1);
+
+    if (assignmentError) throw assignmentError;
+
+    if (assignments && assignments.length > 0) {
+      return res.status(409).json({
+        error: 'Cannot delete topic with existing assignments',
+        code: 'HAS_ASSIGNMENTS',
+        hint: 'Delete or reassign the assignments first'
+      });
+    }
+
+    // Check for dependent blog posts
+    const { data: posts, error: postError } = await sb
+      .from('blog_posts')
+      .select('id, title')
+      .eq('source_topic_id', topicId)
+      .limit(5);
+
+    if (postError) throw postError;
+
+    if (posts && posts.length > 0) {
+      return res.status(409).json({
+        error: 'Cannot delete topic linked to blog posts',
+        code: 'HAS_POSTS',
+        posts: posts.map(p => ({ id: p.id, title: p.title })),
+        hint: 'Unlink or delete the blog posts first'
+      });
+    }
+
+    // Safe to delete
     const { error } = await sb
       .from('content_topics')
       .delete()
-      .eq('id', req.params.id);
+      .eq('id', topicId);
 
     if (error) throw error;
     res.json({ success: true });
