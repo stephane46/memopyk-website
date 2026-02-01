@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -34,21 +34,6 @@ export function ContentProductionKeywords() {
   const { data: keywords = [], isLoading } = useQuery<ContentKeyword[]>({
     queryKey: ['/api/admin/content/keywords'],
   });
-
-  // DOM manipulation fix for Tier 1 badge colors (CSS classes not applying)
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const badges = document.querySelectorAll('[data-tier-badge]');
-      badges.forEach((badge) => {
-        const tier = badge.getAttribute('data-tier-badge');
-        if (tier === '1') {
-          (badge as HTMLElement).style.setProperty('background-color', '#FED7AA', 'important');
-          (badge as HTMLElement).style.setProperty('color', '#9A3412', 'important');
-        }
-      });
-    }, 50);
-    return () => clearTimeout(timeout);
-  }, [keywords]);
 
   const handleSort = (column: SortColumn) => {
     if (sortColumn === column) {

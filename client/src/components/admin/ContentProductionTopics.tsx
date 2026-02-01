@@ -137,68 +137,6 @@ export function ContentProductionTopics() {
     }
   }, [topics]); // Re-run when topics data loads
 
-  // Apply highlight styling via DOM manipulation using topicRefs (CSS classes fail to render)
-  useEffect(() => {
-    if (!highlightedTopicId || topics.length === 0) return;
-
-    console.log('🎯 HIGHLIGHT EFFECT TRIGGERED', {
-      highlightedTopicId,
-      topicsLength: topics.length,
-      refsKeys: Object.keys(topicRefs.current)
-    });
-
-    // Retry until element exists (data may load asynchronously)
-    let retryCount = 0;
-    const maxRetries = 10;
-    
-    const applyHighlight = () => {
-      const element = topicRefs.current[highlightedTopicId];
-      
-      console.log(`🔍 Attempt ${retryCount + 1}: Looking for element`, {
-        highlightedTopicId,
-        elementFound: !!element,
-        elementType: element?.tagName,
-        allRefs: Object.keys(topicRefs.current)
-      });
-      
-      if (element) {
-        console.log('✅ APPLYING ORANGE STYLES to element:', element);
-        // Successfully found element, apply styling
-        element.style.setProperty('background-color', 'rgba(214, 124, 74, 0.1)', 'important');
-        element.style.setProperty('border', '2px solid #D67C4A', 'important');
-        element.style.setProperty('border-radius', '8px', 'important');
-        element.style.setProperty('padding', '8px', 'important');
-        element.style.setProperty('transition', 'all 0.5s ease', 'important');
-
-        console.log('🎨 Styles applied, computed styles:', {
-          backgroundColor: element.style.backgroundColor,
-          border: element.style.border,
-          borderRadius: element.style.borderRadius,
-          padding: element.style.padding
-        });
-
-        // Remove styling after 3 seconds
-        setTimeout(() => {
-          console.log('🧹 Removing highlight styles');
-          element.style.removeProperty('background-color');
-          element.style.removeProperty('border');
-          element.style.removeProperty('border-radius');
-          element.style.removeProperty('padding');
-        }, 3000);
-      } else if (retryCount < maxRetries) {
-        // Element not ready yet, retry
-        retryCount++;
-        setTimeout(applyHighlight, 50);
-      } else {
-        console.error('❌ FAILED to find element after max retries');
-      }
-    };
-
-    // Start applying highlight after brief delay
-    const timeout = setTimeout(applyHighlight, 100);
-    return () => clearTimeout(timeout);
-  }, [highlightedTopicId, topics]);
-
   const filteredTopics = topics.filter(topic => {
     const matchesSearch = topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                         topic.primary_keyword.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -451,9 +389,10 @@ export function ContentProductionTopics() {
           ) : (
             <Accordion type="single" collapsible className="w-full">
               {filteredTopics.map((topic) => (
-                <div 
-                  key={topic.id} 
+                <div
+                  key={topic.id}
                   ref={(el) => { topicRefs.current[topic.id] = el; }}
+                  className={highlightedTopicId === topic.id ? 'ring-2 ring-[#D67C4A] bg-orange-50 rounded-lg p-2 transition-all duration-500' : ''}
                 >
                   <AccordionItem value={topic.id} data-testid={`topic-${topic.id}`} className="border-none">
                     <AccordionTrigger className="hover:no-underline">
