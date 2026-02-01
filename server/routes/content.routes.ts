@@ -81,17 +81,26 @@ router.get('/topics', requireAdmin, async (req: Request, res: Response) => {
 
     if (error) throw error;
 
-    // Add post_count to each topic
-    const topicsWithCounts = await Promise.all(
-      (topics || []).map(async (topic) => {
-        const { count } = await sb
-          .from('blog_posts')
-          .select('*', { count: 'exact', head: true })
-          .eq('source_topic_id', topic.id);
+    // Get post counts in a single query (fixes N+1 problem)
+    const { data: postCounts, error: countError } = await sb
+      .from('blog_posts')
+      .select('source_topic_id')
+      .not('source_topic_id', 'is', null);
 
-        return { ...topic, post_count: count || 0 };
-      })
-    );
+    if (countError) throw countError;
+
+    // Build count map
+    const countMap = new Map<string, number>();
+    (postCounts || []).forEach((post: { source_topic_id: string }) => {
+      const current = countMap.get(post.source_topic_id) || 0;
+      countMap.set(post.source_topic_id, current + 1);
+    });
+
+    // Merge counts into topics
+    const topicsWithCounts = (topics || []).map((topic) => ({
+      ...topic,
+      post_count: countMap.get(topic.id) || 0
+    }));
 
     res.json(topicsWithCounts);
   } catch (error: any) {
