@@ -24,6 +24,9 @@ import contentRoutes from "./routes/content.routes";
 
 import seoRoutes from "./routes/seo.routes";
 import blogRoutes from "./routes/blog.routes";
+import blogTagsRoutes from "./routes/blog-tags.routes";
+import blogAdminRoutes from "./routes/blog-admin.routes";
+import blogImagesRoutes from "./routes/blog-images.routes";
 import mediaRoutes from "./routes/media.routes";
 import analyticsLegacyRoutes from "./routes/analytics-legacy.routes";
 import travelUploadRoutes from "./routes/travel-upload.routes";
@@ -70,8 +73,11 @@ export async function registerRoutes(app: Express): Promise<void> {
   // SEO routes
   app.use("/api", seoRoutes);               // /api/seo/*, /api/seo-config, /api/admin/seo/*
 
-  // Blog routes
-  app.use("/api", blogRoutes);              // /api/blog/*, /api/blog-tags, /api/admin/blog/*
+  // Blog routes (split into 4 modules)
+  app.use("/api", blogRoutes);              // /api/blog/* (public routes)
+  app.use("/api", blogTagsRoutes);          // /api/blog-tags, /api/admin/blog/tags, /api/admin/blog/posts/:id/tags
+  app.use("/api", blogAdminRoutes);         // /api/admin/blog/posts, /api/admin/blog/create-from-ai
+  app.use("/api", blogImagesRoutes);        // /api/admin/blog/images
 
   // Media routes (paths already include /api prefix)
   app.use(mediaRoutes);                     // /api/upload/*, /api/video-cache/*, /api/video-proxy, etc.
@@ -79,7 +85,7 @@ export async function registerRoutes(app: Express): Promise<void> {
   // Travel Upload Portal routes (paths already include /api prefix)
   app.use(travelUploadRoutes);              // /api/travel-upload/*, /api/travel-agency-codes/*
 
-  console.log("✅ All 17 route modules registered: health, hero, gallery, faq, contact, cta, legal, analytics, analytics-legacy(stub), newsletter, partners, admin, content, seo, blog, media, travel-upload");
+  console.log("✅ All 20 route modules registered: health, hero, gallery, faq, contact, cta, legal, analytics, analytics-legacy(stub), newsletter, partners, admin, content, seo, blog, blog-tags, blog-admin, blog-images, media, travel-upload");
   console.log("✅ All routes migrated ✅");
 }
 
