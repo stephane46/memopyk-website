@@ -4,18 +4,19 @@ Quick reference for reporting issues and requesting changes.
 
 ---
 
-## Roles
+## Roles & Ownership
 
-| Who | Responsibility |
-|-----|----------------|
-| **Stéphane** | Makes decisions, approves plans, tests results in browser |
-| **Claude Chat** | Planning, documentation, verification. Owns all .md files. Has full project context and memory. |
-| **Claude Code** | Executes code changes and commands, reports findings and what was done |
+| Who | Owns | Responsibility |
+|-----|------|----------------|
+| **Stéphane** | Decisions | Makes decisions, approves plans, tests results in browser |
+| **Claude Chat** | Documentation (*.md) | Writes/updates all markdown files directly, planning, verification |
+| **Claude Code** | Code (*.ts, *.tsx, etc.) | Executes code changes and commands, reports back |
 
 **Key rules:**
-- **Code changes:** Claude Chat creates prompts → Claude Code executes → Claude Chat verifies
-- **Documentation:** Claude Chat updates directly (no prompt needed)
-- Claude Chat MUST put Claude Code prompts in a single code block (for easy copy-paste), separate from explanations
+- **Claude Chat writes documentation directly** — no prompts needed for .md files
+- **Claude Code writes code** — Claude Chat creates prompts for code changes only
+- Claude Chat verifies Claude Code's work by reading files
+- Claude Chat MUST put Claude Code prompts in a single code block (for easy copy-paste)
 
 ---
 
@@ -45,23 +46,21 @@ It's been a while. Please also check:
 
 ## The Workflow
 
-**For code changes:**
-
-1. YOU → Describe request to Claude Chat
-2. CLAUDE CHAT → Reads files, asks questions, creates Claude Code prompt
-3. YOU → Paste prompt to Claude Code
-4. CLAUDE CODE → Executes, reports back
-5. CLAUDE CHAT → Verifies by reading files
-6. YOU → Test in browser, confirm done
-7. CLAUDE CODE → Commits and pushes to `staging` (default)
-
-**For documentation:**
-
-1. YOU → Describe what needs documenting (or Claude Chat notices)
-2. CLAUDE CHAT → Updates the documentation files directly
+**For Documentation (.md files):**
+1. YOU         → Describe what docs need updating
+2. CLAUDE CHAT → Writes/updates the .md files directly
 3. CLAUDE CODE → Commits and pushes to `staging` (default)
 
-⚠️ **Deploy where?** Always push to `staging` first. Only push to `main` when Stéphane explicitly says to promote to main. If unclear, ask: "Deploy to staging or main?"
+**For Code Changes:**
+1. YOU         → Describe request to Claude Chat
+2. CLAUDE CHAT → Reads files, asks questions, creates Claude Code prompt
+3. YOU         → Paste prompt to Claude Code
+4. CLAUDE CODE → Executes, reports back
+5. CLAUDE CHAT → Verifies by reading files
+6. YOU         → Test in browser, confirm done
+7. CLAUDE CODE → Commits and pushes to `staging` (default)
+
+⚠️ **Deploy where?** Always push to `staging` first. Only push to `main` when Stéphane explicitly says to promote. If unclear, ask: "Deploy to staging or main?"
 
 ---
 
