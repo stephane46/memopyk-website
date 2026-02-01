@@ -13,6 +13,7 @@
 import { Router, Request, Response } from 'express';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { requireAdmin } from '../middleware/auth.middleware';
+import { z } from 'zod';
 
 const router = Router();
 
@@ -29,6 +30,55 @@ function getSupabase(): SupabaseClient {
   }
   return supabase;
 }
+
+// ==============================================
+// VALIDATION SCHEMAS
+// ==============================================
+
+const topicSchema = z.object({
+  title: z.string().min(1).max(500),
+  slug: z.string().min(1).max(200),
+  category: z.string().min(1).max(100),
+  type: z.string().min(1).max(50),
+  target_word_count: z.number().int().positive().optional(),
+  primary_keyword: z.string().min(1).max(200),
+  secondary_keywords: z.array(z.string()).optional(),
+  search_volume: z.number().int().nonnegative().nullable().optional(),
+  competition: z.string().max(50).nullable().optional(),
+  search_intent: z.string().max(100).optional(),
+  content_angle: z.string().max(500).optional(),
+  description: z.string().max(2000).optional(),
+  hero_image_concept: z.string().max(500).nullable().optional(),
+  body_image_concepts: z.array(z.string()).nullable().optional(),
+  priority: z.number().int().min(1).max(5).optional(),
+  status: z.string().max(50).optional(),
+  memopyk_link_opportunities: z.string().max(1000).nullable().optional(),
+});
+
+const topicUpdateSchema = topicSchema.partial();
+
+const planSchema = z.object({
+  week_number: z.string().min(1).max(20),
+  year: z.number().int().min(2020).max(2100),
+  start_date: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}/)),
+  end_date: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}/)),
+  topics_selected: z.array(z.string().uuid()).optional(),
+  status: z.string().max(50).optional(),
+  time_spent_minutes: z.number().int().nonnegative().optional(),
+  notes: z.string().max(2000).optional(),
+});
+
+const planUpdateSchema = planSchema.partial();
+
+const assignmentSchema = z.object({
+  date: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}/)),
+  topicId: z.string().uuid(),
+  postId: z.string().uuid().optional(),
+  status: z.enum(['planned', 'in_progress', 'published']).optional(),
+  notes: z.string().max(1000).nullable().optional(),
+});
+
+const assignmentUpdateSchema = assignmentSchema.partial();
 
 // ============================================
 // KEYWORDS
@@ -138,10 +188,18 @@ router.get('/topics/:id', requireAdmin, async (req: Request, res: Response) => {
  */
 router.post('/topics', requireAdmin, async (req: Request, res: Response) => {
   try {
+    const parsed = topicSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors
+      });
+    }
+
     const sb = getSupabase();
     const { data, error } = await sb
       .from('content_topics')
-      .insert(req.body)
+      .insert(parsed.data)
       .select()
       .single();
 
@@ -159,10 +217,18 @@ router.post('/topics', requireAdmin, async (req: Request, res: Response) => {
  */
 router.patch('/topics/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
+    const parsed = topicUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors
+      });
+    }
+
     const sb = getSupabase();
     const { data, error } = await sb
       .from('content_topics')
-      .update({ ...req.body, updated_at: new Date().toISOString() })
+      .update({ ...parsed.data, updated_at: new Date().toISOString() })
       .eq('id', req.params.id)
       .select()
       .single();
@@ -252,10 +318,18 @@ router.get('/plans/:id', requireAdmin, async (req: Request, res: Response) => {
  */
 router.post('/plans', requireAdmin, async (req: Request, res: Response) => {
   try {
+    const parsed = planSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors
+      });
+    }
+
     const sb = getSupabase();
     const { data, error } = await sb
       .from('content_weekly_plans')
-      .insert(req.body)
+      .insert(parsed.data)
       .select()
       .single();
 
@@ -273,10 +347,18 @@ router.post('/plans', requireAdmin, async (req: Request, res: Response) => {
  */
 router.patch('/plans/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
+    const parsed = planUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors
+      });
+    }
+
     const sb = getSupabase();
     const { data, error } = await sb
       .from('content_weekly_plans')
-      .update({ ...req.body, updated_at: new Date().toISOString() })
+      .update({ ...parsed.data, updated_at: new Date().toISOString() })
       .eq('id', req.params.id)
       .select()
       .single();
@@ -390,14 +472,22 @@ router.get('/assignments/:id', requireAdmin, async (req: Request, res: Response)
  */
 router.post('/assignments', requireAdmin, async (req: Request, res: Response) => {
   try {
+    const parsed = assignmentSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors
+      });
+    }
+
     const sb = getSupabase();
 
     // Convert camelCase input to snake_case for database
     const insertData: any = {
-      date: req.body.date,
-      topic_id: req.body.topicId,
-      status: req.body.status || 'planned',
-      notes: req.body.notes || null
+      date: parsed.data.date,
+      topic_id: parsed.data.topicId,
+      status: parsed.data.status || 'planned',
+      notes: parsed.data.notes || null
     };
 
     const { data, error } = await sb
@@ -431,15 +521,23 @@ router.post('/assignments', requireAdmin, async (req: Request, res: Response) =>
  */
 router.patch('/assignments/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
+    const parsed = assignmentUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors
+      });
+    }
+
     const sb = getSupabase();
 
     // Convert camelCase input to snake_case
     const updateData: any = { updated_at: new Date().toISOString() };
-    if (req.body.date !== undefined) updateData.date = req.body.date;
-    if (req.body.topicId !== undefined) updateData.topic_id = req.body.topicId;
-    if (req.body.postId !== undefined) updateData.post_id = req.body.postId;
-    if (req.body.status !== undefined) updateData.status = req.body.status;
-    if (req.body.notes !== undefined) updateData.notes = req.body.notes;
+    if (parsed.data.date !== undefined) updateData.date = parsed.data.date;
+    if (parsed.data.topicId !== undefined) updateData.topic_id = parsed.data.topicId;
+    if (parsed.data.postId !== undefined) updateData.post_id = parsed.data.postId;
+    if (parsed.data.status !== undefined) updateData.status = parsed.data.status;
+    if (parsed.data.notes !== undefined) updateData.notes = parsed.data.notes;
 
     const { data, error } = await sb
       .from('content_daily_assignments')
