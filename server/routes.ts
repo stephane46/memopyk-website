@@ -20,6 +20,7 @@ import analyticsRoutes from "./routes/analytics.routes";
 import newsletterRoutes from "./routes/newsletter.routes";
 import partnersRoutes from "./routes/partners.routes";
 import adminRoutes from "./routes/admin.routes";
+import contentRoutes from "./routes/content.routes";
 
 import seoRoutes from "./routes/seo.routes";
 import blogRoutes from "./routes/blog.routes";
@@ -63,6 +64,9 @@ export async function registerRoutes(app: Express): Promise<void> {
   // Admin routes
   app.use("/api/admin", adminRoutes);       // /api/admin/country-names/*
 
+  // Content production routes
+  app.use("/api/admin/content", contentRoutes);  // /api/admin/content/topics, /api/admin/content/assignments, etc.
+
   // SEO routes
   app.use("/api", seoRoutes);               // /api/seo/*, /api/seo-config, /api/admin/seo/*
 
@@ -75,7 +79,7 @@ export async function registerRoutes(app: Express): Promise<void> {
   // Travel Upload Portal routes (paths already include /api prefix)
   app.use(travelUploadRoutes);              // /api/travel-upload/*, /api/travel-agency-codes/*
 
-  console.log("✅ All 16 route modules registered: health, hero, gallery, faq, contact, cta, legal, analytics, analytics-legacy(stub), newsletter, partners, admin, seo, blog, media, travel-upload");
+  console.log("✅ All 17 route modules registered: health, hero, gallery, faq, contact, cta, legal, analytics, analytics-legacy(stub), newsletter, partners, admin, content, seo, blog, media, travel-upload");
   console.log("✅ All routes migrated ✅");
 }
 
