@@ -760,59 +760,98 @@ router.post('/admin/blog/create-from-ai', requireAdmin, async (req: Request, res
     console.log(`✅ Blog post created: ${post.id} - ${post.title}`);
     
     // Status Synchronization with content topics and assignments
+    // Uses manual rollback since Supabase JS doesn't support transactions
     if (source_topic_id) {
+      const rollbackPost = async () => {
+        await supabase.from('blog_posts').delete().eq('id', post.id);
+        console.log(`🔄 Rolled back post ${post.id} due to sync failure`);
+      };
+
       try {
         const topicStatus = post.status === 'published' ? 'published' : 'in_progress';
-        
-        // Get current topic to increment times_generated
+
+        // Get current topic state for potential rollback
         const { data: currentTopic } = await supabase
           .from('content_topics')
-          .select('times_generated')
+          .select('status, times_generated')
           .eq('id', source_topic_id)
           .single();
-        
-        // Update topic
-        const { error: topicError } = await supabase
-          .from('content_topics')
-          .update({
-            status: topicStatus,
-            times_generated: (currentTopic?.times_generated || 0) + 1,
-            last_generated_at: new Date().toISOString()
-          })
-          .eq('id', source_topic_id);
-        
-        if (topicError) {
-          console.error('⚠️ Failed to update topic status:', topicError);
+
+        if (!currentTopic) {
+          console.warn(`⚠️ Topic ${source_topic_id} not found, skipping sync`);
         } else {
-          console.log(`✅ Topic ${source_topic_id} updated to ${topicStatus}`);
-        }
-        
-        // Find and update assignment
-        const { data: assignment } = await supabase
-          .from('content_daily_assignments')
-          .select('id')
-          .eq('topic_id', source_topic_id)
-          .single();
-        
-        if (assignment) {
-          const assignmentStatus = post.status === 'published' ? 'published' : 'in_progress';
-          
-          const { error: assignmentError } = await supabase
-            .from('content_daily_assignments')
+          // Update topic
+          const { error: topicError } = await supabase
+            .from('content_topics')
             .update({
-              post_id: post.id,
-              status: assignmentStatus
+              status: topicStatus,
+              times_generated: (currentTopic.times_generated || 0) + 1,
+              last_generated_at: new Date().toISOString()
             })
-            .eq('id', assignment.id);
-          
-          if (assignmentError) {
-            console.error('⚠️ Failed to update assignment:', assignmentError);
-          } else {
-            console.log(`✅ Assignment ${assignment.id} updated with post_id ${post.id}`);
+            .eq('id', source_topic_id);
+
+          if (topicError) {
+            console.error('❌ Topic update failed, rolling back post:', topicError);
+            await rollbackPost();
+            return res.status(500).json({
+              success: false,
+              error: 'Failed to sync topic status',
+              code: 'TOPIC_SYNC_FAILED',
+              rolled_back: true
+            });
+          }
+
+          console.log(`✅ Topic ${source_topic_id} updated to ${topicStatus}`);
+
+          // Find and update assignment
+          const { data: assignment } = await supabase
+            .from('content_daily_assignments')
+            .select('id, status')
+            .eq('topic_id', source_topic_id)
+            .single();
+
+          if (assignment) {
+            const assignmentStatus = post.status === 'published' ? 'published' : 'in_progress';
+
+            const { error: assignmentError } = await supabase
+              .from('content_daily_assignments')
+              .update({
+                post_id: post.id,
+                status: assignmentStatus
+              })
+              .eq('id', assignment.id);
+
+            if (assignmentError) {
+              console.error('❌ Assignment update failed, rolling back:', assignmentError);
+              // Revert topic to original state
+              await supabase
+                .from('content_topics')
+                .update({
+                  status: currentTopic.status,
+                  times_generated: currentTopic.times_generated
+                })
+                .eq('id', source_topic_id);
+              await rollbackPost();
+              return res.status(500).json({
+                success: false,
+                error: 'Failed to sync assignment status',
+                code: 'ASSIGNMENT_SYNC_FAILED',
+                rolled_back: true
+              });
+            }
+
+            console.log(`✅ Assignment ${assignment.id} linked to post ${post.id}`);
           }
         }
       } catch (syncError) {
-        console.error('⚠️ Status synchronization error:', syncError);
+        console.error('❌ Status synchronization error:', syncError);
+        await rollbackPost();
+        return res.status(500).json({
+          success: false,
+          error: 'Status synchronization failed',
+          code: 'SYNC_ERROR',
+          rolled_back: true
+        });
       }
     }
     
@@ -1421,35 +1460,64 @@ router.delete('/admin/blog/tags/:id', requireAdmin, async (req: Request, res: Re
 
 /**
  * POST /admin/blog/posts/:id/tags
- * Assign tags to a post (junction table)
+ * Assign tags to a post (junction table) - with rollback safety
  */
 router.post('/admin/blog/posts/:id/tags', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { tagIds } = req.body;
-    
+
     const supabase = getSupabase();
-    
+
+    // Get existing tags for potential rollback
+    const { data: existingTags } = await supabase
+      .from('blog_post_tags')
+      .select('tag_id')
+      .eq('post_id', id);
+
+    const originalTagIds = existingTags?.map((t: any) => t.tag_id) || [];
+
     // Delete existing tag associations
-    await supabase
+    const { error: deleteError } = await supabase
       .from('blog_post_tags')
       .delete()
       .eq('post_id', id);
-    
+
+    if (deleteError) throw deleteError;
+
     // Insert new associations
     if (tagIds && tagIds.length > 0) {
       const associations = tagIds.map((tagId: string) => ({
         post_id: id,
         tag_id: tagId
       }));
-      
-      const { error } = await supabase
+
+      const { error: insertError } = await supabase
         .from('blog_post_tags')
         .insert(associations);
-      
-      if (error) throw error;
+
+      if (insertError) {
+        // Rollback: restore original tags
+        console.error('❌ Tag insert failed, rolling back:', insertError);
+        if (originalTagIds.length > 0) {
+          const rollbackAssociations = originalTagIds.map((tagId: string) => ({
+            post_id: id,
+            tag_id: tagId
+          }));
+          await supabase.from('blog_post_tags').insert(rollbackAssociations);
+          console.log(`🔄 Rolled back to original ${originalTagIds.length} tags`);
+        }
+        return res.status(500).json({
+          success: false,
+          error: 'Failed to assign tags',
+          code: 'TAG_INSERT_FAILED',
+          rolled_back: true
+        });
+      }
     }
-    
+
+    console.log(`✅ Post ${id} tags updated: ${tagIds?.length || 0} tags`);
+
     res.json({
       success: true,
       message: 'Tags updated successfully'
