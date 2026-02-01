@@ -9,12 +9,13 @@ Quick reference for reporting issues and requesting changes.
 | Who | Responsibility |
 |-----|----------------|
 | **Stéphane** | Makes decisions, approves plans, tests results in browser |
-| **Claude Chat** | Planning, verification, reads files to verify Claude Code's work, creates prompts |
-| **Claude Code** | Executes file changes and commands, reports back |
+| **Claude Chat** | Planning, documentation, verification. Owns all .md files. Has full project context and memory. |
+| **Claude Code** | Executes code changes and commands, reports findings and what was done |
 
-Key rules:
-- Claude Chat creates prompts. Claude Code executes. Claude Chat verifies.
-- Claude Chat MUST put Claude Code prompts in a single code block (for easy copy-paste), separate from explanations.
+**Key rules:**
+- **Code changes:** Claude Chat creates prompts → Claude Code executes → Claude Chat verifies
+- **Documentation:** Claude Chat updates directly (no prompt needed)
+- Claude Chat MUST put Claude Code prompts in a single code block (for easy copy-paste), separate from explanations
 
 ---
 
@@ -44,13 +45,23 @@ It's been a while. Please also check:
 
 ## The Workflow
 
-1. YOU        → Describe request to Claude Chat
+**For code changes:**
+
+1. YOU → Describe request to Claude Chat
 2. CLAUDE CHAT → Reads files, asks questions, creates Claude Code prompt
-3. YOU        → Paste prompt to Claude Code
+3. YOU → Paste prompt to Claude Code
 4. CLAUDE CODE → Executes, reports back
 5. CLAUDE CHAT → Verifies by reading files
-6. YOU        → Test in browser, confirm done
-7. AUTO       → Push triggers deploy to staging
+6. YOU → Test in browser, confirm done
+7. CLAUDE CODE → Commits and pushes to `staging` (default)
+
+**For documentation:**
+
+1. YOU → Describe what needs documenting (or Claude Chat notices)
+2. CLAUDE CHAT → Updates the documentation files directly
+3. CLAUDE CODE → Commits and pushes to `staging` (default)
+
+⚠️ **Deploy where?** Always push to `staging` first. Only push to `main` when Stéphane explicitly says to promote to main. If unclear, ask: "Deploy to staging or main?"
 
 ---
 
@@ -60,8 +71,8 @@ Two branches, two environments:
 
 | Branch | Deploys To | URL |
 |--------|------------|-----|
-| `staging` | Staging | https://memopyk.memopyk.com |
-| `main` | Production | https://memopyk.com |
+| `staging` | Staging site | https://memopyk.memopyk.com |
+| `main` | Live site | https://memopyk.com |
 
 **Daily workflow:**
 
@@ -75,7 +86,7 @@ git push origin staging
 
 # 2. Test on staging site
 
-# 3. When ready for production, merge to main
+# 3. When ready for main, merge staging to main
 git checkout main
 git merge staging
 git push origin main
@@ -87,8 +98,8 @@ git checkout staging
 
 ⚠️ **Important Rules:**
 - **Always work on `staging` branch** — never commit directly to `main`
-- **Always test on staging first** — visit memopyk.memopyk.com before promoting to production
-- **To promote to production:** merge staging → main (don't commit directly to main)
+- **Always test on staging first** — visit memopyk.memopyk.com before promoting
+- **To promote to main:** merge staging → main (don't commit directly to main)
 - **If unsure which branch you're on:** run `git branch` (asterisk shows current branch)
 
 To verify: Check Coolify Deployments tab or visit the appropriate URL
@@ -96,6 +107,8 @@ To verify: Check Coolify Deployments tab or visit the appropriate URL
 ---
 
 ## Templates
+
+Use these when reporting issues or requesting changes to Stéphane or Claude Chat.
 
 ### Bug Report
 
@@ -127,17 +140,6 @@ UI CHANGE: [Component/page]
 Current:
 Desired:
 Reference: [screenshot or example]
-```
-
-### Documentation Update
-
-```
-DOC UPDATE: [File path]
-
-File: docs/[path]
-Current:
-Should be:
-Why:
 ```
 
 ### New Admin Feature
@@ -175,4 +177,4 @@ Reason:
 
 ## End of Session
 
-Ask Claude Code: Update CLAUDE.md "Recent Work" section with what we accomplished today.
+Claude Chat updates CLAUDE.md "Recent Work" section with what was accomplished.
