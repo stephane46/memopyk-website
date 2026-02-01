@@ -13,7 +13,7 @@ import { GlobalFilterContext } from './GlobalFilterContext';
 import { CountryFlag } from './CountryFlag';
 import { formatFrenchDateTime } from '@/utils/date-format';
 import { formatInt, formatSeconds, formatPercent } from '@/utils/format';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest, adminFetch } from '@/lib/queryClient';
 
 // Helper function to format dates for GA4 API
 const formatDateForGA4 = (date: Date | string): string => {
@@ -262,7 +262,7 @@ export default function GA4AnalyticsSection() {
     const { data: ipData, refetch: refetchIPs } = useQuery({
       queryKey: ['excluded-ips'],
       queryFn: async () => {
-        const response = await fetch('/api/analytics/exclude-ip');
+        const response = await adminFetch('/api/analytics/exclude-ip');
         if (!response.ok) {
           throw new Error('Failed to fetch excluded IPs');
         }

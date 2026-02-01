@@ -1,6 +1,6 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
-function getAdminAuthHeaders(): HeadersInit {
+export function getAdminAuthHeaders(): HeadersInit {
   const isAdmin = window.location.pathname.includes('/admin');
   if (isAdmin) {
     const token = import.meta.env.VITE_ADMIN_SECRET || '';
@@ -35,6 +35,18 @@ export async function apiRequest(
 
   await throwIfResNotOk(res);
   return res;
+}
+
+export async function adminFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  const authHeaders = getAdminAuthHeaders();
+  return fetch(url, {
+    ...options,
+    headers: {
+      ...authHeaders,
+      ...(options.headers || {}),
+    },
+    credentials: 'include',
+  });
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";

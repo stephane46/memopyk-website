@@ -14,7 +14,7 @@ import { BlogTagSelector } from '@/admin/BlogTagSelector';
 import { StatusSelector } from '@/admin/StatusSelector';
 import { PublishedAtPicker } from '@/admin/PublishedAtPicker';
 import DOMPurify from 'dompurify';
-import { queryClient } from '@/lib/queryClient';
+import { queryClient, adminFetch } from '@/lib/queryClient';
 
 interface ContentTopic {
   id: string;
@@ -257,7 +257,7 @@ export function BlogPostCreatorModal({ topic, isOpen, onClose }: BlogPostCreator
         secondary_keywords: topic.secondary_keywords || []
       };
 
-      const response = await fetch('/api/admin/blog/create-from-ai', {
+      const response = await adminFetch('/api/admin/blog/create-from-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(postData)

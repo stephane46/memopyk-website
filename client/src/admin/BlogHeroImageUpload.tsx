@@ -1,16 +1,11 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { adminFetch } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Upload, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-// Helper to get admin token
-const getAdminToken = () => {
-  return localStorage.getItem('memopyk-admin-token') || 
-         sessionStorage.getItem('memopyk-admin-token') || '';
-};
 
 interface BlogHeroImageUploadProps {
   currentImageUrl: string | null;
@@ -33,11 +28,7 @@ export function BlogHeroImageUpload({ currentImageUrl, onImageSelect }: BlogHero
   const { data: imagesData, isLoading, refetch } = useQuery({
     queryKey: ['/api/admin/blog/images'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/blog/images', {
-        headers: {
-          'Authorization': `Bearer ${getAdminToken()}`
-        }
-      });
+      const response = await adminFetch('/api/admin/blog/images');
       if (!response.ok) throw new Error('Failed to fetch images');
       return response.json();
     },
@@ -76,11 +67,8 @@ export function BlogHeroImageUpload({ currentImageUrl, onImageSelect }: BlogHero
       const formData = new FormData();
       formData.append('image', file);
 
-      const response = await fetch('/api/admin/blog/images', {
+      const response = await adminFetch('/api/admin/blog/images', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${getAdminToken()}`
-        },
         body: formData
       });
 

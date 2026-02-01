@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { queryClient, apiRequest } from '@/lib/queryClient';
+import { queryClient, apiRequest, adminFetch } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -58,7 +58,7 @@ function EditImageLabels({ image, onLabelsChange }: { image: ImageBankItem, onLa
   const { data: allLabelsData } = useQuery({
     queryKey: ['/api/image-labels'],
     queryFn: async () => {
-      const res = await fetch('/api/image-labels');
+      const res = await adminFetch('/api/image-labels');
       if (!res.ok) throw new Error('Failed to fetch labels');
       return res.json();
     },
@@ -120,7 +120,7 @@ export function ImageBankManager() {
   const { data: allLabelsData } = useQuery({
     queryKey: ['/api/image-labels'],
     queryFn: async () => {
-      const res = await fetch('/api/image-labels');
+      const res = await adminFetch('/api/image-labels');
       if (!res.ok) throw new Error('Failed to fetch labels');
       return res.json();
     },
@@ -164,7 +164,7 @@ export function ImageBankManager() {
       if (usageFilter !== 'all') params.append('usage', usageFilter);
       if (searchQuery) params.append('search', searchQuery);
 
-      const response = await fetch(`/api/image-bank?${params.toString()}`);
+      const response = await adminFetch(`/api/image-bank?${params.toString()}`);
       if (!response.ok) throw new Error('Failed to fetch images');
       return response.json();
     },
@@ -173,7 +173,7 @@ export function ImageBankManager() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/image-bank/${id}`, { method: 'DELETE' });
+      const response = await adminFetch(`/api/image-bank/${id}`, { method: 'DELETE' });
       if (!response.ok) throw new Error('Failed to delete image');
       return response.json();
     },
@@ -196,7 +196,7 @@ export function ImageBankManager() {
   // Update mutation
   const updateMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<ImageBankItem> }) => {
-      const response = await fetch(`/api/image-bank/${id}`, {
+      const response = await adminFetch(`/api/image-bank/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
@@ -294,7 +294,7 @@ export function ImageBankManager() {
         formData.append('tags', labelNames);
 
         // Upload to backend
-        const response = await fetch('/api/image-bank/upload', {
+        const response = await adminFetch('/api/image-bank/upload', {
           method: 'POST',
           body: formData,
         });
@@ -332,7 +332,7 @@ export function ImageBankManager() {
     // Fetch post details if image is used in posts
     if (image.usedInPosts && image.usedInPosts.length > 0) {
       try {
-        const response = await fetch('/api/admin/blog/posts');
+        const response = await adminFetch('/api/admin/blog/posts');
         if (response.ok) {
           const allPosts = await response.json();
           const usedInPostsArray = image.usedInPosts || [];
@@ -926,7 +926,7 @@ function LabelManagementModal({ open, onOpenChange }: { open: boolean; onOpenCha
   const { data: labelsData, refetch } = useQuery({
     queryKey: ['/api/image-labels'],
     queryFn: async () => {
-      const res = await fetch('/api/image-labels');
+      const res = await adminFetch('/api/image-labels');
       if (!res.ok) throw new Error('Failed to fetch labels');
       return res.json();
     },
@@ -980,7 +980,7 @@ function LabelManagementModal({ open, onOpenChange }: { open: boolean; onOpenCha
   // Delete label mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/image-labels/${id}`, { method: 'DELETE' });
+      const response = await adminFetch(`/api/image-labels/${id}`, { method: 'DELETE' });
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to delete label');

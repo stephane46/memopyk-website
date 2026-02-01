@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { adminFetch } from '@/lib/queryClient';
 import { Editor } from '@tinymce/tinymce-react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -66,21 +67,11 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const imagePickerCallbackRef = useRef<any>(null);
 
-  // Get admin token for authenticated uploads
-  const getAdminToken = () => {
-    return localStorage.getItem('memopyk-admin-token') || 
-           sessionStorage.getItem('memopyk-admin-token') || '';
-  };
-
   // Fetch existing blog images for the picker modal
   const { data: imagesData, isLoading: imagesLoading, refetch: refetchImages } = useQuery({
     queryKey: ['/api/admin/blog/images'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/blog/images', {
-        headers: {
-          'Authorization': `Bearer ${getAdminToken()}`
-        }
-      });
+      const response = await adminFetch('/api/admin/blog/images');
       if (!response.ok) throw new Error('Failed to fetch images');
       return response.json();
     },
@@ -97,11 +88,8 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
     const formData = new FormData();
     formData.append('file', blobInfo.blob(), blobInfo.filename());
     
-    const response = await fetch('/api/admin/upload', {
+    const response = await adminFetch('/api/admin/upload', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${getAdminToken()}`
-      },
       body: formData
     });
     
@@ -143,11 +131,8 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
           const formData = new FormData();
           formData.append('file', file);
           
-          const response = await fetch('/api/admin/upload', {
+          const response = await adminFetch('/api/admin/upload', {
             method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`
-            },
             body: formData
           });
           
@@ -189,11 +174,8 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
       const formData = new FormData();
       formData.append('image', file);
 
-      const response = await fetch('/api/admin/blog/images', {
+      const response = await adminFetch('/api/admin/blog/images', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${getAdminToken()}`
-        },
         body: formData
       });
 
@@ -202,7 +184,7 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
       }
 
       const result = await response.json();
-      
+
       // Call TinyMCE callback with the uploaded image URL
       if (imagePickerCallbackRef.current) {
         imagePickerCallbackRef.current(result.data.url, { title: file.name, alt: file.name });
@@ -243,10 +225,9 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
       try {
         console.log('🔗 Importing external file URL:', pastedText);
         
-        const response = await fetch('/api/admin/fetch-external', {
+        const response = await adminFetch('/api/admin/fetch-external', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${getAdminToken()}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ url: pastedText.trim() })

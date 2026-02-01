@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { Sparkles, Copy, CheckCircle, AlertCircle, Loader2, Send, Edit3 } from 'lucide-react';
+import { adminFetch } from '@/lib/queryClient';
 import { HtmlEditor } from './HtmlEditor';
 import { BlogHeroImageUpload } from './BlogHeroImageUpload';
 import { BlogTagSelector } from './BlogTagSelector';
@@ -364,7 +365,7 @@ export const BlogAICreator: React.FC = () => {
         published_at: publishedAt ? publishedAt.toISOString() : null
       };
 
-      const response = await fetch('/api/admin/blog/create-from-ai', {
+      const response = await adminFetch('/api/admin/blog/create-from-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(postData)
@@ -380,7 +381,7 @@ export const BlogAICreator: React.FC = () => {
       // Assign tags to the newly created post
       if (selectedTagIds.length > 0 && result.data?.id) {
         try {
-          await fetch(`/api/admin/blog/posts/${result.data.id}/tags`, {
+          await adminFetch(`/api/admin/blog/posts/${result.data.id}/tags`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ tagIds: selectedTagIds })

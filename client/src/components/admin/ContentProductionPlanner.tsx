@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { queryClient, apiRequest } from '@/lib/queryClient';
+import { queryClient, apiRequest, adminFetch } from '@/lib/queryClient';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -99,7 +99,7 @@ export function ContentProductionPlanner() {
     queryFn: async () => {
       const start = startDate.toISOString().split('T')[0];
       const end = endDate.toISOString().split('T')[0];
-      const response = await fetch(`/api/admin/content/assignments?startDate=${start}&endDate=${end}`);
+      const response = await adminFetch(`/api/admin/content/assignments?startDate=${start}&endDate=${end}`);
       if (!response.ok) throw new Error('Failed to fetch assignments');
       return response.json();
     },
@@ -109,7 +109,7 @@ export function ContentProductionPlanner() {
   const { data: blogPostsData } = useQuery({
     queryKey: ['/api/admin/blog/posts'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/blog/posts');
+      const response = await adminFetch('/api/admin/blog/posts');
       if (!response.ok) throw new Error('Failed to fetch blog posts');
       return response.json();
     }
@@ -185,7 +185,7 @@ export function ContentProductionPlanner() {
     queryFn: async () => {
       const start = startDate.toISOString().split('T')[0];
       const end = endDate.toISOString().split('T')[0];
-      const response = await fetch(`/api/admin/blog/posts-by-date?startDate=${start}&endDate=${end}`);
+      const response = await adminFetch(`/api/admin/blog/posts-by-date?startDate=${start}&endDate=${end}`);
       if (!response.ok) throw new Error('Failed to fetch posts by date');
       return response.json();
     },
@@ -237,7 +237,7 @@ export function ContentProductionPlanner() {
       const result = await response.json();
       
       // Fetch ALL assignments for this topic (not just current week)
-      const allAssignmentsResponse = await fetch('/api/admin/content/assignments');
+      const allAssignmentsResponse = await adminFetch('/api/admin/content/assignments');
       const allAssignments: ContentDailyAssignment[] = await allAssignmentsResponse.json();
       const remainingAssignments = allAssignments.filter(a => a.topicId === assignment.topicId);
       

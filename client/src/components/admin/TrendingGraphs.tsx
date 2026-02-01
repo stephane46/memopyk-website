@@ -16,6 +16,7 @@ import {
   RefreshCw, MousePointer, Zap
 } from 'lucide-react';
 import { formatInt, formatSeconds, formatPercent } from '@/utils/format';
+import { adminFetch } from '@/lib/queryClient';
 import { CountryFlag } from './CountryFlag';
 
 // Professional color palette
@@ -84,7 +85,7 @@ export function TrendingGraphs({ dateFrom, dateTo }: TrendingGraphsProps) {
       if (dateFrom) params.set('startDate', dateFrom);
       if (dateTo) params.set('endDate', dateTo);
       
-      const response = await fetch(`/api/ga4/clean-comprehensive?${params}`);
+      const response = await adminFetch(`/api/ga4/clean-comprehensive?${params}`);
       if (!response.ok) throw new Error(`GA4 API error: ${response.status}`);
       return response.json();
     },

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { adminFetch } from '@/lib/queryClient';
 import { Plus, Trash2, Edit, Shield, Eye, EyeOff, Globe, Clock, CalendarIcon } from 'lucide-react';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
@@ -83,7 +84,7 @@ export const IpExclusionsManager: React.FC<IpExclusionsManagerProps> = ({
   // Create exclusion mutation
   const createMutation = useMutation({
     mutationFn: async (data: Omit<IpExclusion, 'id' | 'created_at' | 'updated_at'>) => {
-      const response = await fetch('/api/admin/analytics/exclusions', {
+      const response = await adminFetch('/api/admin/analytics/exclusions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -117,7 +118,7 @@ export const IpExclusionsManager: React.FC<IpExclusionsManagerProps> = ({
   // Update exclusion mutation
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<IpExclusion> }) => {
-      const response = await fetch(`/api/admin/analytics/exclusions/${id}`, {
+      const response = await adminFetch(`/api/admin/analytics/exclusions/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -152,7 +153,7 @@ export const IpExclusionsManager: React.FC<IpExclusionsManagerProps> = ({
   // Delete exclusion mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/admin/analytics/exclusions/${id}`, {
+      const response = await adminFetch(`/api/admin/analytics/exclusions/${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete exclusion');
@@ -182,7 +183,7 @@ export const IpExclusionsManager: React.FC<IpExclusionsManagerProps> = ({
   // Toggle active status mutation
   const toggleMutation = useMutation({
     mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
-      const response = await fetch(`/api/admin/analytics/exclusions/${id}`, {
+      const response = await adminFetch(`/api/admin/analytics/exclusions/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ active }),

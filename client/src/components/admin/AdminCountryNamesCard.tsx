@@ -1,5 +1,6 @@
 // client/src/components/admin/AdminCountryNamesCard.tsx
 import * as React from "react";
+import { adminFetch } from "@/lib/queryClient";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -88,7 +89,7 @@ export default function AdminCountryNamesCard() {
       const form = new FormData();
       form.append("file", blob, fileName || `country_names_${lang}.csv`);
 
-      const res = await fetch(`/api/admin/country-names/upload?lang=${lang}`, {
+      const res = await adminFetch(`/api/admin/country-names/upload?lang=${lang}`, {
         method: "POST",
         body: form,
       });
@@ -115,7 +116,7 @@ export default function AdminCountryNamesCard() {
     try {
       setSyncing(true);
       setSyncResult(null);
-      const res = await fetch("/api/admin/country-names/sync-from-library", { method: "POST" });
+      const res = await adminFetch("/api/admin/country-names/sync-from-library", { method: "POST" });
       const json = await res.json();
       if (!res.ok) {
         setSyncResult({ error: json?.error || "Sync failed." });

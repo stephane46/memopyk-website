@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Download, Map, Search, ChevronLeft, ChevronRight, Pencil, Trash2, MapPin, Save, X, Building2, Package, Eye, Camera, Film, Video, Plus, ArrowUpDown, ArrowUp, ArrowDown, ExternalLink, Upload } from 'lucide-react';
-import { queryClient } from '@/lib/queryClient';
+import { queryClient, adminFetch } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { PHOTO_FORMATS, FILM_FORMATS, VIDEO_CASSETTES, DELIVERY } from '@/../../shared/partnerFormats';
 
@@ -145,7 +145,7 @@ export default function PartnersManagementEnhanced() {
   const { data, isLoading } = useQuery<PartnersResponse>({
     queryKey: ['partners', page, search, statusFilter, typeFilter],
     queryFn: async () => {
-      const response = await fetch(buildQueryKey());
+      const response = await adminFetch(buildQueryKey());
       if (!response.ok) throw new Error('Failed to fetch');
       return response.json();
     }

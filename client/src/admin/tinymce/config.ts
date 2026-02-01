@@ -3,9 +3,11 @@
  * Prevents configuration drift and ensures consistent behavior
  */
 
-// Helper to get admin authentication token
+import { adminFetch } from '@/lib/queryClient';
+
+// Helper to get admin authentication token (kept for backward compatibility)
 export const getAdminToken = () => {
-  return localStorage.getItem('memopyk-admin-token') || 
+  return localStorage.getItem('memopyk-admin-token') ||
          sessionStorage.getItem('memopyk-admin-token') || '';
 };
 
@@ -107,19 +109,16 @@ export const createImageUploadHandler = () => {
   return async (blobInfo: any, progress: (percent: number) => void) => {
     const formData = new FormData();
     formData.append('image', blobInfo.blob(), blobInfo.filename());
-    
-    const response = await fetch('/api/admin/blog/images', {
+
+    const response = await adminFetch('/api/admin/blog/images', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${getAdminToken()}`
-      },
       body: formData
     });
-    
+
     if (!response.ok) {
       throw new Error('Upload failed');
     }
-    
+
     const result = await response.json();
     return result.data.url;
   };

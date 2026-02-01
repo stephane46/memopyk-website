@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { adminFetch } from '@/lib/queryClient';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Loader2, Tag } from 'lucide-react';
@@ -20,7 +21,7 @@ export function BlogTagSelector({ selectedTagIds, onTagsChange, label = "Tags" }
   const { data: tagsData, isLoading } = useQuery({
     queryKey: ['/api/admin/blog/tags'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/blog/tags');
+      const response = await adminFetch('/api/admin/blog/tags');
       if (!response.ok) throw new Error('Failed to fetch tags');
       return response.json();
     }

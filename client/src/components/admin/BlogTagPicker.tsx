@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Check, X, Plus, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { apiRequest, queryClient } from '@/lib/queryClient';
+import { apiRequest, queryClient, adminFetch } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
 interface BlogTag {
@@ -43,7 +43,7 @@ export function BlogTagPicker({
     queryKey: ['/api/admin/blog/tags', searchValue],
     queryFn: async () => {
       const params = searchValue ? `?suggest=${encodeURIComponent(searchValue)}` : '';
-      const res = await fetch(`/api/admin/blog/tags${params}`);
+      const res = await adminFetch(`/api/admin/blog/tags${params}`);
       if (!res.ok) throw new Error('Failed to fetch tags');
       return res.json();
     },

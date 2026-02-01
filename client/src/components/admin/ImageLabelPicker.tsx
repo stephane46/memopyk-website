@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Check, X, Plus, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { apiRequest, queryClient } from '@/lib/queryClient';
+import { apiRequest, queryClient, adminFetch } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import type { ImageLabel } from '@shared/schema';
 
@@ -41,7 +41,7 @@ export function ImageLabelPicker({
   const { data: labelsData } = useQuery({
     queryKey: ['/api/image-labels'],
     queryFn: async () => {
-      const res = await fetch('/api/image-labels');
+      const res = await adminFetch('/api/image-labels');
       if (!res.ok) throw new Error('Failed to fetch labels');
       return res.json();
     },

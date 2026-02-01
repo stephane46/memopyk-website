@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { queryClient, apiRequest } from '@/lib/queryClient';
+import { queryClient, apiRequest, adminFetch } from '@/lib/queryClient';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,7 +37,7 @@ export function BlogTagManagement() {
   const { data: tagsData, isLoading } = useQuery({
     queryKey: ['/api/admin/blog/tags'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/blog/tags');
+      const response = await adminFetch('/api/admin/blog/tags');
       if (!response.ok) throw new Error('Failed to fetch tags');
       return response.json();
     }

@@ -16,7 +16,7 @@ import SessionReplaysCard from './SessionReplaysCard';
 import { formatFrenchDateTime } from '@/utils/date-format';
 import { formatDate, getRelativeTime } from '@/lib/date-utils';
 import { formatInt, formatSeconds, formatPercent } from '@/utils/format';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest, adminFetch } from '@/lib/queryClient';
 
 // Comprehensive language mapping with flags for 100+ languages
 const LANGUAGE_MAP: Record<string, { display: string; flag: string }> = {
@@ -292,7 +292,7 @@ export default function CleanGA4Analytics() {
         params.set('endDate', customDateTo);
       }
       
-      const response = await fetch(`/api/ga4/clean-comprehensive?${params}`);
+      const response = await adminFetch(`/api/ga4/clean-comprehensive?${params}`);
       if (!response.ok) {
         throw new Error(`GA4 API error: ${response.status}`);
       }

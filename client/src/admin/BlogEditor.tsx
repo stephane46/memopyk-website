@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { queryClient, apiRequest } from '@/lib/queryClient';
+import { queryClient, apiRequest, adminFetch } from '@/lib/queryClient';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -67,7 +67,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
   const { data: postData, isLoading } = useQuery({
     queryKey: [`/api/admin/blog/posts/${postId}`],
     queryFn: async () => {
-      const response = await fetch(`/api/admin/blog/posts/${postId}`);
+      const response = await adminFetch(`/api/admin/blog/posts/${postId}`);
       if (!response.ok) throw new Error('Failed to fetch blog post');
       return response.json();
     }
@@ -79,11 +79,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
   const { data: imagesData, isLoading: imagesLoading, refetch: refetchImages } = useQuery({
     queryKey: ['/api/admin/blog/images'],
     queryFn: async () => {
-      const response = await fetch('/api/admin/blog/images', {
-        headers: {
-          'Authorization': `Bearer ${getAdminToken()}`
-        }
-      });
+      const response = await adminFetch('/api/admin/blog/images');
       if (!response.ok) throw new Error('Failed to fetch images');
       return response.json();
     },
@@ -106,7 +102,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
   const { data: tagsData } = useQuery({
     queryKey: [`/api/admin/blog/posts/${postId}/tags`],
     queryFn: async () => {
-      const response = await fetch(`/api/admin/blog/posts/${postId}/tags`);
+      const response = await adminFetch(`/api/admin/blog/posts/${postId}/tags`);
       if (!response.ok) throw new Error('Failed to fetch post tags');
       return response.json();
     }
@@ -245,11 +241,8 @@ export function BlogEditor({ postId }: BlogEditorProps) {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('/api/admin/blog/images', {
+      const response = await adminFetch('/api/admin/blog/images', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${getAdminToken()}`
-        },
         body: formData
       });
 
