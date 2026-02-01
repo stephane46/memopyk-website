@@ -1,5 +1,16 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
+function getAdminAuthHeaders(): HeadersInit {
+  const isAdmin = window.location.pathname.startsWith('/admin');
+  if (isAdmin) {
+    const token = import.meta.env.VITE_ADMIN_SECRET || '';
+    if (token) {
+      return { 'Authorization': `Bearer ${token}` };
+    }
+  }
+  return {};
+}
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
@@ -14,7 +25,10 @@ export async function apiRequest(
 ): Promise<Response> {
   const res = await fetch(url, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
+    headers: {
+      ...getAdminAuthHeaders(),
+      ...(data ? { "Content-Type": "application/json" } : {}),
+    },
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
@@ -56,6 +70,7 @@ export const getQueryFn: <T>(options: {
     }
     
     const res = await fetch(url, {
+      headers: getAdminAuthHeaders(),
       credentials: "include",
     });
 
