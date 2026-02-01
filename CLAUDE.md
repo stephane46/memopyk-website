@@ -46,5 +46,3 @@ READ THESE FIRST:
 
 - 67 client TS errors (non-blocking, admin analytics components)
 - Mapbox GL JS migration planned for Partner Directory map
-
-<!-- Deploy test: 2026-02-01T19:15:27+01:00 -->
