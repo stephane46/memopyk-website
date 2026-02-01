@@ -21,6 +21,7 @@
 
 import { Router, Request, Response } from 'express';
 import { storage } from '../services/storage.service';
+import { requireAdmin } from '../middleware/auth.middleware';
 
 const router = Router();
 
@@ -91,7 +92,7 @@ router.get('/faq-sections', async (req: Request, res: Response) => {
  * POST /faq-sections
  * Create new FAQ section
  */
-router.post('/faq-sections', async (req: Request, res: Response) => {
+router.post('/faq-sections', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { title_fr, title_en, order_index } = req.body;
     
@@ -116,7 +117,7 @@ router.post('/faq-sections', async (req: Request, res: Response) => {
  * PATCH /faq-sections/:id
  * Update FAQ section
  */
-router.patch('/faq-sections/:id', async (req: Request, res: Response) => {
+router.patch('/faq-sections/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const sectionId = req.params.id;
     const updates = req.body;
@@ -133,7 +134,7 @@ router.patch('/faq-sections/:id', async (req: Request, res: Response) => {
  * DELETE /faq-sections/:id
  * Delete FAQ section
  */
-router.delete('/faq-sections/:id', async (req: Request, res: Response) => {
+router.delete('/faq-sections/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const sectionId = req.params.id;
     
@@ -149,7 +150,7 @@ router.delete('/faq-sections/:id', async (req: Request, res: Response) => {
  * PATCH /faq-sections/:id/reorder
  * Update FAQ section order
  */
-router.patch('/faq-sections/:id/reorder', async (req: Request, res: Response) => {
+router.patch('/faq-sections/:id/reorder', requireAdmin, async (req: Request, res: Response) => {
   try {
     const sectionId = req.params.id;
     const { order_index } = req.body;
@@ -191,7 +192,7 @@ router.get('/faqs', async (req: Request, res: Response) => {
  * POST /faqs
  * Create new FAQ
  */
-router.post('/faqs', async (req: Request, res: Response) => {
+router.post('/faqs', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { section_id, question_en, question_fr, answer_en, answer_fr, order_index, is_active } = req.body;
     
@@ -220,7 +221,7 @@ router.post('/faqs', async (req: Request, res: Response) => {
  * PATCH /faqs/:id
  * Update FAQ
  */
-router.patch('/faqs/:id', async (req: Request, res: Response) => {
+router.patch('/faqs/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     console.log('🔧 ===== FAQ PATCH ENDPOINT HIT =====');
     console.log('🔧 PATCH /faqs/:id - ID:', req.params.id);
@@ -243,7 +244,7 @@ router.patch('/faqs/:id', async (req: Request, res: Response) => {
  * DELETE /faqs/:id
  * Delete FAQ
  */
-router.delete('/faqs/:id', async (req: Request, res: Response) => {
+router.delete('/faqs/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const faqId = req.params.id;
     console.log('🗑️ DELETE /faqs/:id - ID:', faqId);
@@ -260,7 +261,7 @@ router.delete('/faqs/:id', async (req: Request, res: Response) => {
  * PATCH /faqs/:id/reorder
  * Update FAQ order
  */
-router.patch('/faqs/:id/reorder', async (req: Request, res: Response) => {
+router.patch('/faqs/:id/reorder', requireAdmin, async (req: Request, res: Response) => {
   try {
     const faqId = req.params.id;
     const { order_index } = req.body;

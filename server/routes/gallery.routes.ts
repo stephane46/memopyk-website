@@ -22,6 +22,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import multer from 'multer';
+import { requireAdmin } from '../middleware/auth.middleware';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -245,7 +246,7 @@ router.get('/', async (req: Request, res: Response) => {
 /**
  * POST / - Create new gallery item
  */
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', requireAdmin, async (req: Request, res: Response) => {
   try {
     const item = await storage.createGalleryItem(req.body);
     clearGalleryCache();
@@ -259,7 +260,7 @@ router.post('/', async (req: Request, res: Response) => {
 /**
  * GET /admin - Admin gallery view (bypasses cache)
  */
-router.get('/admin', async (req: Request, res: Response) => {
+router.get('/admin', requireAdmin, async (req: Request, res: Response) => {
   try {
     const items = await storage.getGalleryItems();
     console.log(`🔄 Admin gallery fetched (bypassing cache)`);
@@ -273,7 +274,7 @@ router.get('/admin', async (req: Request, res: Response) => {
 /**
  * PATCH /:id - Update gallery item
  */
-router.patch('/:id', async (req: Request, res: Response) => {
+router.patch('/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const itemId = req.params.id;
     const updates = req.body;
@@ -302,7 +303,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
 /**
  * DELETE /:id - Delete gallery item
  */
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const itemId = req.params.id;
     console.log(`🗑️ Deleting gallery item: ${itemId}`);
@@ -338,7 +339,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 /**
  * PATCH /:id/reorder - Reorder single item
  */
-router.patch('/:id/reorder', async (req: Request, res: Response) => {
+router.patch('/:id/reorder', requireAdmin, async (req: Request, res: Response) => {
   try {
     const itemId = req.params.id;
     const { order_index } = req.body;
@@ -362,7 +363,7 @@ router.patch('/:id/reorder', async (req: Request, res: Response) => {
 /**
  * PATCH /:id1/swap/:id2 - Swap two items
  */
-router.patch('/:id1/swap/:id2', async (req: Request, res: Response) => {
+router.patch('/:id1/swap/:id2', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id1, id2 } = req.params;
     
@@ -385,7 +386,7 @@ router.patch('/:id1/swap/:id2', async (req: Request, res: Response) => {
 /**
  * POST /upload-video - Upload gallery video (legacy, <10MB files)
  */
-router.post('/upload-video', (req: Request, res: Response, next: NextFunction) => {
+router.post('/upload-video', requireAdmin, (req: Request, res: Response, next: NextFunction) => {
   uploadVideo.single('video')(req, res, (err: any) => {
     if (err) {
       console.error('Multer error:', err);
@@ -459,7 +460,7 @@ router.post('/upload-video', (req: Request, res: Response, next: NextFunction) =
 /**
  * POST /upload-image - Upload gallery image with auto-thumbnail
  */
-router.post('/upload-image', uploadImage.single('image'), async (req: Request, res: Response) => {
+router.post('/upload-image', requireAdmin, uploadImage.single('image'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No image file provided' });
@@ -514,7 +515,7 @@ router.post('/upload-image', uploadImage.single('image'), async (req: Request, r
 /**
  * POST /upload-static-image - Upload cropped 300x200 thumbnail
  */
-router.post('/upload-static-image', uploadImage.single('image'), async (req: Request, res: Response) => {
+router.post('/upload-static-image', requireAdmin, uploadImage.single('image'), async (req: Request, res: Response) => {
   console.log(`🚀 STATIC IMAGE UPLOAD - File: ${req.file ? 'YES' : 'NO'}`);
   
   try {

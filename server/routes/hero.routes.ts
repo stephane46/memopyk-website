@@ -21,6 +21,7 @@
  */
 
 import { Router, Request, Response } from 'express';
+import { requireAdmin } from '../middleware/auth.middleware';
 
 const router = Router();
 
@@ -68,7 +69,7 @@ router.get('/', async (req: Request, res: Response) => {
 /**
  * POST / - Create new hero video entry
  */
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { title_en, title_fr, url_en, url_fr, use_same_video, is_active, order_index } = req.body;
 
@@ -101,7 +102,7 @@ router.post('/', async (req: Request, res: Response) => {
 /**
  * PATCH /:id/reorder - Update hero video order
  */
-router.patch('/:id/reorder', async (req: Request, res: Response) => {
+router.patch('/:id/reorder', requireAdmin, async (req: Request, res: Response) => {
   try {
     const videoId = req.params.id;
     const { order_index } = req.body;
@@ -123,7 +124,7 @@ router.patch('/:id/reorder', async (req: Request, res: Response) => {
 /**
  * PATCH /:id/toggle - Toggle active/inactive status
  */
-router.patch('/:id/toggle', async (req: Request, res: Response) => {
+router.patch('/:id/toggle', requireAdmin, async (req: Request, res: Response) => {
   try {
     const videoId = req.params.id;
     const { is_active } = req.body;
@@ -145,7 +146,7 @@ router.patch('/:id/toggle', async (req: Request, res: Response) => {
 /**
  * PATCH /:id - Update hero video metadata
  */
-router.patch('/:id', async (req: Request, res: Response) => {
+router.patch('/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const videoId = req.params.id;
     const { title_en, title_fr, is_active, order_index, url_en, url_fr, use_same_video } = req.body;
@@ -173,7 +174,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
 /**
  * DELETE /:id - Delete hero video
  */
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const videoId = req.params.id;
     console.log(`🗑️ Deleting hero video with ID: ${videoId}`);
@@ -216,7 +217,7 @@ router.get('/text', async (req: Request, res: Response) => {
 /**
  * POST /text - Create new hero text
  */
-router.post('/text', async (req: Request, res: Response) => {
+router.post('/text', requireAdmin, async (req: Request, res: Response) => {
   try {
     const {
       title_mobile_fr,
@@ -262,7 +263,7 @@ router.post('/text', async (req: Request, res: Response) => {
 /**
  * PATCH /text/:id - Update hero text
  */
-router.patch('/text/:id', async (req: Request, res: Response) => {
+router.patch('/text/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const textId = parseInt(req.params.id);
     const updateData = req.body;
@@ -280,7 +281,7 @@ router.patch('/text/:id', async (req: Request, res: Response) => {
 /**
  * PATCH /text/:id/apply - Apply hero text to site (set as active)
  */
-router.patch('/text/:id/apply', async (req: Request, res: Response) => {
+router.patch('/text/:id/apply', requireAdmin, async (req: Request, res: Response) => {
   try {
     const textId = req.params.id;
     const { font_size, font_size_desktop, font_size_tablet, font_size_mobile } = req.body;
@@ -313,7 +314,7 @@ router.patch('/text/:id/apply', async (req: Request, res: Response) => {
 /**
  * DELETE /text/:id - Delete hero text
  */
-router.delete('/text/:id', async (req: Request, res: Response) => {
+router.delete('/text/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const textId = parseInt(req.params.id);
 

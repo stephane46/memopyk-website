@@ -21,37 +21,12 @@
 
 import { Router, Request, Response, NextFunction } from "express";
 import { storage } from "../services/storage.service";
+import { requireAdmin, AuthenticatedRequest } from '../middleware/auth.middleware';
 
 const router = Router();
 
-// Extend Request type for admin user
-interface AdminRequest extends Request {
-  adminUser?: string;
-}
-
-// =============================================================================
-// MIDDLEWARE
-// =============================================================================
-
-/**
- * Simple admin authentication middleware
- * TODO: Enhance with proper session/JWT validation
- */
-const requireAdmin = (req: AdminRequest, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Authentication required' });
-  }
-  
-  // Simple check - in production this would validate against database
-  const token = authHeader.replace('Bearer ', '');
-  if (token !== 'admin-token-temp') {
-    return res.status(401).json({ error: 'Invalid authentication token' });
-  }
-  
-  req.adminUser = 'admin';
-  next();
-};
+// Type alias for backward compatibility
+type AdminRequest = AuthenticatedRequest;
 
 // =============================================================================
 // PUBLIC ENDPOINTS

@@ -17,6 +17,7 @@
 
 import { Router, Request, Response } from 'express';
 import { storage } from '../services/storage.service';
+import { requireAdmin } from '../middleware/auth.middleware';
 
 const router = Router();
 
@@ -42,7 +43,7 @@ router.get('/cta', async (req: Request, res: Response) => {
  * POST /api/cta
  * Create new CTA setting
  */
-router.post('/cta', async (req: Request, res: Response) => {
+router.post('/cta', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id, buttonTextFr, buttonTextEn, buttonUrlEn, buttonUrlFr, isActive } = req.body;
     
@@ -70,7 +71,7 @@ router.post('/cta', async (req: Request, res: Response) => {
  * PATCH /api/cta/:id
  * Update CTA setting
  */
-router.patch('/cta/:id', async (req: Request, res: Response) => {
+router.patch('/cta/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const ctaId = req.params.id;
     const updates = req.body;
@@ -92,7 +93,7 @@ router.patch('/cta/:id', async (req: Request, res: Response) => {
  * DELETE /api/cta/:id
  * Delete CTA setting
  */
-router.delete('/cta/:id', async (req: Request, res: Response) => {
+router.delete('/cta/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const ctaId = req.params.id;
     
@@ -131,7 +132,7 @@ router.get('/why-memopyk-cards', async (req: Request, res: Response) => {
  * POST /api/why-memopyk-cards
  * Create new Why MEMOPYK card
  */
-router.post('/why-memopyk-cards', async (req: Request, res: Response) => {
+router.post('/why-memopyk-cards', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { 
       id, 
@@ -172,7 +173,7 @@ router.post('/why-memopyk-cards', async (req: Request, res: Response) => {
  * PATCH /api/why-memopyk-cards/:id
  * Update Why MEMOPYK card
  */
-router.patch('/why-memopyk-cards/:id', async (req: Request, res: Response) => {
+router.patch('/why-memopyk-cards/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const cardId = req.params.id;
     const updates = req.body;
@@ -194,7 +195,7 @@ router.patch('/why-memopyk-cards/:id', async (req: Request, res: Response) => {
  * DELETE /api/why-memopyk-cards/:id
  * Delete Why MEMOPYK card
  */
-router.delete('/why-memopyk-cards/:id', async (req: Request, res: Response) => {
+router.delete('/why-memopyk-cards/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const cardId = req.params.id;
     
