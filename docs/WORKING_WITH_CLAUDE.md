@@ -85,6 +85,12 @@ git push origin main
 git checkout staging
 ```
 
+⚠️ **Important Rules:**
+- **Always work on `staging` branch** — never commit directly to `main`
+- **Always test on staging first** — visit memopyk.memopyk.com before promoting to production
+- **To promote to production:** merge staging → main (don't commit directly to main)
+- **If unsure which branch you're on:** run `git branch` (asterisk shows current branch)
+
 To verify: Check Coolify Deployments tab or visit the appropriate URL
 
 ---
