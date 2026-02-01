@@ -11,6 +11,7 @@ import { createClient } from '@supabase/supabase-js';
 import { DateTime } from 'luxon';
 import multer from 'multer';
 import fs from 'fs';
+import { requireAdmin } from '../middleware/auth.middleware';
 
 // Multer config for blog image uploads
 const uploadImage = multer({ dest: 'uploads/' });
@@ -692,7 +693,7 @@ router.delete('/blog-tags/:id', async (req: Request, res: Response) => {
  * POST /admin/blog/create-from-ai
  * Create blog post from AI-generated JSON
  */
-router.post('/admin/blog/create-from-ai', async (req: Request, res: Response) => {
+router.post('/admin/blog/create-from-ai', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { 
       title, slug, description, content, hero_url, language, 
@@ -842,7 +843,7 @@ router.post('/admin/blog/create-from-ai', async (req: Request, res: Response) =>
  * POST /admin/blog/posts/:id/translate
  * Duplicate blog post to other language
  */
-router.post('/admin/blog/posts/:id/translate', async (req: Request, res: Response) => {
+router.post('/admin/blog/posts/:id/translate', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     
@@ -920,7 +921,7 @@ router.post('/admin/blog/posts/:id/translate', async (req: Request, res: Respons
  * GET /admin/blog/posts
  * Get all blog posts (admin view - includes drafts)
  */
-router.get('/admin/blog/posts', async (req: Request, res: Response) => {
+router.get('/admin/blog/posts', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { language, status, limit = 50, offset = 0 } = req.query;
     
@@ -959,7 +960,7 @@ router.get('/admin/blog/posts', async (req: Request, res: Response) => {
  * GET /admin/blog/posts-by-date
  * Get blog posts grouped by publish date for calendar view
  */
-router.get('/admin/blog/posts-by-date', async (req: Request, res: Response) => {
+router.get('/admin/blog/posts-by-date', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { startDate, endDate } = req.query;
     
@@ -1032,7 +1033,7 @@ router.get('/admin/blog/posts-by-date', async (req: Request, res: Response) => {
  * GET /admin/blog/posts/:id
  * Get single blog post by ID (admin)
  */
-router.get('/admin/blog/posts/:id', async (req: Request, res: Response) => {
+router.get('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     
@@ -1064,7 +1065,7 @@ router.get('/admin/blog/posts/:id', async (req: Request, res: Response) => {
  * PUT /admin/blog/posts/:id
  * Update blog post with status synchronization
  */
-router.put('/admin/blog/posts/:id', async (req: Request, res: Response) => {
+router.put('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const updates = req.body;
@@ -1141,7 +1142,7 @@ router.put('/admin/blog/posts/:id', async (req: Request, res: Response) => {
  * PATCH /admin/blog/posts/:id
  * Alias for PUT - frontend uses PATCH for partial updates
  */
-router.patch('/admin/blog/posts/:id', async (req: Request, res: Response) => {
+router.patch('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const updates = req.body;
@@ -1202,7 +1203,7 @@ router.patch('/admin/blog/posts/:id', async (req: Request, res: Response) => {
  * DELETE /admin/blog/posts/:id
  * Delete blog post with status reversion
  */
-router.delete('/admin/blog/posts/:id', async (req: Request, res: Response) => {
+router.delete('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     
@@ -1283,7 +1284,7 @@ router.delete('/admin/blog/posts/:id', async (req: Request, res: Response) => {
  * GET /admin/blog/tags
  * Get all tags with autocomplete support
  */
-router.get('/admin/blog/tags', async (req: Request, res: Response) => {
+router.get('/admin/blog/tags', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { suggest } = req.query;
     
@@ -1319,7 +1320,7 @@ router.get('/admin/blog/tags', async (req: Request, res: Response) => {
  * POST /admin/blog/tags
  * Create new tag (admin)
  */
-router.post('/admin/blog/tags', async (req: Request, res: Response) => {
+router.post('/admin/blog/tags', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { name, color, icon } = req.body;
     
@@ -1353,7 +1354,7 @@ router.post('/admin/blog/tags', async (req: Request, res: Response) => {
  * PUT /admin/blog/tags/:id
  * Update tag (admin)
  */
-router.put('/admin/blog/tags/:id', async (req: Request, res: Response) => {
+router.put('/admin/blog/tags/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name, color, icon } = req.body;
@@ -1393,7 +1394,7 @@ router.put('/admin/blog/tags/:id', async (req: Request, res: Response) => {
  * DELETE /admin/blog/tags/:id
  * Delete tag (admin)
  */
-router.delete('/admin/blog/tags/:id', async (req: Request, res: Response) => {
+router.delete('/admin/blog/tags/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     
@@ -1422,7 +1423,7 @@ router.delete('/admin/blog/tags/:id', async (req: Request, res: Response) => {
  * POST /admin/blog/posts/:id/tags
  * Assign tags to a post (junction table)
  */
-router.post('/admin/blog/posts/:id/tags', async (req: Request, res: Response) => {
+router.post('/admin/blog/posts/:id/tags', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { tagIds } = req.body;
@@ -1463,7 +1464,7 @@ router.post('/admin/blog/posts/:id/tags', async (req: Request, res: Response) =>
  * GET /admin/blog/posts/:id/tags
  * Get tags for a post
  */
-router.get('/admin/blog/posts/:id/tags', async (req: Request, res: Response) => {
+router.get('/admin/blog/posts/:id/tags', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     
@@ -1496,7 +1497,7 @@ router.get('/admin/blog/posts/:id/tags', async (req: Request, res: Response) => 
  * GET /admin/blog/images
  * List all images in the blog storage bucket
  */
-router.get('/admin/blog/images', async (req: Request, res: Response) => {
+router.get('/admin/blog/images', requireAdmin, async (req: Request, res: Response) => {
   try {
     const supabase = getSupabase();
 
@@ -1532,7 +1533,7 @@ router.get('/admin/blog/images', async (req: Request, res: Response) => {
  * POST /admin/blog/images
  * Upload image to blog storage bucket
  */
-router.post('/admin/blog/images', uploadImage.single('image'), async (req: Request, res: Response) => {
+router.post('/admin/blog/images', requireAdmin, uploadImage.single('image'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, error: 'No image file provided' });
@@ -1570,7 +1571,7 @@ router.post('/admin/blog/images', uploadImage.single('image'), async (req: Reque
  * GET /admin/blog/images/:name/usage
  * Check if image is used in any blog post
  */
-router.get('/admin/blog/images/:name/usage', async (req: Request, res: Response) => {
+router.get('/admin/blog/images/:name/usage', requireAdmin, async (req: Request, res: Response) => {
   try {
     const imageName = decodeURIComponent(req.params.name);
     const supabase = getSupabase();
@@ -1605,7 +1606,7 @@ router.get('/admin/blog/images/:name/usage', async (req: Request, res: Response)
  * DELETE /admin/blog/images/:name
  * Delete image from blog storage
  */
-router.delete('/admin/blog/images/:name', async (req: Request, res: Response) => {
+router.delete('/admin/blog/images/:name', requireAdmin, async (req: Request, res: Response) => {
   try {
     const imageName = decodeURIComponent(req.params.name);
     const supabase = getSupabase();

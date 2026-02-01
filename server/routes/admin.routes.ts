@@ -13,6 +13,7 @@ import { stringify } from 'csv-stringify/sync';
 import { Pool } from 'pg';
 import countries from 'i18n-iso-countries';
 import ipExclusionService from '../services/analytics/ip-exclusion.service';
+import { requireAdmin } from '../middleware/auth.middleware';
 
 const router = Router();
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -28,12 +29,6 @@ Promise.all([
   console.error('Failed to load country locales:', err);
 });
 
-// TODO: Replace with real auth/ACL check
-function assertAdmin(req: Request) {
-  // Example: if (req.user?.role !== 'admin') throw new Error('forbidden');
-  return true;
-}
-
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 2 * 1024 * 1024 }, // 2 MB
@@ -45,10 +40,10 @@ const upload = multer({
 
 router.post(
   '/country-names/upload',
+  requireAdmin,
   upload.single('file'),
   async (req: Request, res: Response) => {
     try {
-      assertAdmin(req);
 
       const lang = String(req.query.lang || '').toLowerCase();
       if (lang !== 'en' && lang !== 'fr') {
@@ -126,9 +121,8 @@ router.post(
   }
 );
 
-router.get('/country-names/download', async (req: Request, res: Response) => {
+router.get('/country-names/download', requireAdmin, async (req: Request, res: Response) => {
   try {
-    assertAdmin(req);
 
     const lang = String(req.query.lang || 'en').toLowerCase();
     if (lang !== 'en' && lang !== 'fr') {
@@ -155,9 +149,8 @@ router.get('/country-names/download', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/country-names/sync-from-library', async (req: Request, res: Response) => {
+router.post('/country-names/sync-from-library', requireAdmin, async (req: Request, res: Response) => {
   try {
-    assertAdmin(req);
 
     const enMap = countries.getNames('en');
     const frMap = countries.getNames('fr');
@@ -211,7 +204,7 @@ router.post('/country-names/sync-from-library', async (req: Request, res: Respon
 // ============================================================================
 
 // GET all IP exclusions
-router.get('/analytics/exclusions', async (_req: Request, res: Response) => {
+router.get('/analytics/exclusions', requireAdmin, async (_req: Request, res: Response) => {
   try {
     const exclusions = await ipExclusionService.getAllExclusions();
     res.json(exclusions);
@@ -222,7 +215,7 @@ router.get('/analytics/exclusions', async (_req: Request, res: Response) => {
 });
 
 // POST create new IP exclusion
-router.post('/analytics/exclusions', express.json(), async (req: Request, res: Response) => {
+router.post('/analytics/exclusions', requireAdmin, express.json(), async (req: Request, res: Response) => {
   try {
     const { ip_cidr, label, active = true } = req.body;
 
@@ -244,7 +237,7 @@ router.post('/analytics/exclusions', express.json(), async (req: Request, res: R
 });
 
 // PUT update IP exclusion
-router.put('/analytics/exclusions/:id', express.json(), async (req: Request, res: Response) => {
+router.put('/analytics/exclusions/:id', requireAdmin, express.json(), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { label, active } = req.body;
@@ -274,7 +267,7 @@ router.put('/analytics/exclusions/:id', express.json(), async (req: Request, res
 });
 
 // DELETE IP exclusion
-router.delete('/analytics/exclusions/:id', async (req: Request, res: Response) => {
+router.delete('/analytics/exclusions/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 

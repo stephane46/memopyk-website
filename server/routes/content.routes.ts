@@ -12,6 +12,7 @@
 
 import { Router, Request, Response } from 'express';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { requireAdmin } from '../middleware/auth.middleware';
 
 const router = Router();
 
@@ -37,7 +38,7 @@ function getSupabase(): SupabaseClient {
  * GET /keywords
  * List all keywords with optional filters
  */
-router.get('/keywords', async (req: Request, res: Response) => {
+router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { tier, intent } = req.query;
     const sb = getSupabase();
@@ -65,7 +66,7 @@ router.get('/keywords', async (req: Request, res: Response) => {
  * GET /topics
  * List all topics with optional filters and post_count
  */
-router.get('/topics', async (req: Request, res: Response) => {
+router.get('/topics', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { category, priority, status } = req.query;
     const sb = getSupabase();
@@ -103,7 +104,7 @@ router.get('/topics', async (req: Request, res: Response) => {
  * GET /topics/:id
  * Get single topic by ID
  */
-router.get('/topics/:id', async (req: Request, res: Response) => {
+router.get('/topics/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const sb = getSupabase();
     const { data, error } = await sb
@@ -126,7 +127,7 @@ router.get('/topics/:id', async (req: Request, res: Response) => {
  * POST /topics
  * Create new topic
  */
-router.post('/topics', async (req: Request, res: Response) => {
+router.post('/topics', requireAdmin, async (req: Request, res: Response) => {
   try {
     const sb = getSupabase();
     const { data, error } = await sb
@@ -147,7 +148,7 @@ router.post('/topics', async (req: Request, res: Response) => {
  * PATCH /topics/:id
  * Update topic
  */
-router.patch('/topics/:id', async (req: Request, res: Response) => {
+router.patch('/topics/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const sb = getSupabase();
     const { data, error } = await sb
@@ -169,7 +170,7 @@ router.patch('/topics/:id', async (req: Request, res: Response) => {
  * DELETE /topics/:id
  * Delete topic
  */
-router.delete('/topics/:id', async (req: Request, res: Response) => {
+router.delete('/topics/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const sb = getSupabase();
     const { error } = await sb
@@ -193,7 +194,7 @@ router.delete('/topics/:id', async (req: Request, res: Response) => {
  * GET /plans
  * List all weekly plans with optional filters
  */
-router.get('/plans', async (req: Request, res: Response) => {
+router.get('/plans', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { year, status } = req.query;
     const sb = getSupabase();
@@ -217,7 +218,7 @@ router.get('/plans', async (req: Request, res: Response) => {
  * GET /plans/:id
  * Get single plan by ID
  */
-router.get('/plans/:id', async (req: Request, res: Response) => {
+router.get('/plans/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const sb = getSupabase();
     const { data, error } = await sb
@@ -240,7 +241,7 @@ router.get('/plans/:id', async (req: Request, res: Response) => {
  * POST /plans
  * Create new weekly plan
  */
-router.post('/plans', async (req: Request, res: Response) => {
+router.post('/plans', requireAdmin, async (req: Request, res: Response) => {
   try {
     const sb = getSupabase();
     const { data, error } = await sb
@@ -261,7 +262,7 @@ router.post('/plans', async (req: Request, res: Response) => {
  * PATCH /plans/:id
  * Update weekly plan
  */
-router.patch('/plans/:id', async (req: Request, res: Response) => {
+router.patch('/plans/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const sb = getSupabase();
     const { data, error } = await sb
@@ -283,7 +284,7 @@ router.patch('/plans/:id', async (req: Request, res: Response) => {
  * DELETE /plans/:id
  * Delete weekly plan
  */
-router.delete('/plans/:id', async (req: Request, res: Response) => {
+router.delete('/plans/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const sb = getSupabase();
     const { error } = await sb
@@ -307,7 +308,7 @@ router.delete('/plans/:id', async (req: Request, res: Response) => {
  * GET /assignments
  * List assignments with date range filter
  */
-router.get('/assignments', async (req: Request, res: Response) => {
+router.get('/assignments', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { startDate, endDate, status } = req.query;
     const sb = getSupabase();
@@ -345,7 +346,7 @@ router.get('/assignments', async (req: Request, res: Response) => {
  * GET /assignments/:id
  * Get single assignment by ID
  */
-router.get('/assignments/:id', async (req: Request, res: Response) => {
+router.get('/assignments/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const sb = getSupabase();
     const { data, error } = await sb
@@ -378,7 +379,7 @@ router.get('/assignments/:id', async (req: Request, res: Response) => {
  * POST /assignments
  * Create new daily assignment
  */
-router.post('/assignments', async (req: Request, res: Response) => {
+router.post('/assignments', requireAdmin, async (req: Request, res: Response) => {
   try {
     const sb = getSupabase();
 
@@ -419,7 +420,7 @@ router.post('/assignments', async (req: Request, res: Response) => {
  * PATCH /assignments/:id
  * Update daily assignment
  */
-router.patch('/assignments/:id', async (req: Request, res: Response) => {
+router.patch('/assignments/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const sb = getSupabase();
 
@@ -461,7 +462,7 @@ router.patch('/assignments/:id', async (req: Request, res: Response) => {
  * DELETE /assignments/:id
  * Delete daily assignment
  */
-router.delete('/assignments/:id', async (req: Request, res: Response) => {
+router.delete('/assignments/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const sb = getSupabase();
     const { error } = await sb
