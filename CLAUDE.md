@@ -34,6 +34,7 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-01: Created content.routes.ts (17th route module) for Content Production Hub
 - 2026-01-31: Staging/production branch workflow established
 - 2026-01-31: Documentation restructure (roles, workflow, single source of truth)
 - 2026-01-31: Analytics rebuild complete (P1-P8)
@@ -45,3 +46,5 @@ READ THESE FIRST:
 
 - 67 client TS errors (non-blocking, admin analytics components)
 - Mapbox GL JS migration planned for Partner Directory map
+
+<!-- Deploy test: 2026-02-01T19:15:27+01:00 -->
