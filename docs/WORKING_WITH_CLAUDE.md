@@ -8,9 +8,9 @@ Quick reference for reporting issues and requesting changes.
 
 | Who | Owns | Responsibility |
 |-----|------|----------------|
-| **Stéphane** | Decisions | Makes decisions, approves plans, tests results in browser |
+| **Stéphane** | Decisions | Makes decisions, approves plans, tests in browser |
 | **Claude Chat** | Documentation (*.md) | Writes/updates all markdown files directly, planning, verification |
-| **Claude Code** | Code (*.ts, *.tsx, etc.) | Executes code changes and commands, reports back |
+| **Claude Code** | Code + Commands | Executes code changes, runs terminal commands (npm, git, curl, etc.), reports back |
 
 **Key rules:**
 - **Claude Chat writes documentation directly** — no prompts needed for .md files
