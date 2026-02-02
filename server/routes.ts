@@ -30,6 +30,7 @@ import blogImagesRoutes from "./routes/blog-images.routes";
 import mediaRoutes from "./routes/media.routes";
 import analyticsLegacyRoutes from "./routes/analytics-legacy.routes";
 import travelUploadRoutes from "./routes/travel-upload.routes";
+import helpRoutes from "./routes/help.routes";
 
 /**
  * Register all API routes on the Express app
@@ -85,7 +86,10 @@ export async function registerRoutes(app: Express): Promise<void> {
   // Travel Upload Portal routes (paths already include /api prefix)
   app.use(travelUploadRoutes);              // /api/travel-upload/*, /api/travel-agency-codes/*
 
-  console.log("✅ All 20 route modules registered: health, hero, gallery, faq, contact, cta, legal, analytics, analytics-legacy(stub), newsletter, partners, admin, content, seo, blog, blog-tags, blog-admin, blog-images, media, travel-upload");
+  // Help System routes
+  app.use("/api", helpRoutes);              // /api/help/screens, /api/help/flows
+
+  console.log("✅ All 21 route modules registered: health, hero, gallery, faq, contact, cta, legal, analytics, analytics-legacy(stub), newsletter, partners, admin, content, seo, blog, blog-tags, blog-admin, blog-images, media, travel-upload, help");
   console.log("✅ All routes migrated ✅");
 }
 

@@ -1010,3 +1010,51 @@ export const insertTravelUploadSubmissionSchema = createInsertSchema(travelUploa
 
 export type TravelUploadSubmission = typeof travelUploadSubmissions.$inferSelect;
 export type InsertTravelUploadSubmission = z.infer<typeof insertTravelUploadSubmissionSchema>;
+
+// ============================================================================
+// HELP SYSTEM TABLES
+// ============================================================================
+
+// Help screens table - contextual help for each admin screen
+export const helpScreens = pgTable("help_screens", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  route: varchar("route", { length: 255 }).notNull().unique(),
+  title: varchar("title", { length: 255 }).notNull(),
+  htmlContent: text("html_content").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  updatedBy: varchar("updated_by", { length: 255 }),
+  tags: text("tags").array(),
+  relatedFlowIds: uuid("related_flow_ids").array()
+});
+
+export const insertHelpScreenSchema = createInsertSchema(helpScreens).omit({
+  id: true,
+  updatedAt: true
+});
+
+export type HelpScreen = typeof helpScreens.$inferSelect;
+export type InsertHelpScreen = z.infer<typeof insertHelpScreenSchema>;
+
+// Help flows table - step-by-step guides across screens
+export const helpFlows = pgTable("help_flows", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  stepsJson: jsonb("steps_json").notNull().$type<{
+    step: number;
+    route: string;
+    title: string;
+    instruction: string;
+    highlightSelector?: string;
+  }[]>(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  updatedBy: varchar("updated_by", { length: 255 })
+});
+
+export const insertHelpFlowSchema = createInsertSchema(helpFlows).omit({
+  id: true,
+  updatedAt: true
+});
+
+export type HelpFlow = typeof helpFlows.$inferSelect;
+export type InsertHelpFlow = z.infer<typeof insertHelpFlowSchema>;
