@@ -10,7 +10,21 @@ interface HelpFlowViewerProps {
 
 export function HelpFlowViewer({ flow, onBack }: HelpFlowViewerProps) {
   const [currentStep, setCurrentStep] = React.useState(0);
-  const steps = flow.stepsJson || [];
+
+  // Handle stepsJson being either an array or a JSON string
+  const steps = React.useMemo(() => {
+    if (!flow.stepsJson) return [];
+    if (Array.isArray(flow.stepsJson)) return flow.stepsJson;
+    if (typeof flow.stepsJson === 'string') {
+      try {
+        return JSON.parse(flow.stepsJson);
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  }, [flow.stepsJson]);
+
   const step = steps[currentStep];
 
   return (

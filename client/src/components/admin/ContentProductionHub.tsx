@@ -55,7 +55,7 @@ export default function ContentProductionHub() {
       <div className="flex items-center gap-3">
         <Rocket className="h-8 w-8 text-[#D67C4A]" />
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Blog Posts</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Blog Hub</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
             Plan topics, research keywords, create and publish blog posts
           </p>
@@ -79,7 +79,7 @@ export default function ContentProductionHub() {
             className="data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
           >
             <FileText className="h-4 w-4 mr-2" />
-            Topic Backlog
+            Topics
           </TabsTrigger>
           <TabsTrigger 
             value="keywords" 
@@ -95,7 +95,7 @@ export default function ContentProductionHub() {
             className="data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
           >
             <BookOpen className="h-4 w-4 mr-2" />
-            Manage Posts
+            Posts
           </TabsTrigger>
           <TabsTrigger 
             value="images" 
