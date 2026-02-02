@@ -63,15 +63,15 @@ export default function AdminPage() {
     const params = new URLSearchParams(window.location.search);
     const tab = params.get('tab');
     
-    // Handle blog-edit tab (redirect to content-production which is now Blog Posts)
+    // Handle blog-edit tab (redirect to blog which is now Blog Posts)
     if (tab === 'blog-edit') {
-      return 'content-production';
+      return 'blog';
     }
     
     // Handle Content Production Hub sub-tabs (planner, topics, keywords, posts, tags)
-    // If user has ?tab=topics or ?tab=keywords etc, show content-production section
+    // If user has ?tab=topics or ?tab=keywords etc, show blog section
     if (tab && ['planner', 'topics', 'keywords', 'posts', 'tags'].includes(tab)) {
-      return 'content-production';
+      return 'blog';
     }
     
     // Handle other tab parameters
@@ -169,9 +169,9 @@ export default function AdminPage() {
       const tab = params.get('tab');
       
       if (tab === 'blog-edit') {
-        setActiveSection('content-production');
+        setActiveSection('blog');
       } else if (tab && ['planner', 'topics', 'keywords', 'posts', 'tags'].includes(tab)) {
-        setActiveSection('content-production');
+        setActiveSection('blog');
       } else if (tab) {
         setActiveSection(tab);
       }
@@ -278,7 +278,7 @@ export default function AdminPage() {
       directLink: true, // Direct link to analytics dashboard
     },
     {
-      id: 'content-production',
+      id: 'blog',
       label: 'Blog',
       icon: PenTool,
       directLink: true, // Direct link to blog (internal tabs handle sub-navigation)
@@ -1661,7 +1661,7 @@ export default function AdminPage() {
           )}
 
           {/* Blog Posts - Unified Content Production Hub */}
-          {activeSection === 'content-production' && (
+          {activeSection === 'blog' && (
             <ContentProductionHub />
           )}
 

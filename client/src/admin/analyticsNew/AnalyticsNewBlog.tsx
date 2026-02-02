@@ -117,7 +117,7 @@ export const AnalyticsNewBlog: React.FC = () => {
   // Cross-tab navigation functions using wouter's setLocation for SPA navigation
   const navigateToPostsTab = (postSlug?: string) => {
     const params = new URLSearchParams(window.location.search);
-    params.set('tab', 'content-production');
+    params.set('tab', 'blog');
     params.set('cptab', 'posts');
     if (postSlug) {
       params.set('highlightPost', postSlug);
@@ -127,7 +127,7 @@ export const AnalyticsNewBlog: React.FC = () => {
 
   const navigateToTopicsTab = (topicId: string) => {
     const params = new URLSearchParams(window.location.search);
-    params.set('tab', 'content-production');
+    params.set('tab', 'blog');
     params.set('cptab', 'topics');
     params.set('highlightTopic', topicId);
     setLocation(`/admin?${params.toString()}`);
@@ -135,7 +135,7 @@ export const AnalyticsNewBlog: React.FC = () => {
 
   const navigateToPostsWithKeyword = (keyword: string) => {
     const params = new URLSearchParams(window.location.search);
-    params.set('tab', 'content-production');
+    params.set('tab', 'blog');
     params.set('cptab', 'posts');
     params.set('filterKeyword', keyword);
     setLocation(`/admin?${params.toString()}`);
