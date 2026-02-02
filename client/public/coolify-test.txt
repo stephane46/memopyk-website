@@ -1,0 +1,2 @@
+Coolify production - 2026-02-02
+Deployed from main branch
