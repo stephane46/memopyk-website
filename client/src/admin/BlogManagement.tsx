@@ -45,7 +45,7 @@ export function BlogManagement() {
         <div className="flex items-center gap-3 mb-6">
           <BookOpen className="h-8 w-8 text-[#D67C4A]" />
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Blog Posts</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Blog Hub</h1>
             <p className="text-gray-600 mt-1">Create and manage your blog content</p>
           </div>
         </div>
@@ -101,7 +101,7 @@ export function BlogManagement() {
                 data-testid="tab-manage-posts"
               >
                 <FileText className="h-4 w-4 mr-2" />
-                Manage Posts
+                Posts
               </Button>
               <Button
                 variant="ghost"
