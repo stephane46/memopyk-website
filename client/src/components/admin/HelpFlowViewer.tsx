@@ -13,18 +13,37 @@ export function HelpFlowViewer({ flow, onBack }: HelpFlowViewerProps) {
 
   // Handle stepsJson being either an array or a JSON string
   const steps = React.useMemo(() => {
-    if (!flow.stepsJson) return [];
-    if (Array.isArray(flow.stepsJson)) return flow.stepsJson;
-    if (typeof flow.stepsJson === 'string') {
+    const rawSteps = flow.stepsJson;
+
+    // Debug logging
+    console.log('[HelpFlowViewer] Raw stepsJson:', rawSteps);
+    console.log('[HelpFlowViewer] Type:', typeof rawSteps);
+    console.log('[HelpFlowViewer] Is array:', Array.isArray(rawSteps));
+
+    if (!rawSteps) {
+      console.log('[HelpFlowViewer] No stepsJson, returning []');
+      return [];
+    }
+    if (Array.isArray(rawSteps)) {
+      console.log('[HelpFlowViewer] Is array, length:', rawSteps.length);
+      return rawSteps;
+    }
+    if (typeof rawSteps === 'string') {
+      console.log('[HelpFlowViewer] Is string, parsing...');
       try {
-        return JSON.parse(flow.stepsJson);
-      } catch {
+        const parsed = JSON.parse(rawSteps);
+        console.log('[HelpFlowViewer] Parsed result:', parsed, 'length:', parsed?.length);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        console.log('[HelpFlowViewer] Parse error:', e);
         return [];
       }
     }
+    console.log('[HelpFlowViewer] Unknown type, returning []');
     return [];
   }, [flow.stepsJson]);
 
+  console.log('[HelpFlowViewer] Final steps array:', steps, 'length:', steps.length);
   const step = steps[currentStep];
 
   return (
