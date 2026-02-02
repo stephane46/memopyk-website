@@ -35,22 +35,24 @@ interface HelpFlowSummary {
   updatedAt: string;
 }
 
-export function useHelpScreen(route: string) {
+export function useHelpScreen(route: string, enabled: boolean = true) {
   return useQuery<HelpScreen | null>({
     queryKey: ['help-screen', route],
     queryFn: async () => {
+      if (!route) return null;
       const encodedRoute = encodeURIComponent(route);
       const res = await fetch(`/api/help/screens/${encodedRoute}`);
       if (res.status === 404) return null;
       if (!res.ok) throw new Error('Failed to fetch help content');
       return res.json();
     },
+    enabled: enabled && !!route, // Only fetch when enabled AND route is not empty
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: false
   });
 }
 
-export function useHelpFlows() {
+export function useHelpFlows(enabled: boolean = true) {
   return useQuery<HelpFlowSummary[]>({
     queryKey: ['help-flows'],
     queryFn: async () => {
@@ -58,6 +60,7 @@ export function useHelpFlows() {
       if (!res.ok) throw new Error('Failed to fetch help flows');
       return res.json();
     },
+    enabled,
     staleTime: 5 * 60 * 1000
   });
 }

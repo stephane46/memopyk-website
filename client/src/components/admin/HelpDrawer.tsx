@@ -13,8 +13,9 @@ interface HelpDrawerProps {
 export function HelpDrawer({ isOpen, onClose, currentRoute }: HelpDrawerProps) {
   const [selectedFlowId, setSelectedFlowId] = React.useState<string | null>(null);
 
-  const { data: screenHelp, isLoading: screenLoading } = useHelpScreen(currentRoute);
-  const { data: flows, isLoading: flowsLoading } = useHelpFlows();
+  // Only fetch when drawer is open to avoid unnecessary requests
+  const { data: screenHelp, isLoading: screenLoading } = useHelpScreen(currentRoute, isOpen);
+  const { data: flows, isLoading: flowsLoading } = useHelpFlows(isOpen);
   const { data: selectedFlow } = useHelpFlow(selectedFlowId);
 
   // Reset flow selection when drawer closes
