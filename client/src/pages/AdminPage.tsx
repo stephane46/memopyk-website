@@ -267,35 +267,20 @@ export default function AdminPage() {
     window.location.reload();
   };
 
-  // Categorized menu structure with collapsible sections
+  // Menu structure with direct links and collapsible sections
+  // Items with 'directLink' go directly to a section, items with 'children' are collapsible
   const menuCategories = [
     {
-      id: 'analytics',
+      id: 'analytics-new',
       label: 'Analytics',
       icon: BarChart3,
-      children: [
-        { id: 'analytics-new', label: 'Dashboard', icon: LayoutDashboard },
-      ]
+      directLink: true, // Direct link to analytics dashboard
     },
     {
-      id: 'blog',
+      id: 'content-production',
       label: 'Blog',
       icon: PenTool,
-      children: [
-        { id: 'content-production', label: 'Articles', icon: FileText },
-      ]
-    },
-    {
-      id: 'contenu-site',
-      label: 'Contenu Site',
-      icon: Layers,
-      children: [
-        { id: 'hero-management', label: 'Vidéos Hero', icon: Video },
-        { id: 'gallery', label: 'Galerie Vidéos', icon: Play },
-        { id: 'faq', label: 'FAQ', icon: MessageSquare },
-        { id: 'cta', label: 'Boutons CTA', icon: Zap },
-        { id: 'why-memopyk', label: 'Pourquoi MEMOPYK', icon: Users },
-      ]
+      directLink: true, // Direct link to blog (internal tabs handle sub-navigation)
     },
     {
       id: 'partenaires',
@@ -307,11 +292,21 @@ export default function AdminPage() {
       ]
     },
     {
-      id: 'legal-seo',
-      label: 'Légal & SEO',
-      icon: Scale,
+      id: 'seo',
+      label: 'SEO',
+      icon: Search,
+      directLink: true, // Direct link to SEO
+    },
+    {
+      id: 'contenu-site',
+      label: 'Contenu Site',
+      icon: Layers,
       children: [
-        { id: 'seo', label: 'SEO', icon: Globe },
+        { id: 'hero-management', label: 'Vidéos Hero', icon: Video },
+        { id: 'gallery', label: 'Galerie Vidéos', icon: Play },
+        { id: 'faq', label: 'FAQ', icon: MessageSquare },
+        { id: 'why-memopyk', label: 'Pourquoi MEMOPYK', icon: Users },
+        { id: 'cta', label: 'Boutons CTA', icon: Zap },
         { id: 'legal-docs', label: 'Documents Légaux', icon: FileText },
       ]
     },
@@ -334,10 +329,10 @@ export default function AdminPage() {
       try {
         return JSON.parse(saved);
       } catch {
-        return ['analytics']; // Default to analytics expanded
+        return []; // No default expansion needed
       }
     }
-    return ['analytics']; // Default to analytics expanded
+    return []; // No default expansion (top items are direct links)
   });
 
   // Persist expanded categories to localStorage
@@ -348,7 +343,7 @@ export default function AdminPage() {
   // Find which category contains the active section and expand it
   useEffect(() => {
     const category = menuCategories.find(cat =>
-      cat.children.some(child => child.id === activeSection)
+      cat.children?.some(child => child.id === activeSection)
     );
     if (category && !expandedCategories.includes(category.id)) {
       setExpandedCategories(prev => [...prev, category.id]);
@@ -363,9 +358,14 @@ export default function AdminPage() {
     );
   };
 
-  // Check if a category has an active child
+  // Check if a category has an active child (for collapsible items)
   const categoryHasActiveChild = (category: typeof menuCategories[0]) => {
-    return category.children.some(child => child.id === activeSection);
+    return category.children?.some(child => child.id === activeSection) ?? false;
+  };
+
+  // Check if a direct link item is active
+  const isDirectLinkActive = (category: typeof menuCategories[0]) => {
+    return category.directLink && category.id === activeSection;
   };
 
   // Fetch hero videos
@@ -639,7 +639,38 @@ export default function AdminPage() {
               const CategoryIcon = category.icon;
               const isExpanded = expandedCategories.includes(category.id);
               const hasActiveChild = categoryHasActiveChild(category);
+              const isDirectActive = isDirectLinkActive(category);
 
+              // Direct link items (no children, navigate directly)
+              if (category.directLink) {
+                return (
+                  <div key={category.id} className="mb-1">
+                    <button
+                      onClick={() => {
+                        setActiveSection(category.id);
+                        window.history.pushState({}, '', `/en-US/admin?tab=${category.id}`);
+                      }}
+                      className={`w-full flex items-center px-3 py-2.5 rounded-lg text-left transition-colors duration-200 group ${
+                        isDirectActive
+                          ? 'text-white'
+                          : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                      }`}
+                      style={isDirectActive ? { backgroundColor: 'var(--memopyk-orange)' } : {}}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className={`p-1.5 rounded-md ${isDirectActive ? 'bg-orange-600' : 'group-hover:bg-gray-700'}`}>
+                          <CategoryIcon className={`h-4 w-4 ${isDirectActive ? 'text-white' : 'text-gray-400 group-hover:text-white'}`} />
+                        </div>
+                        <span className={`text-sm font-medium ${isDirectActive ? 'text-white' : 'text-gray-300 group-hover:text-white'}`}>
+                          {category.label}
+                        </span>
+                      </div>
+                    </button>
+                  </div>
+                );
+              }
+
+              // Collapsible category items (with children)
               return (
                 <div key={category.id} className="mb-1">
                   {/* Category Header */}
@@ -665,39 +696,41 @@ export default function AdminPage() {
                   </button>
 
                   {/* Category Children */}
-                  <div
-                    className={`overflow-hidden transition-all duration-200 ${
-                      isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                    }`}
-                  >
-                    <div className="ml-4 mt-1 space-y-0.5 border-l border-gray-700 pl-3">
-                      {category.children.map((item) => {
-                        const ItemIcon = item.icon;
-                        const isActive = activeSection === item.id;
+                  {category.children && (
+                    <div
+                      className={`overflow-hidden transition-all duration-200 ${
+                        isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                      }`}
+                    >
+                      <div className="ml-4 mt-1 space-y-0.5 border-l border-gray-700 pl-3">
+                        {category.children.map((item) => {
+                          const ItemIcon = item.icon;
+                          const isActive = activeSection === item.id;
 
-                        return (
-                          <button
-                            key={item.id}
-                            onClick={() => {
-                              setActiveSection(item.id);
-                              window.history.pushState({}, '', `/en-US/admin?tab=${item.id}`);
-                            }}
-                            className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-md text-left transition-colors duration-200 group ${
-                              isActive
-                                ? 'text-white'
-                                : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                            }`}
-                            style={isActive ? { backgroundColor: 'var(--memopyk-orange)' } : {}}
-                          >
-                            <ItemIcon className={`h-3.5 w-3.5 ${isActive ? 'text-white' : 'text-gray-500 group-hover:text-white'}`} />
-                            <span className={`text-sm ${isActive ? 'text-white font-medium' : 'text-gray-400 group-hover:text-white'}`}>
-                              {item.label}
-                            </span>
-                          </button>
-                        );
-                      })}
+                          return (
+                            <button
+                              key={item.id}
+                              onClick={() => {
+                                setActiveSection(item.id);
+                                window.history.pushState({}, '', `/en-US/admin?tab=${item.id}`);
+                              }}
+                              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-md text-left transition-colors duration-200 group ${
+                                isActive
+                                  ? 'text-white'
+                                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                              }`}
+                              style={isActive ? { backgroundColor: 'var(--memopyk-orange)' } : {}}
+                            >
+                              <ItemIcon className={`h-3.5 w-3.5 ${isActive ? 'text-white' : 'text-gray-500 group-hover:text-white'}`} />
+                              <span className={`text-sm ${isActive ? 'text-white font-medium' : 'text-gray-400 group-hover:text-white'}`}>
+                                {item.label}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               );
             })}
