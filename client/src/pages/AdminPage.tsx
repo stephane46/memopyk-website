@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ArrowUp, ArrowDown, Play, RefreshCw, BarChart3, Video, HardDrive, Users, MessageSquare, FileText, LogOut, TestTube, Rocket, X, Type, Save, ChevronUp, ChevronDown, Trash2, Eye, EyeOff, Upload, FileVideo, Database, Check, Zap, Search, Clock, TrendingUp, Globe, Sparkles, Layers, UserCheck } from 'lucide-react';
+import { ArrowUp, ArrowDown, Play, RefreshCw, BarChart3, Video, HardDrive, Users, MessageSquare, FileText, LogOut, TestTube, Rocket, X, Type, Save, ChevronUp, ChevronDown, ChevronRight, Trash2, Eye, EyeOff, Upload, FileVideo, Database, Check, Zap, Search, Clock, TrendingUp, Globe, Sparkles, Layers, UserCheck, LayoutDashboard, Handshake, Scale, Settings, PenTool } from 'lucide-react';
 import { AnalyticsNewDashboard } from '@/admin/analyticsNew/AnalyticsNewDashboard';
 import { formatFrenchDateTime } from '@/utils/date-format';
 import { useToast } from '@/hooks/use-toast';
@@ -267,23 +267,106 @@ export default function AdminPage() {
     window.location.reload();
   };
 
-  const sidebarItems = [
-    { id: 'travel-agencies', label: 'Travel Agencies', icon: Upload },
-    { id: 'analytics-new', label: 'Analytics', icon: BarChart3 },
-    { id: 'seo', label: 'SEO Management', icon: Globe },
-    { id: 'content-production', label: 'Blog Posts', icon: FileText },
-    { id: 'hero-management', label: 'Vidéos Hero', icon: Video },
-    { id: 'gallery', label: 'Galerie Vidéos', icon: Play },
-    { id: 'partners', label: 'Annuaire Pro', icon: UserCheck },
-    { id: 'cache', label: 'Cache', icon: HardDrive },
-    { id: 'faq', label: 'FAQ', icon: MessageSquare },
-    { id: 'cta', label: 'Boutons CTA', icon: Zap },
-    { id: 'why-memopyk', label: 'Pourquoi MEMOPYK', icon: Users },
-    { id: 'legal-docs', label: 'Documents Légaux', icon: FileText },
-    { id: 'cache-management', label: 'Cache GA4', icon: Database },
-    { id: 'tests', label: 'Tests', icon: TestTube },
-    { id: 'deployment', label: 'Déploiement', icon: Rocket },
+  // Categorized menu structure with collapsible sections
+  const menuCategories = [
+    {
+      id: 'analytics',
+      label: 'Analytics',
+      icon: BarChart3,
+      children: [
+        { id: 'analytics-new', label: 'Dashboard', icon: LayoutDashboard },
+      ]
+    },
+    {
+      id: 'blog',
+      label: 'Blog',
+      icon: PenTool,
+      children: [
+        { id: 'content-production', label: 'Articles', icon: FileText },
+      ]
+    },
+    {
+      id: 'contenu-site',
+      label: 'Contenu Site',
+      icon: Layers,
+      children: [
+        { id: 'hero-management', label: 'Vidéos Hero', icon: Video },
+        { id: 'gallery', label: 'Galerie Vidéos', icon: Play },
+        { id: 'faq', label: 'FAQ', icon: MessageSquare },
+        { id: 'cta', label: 'Boutons CTA', icon: Zap },
+        { id: 'why-memopyk', label: 'Pourquoi MEMOPYK', icon: Users },
+      ]
+    },
+    {
+      id: 'partenaires',
+      label: 'Partenaires',
+      icon: Handshake,
+      children: [
+        { id: 'travel-agencies', label: 'Agences de Voyage', icon: Upload },
+        { id: 'partners', label: 'Annuaire Pro', icon: UserCheck },
+      ]
+    },
+    {
+      id: 'legal-seo',
+      label: 'Légal & SEO',
+      icon: Scale,
+      children: [
+        { id: 'seo', label: 'SEO', icon: Globe },
+        { id: 'legal-docs', label: 'Documents Légaux', icon: FileText },
+      ]
+    },
+    {
+      id: 'systeme',
+      label: 'Système',
+      icon: Settings,
+      children: [
+        { id: 'cache', label: 'Cache', icon: HardDrive },
+        { id: 'tests', label: 'Tests', icon: TestTube },
+        { id: 'deployment', label: 'Déploiement', icon: Rocket },
+      ]
+    },
   ];
+
+  // State for expanded categories (persisted in localStorage)
+  const [expandedCategories, setExpandedCategories] = useState<string[]>(() => {
+    const saved = localStorage.getItem('admin_expanded_categories');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return ['analytics']; // Default to analytics expanded
+      }
+    }
+    return ['analytics']; // Default to analytics expanded
+  });
+
+  // Persist expanded categories to localStorage
+  useEffect(() => {
+    localStorage.setItem('admin_expanded_categories', JSON.stringify(expandedCategories));
+  }, [expandedCategories]);
+
+  // Find which category contains the active section and expand it
+  useEffect(() => {
+    const category = menuCategories.find(cat =>
+      cat.children.some(child => child.id === activeSection)
+    );
+    if (category && !expandedCategories.includes(category.id)) {
+      setExpandedCategories(prev => [...prev, category.id]);
+    }
+  }, [activeSection]);
+
+  const toggleCategory = (categoryId: string) => {
+    setExpandedCategories(prev =>
+      prev.includes(categoryId)
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
+
+  // Check if a category has an active child
+  const categoryHasActiveChild = (category: typeof menuCategories[0]) => {
+    return category.children.some(child => child.id === activeSection);
+  };
 
   // Fetch hero videos
   const { data: heroVideos = [], isLoading: videosLoading } = useQuery<HeroVideo[]>({
@@ -550,52 +633,72 @@ export default function AdminPage() {
           <div className="mb-4 px-2">
             <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Sections</h3>
           </div>
-          
-          <div className="space-y-1">
-            {sidebarItems.map((item) => {
-              // Handle separator
-              if (item.id === 'separator') {
-                return (
-                  <div key={item.id} className="py-2 px-4">
-                    <div className="border-t border-gray-600"></div>
-                  </div>
-                );
-              }
 
-              const Icon = item.icon;
-              const isActive = activeSection === item.id;
-              
-              // Skip items without icons (like separator)
-              if (!Icon) return null;
-              
+          <div className="space-y-1">
+            {menuCategories.map((category) => {
+              const CategoryIcon = category.icon;
+              const isExpanded = expandedCategories.includes(category.id);
+              const hasActiveChild = categoryHasActiveChild(category);
+
               return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveSection(item.id);
-                    // Clear URL params when navigating via sidebar
-                    window.history.pushState({}, '', `/en-US/admin?tab=${item.id}`);
-                  }}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors duration-200 group ${
-                    isActive 
-                      ? 'text-white' 
-                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                  }`}
-                  style={isActive ? { backgroundColor: 'var(--memopyk-orange)' } : {}}
-                >
-                  {/* Icon with background that changes on hover */}
-                  <div 
-                    className={`p-2 rounded-md ${isActive ? '' : 'group-hover:bg-gray-700'}`}
-                    style={isActive ? { backgroundColor: 'rgba(255,255,255,0.2)' } : {}}
+                <div key={category.id} className="mb-1">
+                  {/* Category Header */}
+                  <button
+                    onClick={() => toggleCategory(category.id)}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left transition-colors duration-200 group ${
+                      hasActiveChild
+                        ? 'bg-gray-800 text-white'
+                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                    }`}
                   >
-                    <Icon className={`h-4 w-4 ${isActive ? 'text-white' : 'text-gray-700 group-hover:text-white'}`} />
+                    <div className="flex items-center space-x-3">
+                      <div className={`p-1.5 rounded-md ${hasActiveChild ? 'bg-gray-700' : 'group-hover:bg-gray-700'}`}>
+                        <CategoryIcon className={`h-4 w-4 ${hasActiveChild ? 'text-orange-400' : 'text-gray-400 group-hover:text-white'}`} />
+                      </div>
+                      <span className={`text-sm font-medium ${hasActiveChild ? 'text-white' : 'text-gray-300 group-hover:text-white'}`}>
+                        {category.label}
+                      </span>
+                    </div>
+                    <ChevronRight
+                      className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
+                    />
+                  </button>
+
+                  {/* Category Children */}
+                  <div
+                    className={`overflow-hidden transition-all duration-200 ${
+                      isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                    }`}
+                  >
+                    <div className="ml-4 mt-1 space-y-0.5 border-l border-gray-700 pl-3">
+                      {category.children.map((item) => {
+                        const ItemIcon = item.icon;
+                        const isActive = activeSection === item.id;
+
+                        return (
+                          <button
+                            key={item.id}
+                            onClick={() => {
+                              setActiveSection(item.id);
+                              window.history.pushState({}, '', `/en-US/admin?tab=${item.id}`);
+                            }}
+                            className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-md text-left transition-colors duration-200 group ${
+                              isActive
+                                ? 'text-white'
+                                : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                            }`}
+                            style={isActive ? { backgroundColor: 'var(--memopyk-orange)' } : {}}
+                          >
+                            <ItemIcon className={`h-3.5 w-3.5 ${isActive ? 'text-white' : 'text-gray-500 group-hover:text-white'}`} />
+                            <span className={`text-sm ${isActive ? 'text-white font-medium' : 'text-gray-400 group-hover:text-white'}`}>
+                              {item.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                  
-                  {/* Label */}
-                  <span className={`text-sm font-medium ${isActive ? 'text-white font-semibold' : 'text-gray-300 group-hover:text-white'}`}>
-                    {item.label}
-                  </span>
-                </button>
+                </div>
               );
             })}
           </div>
