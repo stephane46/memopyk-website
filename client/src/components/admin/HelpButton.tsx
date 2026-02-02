@@ -11,12 +11,17 @@ interface HelpButtonProps {
 
 export function HelpButton({ currentRoute: propRoute, className }: HelpButtonProps) {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [currentRoute, setCurrentRoute] = React.useState('');
 
   // Build route string from current location + search params
-  const currentRoute = React.useMemo(() => {
+  // Strip language prefix (e.g., /en-US/admin -> /admin)
+  const computeRoute = React.useCallback(() => {
     if (propRoute) return propRoute;
 
-    const pathname = window.location.pathname;
+    let pathname = window.location.pathname;
+    // Strip language prefix like /en-US or /fr-FR
+    pathname = pathname.replace(/^\/(en-US|fr-FR)/, '');
+
     const searchParams = new URLSearchParams(window.location.search);
     const tab = searchParams.get('tab');
     if (tab) {
@@ -25,13 +30,28 @@ export function HelpButton({ currentRoute: propRoute, className }: HelpButtonPro
     return pathname;
   }, [propRoute]);
 
-  // Update route when URL changes (for SPA navigation)
-  const [, forceUpdate] = React.useState({});
+  // Update route on mount and when URL changes
   React.useEffect(() => {
-    const handlePopState = () => forceUpdate({});
+    setCurrentRoute(computeRoute());
+
+    // Listen for popstate (back/forward navigation)
+    const handlePopState = () => setCurrentRoute(computeRoute());
     window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+
+    // Poll for URL changes (handles pushState from tab clicks)
+    let lastUrl = window.location.href;
+    const interval = setInterval(() => {
+      if (window.location.href !== lastUrl) {
+        lastUrl = window.location.href;
+        setCurrentRoute(computeRoute());
+      }
+    }, 500);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      clearInterval(interval);
+    };
+  }, [computeRoute]);
 
   return (
     <>
