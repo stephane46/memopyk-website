@@ -33,6 +33,7 @@ import ContentProductionHub from '@/components/admin/ContentProductionHub';
 import TravelUploadsAdmin from '@/components/admin/TravelUploadsAdmin';
 import TravelAgencyCodesAdmin from '@/components/admin/TravelAgencyCodesAdmin';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { HelpButton } from '@/components/admin/HelpButton';
 
 
 interface HeroVideo {
@@ -737,8 +738,9 @@ export default function AdminPage() {
           </div>
         </nav>
 
-        {/* Logout - Fixed at bottom */}
-        <div className="p-4 border-t border-gray-700 flex-shrink-0">
+        {/* Help & Logout - Fixed at bottom */}
+        <div className="p-4 border-t border-gray-700 flex-shrink-0 space-y-2">
+          <HelpButton />
           <button
             onClick={handleLogout}
             className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
