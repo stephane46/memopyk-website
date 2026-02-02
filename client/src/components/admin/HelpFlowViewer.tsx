@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, ChevronRight, CheckCircle2, Circle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { HelpFlow } from '@/hooks/useHelp';
 
@@ -45,22 +45,36 @@ export function HelpFlowViewer({ flow, onBack }: HelpFlowViewerProps) {
       {/* Flow title */}
       <h3 className="text-lg font-semibold">{flow.title}</h3>
 
-      {/* Progress dots */}
-      <div className="flex gap-2">
+      {/* Progress dots - using inline styles for reliability */}
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
         {steps.map((_, idx) => (
           <button
             key={idx}
             onClick={() => setCurrentStep(idx)}
-            className="p-0.5 hover:scale-110 transition-transform"
+            style={{
+              width: '28px',
+              height: '28px',
+              borderRadius: '50%',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: idx < currentStep
+                ? '#22c55e'  // green for completed
+                : idx === currentStep
+                  ? '#f97316' // orange for current
+                  : '#d1d5db', // gray for upcoming
+              color: 'white',
+              fontWeight: 'bold',
+              fontSize: '12px',
+              transition: 'transform 0.2s',
+            }}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
             title={`Step ${idx + 1}`}
           >
-            {idx < currentStep ? (
-              <CheckCircle2 className="h-6 w-6 text-green-500" />
-            ) : idx === currentStep ? (
-              <Circle className="h-6 w-6 text-orange-500 fill-orange-500" />
-            ) : (
-              <Circle className="h-6 w-6 text-gray-300" />
-            )}
+            {idx < currentStep ? <Check className="h-4 w-4" /> : idx + 1}
           </button>
         ))}
       </div>
