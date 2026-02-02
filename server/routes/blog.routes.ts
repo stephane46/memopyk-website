@@ -255,15 +255,68 @@ router.get('/blog/posts/:slug/related', async (req: Request, res: Response) => {
 
 /**
  * GET /blog/posts/:slug/gallery
- * Get post galleries (STUB - requires galleries junction table)
+ * Get post gallery images, transformed to match frontend Gallery interface
  */
 router.get('/blog/posts/:slug/gallery', async (req: Request, res: Response) => {
   try {
-    // TODO: Implement after creating blog_galleries and blog_gallery_images tables
+    const { slug } = req.params;
+
+    const supabase = getSupabase();
+
+    // Get post by slug to get the post_id
+    const { data: post, error: postError } = await supabase
+      .from('blog_posts')
+      .select('id, title')
+      .eq('slug', slug)
+      .single();
+
+    if (postError || !post) {
+      return res.json({ success: true, data: [], total: 0 });
+    }
+
+    // Get all gallery images for this post
+    const { data: images, error: imagesError } = await supabase
+      .from('blog_galleries')
+      .select('*')
+      .eq('post_id', post.id)
+      .order('sort', { ascending: true, nullsFirst: false });
+
+    if (imagesError) {
+      console.error('Error fetching gallery images:', imagesError);
+      throw imagesError;
+    }
+
+    // If no images, return empty
+    if (!images || images.length === 0) {
+      return res.json({ success: true, data: [], total: 0 });
+    }
+
+    // Transform flat images to Gallery format expected by frontend
+    // All images for a post become one gallery with layout based on count
+    const layoutType = images.length === 1 ? 'single'
+      : images.length === 2 ? 'side-by-side'
+      : images.length <= 4 ? 'grid-2'
+      : 'carousel';
+
+    const gallery = {
+      id: `gallery-${post.id}`,
+      title: '',
+      description: '',
+      layout_type: layoutType,
+      display_order: 0,
+      gallery_images: images.map((img: any, idx: number) => ({
+        id: img.id,
+        caption: img.title || '',
+        alt_text: img.alt || '',
+        image: { id: img.id, url: img.url },
+        display_order: img.sort ?? idx
+      }))
+    };
+
     res.json({
       success: true,
-      data: [],
-      total: 0
+      data: [gallery],
+      total: 1
     });
   } catch (error) {
     console.error('Error fetching galleries:', error);

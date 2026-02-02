@@ -590,7 +590,7 @@ function TagManagementModal({ open, onOpenChange }: { open: boolean; onOpenChang
   // Create tag mutation
   const createMutation = useMutation({
     mutationFn: async (name: string) => {
-      const response = await apiRequest('/api/blog-tags', 'POST', { name });
+      const response = await apiRequest('/api/admin/blog/tags', 'POST', { name });
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to create tag');
@@ -599,6 +599,7 @@ function TagManagementModal({ open, onOpenChange }: { open: boolean; onOpenChang
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/blog-tags'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/blog/tags'] });
       setNewTagName('');
       toast({ title: '✅ Tag Created' });
     },
@@ -610,7 +611,7 @@ function TagManagementModal({ open, onOpenChange }: { open: boolean; onOpenChang
   // Update tag mutation
   const updateMutation = useMutation({
     mutationFn: async ({ id, name }: { id: string; name: string }) => {
-      const response = await apiRequest(`/api/blog-tags/${id}`, 'PATCH', { name });
+      const response = await apiRequest(`/api/admin/blog/tags/${id}`, 'PUT', { name });
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to update tag');
@@ -619,6 +620,7 @@ function TagManagementModal({ open, onOpenChange }: { open: boolean; onOpenChang
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/blog-tags'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/blog/tags'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/blog/posts'] });
       setEditingTag(null);
       setEditedName('');
@@ -632,15 +634,12 @@ function TagManagementModal({ open, onOpenChange }: { open: boolean; onOpenChang
   // Delete tag mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/blog-tags/${id}`, { method: 'DELETE' });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete tag');
-      }
+      const response = await apiRequest(`/api/admin/blog/tags/${id}`, 'DELETE');
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/blog-tags'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/blog/tags'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/blog/posts'] });
       toast({ title: '✅ Tag Deleted' });
     },

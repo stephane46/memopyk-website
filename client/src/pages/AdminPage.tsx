@@ -22,11 +22,7 @@ import { LegalDocumentManagement } from '@/components/admin/LegalDocumentManagem
 import { CtaManagement } from '@/components/admin/CtaManagement';
 import { WhyMemopykManagement } from '@/components/admin/WhyMemopykManagement';
 import PartnersManagementEnhanced from '@/components/admin/PartnersManagementEnhanced';
-import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
-import GA4AnalyticsDashboard from '@/components/admin/GA4AnalyticsDashboard';
-import CleanGA4Analytics from '@/components/admin/CleanGA4Analytics';
 import CacheManagementPage from '@/pages/CacheManagementPage';
-import { FiltersProvider } from '@/analytics/FiltersContext';
 import VideoCacheStatus from '@/components/admin/VideoCacheStatus';
 import SystemTestDashboard from '@/components/admin/SystemTestDashboard';
 import PerformanceTestDashboard from '@/components/admin/PerformanceTestDashboard';
@@ -287,11 +283,6 @@ export default function AdminPage() {
     { id: 'cache-management', label: 'Cache GA4', icon: Database },
     { id: 'tests', label: 'Tests', icon: TestTube },
     { id: 'deployment', label: 'Déploiement', icon: Rocket },
-    // Old analytics sections - moved to bottom
-    { id: 'separator', label: '—————————————————', icon: null, disabled: true },
-    { id: 'analytics', label: 'Analytics [Previous]', icon: Layers },
-    { id: 'analytics-ga', label: '[Analytics GA]', icon: TrendingUp },
-    { id: 'analytics-ga-clean', label: 'Analytics [Clean]', icon: Sparkles },
   ];
 
   // Fetch hero videos
@@ -1278,25 +1269,6 @@ export default function AdminPage() {
                 </div>
               )}
             </div>
-          )}
-
-
-
-          {/* Legacy Analytics Dashboard */}
-          {activeSection === 'analytics' && (
-            <CleanGA4Analytics />
-          )}
-
-          {/* GA4 Analytics Dashboard */}
-          {activeSection === 'analytics-ga' && (
-            <FiltersProvider>
-              <GA4AnalyticsDashboard />
-            </FiltersProvider>
-          )}
-
-          {/* New Analytics Dashboard */}
-          {activeSection === 'analytics-ga-clean' && (
-            <AnalyticsDashboard />
           )}
 
           {/* Travel Agencies Admin (Uploads + Agency Codes) */}

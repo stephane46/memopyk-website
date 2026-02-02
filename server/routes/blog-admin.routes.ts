@@ -1,9 +1,9 @@
 /**
  * Blog Admin Routes
  *
- * Admin CRUD operations for blog posts.
+ * Admin CRUD operations for blog posts and galleries.
  *
- * Routes:
+ * Post Routes:
  * - POST /admin/blog/create-from-ai - Create post from AI-generated JSON
  * - POST /admin/blog/posts/:id/translate - Duplicate post for translation
  * - GET /admin/blog/posts - Get all posts (admin view)
@@ -12,6 +12,13 @@
  * - PUT /admin/blog/posts/:id - Update post
  * - PATCH /admin/blog/posts/:id - Partial update post
  * - DELETE /admin/blog/posts/:id - Delete post
+ *
+ * Gallery Routes:
+ * - GET /admin/blog/posts/:id/gallery - Get gallery images for post
+ * - POST /admin/blog/posts/:id/gallery - Add image to gallery
+ * - PUT /admin/blog/posts/:id/gallery/:imageId - Update image
+ * - DELETE /admin/blog/posts/:id/gallery/:imageId - Delete image
+ * - PUT /admin/blog/posts/:id/gallery/reorder - Reorder images
  */
 
 import { Router, Request, Response } from 'express';
@@ -647,6 +654,199 @@ router.delete('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: R
     });
   } catch (error) {
     console.error('Error deleting post:', error);
+    res.status(500).json({ success: false, error: (error as Error).message });
+  }
+});
+
+// ============================================================================
+// BLOG GALLERY MANAGEMENT
+// ============================================================================
+
+/**
+ * GET /admin/blog/posts/:id/gallery
+ * Get all gallery images for a post (admin view)
+ */
+router.get('/admin/blog/posts/:id/gallery', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const supabase = getSupabase();
+
+    const { data: images, error } = await supabase
+      .from('blog_galleries')
+      .select('*')
+      .eq('post_id', id)
+      .order('sort', { ascending: true, nullsFirst: false });
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      data: images || [],
+      total: images?.length || 0
+    });
+  } catch (error) {
+    console.error('Error fetching gallery images:', error);
+    res.status(500).json({ success: false, error: (error as Error).message });
+  }
+});
+
+/**
+ * POST /admin/blog/posts/:id/gallery
+ * Add image to post gallery
+ */
+router.post('/admin/blog/posts/:id/gallery', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { url, title, alt, sort } = req.body;
+
+    if (!url) {
+      return res.status(400).json({ success: false, error: 'Image URL is required' });
+    }
+
+    const supabase = getSupabase();
+
+    // Get max sort order for this post
+    const { data: existing } = await supabase
+      .from('blog_galleries')
+      .select('sort')
+      .eq('post_id', id)
+      .order('sort', { ascending: false })
+      .limit(1);
+
+    const nextSort = sort ?? ((existing?.[0]?.sort ?? -1) + 1);
+
+    const { data: image, error } = await supabase
+      .from('blog_galleries')
+      .insert({
+        post_id: id,
+        url,
+        title: title || null,
+        alt: alt || null,
+        sort: nextSort
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    console.log(`✅ Gallery image added to post ${id}`);
+
+    res.json({
+      success: true,
+      data: image
+    });
+  } catch (error) {
+    console.error('Error adding gallery image:', error);
+    res.status(500).json({ success: false, error: (error as Error).message });
+  }
+});
+
+/**
+ * PUT /admin/blog/posts/:id/gallery/:imageId
+ * Update gallery image (title, alt, sort)
+ */
+router.put('/admin/blog/posts/:id/gallery/:imageId', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { id, imageId } = req.params;
+    const { url, title, alt, sort } = req.body;
+
+    const updates: any = {};
+    if (url !== undefined) updates.url = url;
+    if (title !== undefined) updates.title = title;
+    if (alt !== undefined) updates.alt = alt;
+    if (sort !== undefined) updates.sort = sort;
+
+    const supabase = getSupabase();
+
+    const { data: image, error } = await supabase
+      .from('blog_galleries')
+      .update(updates)
+      .eq('id', imageId)
+      .eq('post_id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    console.log(`✅ Gallery image ${imageId} updated`);
+
+    res.json({
+      success: true,
+      data: image
+    });
+  } catch (error) {
+    console.error('Error updating gallery image:', error);
+    res.status(500).json({ success: false, error: (error as Error).message });
+  }
+});
+
+/**
+ * DELETE /admin/blog/posts/:id/gallery/:imageId
+ * Remove image from gallery
+ */
+router.delete('/admin/blog/posts/:id/gallery/:imageId', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { id, imageId } = req.params;
+
+    const supabase = getSupabase();
+
+    const { error } = await supabase
+      .from('blog_galleries')
+      .delete()
+      .eq('id', imageId)
+      .eq('post_id', id);
+
+    if (error) throw error;
+
+    console.log(`✅ Gallery image ${imageId} deleted from post ${id}`);
+
+    res.json({
+      success: true,
+      message: 'Gallery image deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting gallery image:', error);
+    res.status(500).json({ success: false, error: (error as Error).message });
+  }
+});
+
+/**
+ * PUT /admin/blog/posts/:id/gallery/reorder
+ * Reorder gallery images
+ */
+router.put('/admin/blog/posts/:id/gallery/reorder', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { imageIds } = req.body;
+
+    if (!Array.isArray(imageIds)) {
+      return res.status(400).json({ success: false, error: 'imageIds must be an array' });
+    }
+
+    const supabase = getSupabase();
+
+    // Update sort order for each image
+    for (let i = 0; i < imageIds.length; i++) {
+      const { error } = await supabase
+        .from('blog_galleries')
+        .update({ sort: i })
+        .eq('id', imageIds[i])
+        .eq('post_id', id);
+
+      if (error) {
+        console.error(`Error updating sort for image ${imageIds[i]}:`, error);
+      }
+    }
+
+    console.log(`✅ Gallery images reordered for post ${id}`);
+
+    res.json({
+      success: true,
+      message: 'Gallery images reordered successfully'
+    });
+  } catch (error) {
+    console.error('Error reordering gallery images:', error);
     res.status(500).json({ success: false, error: (error as Error).message });
   }
 });
