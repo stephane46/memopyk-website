@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Sparkles, FileText, Tag, ArrowLeft } from 'lucide-react';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { BlogAICreator } from './BlogAICreator';
 import { BlogManagePosts } from './BlogManagePosts';
 import { BlogTagManagement } from './BlogTagManagement';
@@ -131,25 +132,33 @@ export function BlogManagement() {
         {/* Tab Content */}
         {activeTab === 'manage' && (
           <div className="space-y-4">
-            <BlogManagePosts />
+            <ErrorBoundary>
+              <BlogManagePosts />
+            </ErrorBoundary>
           </div>
         )}
 
         {activeTab === 'ai-creator' && (
           <div className="space-y-4">
-            <BlogAICreator />
+            <ErrorBoundary>
+              <BlogAICreator />
+            </ErrorBoundary>
           </div>
         )}
 
         {activeTab === 'tags' && (
           <div className="space-y-4">
-            <BlogTagManagement />
+            <ErrorBoundary>
+              <BlogTagManagement />
+            </ErrorBoundary>
           </div>
         )}
 
         {activeTab === 'edit' && editPostId && (
           <div className="space-y-4">
-            <BlogEditor postId={editPostId} />
+            <ErrorBoundary>
+              <BlogEditor postId={editPostId} />
+            </ErrorBoundary>
           </div>
         )}
       </div>

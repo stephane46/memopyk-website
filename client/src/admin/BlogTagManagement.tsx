@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { queryClient, apiRequest, adminFetch } from '@/lib/queryClient';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,15 +14,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-type BlogTag = {
-  id: string;
-  name: string;
-  slug: string;
-  color: string | null;
-  icon: string | null;
-  post_count?: number;
-};
+import type { BlogTag } from '@shared/schema';
+import { useTagsQuery, useCreateTag, useUpdateTag, useDeleteTag } from './hooks/useTagMutations';
 
 export function BlogTagManagement() {
   const { toast } = useToast();
@@ -33,64 +24,13 @@ export function BlogTagManagement() {
   const [tagName, setTagName] = useState('');
   const [tagColor, setTagColor] = useState('#D67C4A');
 
-  // Fetch tags
-  const { data: tagsData, isLoading } = useQuery({
-    queryKey: ['/api/admin/blog/tags'],
-    queryFn: async () => {
-      const response = await adminFetch('/api/admin/blog/tags');
-      if (!response.ok) throw new Error('Failed to fetch tags');
-      return response.json();
-    }
-  });
+  // Use shared hooks
+  const { data: tagsData, isLoading } = useTagsQuery();
+  const createMutation = useCreateTag();
+  const updateMutation = useUpdateTag();
+  const deleteMutation = useDeleteTag();
 
   const tags: BlogTag[] = tagsData?.data || [];
-
-  // Create/update tag mutation
-  const saveMutation = useMutation({
-    mutationFn: async ({ id, name, color }: { id?: string; name: string; color: string }) => {
-      if (id) {
-        return apiRequest(`/api/admin/blog/tags/${id}`, 'PUT', { name, color });
-      } else {
-        return apiRequest('/api/admin/blog/tags', 'POST', { name, color });
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/blog/tags'] });
-      toast({
-        title: "Success!",
-        description: editingTag ? "Tag updated successfully" : "Tag created successfully"
-      });
-      handleCloseDialog();
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
-  });
-
-  // Delete tag mutation
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return apiRequest(`/api/admin/blog/tags/${id}`, 'DELETE');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/blog/tags'] });
-      toast({
-        title: "Success!",
-        description: "Tag deleted successfully"
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
-  });
 
   const handleOpenDialog = (tag?: BlogTag) => {
     if (tag) {
@@ -122,11 +62,17 @@ export function BlogTagManagement() {
       return;
     }
 
-    saveMutation.mutate({
-      id: editingTag?.id,
-      name: tagName.trim(),
-      color: tagColor
-    });
+    if (editingTag) {
+      updateMutation.mutate(
+        { id: editingTag.id, name: tagName.trim(), color: tagColor },
+        { onSuccess: handleCloseDialog }
+      );
+    } else {
+      createMutation.mutate(
+        { name: tagName.trim(), color: tagColor },
+        { onSuccess: handleCloseDialog }
+      );
+    }
   };
 
   const handleDelete = (tag: BlogTag) => {
@@ -145,6 +91,8 @@ export function BlogTagManagement() {
     '#ec4899', // Pink
     '#f59e0b', // Amber
   ];
+
+  const isSaving = createMutation.isPending || updateMutation.isPending;
 
   return (
     <div className="space-y-6">
@@ -185,7 +133,7 @@ export function BlogTagManagement() {
                   data-testid={`tag-card-${tag.id}`}
                 >
                   <div className="flex items-start justify-between mb-2">
-                    <Badge 
+                    <Badge
                       style={{ backgroundColor: tag.color || '#D67C4A' }}
                       className="text-white"
                     >
@@ -212,7 +160,7 @@ export function BlogTagManagement() {
                     </div>
                   </div>
                   <p className="text-sm text-gray-600">
-                    {tag.post_count || 0} {tag.post_count === 1 ? 'post' : 'posts'}
+                    {tag.usageCount || 0} {(tag.usageCount || 0) === 1 ? 'post' : 'posts'}
                   </p>
                 </div>
               ))}
@@ -267,7 +215,7 @@ export function BlogTagManagement() {
             </div>
             <div className="pt-2">
               <p className="text-sm text-gray-500">Preview:</p>
-              <Badge 
+              <Badge
                 style={{ backgroundColor: tagColor }}
                 className="text-white mt-2"
               >
@@ -285,11 +233,11 @@ export function BlogTagManagement() {
             </Button>
             <Button
               onClick={handleSave}
-              disabled={saveMutation.isPending}
+              disabled={isSaving}
               className="bg-[#D67C4A] hover:bg-[#c16d3f]"
               data-testid="button-save-tag"
             >
-              {saveMutation.isPending ? (
+              {isSaving ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Saving...

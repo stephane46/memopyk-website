@@ -18,25 +18,12 @@ import { BlogTagSelector } from './BlogTagSelector';
 import { createTinyMCEConfig, getAdminToken } from './tinymce/config';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { TranslationAssistant } from './TranslationAssistant';
+import type { BlogPost } from '@shared/blogTypes';
+import { BlogEditorSkeleton } from './skeletons/BlogEditorSkeleton';
 
 interface BlogEditorProps {
   postId: string;
 }
-
-type BlogPost = {
-  id: string;
-  title: string;
-  slug: string;
-  language: string;
-  status: 'draft' | 'in_review' | 'published';
-  description: string;
-  content_html: string;
-  is_featured: boolean;
-  created_at: string;
-  published_at: string | null;
-  hero_url: string | null;
-  seo: any;
-};
 
 export function BlogEditor({ postId }: BlogEditorProps) {
   const { toast } = useToast();
@@ -121,7 +108,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
       setTitle(post.title);
       setSlug(post.slug);
       setDescription(post.description);
-      setContent(post.content_html);
+      setContent(post.content_html || '');
       setStatus(post.status);
       setPublishedAt(post.published_at ? new Date(post.published_at) : null);
       setHeroUrl(post.hero_url);
@@ -275,11 +262,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-[#D67C4A]" />
-      </div>
-    );
+    return <BlogEditorSkeleton />;
   }
 
   if (!post) {

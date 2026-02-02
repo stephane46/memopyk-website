@@ -7,6 +7,7 @@ import { ContentProductionTopics } from './ContentProductionTopics';
 import { ContentProductionKeywords } from './ContentProductionKeywords';
 import { BlogManagePosts } from '@/admin/BlogManagePosts';
 import { ImageBankManager } from './ImageBankManager';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function ContentProductionHub() {
   // URL param state persistence
@@ -164,7 +165,9 @@ export default function ContentProductionHub() {
         </TabsContent>
 
         <TabsContent value="posts" className="mt-6">
-          <BlogManagePosts />
+          <ErrorBoundary>
+            <BlogManagePosts />
+          </ErrorBoundary>
         </TabsContent>
 
         <TabsContent value="images" className="mt-6">
