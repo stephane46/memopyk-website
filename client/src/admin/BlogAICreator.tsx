@@ -394,20 +394,13 @@ export const BlogAICreator: React.FC = () => {
       
       toast({
         title: "Success!",
-        description: `Blog post "${result.title}" saved! Manage it in the "Blog Management" tab to publish or edit.`,
+        description: `Blog post "${result.title}" saved! Opening editor...`,
       });
 
-      // Reset form
-      setTopic('');
-      setSeoKeywords('');
-      setSelectedTagIds([]);
-      setStatus('draft');
-      setPublishedAt(null);
-      setGeneratedPrompt('');
-      setAiJsonInput('');
-      setValidationError(null);
-      setValidatedPost(null);
-      setIsEditing(false);
+      // Navigate to Blog Editor to continue editing
+      const currentPath = window.location.pathname;
+      const langPrefix = currentPath.match(/^\/(en-US|fr-FR)/)?.[0] || '';
+      window.location.href = `${langPrefix}/admin?tab=blog-edit&id=${result.data.id}`;
 
     } catch (error: any) {
       console.error('Error creating blog post:', error);

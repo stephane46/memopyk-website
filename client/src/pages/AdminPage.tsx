@@ -72,9 +72,9 @@ function AdminPageContent() {
       return 'blog';
     }
     
-    // Handle Content Production Hub sub-tabs (planner, topics, keywords, posts, tags)
+    // Handle Content Production Hub sub-tabs
     // If user has ?tab=topics or ?tab=keywords etc, show blog section
-    if (tab && ['planner', 'topics', 'keywords', 'posts', 'tags'].includes(tab)) {
+    if (tab && ['planner', 'topics', 'keywords', 'posts', 'ai-creator', 'images'].includes(tab)) {
       return 'blog';
     }
     
@@ -174,7 +174,7 @@ function AdminPageContent() {
       
       if (tab === 'blog-edit') {
         setActiveSection('blog');
-      } else if (tab && ['planner', 'topics', 'keywords', 'posts', 'tags'].includes(tab)) {
+      } else if (tab && ['planner', 'topics', 'keywords', 'posts', 'ai-creator', 'images'].includes(tab)) {
         setActiveSection('blog');
       } else if (tab) {
         setActiveSection(tab);

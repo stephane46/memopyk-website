@@ -293,7 +293,7 @@ export function BlogManagePosts() {
       {/* Header with New Post and Manage Tags Buttons */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Posts</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Posts (Manual)</h2>
           <p className="text-gray-600 dark:text-gray-400">
             Manage and organize your blog content
           </p>

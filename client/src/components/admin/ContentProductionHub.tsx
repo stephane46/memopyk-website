@@ -112,7 +112,7 @@ export default function ContentProductionHub() {
             className="data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
           >
             <BookOpen className="h-4 w-4 mr-2" />
-            Posts
+            Posts (Manual)
           </TabsTrigger>
           <TabsTrigger
             value="ai-creator"
@@ -120,7 +120,7 @@ export default function ContentProductionHub() {
             className="data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
           >
             <Sparkles className="h-4 w-4 mr-2" />
-            AI Creator
+            Posts (AI)
           </TabsTrigger>
           <TabsTrigger
             value="images"
@@ -164,7 +164,7 @@ export default function ContentProductionHub() {
             className="flex-shrink-0 data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
           >
             <BookOpen className="h-4 w-4 mr-1" />
-            Posts
+            Manual
           </TabsTrigger>
           <TabsTrigger
             value="ai-creator"
