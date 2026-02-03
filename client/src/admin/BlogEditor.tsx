@@ -153,9 +153,9 @@ export function BlogEditor({ postId }: BlogEditorProps) {
 
   const handleSave = async () => {
     const sanitizedContent = DOMPurify.sanitize(content);
-    
-    // Save post content
-    await updateMutation.mutateAsync({
+
+    // DEBUG: Log what we're about to send
+    const updatePayload = {
       title,
       slug,
       description,
@@ -165,7 +165,12 @@ export function BlogEditor({ postId }: BlogEditorProps) {
       hero_url: heroUrl,
       is_featured: isFeatured,
       featured_order: isFeatured ? featuredOrder : null
-    });
+    };
+    console.log('🔍 BlogEditor.handleSave - publishedAt state:', publishedAt);
+    console.log('🔍 BlogEditor.handleSave - payload.published_at:', updatePayload.published_at);
+
+    // Save post content
+    await updateMutation.mutateAsync(updatePayload);
 
     // Save tags
     await saveTagsMutation.mutateAsync(selectedTagIds);
