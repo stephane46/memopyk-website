@@ -33,9 +33,15 @@ function clientIP(req: Request): string {
 
 /**
  * Factory: returns middleware that allows `maxPerMin` requests per IP per minute.
+ * E2E tests can bypass rate limiting by sending X-E2E-Token header matching E2E_BYPASS_TOKEN env var.
  */
 export function rateLimit(maxPerMin = 60) {
   return (req: Request, res: Response, next: NextFunction): void => {
+    // E2E test bypass: skip rate limiting if token matches
+    if (process.env.E2E_BYPASS_TOKEN && req.headers['x-e2e-token'] === process.env.E2E_BYPASS_TOKEN) {
+      return next();
+    }
+
     const key = clientIP(req);
     const now = Date.now();
     const entry = buckets.get(key) ?? { count: 0, ts: now };
@@ -83,7 +89,7 @@ export function corsMiddleware(req: Request, res: Response, next: NextFunction):
   if (origin && ALLOWED_ORIGINS.has(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization,x-api-key,x-csrf-token");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization,x-api-key,x-csrf-token,x-e2e-token");
     res.setHeader("Access-Control-Allow-Credentials", "true");
     res.setHeader("Access-Control-Max-Age", "86400");
   }

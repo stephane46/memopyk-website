@@ -26,6 +26,10 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     viewport: { width: 2560, height: 1440 },
+    // E2E bypass token for rate limiting - set in .env.e2e or CI secrets
+    extraHTTPHeaders: {
+      'X-E2E-Token': process.env.E2E_BYPASS_TOKEN || '',
+    },
   },
 
   projects: [

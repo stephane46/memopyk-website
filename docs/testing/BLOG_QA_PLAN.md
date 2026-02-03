@@ -848,3 +848,11 @@ npm run e2e:flows     # Flow tests only
 npm run e2e:report-md # Generate report from existing results
 npm run e2e:ui        # Interactive Playwright UI mode
 ```
+
+---
+
+## Related Documentation
+
+- **Staging Seed Data**: `docs/testing/STAGING_SEED_DATA.md` — E2E rate limit bypass and seed data setup
+- **QA Spec**: `docs/testing/BLOG_QA_SPEC.md` — Original specification for QA system
+- **Seed Script**: `scripts/seed-qa-data.sql` — SQL to seed image bank for Flow 7

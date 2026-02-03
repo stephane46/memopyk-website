@@ -39,10 +39,10 @@ test.describe('Blog Hub Flow Tests', () => {
   // Use a single browser context for all tests
   test.describe.configure({ mode: 'serial' });
 
-  // Add delay between tests to avoid rate limiting (429)
+  // Add delay between tests (reduced with rate limit bypass in place)
   test.afterEach(async ({ page }) => {
-    // Wait 5 seconds between tests to avoid rate limiting
-    await page.waitForTimeout(5000);
+    // Wait 2 seconds between tests (rate limit bypass token handles most cases)
+    await page.waitForTimeout(2000);
   });
 
   test.afterAll(async ({ browser }) => {
@@ -316,9 +316,8 @@ test.describe('Blog Hub Flow Tests', () => {
       await expect(newPostButton).toBeVisible({ timeout: 10000 });
       await expect(newPostButton).toBeEnabled({ timeout: 5000 });
 
-      // Wait longer to let rate limiter recover from previous tests
-      // This is a POST request which is more expensive rate-limit wise
-      await page.waitForTimeout(5000);
+      // Small delay before POST request (rate limit bypass handles most cases)
+      await page.waitForTimeout(1500);
 
       // Click button - this triggers POST API call then window.location.href navigation
       // Retry up to 3 times in case of rate limiting (429)
@@ -344,8 +343,8 @@ test.describe('Blog Hub Flow Tests', () => {
 
         if (lastStatus === 429) {
           // Rate limited - wait and retry (15 seconds to let rate limit clear)
-          result.notes.push(`Rate limited (429), waiting 15s before retry ${attempts}/${maxAttempts}`);
-          await page.waitForTimeout(15000);
+          result.notes.push(`Rate limited (429), waiting 3s before retry ${attempts}/${maxAttempts}`);
+          await page.waitForTimeout(3000);
           await page.reload();
           await page.waitForLoadState('networkidle');
           await clickBlogTab(page, 'posts');
@@ -572,7 +571,7 @@ test.describe('Blog Hub Flow Tests', () => {
             break;
           } else if (lastGetStatus === 429) {
             result.notes.push(`GET rate limited (429) on attempt ${attempt}, waiting 15s`);
-            await page.waitForTimeout(15000);
+            await page.waitForTimeout(3000);
             continue;
           } else {
             const responseBody = await getResponse.text().catch(() => 'Could not read response');
