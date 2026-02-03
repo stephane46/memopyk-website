@@ -29,13 +29,7 @@ export function HelpDrawer({ isOpen, onClose, currentRoute }: HelpDrawerProps) {
 
   return (
     <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/20 z-40 transition-opacity"
-        onClick={onClose}
-      />
-
-      {/* Drawer */}
+      {/* Drawer - no backdrop, stays open while user works */}
       <div className="fixed right-0 top-0 h-full w-[400px] max-w-[90vw] bg-background border-l shadow-xl z-50 flex flex-col animate-in slide-in-from-right duration-200">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b bg-muted/30">
@@ -43,8 +37,14 @@ export function HelpDrawer({ isOpen, onClose, currentRoute }: HelpDrawerProps) {
             <HelpCircle className="h-5 w-5 text-primary" />
             <h2 className="font-semibold">Help</h2>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-4 w-4" />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            title="Close help"
+            className="hover:bg-destructive/10 hover:text-destructive"
+          >
+            <X className="h-5 w-5" />
           </Button>
         </div>
 
