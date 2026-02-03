@@ -41,8 +41,8 @@ test.describe('Blog Hub Flow Tests', () => {
 
   // Add delay between tests to avoid rate limiting (429)
   test.afterEach(async ({ page }) => {
-    // Wait 3 seconds between tests to avoid rate limiting
-    await page.waitForTimeout(3000);
+    // Wait 5 seconds between tests to avoid rate limiting
+    await page.waitForTimeout(5000);
   });
 
   test.afterAll(async ({ browser }) => {
@@ -316,8 +316,9 @@ test.describe('Blog Hub Flow Tests', () => {
       await expect(newPostButton).toBeVisible({ timeout: 10000 });
       await expect(newPostButton).toBeEnabled({ timeout: 5000 });
 
-      // Small delay to ensure React hydration is complete
-      await page.waitForTimeout(1500);
+      // Wait longer to let rate limiter recover from previous tests
+      // This is a POST request which is more expensive rate-limit wise
+      await page.waitForTimeout(5000);
 
       // Click button - this triggers POST API call then window.location.href navigation
       // Retry up to 3 times in case of rate limiting (429)
@@ -342,9 +343,9 @@ test.describe('Blog Hub Flow Tests', () => {
         result.steps.push(`API responded with status ${lastStatus} (attempt ${attempts})`);
 
         if (lastStatus === 429) {
-          // Rate limited - wait and retry
-          result.notes.push(`Rate limited (429), waiting 10s before retry ${attempts}/${maxAttempts}`);
-          await page.waitForTimeout(10000);
+          // Rate limited - wait and retry (15 seconds to let rate limit clear)
+          result.notes.push(`Rate limited (429), waiting 15s before retry ${attempts}/${maxAttempts}`);
+          await page.waitForTimeout(15000);
           await page.reload();
           await page.waitForLoadState('networkidle');
           await clickBlogTab(page, 'posts');
@@ -376,9 +377,47 @@ test.describe('Blog Hub Flow Tests', () => {
         }
       }
 
-      // Wait for page to settle after navigation
+      // Wait for page to fully load and settle after navigation
+      await page.waitForLoadState('networkidle');
       await page.waitForLoadState('domcontentloaded');
-      await page.waitForTimeout(2000);
+
+      // CRITICAL: Wait for the GET request that fetches the post
+      // The editor makes a GET /api/admin/blog/posts/:id call after mounting
+      try {
+        const getResponse = await page.waitForResponse(
+          resp => resp.url().includes('/api/admin/blog/posts/') && resp.request().method() === 'GET',
+          { timeout: 15000 }
+        );
+        const getStatus = getResponse.status();
+        result.steps.push(`Editor fetched post with status ${getStatus}`);
+
+        if (getStatus !== 200) {
+          // Log the error response for debugging
+          const errorBody = await getResponse.text().catch(() => 'Could not read response');
+          result.notes.push(`GET failed with status ${getStatus}: ${errorBody.slice(0, 200)}`);
+        }
+      } catch (waitError) {
+        result.notes.push('GET request not detected - may have been cached');
+      }
+
+      await page.waitForTimeout(1000);
+
+      // Check if "Post not found" appeared (this would indicate an issue)
+      const postNotFound = page.locator('text=Post not found');
+      if (await postNotFound.isVisible({ timeout: 2000 }).catch(() => false)) {
+        // Capture the current URL for debugging
+        const currentUrl = page.url();
+        const urlMatch = currentUrl.match(/id=([^&]+)/);
+        const postIdFromUrl = urlMatch ? urlMatch[1] : 'unknown';
+        result.notes.push(`Editor shows "Post not found" for ID: ${postIdFromUrl}`);
+        result.notes.push('This may indicate a timing issue between POST and GET');
+
+        // Take a screenshot for debugging
+        await page.screenshot({ path: path.join(outputDir, 'flow4-post-not-found.png'), fullPage: true });
+        result.screenshots.push('flow4-post-not-found.png');
+
+        throw new Error(`Post not found immediately after creation (ID: ${postIdFromUrl})`);
+      }
 
       // Step 3: Verify editor opened - wait for skeleton to disappear first
       await page.waitForSelector('[data-testid="input-title"]', { state: 'visible', timeout: 30000 });
@@ -426,15 +465,44 @@ test.describe('Blog Hub Flow Tests', () => {
       await page.screenshot({ path: path.join(outputDir, 'flow4-draft-filled.png'), fullPage: true });
       result.screenshots.push('flow4-draft-filled.png');
 
-      // Step 8: Save
+      // Step 8: Save - wait for the PUT request to complete
+      // Use Promise.all to capture both the click and the response
+      const saveResponsePromise = page.waitForResponse(
+        resp => resp.url().includes('/api/admin/blog/posts/') &&
+                (resp.request().method() === 'PUT' || resp.request().method() === 'PATCH'),
+        { timeout: 30000 }
+      );
+
       await page.getByTestId('button-save').click();
-      await page.waitForTimeout(2000);
       result.steps.push('Clicked save');
+
+      // Wait for save response
+      try {
+        const saveResponse = await saveResponsePromise;
+        const saveStatus = saveResponse.status();
+        result.steps.push(`Save API responded with status ${saveStatus}`);
+
+        if (saveStatus === 429) {
+          result.notes.push('Save was rate-limited (429) - post may not persist');
+        } else if (saveStatus !== 200 && saveStatus !== 201) {
+          result.notes.push(`Save failed with status ${saveStatus}`);
+        }
+      } catch (saveError) {
+        result.notes.push('Could not detect save response - may have been cached or failed');
+      }
+
+      await page.waitForTimeout(2000);
 
       // Check for success toast
       const toast = page.locator('[role="status"]').filter({ hasText: /success/i });
       if (await toast.isVisible({ timeout: 5000 }).catch(() => false)) {
         result.steps.push('Success toast appeared');
+      } else {
+        // Check for error toast
+        const errorToast = page.locator('[role="status"]').filter({ hasText: /failed|error/i });
+        if (await errorToast.isVisible({ timeout: 2000 }).catch(() => false)) {
+          result.notes.push('Error toast appeared - save may have failed');
+        }
       }
 
       // Screenshot after save
@@ -472,11 +540,62 @@ test.describe('Blog Hub Flow Tests', () => {
 
       await loginToAdmin(page);
 
-      // Navigate directly to the editor
-      await page.goto(`${config.baseUrl}/en-US/admin?tab=blog-edit&id=${createdPostId}`);
-      await page.waitForLoadState('networkidle');
+      result.steps.push(`Using post ID: ${createdPostId}`);
+
+      // Retry logic for rate-limited GET requests
+      const maxGetAttempts = 3;
+      let lastGetStatus = 0;
+      let editorLoaded = false;
+
+      for (let attempt = 1; attempt <= maxGetAttempts; attempt++) {
+        // Navigate directly to the editor and capture the GET request
+        const getResponsePromise = page.waitForResponse(
+          resp => resp.url().includes(`/api/admin/blog/posts/${createdPostId}`) && resp.request().method() === 'GET',
+          { timeout: 30000 }
+        );
+
+        if (attempt > 1) {
+          result.steps.push(`Retrying editor load (attempt ${attempt})`);
+        }
+
+        await page.goto(`${config.baseUrl}/en-US/admin?tab=blog-edit&id=${createdPostId}`);
+        await page.waitForLoadState('networkidle');
+
+        // Check what the GET request returned
+        try {
+          const getResponse = await getResponsePromise;
+          lastGetStatus = getResponse.status();
+          result.steps.push(`Editor GET returned status ${lastGetStatus} (attempt ${attempt})`);
+
+          if (lastGetStatus === 200) {
+            editorLoaded = true;
+            break;
+          } else if (lastGetStatus === 429) {
+            result.notes.push(`GET rate limited (429) on attempt ${attempt}, waiting 15s`);
+            await page.waitForTimeout(15000);
+            continue;
+          } else {
+            const responseBody = await getResponse.text().catch(() => 'Could not read response');
+            result.notes.push(`GET failed: ${lastGetStatus} - ${responseBody.slice(0, 200)}`);
+            break;
+          }
+        } catch (getError) {
+          result.notes.push(`Could not detect GET response on attempt ${attempt}`);
+        }
+      }
+
       await page.waitForTimeout(2000);
       result.steps.push('Opened post editor');
+
+      // Check if we got "Post not found" before trying to find the switch
+      const postNotFound = page.locator('text=Post not found');
+      if (await postNotFound.isVisible({ timeout: 3000 }).catch(() => false)) {
+        if (lastGetStatus === 429) {
+          result.notes.push(`Post not found due to rate limiting after ${maxGetAttempts} attempts`);
+        }
+        result.notes.push(`Post ${createdPostId} not found when loading editor`);
+        throw new Error(`Post not found: ${createdPostId}`);
+      }
 
       // Step 1: Toggle featured ON
       const featuredSwitch = page.getByTestId('switch-featured');
