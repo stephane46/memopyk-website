@@ -18,12 +18,26 @@ const FRENCH_TZ = 'Europe/Paris';
 export function PublishedAtPicker({ value, onChange, label = "Published At" }: PublishedAtPickerProps) {
   // Convert incoming Date to French timezone DateTime
   const valueDT = value ? DateTime.fromJSDate(value).setZone(FRENCH_TZ) : null;
-  
+
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     valueDT ? valueDT.toJSDate() : undefined
   );
   const [hours, setHours] = useState(valueDT ? valueDT.hour.toString().padStart(2, '0') : '12');
   const [minutes, setMinutes] = useState(valueDT ? valueDT.minute.toString().padStart(2, '0') : '00');
+
+  // Sync internal state when value prop changes (e.g., when post data loads)
+  useEffect(() => {
+    if (value) {
+      const dt = DateTime.fromJSDate(value).setZone(FRENCH_TZ);
+      setSelectedDate(dt.toJSDate());
+      setHours(dt.hour.toString().padStart(2, '0'));
+      setMinutes(dt.minute.toString().padStart(2, '0'));
+    } else {
+      setSelectedDate(undefined);
+      setHours('12');
+      setMinutes('00');
+    }
+  }, [value]);
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
