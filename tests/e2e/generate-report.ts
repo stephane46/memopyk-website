@@ -85,6 +85,7 @@ interface PlaywrightResults {
 interface FlowResult {
   name: string;
   status: 'passed' | 'failed' | 'skipped';
+  effectiveStatus: 'passed' | 'degraded' | 'failed';
   steps: number;
   duration: number;
   notes: string[];
@@ -168,6 +169,7 @@ function parseFlowNarrative(markdown: string): FlowResult[] {
     results.push({
       name,
       status,
+      effectiveStatus: status === 'passed' ? 'passed' : 'failed', // Will be refined by classifyFlows()
       steps: stepLines,
       duration: 0, // Will be filled from Playwright results
       notes,
@@ -201,6 +203,106 @@ function extractFlowDurations(playwrightResults: PlaywrightResults, flows: FlowR
   }
 }
 
+/**
+ * Classify flows into 3 tiers: passed, degraded, or failed
+ * A flow is DEGRADED if it passed but skipped core logic
+ */
+function classifyFlows(flows: FlowResult[]): void {
+  const degradedPatterns = [
+    'skipped',
+    'not found',
+    'deleted',
+    'may have been',
+    'cleanup',
+    'no topics',
+    'no posts',
+    '0 found',
+    'server may have'
+  ];
+
+  for (const flow of flows) {
+    if (flow.status === 'failed') {
+      flow.effectiveStatus = 'failed';
+    } else if (flow.status === 'skipped') {
+      flow.effectiveStatus = 'failed'; // Treat skipped as failed for reporting
+    } else {
+      // Check if this "passed" flow should be degraded
+      const notesLower = flow.notes.map(n => n.toLowerCase()).join(' ');
+      const isDegraded = degradedPatterns.some(pattern => notesLower.includes(pattern)) ||
+                         flow.steps <= 2;
+
+      flow.effectiveStatus = isDegraded ? 'degraded' : 'passed';
+    }
+  }
+}
+
+/**
+ * Generate impact description based on flow name
+ */
+function getFlowImpact(flowName: string): string {
+  const nameLower = flowName.toLowerCase();
+
+  if (nameLower.includes('search') || nameLower.includes('filter')) {
+    return 'Search/filter not validated';
+  }
+  if (nameLower.includes('editor')) {
+    return 'Editor loading not validated';
+  }
+  if (nameLower.includes('featured')) {
+    return 'Featured persistence not verified';
+  }
+  if (nameLower.includes('schedule')) {
+    return 'Schedule feature not tested';
+  }
+  if (nameLower.includes('hero') || nameLower.includes('image')) {
+    return 'Hero image persistence not verified';
+  }
+  if (nameLower.includes('verify') || nameLower.includes('list')) {
+    return 'List verification not tested';
+  }
+  if (nameLower.includes('ai creator')) {
+    return 'AI Creator flow not validated';
+  }
+  if (nameLower.includes('create') || nameLower.includes('draft')) {
+    return 'Post creation not validated';
+  }
+
+  return 'Core logic not executed';
+}
+
+/**
+ * Extract degradation reason from flow notes
+ */
+function getDegradedReason(flow: FlowResult): string {
+  for (const note of flow.notes) {
+    const noteLower = note.toLowerCase();
+    if (noteLower.includes('no topics') || noteLower.includes('0 found')) {
+      return 'No topics on staging';
+    }
+    if (noteLower.includes('no posts')) {
+      return 'No posts on staging';
+    }
+    if (noteLower.includes('deleted') || noteLower.includes('not found')) {
+      return 'Post deleted before test';
+    }
+    if (noteLower.includes('skipped')) {
+      return note.split('-')[0].trim() || 'Test skipped';
+    }
+    if (noteLower.includes('server may have')) {
+      return 'Server cleanup removed test data';
+    }
+    if (noteLower.includes('rate limit') || noteLower.includes('429')) {
+      return 'Rate limited during test';
+    }
+  }
+
+  if (flow.steps <= 2) {
+    return 'Flow exited early (≤2 steps)';
+  }
+
+  return 'Core logic skipped';
+}
+
 function generateReport(): void {
   console.log('Generating QA Report...');
 
@@ -228,21 +330,24 @@ function generateReport(): void {
     if (playwrightResults) {
       extractFlowDurations(playwrightResults, flowResults);
     }
+    // Classify flows into passed/degraded/failed
+    classifyFlows(flowResults);
   }
 
-  // Calculate summary stats
+  // Calculate summary stats with 3-tier classification
   const discoveryTabsLoaded = discovery?.summary?.tabsLoaded ?? 0;
   const discoveryTabsTotal = discovery ? Object.keys(discovery.tabs).length || 6 : 6;
-  const flowsPassed = flowResults.filter(f => f.status === 'passed').length;
   const flowsTotal = flowResults.length || 9;
-  const flowsFailed = flowResults.filter(f => f.status === 'failed').length;
+  const flowsTrulyPassed = flowResults.filter(f => f.effectiveStatus === 'passed').length;
+  const flowsDegraded = flowResults.filter(f => f.effectiveStatus === 'degraded').length;
+  const flowsFailed = flowResults.filter(f => f.effectiveStatus === 'failed').length;
 
-  // Determine overall status
+  // Determine overall status with honest reporting
   let overallStatus = '✅ PASS';
   if (flowsFailed > 0 || (discovery && discovery.summary.tabsFailed > 0)) {
-    overallStatus = '❌ FAIL';
-  } else if (discoveryTabsLoaded < discoveryTabsTotal || flowsPassed < flowsTotal) {
-    overallStatus = '⚠️ PARTIAL';
+    overallStatus = '❌ FAIL — do not deploy';
+  } else if (flowsDegraded > 0 || discoveryTabsLoaded < discoveryTabsTotal) {
+    overallStatus = '⚠️ PARTIAL — review before deploy';
   }
 
   // Build report
@@ -266,7 +371,12 @@ function generateReport(): void {
     lines.push('- **Discovery:** Not run');
   }
   if (flowResults.length > 0) {
-    lines.push(`- **Flow Tests:** ${flowsPassed}/${flowsTotal} passed`);
+    // Show 3-tier breakdown
+    const parts: string[] = [];
+    if (flowsTrulyPassed > 0) parts.push(`${flowsTrulyPassed} fully passed`);
+    if (flowsDegraded > 0) parts.push(`${flowsDegraded} degraded`);
+    if (flowsFailed > 0) parts.push(`${flowsFailed} failed`);
+    lines.push(`- **Flow Tests:** ${parts.join(', ')} (${flowsTotal} total)`);
   } else {
     lines.push('- **Flow Tests:** Not run');
   }
@@ -327,7 +437,9 @@ function generateReport(): void {
 
     for (let i = 0; i < flowResults.length; i++) {
       const flow = flowResults[i];
-      const statusIcon = flow.status === 'passed' ? '✅' : flow.status === 'failed' ? '❌' : '⏭️';
+      // Use effectiveStatus for 3-tier icons: ✅ passed, ⏩ degraded, ❌ failed
+      const statusIcon = flow.effectiveStatus === 'passed' ? '✅' :
+                         flow.effectiveStatus === 'degraded' ? '⏩' : '❌';
       const duration = flow.duration > 0 ? `${flow.duration.toFixed(1)}s` : '-';
       const notes = flow.notes.length > 0 ? flow.notes[0].slice(0, 40) + (flow.notes[0].length > 40 ? '...' : '') : '-';
 
@@ -359,6 +471,27 @@ function generateReport(): void {
     lines.push('- No notable findings');
   }
   lines.push('');
+
+  // Degraded Flows section (only if there are degraded flows)
+  const degradedFlows = flowResults.filter(f => f.effectiveStatus === 'degraded');
+  if (degradedFlows.length > 0) {
+    lines.push('## ⏩ Degraded Flows');
+    lines.push('');
+    lines.push('These flows passed without errors but could not fully execute their core logic:');
+    lines.push('');
+    lines.push('| Flow | Reason | Impact |');
+    lines.push('|------|--------|--------|');
+
+    for (let i = 0; i < flowResults.length; i++) {
+      const flow = flowResults[i];
+      if (flow.effectiveStatus === 'degraded') {
+        const reason = getDegradedReason(flow);
+        const impact = getFlowImpact(flow.name);
+        lines.push(`| ${i + 1}. ${flow.name.slice(0, 25)} | ${reason} | ${impact} |`);
+      }
+    }
+    lines.push('');
+  }
 
   // Screenshots Index
   lines.push('## Screenshots Index');
@@ -415,13 +548,23 @@ function generateReport(): void {
     }
   }
 
-  // Check flow failures
+  // Check flow failures with expanded warning patterns
+  const warningPatterns = [
+    'error', 'failed',
+    'skipped', 'not found',
+    'deleted', 'cleanup',
+    'rate limit', '429',
+    'may have been',
+    'timeout', 'retry'
+  ];
+
   for (const flow of flowResults) {
-    if (flow.status === 'failed') {
+    if (flow.effectiveStatus === 'failed') {
       failures.push(`Flow Test: '${flow.name}' failed`);
     }
     for (const note of flow.notes) {
-      if (note.toLowerCase().includes('error') || note.toLowerCase().includes('failed')) {
+      const noteLower = note.toLowerCase();
+      if (warningPatterns.some(pattern => noteLower.includes(pattern))) {
         warnings.push(`Flow [${flow.name}]: ${note}`);
       }
     }
@@ -460,12 +603,16 @@ function generateReport(): void {
 
   console.log(`✅ QA Report generated: ${OUTPUT_FILE}`);
 
-  // Print summary to console
+  // Print summary to console with 3-tier breakdown
   console.log('\n--- QA Report Summary ---');
   console.log(`Environment: ${baseUrl}`);
   console.log(`Branch: ${branch} | Commit: ${commit}`);
   console.log(`Discovery: ${discovery ? `${discoveryTabsLoaded}/${discoveryTabsTotal} tabs` : 'Not run'}`);
-  console.log(`Flows: ${flowResults.length > 0 ? `${flowsPassed}/${flowsTotal} passed` : 'Not run'}`);
+  if (flowResults.length > 0) {
+    console.log(`Flows: ${flowsTrulyPassed} passed, ${flowsDegraded} degraded, ${flowsFailed} failed (${flowsTotal} total)`);
+  } else {
+    console.log('Flows: Not run');
+  }
   console.log(`Overall: ${overallStatus}`);
   console.log('-------------------------\n');
 }
