@@ -6,20 +6,30 @@ import { ContentProductionPlanner } from './ContentProductionPlanner';
 import { ContentProductionTopics } from './ContentProductionTopics';
 import { ContentProductionKeywords } from './ContentProductionKeywords';
 import { BlogManagePosts } from '@/admin/BlogManagePosts';
+import { BlogEditor } from '@/admin/BlogEditor';
 import { ImageBankManager } from './ImageBankManager';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 
 export default function ContentProductionHub() {
   // URL param state persistence
   const [activeTab, setActiveTab] = useState<string>('planner');
+  const [editPostId, setEditPostId] = useState<string | null>(null);
 
   // Initialize from URL on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const tabParam = params.get('tab');
-    
+    const idParam = params.get('id');
+
+    // Handle blog-edit with post ID
+    if (tabParam === 'blog-edit' && idParam) {
+      setActiveTab('blog-edit');
+      setEditPostId(idParam);
+    }
     // If there's a tab parameter, use it
-    if (tabParam && ['planner', 'topics', 'keywords', 'posts', 'images'].includes(tabParam)) {
+    else if (tabParam && ['planner', 'topics', 'keywords', 'posts', 'images'].includes(tabParam)) {
       setActiveTab(tabParam);
     }
   }, []);
@@ -29,9 +39,15 @@ export default function ContentProductionHub() {
     const handlePopState = () => {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
-      
-      if (tabParam && ['planner', 'topics', 'keywords', 'posts', 'images'].includes(tabParam)) {
+      const idParam = params.get('id');
+
+      // Handle blog-edit with post ID
+      if (tabParam === 'blog-edit' && idParam) {
+        setActiveTab('blog-edit');
+        setEditPostId(idParam);
+      } else if (tabParam && ['planner', 'topics', 'keywords', 'posts', 'images'].includes(tabParam)) {
         setActiveTab(tabParam);
+        setEditPostId(null);
       }
     };
 
@@ -173,6 +189,30 @@ export default function ContentProductionHub() {
         <TabsContent value="images" className="mt-6">
           <ImageBankManager />
         </TabsContent>
+
+        {/* Blog Editor - Hidden tab, accessed via URL */}
+        {activeTab === 'blog-edit' && editPostId && (
+          <div className="mt-6">
+            <div className="mb-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setActiveTab('posts');
+                  setEditPostId(null);
+                  window.history.pushState({}, '', '/en-US/admin?tab=posts');
+                }}
+                className="text-blue-600 hover:text-blue-700"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Posts
+              </Button>
+            </div>
+            <ErrorBoundary>
+              <BlogEditor postId={editPostId} />
+            </ErrorBoundary>
+          </div>
+        )}
       </Tabs>
     </div>
   );
