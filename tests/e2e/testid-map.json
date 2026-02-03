@@ -1,0 +1,205 @@
+{
+  "generatedAt": "2026-02-03",
+  "auditStatus": "COMPLETE",
+  "screens": {
+    "hub": {
+      "component": "ContentProductionHub.tsx",
+      "route": "/admin?tab=blog (or planner/topics/keywords/posts/images)",
+      "existingTestIds": [
+        "tab-planner",
+        "tab-topics",
+        "tab-keywords",
+        "tab-posts",
+        "tab-images",
+        "tab-planner-mobile",
+        "tab-topics-mobile",
+        "tab-keywords-mobile",
+        "tab-posts-mobile",
+        "tab-images-mobile",
+        "button-back-to-posts"
+      ],
+      "missingTestIds": []
+    },
+    "planner": {
+      "component": "ContentProductionPlanner.tsx",
+      "route": "/admin?tab=planner",
+      "existingTestIds": [
+        "button-view-topics",
+        "button-view-posts",
+        "button-prev-period",
+        "button-today",
+        "button-next-period",
+        "day-{YYYY-MM-DD}",
+        "button-add-{YYYY-MM-DD}",
+        "assignment-{id}",
+        "badge-status-{id}",
+        "badge-language-{id}",
+        "button-view-{id}",
+        "button-create-{id}",
+        "button-remove-{id}",
+        "input-search-modal",
+        "modal-topic-{id}",
+        "post-{id}",
+        "button-view-post-{id}"
+      ],
+      "missingTestIds": []
+    },
+    "topics": {
+      "component": "ContentProductionTopics.tsx",
+      "route": "/admin?tab=topics",
+      "existingTestIds": [
+        "input-search",
+        "select-category",
+        "select-status",
+        "select-type",
+        "button-clear-filters",
+        "topic-{id}",
+        "keyword-primary-{id}",
+        "keyword-secondary-{id}-{idx}",
+        "badge-generated-{id}",
+        "badge-posts-{id}",
+        "button-view-posts-{id}",
+        "button-create-post-{id}"
+      ],
+      "missingTestIds": []
+    },
+    "keywords": {
+      "component": "ContentProductionKeywords.tsx",
+      "route": "/admin?tab=keywords",
+      "existingTestIds": [
+        "input-keyword-search",
+        "button-tier-all",
+        "button-tier-1",
+        "button-tier-2",
+        "button-tier-3",
+        "button-intent-all",
+        "button-intent-high",
+        "button-intent-medium",
+        "button-intent-low",
+        "sort-keyword",
+        "sort-tier",
+        "sort-searches",
+        "sort-competition",
+        "sort-intent",
+        "row-keyword-{id}",
+        "button-view-topics-{id}"
+      ],
+      "missingTestIds": []
+    },
+    "posts": {
+      "component": "BlogManagePosts.tsx",
+      "route": "/admin?tab=posts",
+      "existingTestIds": [
+        "button-new-post",
+        "button-manage-tags",
+        "select-status-filter",
+        "select-language-filter",
+        "link-view-source-topic",
+        "badge-primary-keyword",
+        "post-card-{id}",
+        "button-view-{id}",
+        "button-edit-{id}",
+        "button-translate-{id}",
+        "button-delete-{id}",
+        "select-status-{id}"
+      ],
+      "missingTestIds": []
+    },
+    "images": {
+      "component": "ImageBankManager.tsx",
+      "route": "/admin?tab=images",
+      "existingTestIds": [
+        "button-manage-labels",
+        "button-upload-images",
+        "select-category-filter",
+        "select-usage-filter",
+        "input-search",
+        "card-image-{id}",
+        "overlay-{id}",
+        "button-view-{id}",
+        "button-edit-{id}",
+        "button-delete-{id}",
+        "badge-usage-{id}",
+        "text-filename-{id}",
+        "dropzone-upload",
+        "button-confirm-upload",
+        "input-new-label-name",
+        "button-create-label",
+        "label-row-{name}",
+        "button-edit-{name}",
+        "button-delete-{name}",
+        "input-edit-label-name",
+        "button-save-label",
+        "button-cancel-edit"
+      ],
+      "missingTestIds": []
+    },
+    "blog-editor": {
+      "component": "BlogEditor.tsx",
+      "route": "/admin?tab=blog-edit&id={postId}",
+      "existingTestIds": [
+        "button-translation-assistant",
+        "button-preview",
+        "button-save",
+        "input-title",
+        "input-slug",
+        "textarea-description",
+        "switch-featured",
+        "input-featured-order",
+        "button-select-image-{name}",
+        "button-browse-hero-image",
+        "select-status",
+        "status-{key}",
+        "button-published-at",
+        "button-clear-date",
+        "input-hours",
+        "input-minutes",
+        "button-set-to-now",
+        "input-upload-hero-image"
+      ],
+      "missingTestIds": []
+    },
+    "ai-creator": {
+      "component": "BlogAICreator.tsx",
+      "route": "NOT ACCESSIBLE (see aiCreatorAccessibility)",
+      "existingTestIds": [
+        "input-topic",
+        "select-language",
+        "input-seo-keywords",
+        "button-generate-prompt",
+        "textarea-generated-prompt",
+        "button-copy-prompt",
+        "textarea-ai-json",
+        "button-autofix",
+        "button-validate",
+        "button-back",
+        "input-post-title",
+        "button-submit-to-supabase"
+      ],
+      "missingTestIds": []
+    }
+  },
+  "aiCreatorAccessibility": {
+    "isAccessibleFromNav": false,
+    "currentLocation": "BlogAICreator lives in BlogManagement.tsx",
+    "problem": "AdminPage renders ContentProductionHub (not BlogManagement) when activeSection='blog'. BlogManagement is orphaned - it has tabs for Posts, AI Creator, Tags but none of these are reachable from current navigation.",
+    "howToReach": "Currently unreachable from standard navigation. BlogManagement component exists but is not rendered anywhere.",
+    "recommendation": "Option 1 (Recommended): Add 'AI Creator' as 6th tab in ContentProductionHub between Posts and Image Bank. Import BlogAICreator directly. Option 2: Add button in BlogManagePosts header that links to AI Creator. Option 3: Re-wire AdminPage to use BlogManagement for 'blog' section."
+  },
+  "summary": {
+    "totalScreens": 8,
+    "screensWithMissingTestIds": 0,
+    "totalExistingTestIds": 95,
+    "auditComplete": true,
+    "testIdsAddedInThisAudit": [
+      "post-card-{id} (BlogManagePosts)",
+      "button-view-{id} (BlogManagePosts)",
+      "button-edit-{id} (BlogManagePosts)",
+      "button-translate-{id} (BlogManagePosts)",
+      "button-delete-{id} (BlogManagePosts)",
+      "select-status-{id} (BlogManagePosts)",
+      "button-back-to-posts (ContentProductionHub)"
+    ],
+    "coverageNotes": "All 7 Blog Hub screens (planner, topics, keywords, posts, images, blog-editor, hub tabs) have comprehensive data-testid coverage. AI Creator has full testids but is not accessible from current navigation."
+  }
+}

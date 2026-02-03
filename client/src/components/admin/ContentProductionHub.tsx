@@ -203,6 +203,7 @@ export default function ContentProductionHub() {
                   window.history.pushState({}, '', '/en-US/admin?tab=posts');
                 }}
                 className="text-blue-600 hover:text-blue-700"
+                data-testid="button-back-to-posts"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Posts

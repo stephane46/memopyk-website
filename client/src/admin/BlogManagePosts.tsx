@@ -441,6 +441,7 @@ export function BlogManagePosts() {
                 <div
                   key={post.id}
                   className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                  data-testid={`post-card-${post.id}`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
@@ -516,7 +517,7 @@ export function BlogManagePosts() {
                         value={post.status}
                         onValueChange={(val: any) => handleStatusChange(post, val)}
                       >
-                        <SelectTrigger className="w-32">
+                        <SelectTrigger className="w-32" data-testid={`select-status-${post.id}`}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -531,6 +532,7 @@ export function BlogManagePosts() {
                         size="icon"
                         onClick={() => window.open(`/blog/${post.slug}`, '_blank')}
                         title="View post"
+                        data-testid={`button-view-${post.id}`}
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
@@ -541,6 +543,7 @@ export function BlogManagePosts() {
                         onClick={() => translateMutation.mutate(post.id)}
                         disabled={translateMutation.isPending}
                         title="Duplicate for translation"
+                        data-testid={`button-translate-${post.id}`}
                       >
                         {translateMutation.isPending ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -558,6 +561,7 @@ export function BlogManagePosts() {
                           window.location.href = `${langPrefix}/admin?tab=blog-edit&id=${post.id}`;
                         }}
                         title="Edit post"
+                        data-testid={`button-edit-${post.id}`}
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -568,6 +572,7 @@ export function BlogManagePosts() {
                         onClick={() => handleDeleteClick(post)}
                         disabled={deleteMutation.isPending}
                         title="Delete post"
+                        data-testid={`button-delete-${post.id}`}
                       >
                         <Trash2 className="h-4 w-4 text-red-500" />
                       </Button>
