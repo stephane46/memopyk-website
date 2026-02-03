@@ -84,12 +84,25 @@ interface PlaywrightResults {
 
 interface FlowResult {
   name: string;
-  status: 'passed' | 'failed' | 'skipped';
-  effectiveStatus: 'passed' | 'degraded' | 'failed';
+  status: 'passed' | 'failed' | 'skipped' | 'did_not_run';
+  effectiveStatus: 'passed' | 'degraded' | 'failed' | 'skipped';
   steps: number;
   duration: number;
   notes: string[];
 }
+
+// Expected flows - must match blog-flows.spec.ts
+const EXPECTED_FLOWS = [
+  'Blog Hub loads with all tabs',
+  'Topics search filter',
+  'Posts - open editor for existing post',
+  'Create draft post with [E2E] prefix',
+  'Set featured on post',
+  'Set schedule date',
+  'Set hero image from Image Bank',
+  'Verify post appears in list',
+  'AI Creator basic flow',
+];
 
 // Utility functions
 function safeReadJson<T>(filePath: string): T | null {
@@ -135,12 +148,14 @@ function getGitInfo(): { branch: string; commit: string } {
 
 function parseFlowNarrative(markdown: string): FlowResult[] {
   const results: FlowResult[] = [];
-  const flowRegex = /## Flow (\d+): (.+)\n\n\*\*Status:\*\* (.*)/g;
   const stepsRegex = /\*\*Steps:\*\*\n([\s\S]*?)(?=\n\*\*|$)/;
   const notesRegex = /\*\*Notes:\*\*\n([\s\S]*?)(?=\n\n##|---|\n\*\*|$)/;
 
   // Split by flow sections
   const sections = markdown.split(/(?=## Flow \d+:)/);
+
+  // Track which flows were found in the narrative
+  const foundFlows = new Set<string>();
 
   for (const section of sections) {
     const flowMatch = section.match(/## Flow (\d+): (.+)\n\n\*\*Status:\*\* (.*)/);
@@ -153,6 +168,8 @@ function parseFlowNarrative(markdown: string): FlowResult[] {
       : statusText.includes('Failed')
       ? 'failed'
       : 'skipped';
+
+    foundFlows.add(name);
 
     // Count steps
     const stepsMatch = section.match(stepsRegex);
@@ -175,6 +192,27 @@ function parseFlowNarrative(markdown: string): FlowResult[] {
       notes,
     });
   }
+
+  // Add any expected flows that didn't run (due to serial mode stopping on failure)
+  for (const expectedName of EXPECTED_FLOWS) {
+    if (!foundFlows.has(expectedName)) {
+      results.push({
+        name: expectedName,
+        status: 'did_not_run',
+        effectiveStatus: 'skipped',
+        steps: 0,
+        duration: 0,
+        notes: ['Did not run (previous flow failed)'],
+      });
+    }
+  }
+
+  // Sort results by expected flow order
+  results.sort((a, b) => {
+    const aIndex = EXPECTED_FLOWS.indexOf(a.name);
+    const bIndex = EXPECTED_FLOWS.indexOf(b.name);
+    return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+  });
 
   return results;
 }
@@ -204,8 +242,9 @@ function extractFlowDurations(playwrightResults: PlaywrightResults, flows: FlowR
 }
 
 /**
- * Classify flows into 3 tiers: passed, degraded, or failed
+ * Classify flows into 4 tiers: passed, degraded, failed, or skipped
  * A flow is DEGRADED if it passed but skipped core logic
+ * A flow is SKIPPED if it didn't run due to a previous flow failing
  */
 function classifyFlows(flows: FlowResult[]): void {
   const degradedPatterns = [
@@ -221,10 +260,12 @@ function classifyFlows(flows: FlowResult[]): void {
   ];
 
   for (const flow of flows) {
-    if (flow.status === 'failed') {
+    if (flow.status === 'did_not_run') {
+      flow.effectiveStatus = 'skipped'; // Keep as skipped
+    } else if (flow.status === 'failed') {
       flow.effectiveStatus = 'failed';
     } else if (flow.status === 'skipped') {
-      flow.effectiveStatus = 'failed'; // Treat skipped as failed for reporting
+      flow.effectiveStatus = 'failed'; // Treat Playwright skipped as failed for reporting
     } else {
       // Check if this "passed" flow should be degraded
       const notesLower = flow.notes.map(n => n.toLowerCase()).join(' ');
@@ -334,19 +375,21 @@ function generateReport(): void {
     classifyFlows(flowResults);
   }
 
-  // Calculate summary stats with 3-tier classification
+  // Calculate summary stats with 4-tier classification
   const discoveryTabsLoaded = discovery?.summary?.tabsLoaded ?? 0;
   const discoveryTabsTotal = discovery ? Object.keys(discovery.tabs).length || 6 : 6;
   const flowsTotal = flowResults.length || 9;
   const flowsTrulyPassed = flowResults.filter(f => f.effectiveStatus === 'passed').length;
   const flowsDegraded = flowResults.filter(f => f.effectiveStatus === 'degraded').length;
   const flowsFailed = flowResults.filter(f => f.effectiveStatus === 'failed').length;
+  const flowsSkipped = flowResults.filter(f => f.effectiveStatus === 'skipped').length;
 
   // Determine overall status with honest reporting
+  // Note: skipped flows don't cause FAIL (they're expected when a previous flow fails)
   let overallStatus = '✅ PASS';
   if (flowsFailed > 0 || (discovery && discovery.summary.tabsFailed > 0)) {
     overallStatus = '❌ FAIL — do not deploy';
-  } else if (flowsDegraded > 0 || discoveryTabsLoaded < discoveryTabsTotal) {
+  } else if (flowsDegraded > 0 || flowsSkipped > 0 || discoveryTabsLoaded < discoveryTabsTotal) {
     overallStatus = '⚠️ PARTIAL — review before deploy';
   }
 
@@ -371,11 +414,12 @@ function generateReport(): void {
     lines.push('- **Discovery:** Not run');
   }
   if (flowResults.length > 0) {
-    // Show 3-tier breakdown
+    // Show 4-tier breakdown
     const parts: string[] = [];
-    if (flowsTrulyPassed > 0) parts.push(`${flowsTrulyPassed} fully passed`);
+    if (flowsTrulyPassed > 0) parts.push(`${flowsTrulyPassed} passed`);
     if (flowsDegraded > 0) parts.push(`${flowsDegraded} degraded`);
     if (flowsFailed > 0) parts.push(`${flowsFailed} failed`);
+    if (flowsSkipped > 0) parts.push(`${flowsSkipped} skipped`);
     lines.push(`- **Flow Tests:** ${parts.join(', ')} (${flowsTotal} total)`);
   } else {
     lines.push('- **Flow Tests:** Not run');
@@ -437,9 +481,10 @@ function generateReport(): void {
 
     for (let i = 0; i < flowResults.length; i++) {
       const flow = flowResults[i];
-      // Use effectiveStatus for 3-tier icons: ✅ passed, ⏩ degraded, ❌ failed
+      // Use effectiveStatus for 4-tier icons: ✅ passed, ⏩ degraded, ❌ failed, ⏭️ skipped
       const statusIcon = flow.effectiveStatus === 'passed' ? '✅' :
-                         flow.effectiveStatus === 'degraded' ? '⏩' : '❌';
+                         flow.effectiveStatus === 'degraded' ? '⏩' :
+                         flow.effectiveStatus === 'skipped' ? '⏭️' : '❌';
       const duration = flow.duration > 0 ? `${flow.duration.toFixed(1)}s` : '-';
       const notes = flow.notes.length > 0 ? flow.notes[0].slice(0, 40) + (flow.notes[0].length > 40 ? '...' : '') : '-';
 
@@ -603,13 +648,18 @@ function generateReport(): void {
 
   console.log(`✅ QA Report generated: ${OUTPUT_FILE}`);
 
-  // Print summary to console with 3-tier breakdown
+  // Print summary to console with 4-tier breakdown
   console.log('\n--- QA Report Summary ---');
   console.log(`Environment: ${baseUrl}`);
   console.log(`Branch: ${branch} | Commit: ${commit}`);
   console.log(`Discovery: ${discovery ? `${discoveryTabsLoaded}/${discoveryTabsTotal} tabs` : 'Not run'}`);
   if (flowResults.length > 0) {
-    console.log(`Flows: ${flowsTrulyPassed} passed, ${flowsDegraded} degraded, ${flowsFailed} failed (${flowsTotal} total)`);
+    const summaryParts: string[] = [];
+    if (flowsTrulyPassed > 0) summaryParts.push(`${flowsTrulyPassed} passed`);
+    if (flowsDegraded > 0) summaryParts.push(`${flowsDegraded} degraded`);
+    if (flowsFailed > 0) summaryParts.push(`${flowsFailed} failed`);
+    if (flowsSkipped > 0) summaryParts.push(`${flowsSkipped} skipped`);
+    console.log(`Flows: ${summaryParts.join(', ')} (${flowsTotal} total)`);
   } else {
     console.log('Flows: Not run');
   }
