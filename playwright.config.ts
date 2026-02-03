@@ -12,6 +12,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
+  preserveOutput: 'always', // Keep outputs from previous runs (needed for separate discovery + flows runs)
 
   reporter: [
     ['html', { open: 'never' }],

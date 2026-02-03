@@ -24,7 +24,9 @@
     "e2e:ui": "playwright test --ui",
     "e2e:report": "playwright show-report",
     "e2e:discovery": "playwright test discovery.spec.ts",
-    "e2e:flows": "playwright test blog-flows.spec.ts"
+    "e2e:flows": "playwright test blog-flows.spec.ts",
+    "e2e:report-md": "npx tsx tests/e2e/generate-report.ts",
+    "e2e:full": "playwright test discovery.spec.ts blog-flows.spec.ts && npm run e2e:report-md"
   },
   "engines": {
     "node": ">=20.0.0"
