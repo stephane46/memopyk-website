@@ -104,12 +104,12 @@ export function BlogManagePosts() {
   if (statusFilter !== 'all') queryParams.set('status', statusFilter);
   if (languageFilter !== 'all') queryParams.set('language', languageFilter);
 
-  // Fetch blog posts
+  // Fetch blog posts (must use adminFetch for authentication)
   const { data: postsData, isLoading } = useQuery({
     queryKey: ['/api/admin/blog/posts', statusFilter, languageFilter],
     queryFn: async () => {
       const url = `/api/admin/blog/posts?${queryParams.toString()}`;
-      const response = await fetch(url);
+      const response = await adminFetch(url);
       if (!response.ok) throw new Error('Failed to fetch blog posts');
       return response.json();
     }
