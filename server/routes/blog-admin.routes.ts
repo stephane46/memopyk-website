@@ -33,6 +33,55 @@ const router = Router();
 // ============================================================================
 
 /**
+ * POST /admin/blog/posts
+ * Create a new blank blog post (for manual editing)
+ */
+router.post('/admin/blog/posts', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { language = 'en-US' } = req.body;
+    const supabase = getSupabase();
+
+    // Generate a unique slug
+    const timestamp = Date.now();
+    const slug = `untitled-post-${timestamp}`;
+
+    // Create minimal post
+    const { data: post, error } = await supabase
+      .from('blog_posts')
+      .insert({
+        title: 'Untitled Post',
+        slug,
+        description: '',
+        content_html: '<p>Start writing your post here...</p>',
+        language,
+        status: 'draft',
+        is_featured: false,
+        seo: { title: 'Untitled Post', description: '' }
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('❌ Error creating blank blog post:', error);
+      throw error;
+    }
+
+    console.log(`✅ Blank blog post created: ${post.id}`);
+
+    res.json({
+      success: true,
+      data: post
+    });
+  } catch (error: any) {
+    console.error('❌ Error in POST /admin/blog/posts:', error);
+    res.status(500).json({
+      success: false,
+      error: error?.message || 'Failed to create blog post'
+    });
+  }
+});
+
+/**
  * POST /admin/blog/create-from-ai
  * Create blog post from AI-generated JSON
  */

@@ -57,6 +57,38 @@ export function BlogManagePosts() {
   const [filterTopic, setFilterTopic] = useState<string | null>(null);
   const [filterKeyword, setFilterKeyword] = useState<string | null>(null);
   const [tagManagementOpen, setTagManagementOpen] = useState(false);
+  const [isCreatingPost, setIsCreatingPost] = useState(false);
+
+  // Create new post and navigate to editor
+  const createNewPost = async () => {
+    setIsCreatingPost(true);
+    try {
+      const response = await fetch('/api/admin/blog/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ language: 'en-US' })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create post');
+      }
+
+      const result = await response.json();
+      if (result.success && result.data?.id) {
+        // Navigate to editor
+        const currentPath = window.location.pathname;
+        const langPrefix = currentPath.match(/^\/(en-US|fr-FR)/)?.[0] || '';
+        window.location.href = `${langPrefix}/admin?tab=blog-edit&id=${result.data.id}`;
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to create new post',
+        variant: 'destructive'
+      });
+      setIsCreatingPost(false);
+    }
+  };
 
   // Check URL params for topic filtering
   useEffect(() => {
@@ -258,7 +290,7 @@ export function BlogManagePosts() {
   return (
     <div className="space-y-6">
 
-      {/* Header with Manage Tags Button */}
+      {/* Header with New Post and Manage Tags Buttons */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Posts</h2>
@@ -266,14 +298,29 @@ export function BlogManagePosts() {
             Manage and organize your blog content
           </p>
         </div>
-        <Button
-          onClick={() => setTagManagementOpen(true)}
-          variant="outline"
-          data-testid="button-manage-tags"
-        >
-          <TagIcon className="w-4 h-4 mr-2" />
-          Manage Tags
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={createNewPost}
+            disabled={isCreatingPost}
+            className="bg-[#D67C4A] hover:bg-[#C56B39] text-white"
+            data-testid="button-new-post"
+          >
+            {isCreatingPost ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Plus className="w-4 h-4 mr-2" />
+            )}
+            New Post
+          </Button>
+          <Button
+            onClick={() => setTagManagementOpen(true)}
+            variant="outline"
+            data-testid="button-manage-tags"
+          >
+            <TagIcon className="w-4 h-4 mr-2" />
+            Manage Tags
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -374,7 +421,18 @@ export function BlogManagePosts() {
               <p className="text-gray-500">
                 {statusFilter !== 'all' || languageFilter !== 'all'
                   ? 'Try adjusting your filters'
-                  : 'Get started by creating your first blog post'}
+                  : (
+                    <>
+                      Get started by{' '}
+                      <button
+                        onClick={createNewPost}
+                        disabled={isCreatingPost}
+                        className="text-[#D67C4A] hover:text-[#C56B39] underline font-medium"
+                      >
+                        creating your first blog post
+                      </button>
+                    </>
+                  )}
               </p>
             </div>
           ) : (
