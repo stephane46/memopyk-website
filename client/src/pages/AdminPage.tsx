@@ -34,6 +34,8 @@ import TravelUploadsAdmin from '@/components/admin/TravelUploadsAdmin';
 import TravelAgencyCodesAdmin from '@/components/admin/TravelAgencyCodesAdmin';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { HelpButton } from '@/components/admin/HelpButton';
+import { HelpDrawer } from '@/components/admin/HelpDrawer';
+import { HelpProvider, useHelp } from '@/contexts/HelpContext';
 
 
 interface HeroVideo {
@@ -57,7 +59,9 @@ interface CacheStats {
   maxCacheAgeHours: number;
 }
 
-export default function AdminPage() {
+function AdminPageContent() {
+  const { isHelpOpen, closeHelp, currentRoute } = useHelp();
+
   // Check URL params for initial section
   const getInitialSection = () => {
     const params = new URLSearchParams(window.location.search);
@@ -751,8 +755,8 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* Main Content with left margin to account for fixed sidebar */}
-      <div className="ml-64 overflow-visible">
+      {/* Main Content with left margin for sidebar + right margin for help drawer */}
+      <div className={`ml-64 overflow-visible transition-all duration-300 ${isHelpOpen ? 'mr-80' : ''}`}>
         <div className="p-8 overflow-visible">
 
           {/* Hero Management */}
@@ -2181,6 +2185,24 @@ export default function AdminPage() {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Help Drawer - fixed to right, pushes content via margin */}
+      <div className={`fixed right-0 top-0 h-full z-50 transition-transform duration-300 ${isHelpOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <HelpDrawer
+          isOpen={isHelpOpen}
+          onClose={closeHelp}
+          currentRoute={currentRoute}
+        />
+      </div>
     </div>
+  );
+}
+
+// Wrapper component that provides help context
+export default function AdminPage() {
+  return (
+    <HelpProvider>
+      <AdminPageContent />
+    </HelpProvider>
   );
 }

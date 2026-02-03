@@ -1,23 +1,18 @@
 import React from 'react';
 import { HelpCircle } from 'lucide-react';
-import { HelpDrawer } from './HelpDrawer';
+import { useHelp } from '@/contexts/HelpContext';
 
 interface HelpButtonProps {
-  /** Optional: Override the current route detection */
-  currentRoute?: string;
   /** Optional: Custom className for the button */
   className?: string;
 }
 
-export function HelpButton({ currentRoute: propRoute, className }: HelpButtonProps) {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [currentRoute, setCurrentRoute] = React.useState('');
+export function HelpButton({ className }: HelpButtonProps) {
+  const { openHelp, setCurrentRoute } = useHelp();
 
   // Build route string from current location + search params
   // Strip language prefix (e.g., /en-US/admin -> /admin)
   const computeRoute = React.useCallback(() => {
-    if (propRoute) return propRoute;
-
     let pathname = window.location.pathname;
     // Strip language prefix like /en-US or /fr-FR
     pathname = pathname.replace(/^\/(en-US|fr-FR)/, '');
@@ -28,7 +23,7 @@ export function HelpButton({ currentRoute: propRoute, className }: HelpButtonPro
       return `${pathname}?tab=${tab}`;
     }
     return pathname;
-  }, [propRoute]);
+  }, []);
 
   // Update route on mount and when URL changes
   React.useEffect(() => {
@@ -51,24 +46,16 @@ export function HelpButton({ currentRoute: propRoute, className }: HelpButtonPro
       window.removeEventListener('popstate', handlePopState);
       clearInterval(interval);
     };
-  }, [computeRoute]);
+  }, [computeRoute, setCurrentRoute]);
 
   return (
-    <>
-      <button
-        onClick={() => setIsOpen(true)}
-        className={className || "w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"}
-        title="Help"
-      >
-        <HelpCircle className="h-5 w-5" />
-        <span className="text-sm font-medium">Aide</span>
-      </button>
-
-      <HelpDrawer
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        currentRoute={currentRoute}
-      />
-    </>
+    <button
+      onClick={openHelp}
+      className={className || "w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"}
+      title="Help"
+    >
+      <HelpCircle className="h-5 w-5" />
+      <span className="text-sm font-medium">Aide</span>
+    </button>
   );
 }
