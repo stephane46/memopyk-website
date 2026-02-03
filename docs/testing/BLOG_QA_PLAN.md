@@ -131,17 +131,19 @@ Commit message: "test: add data-testid attributes for E2E blog QA"
 
 ---
 
-### M1.5: Wire AI Creator into Blog Hub
+### M1.5: Wire AI Creator into Blog Hub ✅
 **Goal:** Add BlogAICreator as 6th tab in ContentProductionHub so it's accessible from navigation.
 **Duration:** ~30 min
 **Depends on:** M1 complete
+**Result:** AI Creator added as 6th tab. 97 testids total.
+**Commit:** `df2b08c`
 
 | Step | Task | Output | Status |
 |------|------|--------|--------|
 | M1.5.1 | Add AI Creator tab to ContentProductionHub.tsx (between Posts and Image Bank) | Code change | ✅ |
 | M1.5.2 | Add `tab-ai-creator` testid + mobile variant | Consistent with other tabs | ✅ |
 | M1.5.3 | Update URL param handling for `ai-creator` tab value | URL persistence | ✅ |
-| M1.5.4 | Verify on staging: tab loads, AI Creator form renders | Visual check | ⏳ |
+| M1.5.4 | Verify on staging: tab loads, AI Creator form renders | Visual check | ✅ |
 | M1.5.5 | Update testid-map.json with new tab testids | Updated map | ✅ |
 
 **Claude Code Prompt — M1.5:**
@@ -196,7 +198,8 @@ Commit message: "feat: add AI Creator as 6th tab in Blog Hub"
 **Goal:** Automated script that navigates all Blog Hub tabs, screenshots each, lists interactive elements, and outputs `discovery.json` + `discovery.md`.
 **Duration:** ~2 hours
 **Depends on:** M1 complete
-**Result:** 5/6 tabs discovered (AI Creator pending deployment). Full screenshots + testid inventory generated.
+**Result:** 5/6 tabs discovered (AI Creator pending Coolify deploy at test time). Full screenshots + testid inventory generated.
+**Commit:** `c299a88`
 
 | Step | Task | Output | Status |
 |------|------|--------|--------|
@@ -206,7 +209,17 @@ Commit message: "feat: add AI Creator as 6th tab in Blog Hub"
 | M2.4 | Generate `discovery.md` from JSON | Human-readable map | ✅ |
 | M2.5 | Run and validate against staging | Green run + artifacts | ✅ |
 
-**M2 Artifacts (2026-02-03):**
+**M2 Discovery Results (2026-02-03):**
+| Tab | Status | TestIDs Found |
+|-----|--------|---------------|
+| Planner | ✅ | 366 |
+| Topics | ✅ | 427 |
+| Keywords | ✅ | 122 |
+| Posts | ✅ | 12 |
+| AI Creator | ❌ | 0 (pending deploy) |
+| Images | ✅ | 13 |
+
+**M2 Artifacts:**
 - `test-results/discovery/discovery.json` - Full structured output
 - `test-results/discovery/discovery.md` - Human-readable report
 - `test-results/discovery/tab-*.png` - Screenshots per tab
@@ -348,7 +361,202 @@ Commit message: "test: add Blog Hub discovery runner for E2E QA"
 | M3.11 | Cleanup: delete `[E2E]` test posts after run | Teardown logic | ⬜ |
 | M3.12 | Each flow outputs step-by-step narrative | Markdown narratives | ⬜ |
 
-**Claude Code Prompt — M3:** *(will be written after M2, based on actual discovery output)*
+**Claude Code Prompt — M3:**
+```
+TASK: Build Blog Hub Flow Tests (Smoke Suite) for E2E QA
+
+### Context
+We need end-to-end flow tests that simulate real user actions in the Blog Hub. Each flow creates step-by-step screenshots and markdown narratives. Test data uses [E2E] prefix and is cleaned up after the run.
+
+References:
+- Plan: docs/testing/BLOG_QA_PLAN.md (M3)
+- Spec: docs/testing/BLOG_QA_SPEC.md (Section 7, Deliverable 2)
+- Testid map: tests/e2e/testid-map.json (use data-testid selectors ONLY)
+- Auth helper: tests/e2e/helpers/auth.ts (reuse loginToAdmin)
+- Existing tests: tests/e2e/admin-blog.spec.ts (reference patterns, do NOT modify)
+
+### IMPORTANT: Read before coding
+Before writing any test code, read these component files to understand the actual UI:
+1. client/src/admin/BlogManagePosts.tsx — Posts tab (New Post button, post cards, status dropdown, filters)
+2. client/src/admin/BlogEditor.tsx — Editor (title, slug, description, featured, hero image, status, publish date, save)
+3. client/src/admin/BlogAICreator.tsx — AI Creator (topic, language, SEO keywords, generate prompt, validate JSON)
+4. client/src/components/admin/ContentProductionTopics.tsx — Topics tab (search, category/status/type filters)
+5. client/src/components/admin/ImageBankManager.tsx — Image Bank (category/usage filters, image cards)
+
+Pay close attention to:
+- How "New Post" works (does it open the editor tab? with what URL params?)
+- What status values exist in the status dropdown
+- How hero image selection works (browse button opens what? modal? Image Bank?)
+- What the save button does (API call, toast, redirect?)
+- How the AI Creator generate/validate flow works
+- Whether there is a "priority" field anywhere (P1/P3/P5 or High/Normal/Low) — if not, document what exists instead (featured toggle + featured order)
+
+### Step 1: Create tests/e2e/helpers/cleanup.ts
+Cleanup helper for test data:
+- Export: `cleanupE2EPosts(page)` function
+- Strategy: After tests, navigate to Posts tab, find all posts with "[E2E]" in title, delete each using the delete button (button-delete-{id})
+- Handle confirmation dialogs if they exist
+- Log what was deleted
+- If no [E2E] posts found, that's fine (no-op)
+
+### Step 2: Create tests/e2e/blog-flows.spec.ts
+Use Playwright test.describe for grouping. Each flow is a separate test.
+All tests share a single login (use test.beforeAll or first test does login).
+Each test generates screenshots saved to test-results/flows/
+
+#### Flow 1: Blog Hub loads with all tabs
+- Login → navigate to Blog Hub
+- Verify all 6 tab triggers are visible: tab-planner, tab-topics, tab-keywords, tab-posts, tab-ai-creator, tab-images
+- Click each tab, verify content area changes (not empty)
+- Screenshot: test-results/flows/flow1-all-tabs.png
+- If AI Creator tab is missing (not yet deployed), log warning but don't fail
+
+#### Flow 2: Topics — search filter
+- Click tab-topics
+- Wait for topic list to load (at least one topic-{id} visible)
+- Count visible topics
+- Type a search term in input-search (use a term from an actual topic — read the page first)
+- Verify count changes OR "no results" appears
+- Clear search (button-clear-filters)
+- Verify original count restored
+- Screenshots: before search, after search, after clear
+
+#### Flow 3: Posts — open editor for existing post
+- Click tab-posts
+- Wait for at least one post-card-{id} to appear
+- Find first post card, note its title
+- Click button-edit-{id} on that card
+- Verify editor loads (input-title should have a value)
+- Verify button-save is visible
+- Screenshot: test-results/flows/flow3-editor-loaded.png
+- Click button-back-to-posts to return to Posts list
+
+#### Flow 4: Create draft post with [E2E] prefix
+- Click tab-posts
+- Click button-new-post
+- Verify editor opens (input-title should be empty)
+- Type title: "[E2E] Automated Test Post — {timestamp}"
+- Type slug: "e2e-test-post-{timestamp}" 
+- Type description: "This is an automated E2E test post created by Playwright."
+- Select status: look for a "draft" or "backlog" option in select-status
+- Screenshot: test-results/flows/flow4-draft-filled.png
+- Click button-save
+- Wait for success indicator (toast notification, URL change, or status text)
+- Screenshot: test-results/flows/flow4-draft-saved.png
+- IMPORTANT: Store the post ID from the URL or DOM for use in later flows
+
+#### Flow 5: Set featured/priority on post
+- From the editor (still on the post from Flow 4, or navigate back to it)
+- Toggle switch-featured ON
+- Set input-featured-order to a value (e.g., "1")
+- Click button-save
+- Wait for save confirmation
+- Reload the page
+- Verify switch-featured is still ON and input-featured-order still has the value
+- Screenshot: test-results/flows/flow5-featured-set.png
+- NOTE: If you find an actual priority dropdown (P1/P3/P5 etc.) instead of or in addition to featured, use that. Report what you find.
+
+#### Flow 6: Set schedule date
+- From the editor (same post)
+- Click button-published-at to open date picker
+- Set a future date (e.g., tomorrow)
+- Set input-hours and input-minutes
+- Click button-save
+- Wait for save confirmation
+- Reload the page
+- Verify the date persisted
+- Screenshot: test-results/flows/flow6-schedule-set.png
+
+#### Flow 7: Set hero image from Image Bank
+- From the editor (same post)
+- Click button-browse-hero-image
+- Wait for image selection UI to appear (might be a modal or inline)
+- Look for button-select-image-{name} elements — click the first one
+- Verify hero image preview appears in editor
+- Click button-save
+- Wait for save confirmation
+- Screenshot: test-results/flows/flow7-hero-image-set.png
+
+#### Flow 8: Verify post appears in list
+- Navigate back to Posts tab (click tab-posts or button-back-to-posts)
+- Look for a post-card with the [E2E] title from Flow 4
+- Verify it exists
+- Screenshot: test-results/flows/flow8-post-in-list.png
+
+#### Flow 9: AI Creator basic flow
+- Click tab-ai-creator
+- If tab doesn't exist or content doesn't load, skip with warning (not yet deployed)
+- Fill in input-topic with "E2E Test Topic"
+- Select language in select-language (pick first available option)
+- Fill in input-seo-keywords with "e2e, test, automation"
+- Click button-generate-prompt
+- Wait for textarea-generated-prompt to have content
+- Click button-copy-prompt
+- Screenshot: test-results/flows/flow9-ai-creator-prompt.png
+- NOTE: Do NOT click button-submit-to-supabase (we don't want to create actual AI-generated posts)
+
+### Step 3: Cleanup
+- In test.afterAll:
+  - Navigate to Posts tab
+  - Find and delete all posts with "[E2E]" in their title
+  - Use the delete button on each post card
+  - Handle any confirmation dialogs
+  - Log cleanup results
+
+### Step 4: Generate flow narrative
+After all flows, generate test-results/flows/flow-narrative.md:
+```markdown
+# Blog Hub Flow Test Narrative
+**Date:** {ISO timestamp}
+**URL:** {base URL}
+**Result:** {X/9 flows passed}
+
+## Flow 1: Blog Hub loads with all tabs
+- Step 1: Logged in as admin ✅
+- Step 2: Navigated to Blog Hub ✅  
+- Step 3: Verified 6 tabs present ✅
+- Screenshot: flow1-all-tabs.png
+
+## Flow 2: Topics search filter
+- Step 1: Opened Topics tab ✅
+- Step 2: Found 15 topics ✅
+- Step 3: Searched for "migration" → 3 results ✅
+- Step 4: Cleared filter → 15 topics restored ✅
+- Screenshots: flow2-before.png, flow2-after.png, flow2-cleared.png
+
+...(continue for all flows)
+
+## Summary
+| Flow | Status | Steps | Notes |
+|------|--------|-------|-------|
+| 1. All tabs load | ✅ | 3/3 | |
+| 2. Topics search | ✅ | 4/4 | |
+...
+```
+
+### Step 5: Add npm script
+Add to package.json:
+"e2e:flows": "npx playwright test blog-flows.spec.ts"
+
+### Step 6: Run and report
+- Run the flow tests against staging
+- Report: which flows passed, which failed, any unexpected findings
+- Note any UI issues discovered during testing
+- Report what you found for "priority" (actual field name and behavior)
+
+### Important notes
+- Use data-testid selectors ONLY (from testid-map.json), never CSS classes or text content
+- If a testid from the map doesn't exist on the page, use the closest alternative and document it
+- Each flow should be independent enough to run alone, but they share test data from Flow 4
+- Use a SINGLE browser context for all flows (login once)
+- The test file should PASS even if AI Creator (Flow 9) is skipped due to deployment timing
+- Handle loading states: wait for spinners to disappear, skeleton loaders to resolve, etc.
+- Timeouts: use generous timeouts (30s) for page loads, shorter (10s) for element interactions
+- All timestamps in test data should use Date.now() for uniqueness
+
+### Branch: staging
+Commit message: "test: add Blog Hub flow tests for E2E QA"
+```
 
 ---
 
