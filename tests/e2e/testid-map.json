@@ -4,17 +4,19 @@
   "screens": {
     "hub": {
       "component": "ContentProductionHub.tsx",
-      "route": "/admin?tab=blog (or planner/topics/keywords/posts/images)",
+      "route": "/admin?tab=blog (or planner/topics/keywords/posts/ai-creator/images)",
       "existingTestIds": [
         "tab-planner",
         "tab-topics",
         "tab-keywords",
         "tab-posts",
+        "tab-ai-creator",
         "tab-images",
         "tab-planner-mobile",
         "tab-topics-mobile",
         "tab-keywords-mobile",
         "tab-posts-mobile",
+        "tab-ai-creator-mobile",
         "tab-images-mobile",
         "button-back-to-posts"
       ],
@@ -161,7 +163,7 @@
     },
     "ai-creator": {
       "component": "BlogAICreator.tsx",
-      "route": "NOT ACCESSIBLE (see aiCreatorAccessibility)",
+      "route": "/admin?tab=ai-creator",
       "existingTestIds": [
         "input-topic",
         "select-language",
@@ -180,16 +182,15 @@
     }
   },
   "aiCreatorAccessibility": {
-    "isAccessibleFromNav": false,
-    "currentLocation": "BlogAICreator lives in BlogManagement.tsx",
-    "problem": "AdminPage renders ContentProductionHub (not BlogManagement) when activeSection='blog'. BlogManagement is orphaned - it has tabs for Posts, AI Creator, Tags but none of these are reachable from current navigation.",
-    "howToReach": "Currently unreachable from standard navigation. BlogManagement component exists but is not rendered anywhere.",
-    "recommendation": "Option 1 (Recommended): Add 'AI Creator' as 6th tab in ContentProductionHub between Posts and Image Bank. Import BlogAICreator directly. Option 2: Add button in BlogManagePosts header that links to AI Creator. Option 3: Re-wire AdminPage to use BlogManagement for 'blog' section."
+    "isAccessibleFromNav": true,
+    "currentLocation": "BlogAICreator is now the 6th tab in ContentProductionHub.tsx",
+    "howToReach": "Navigate to Blog Hub → click 'AI Creator' tab (between Posts and Image Bank)",
+    "resolvedInCommit": "M1.5 - feat: add AI Creator as 6th tab in Blog Hub"
   },
   "summary": {
     "totalScreens": 8,
     "screensWithMissingTestIds": 0,
-    "totalExistingTestIds": 95,
+    "totalExistingTestIds": 97,
     "auditComplete": true,
     "testIdsAddedInThisAudit": [
       "post-card-{id} (BlogManagePosts)",
@@ -198,8 +199,10 @@
       "button-translate-{id} (BlogManagePosts)",
       "button-delete-{id} (BlogManagePosts)",
       "select-status-{id} (BlogManagePosts)",
-      "button-back-to-posts (ContentProductionHub)"
+      "button-back-to-posts (ContentProductionHub)",
+      "tab-ai-creator (ContentProductionHub)",
+      "tab-ai-creator-mobile (ContentProductionHub)"
     ],
-    "coverageNotes": "All 7 Blog Hub screens (planner, topics, keywords, posts, images, blog-editor, hub tabs) have comprehensive data-testid coverage. AI Creator has full testids but is not accessible from current navigation."
+    "coverageNotes": "All 8 Blog Hub screens (planner, topics, keywords, posts, ai-creator, images, blog-editor, hub tabs) have comprehensive data-testid coverage. AI Creator is now accessible as 6th tab in Blog Hub."
   }
 }

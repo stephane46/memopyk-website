@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Rocket, Calendar, FileText, Search, BookOpen, Image } from 'lucide-react';
+import { Rocket, Calendar, FileText, Search, BookOpen, Image, Sparkles } from 'lucide-react';
 import { ContentProductionPlanner } from './ContentProductionPlanner';
 import { ContentProductionTopics } from './ContentProductionTopics';
 import { ContentProductionKeywords } from './ContentProductionKeywords';
 import { BlogManagePosts } from '@/admin/BlogManagePosts';
 import { BlogEditor } from '@/admin/BlogEditor';
+import { BlogAICreator } from '@/admin/BlogAICreator';
 import { ImageBankManager } from './ImageBankManager';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Button } from '@/components/ui/button';
@@ -29,7 +30,7 @@ export default function ContentProductionHub() {
       setEditPostId(idParam);
     }
     // If there's a tab parameter, use it
-    else if (tabParam && ['planner', 'topics', 'keywords', 'posts', 'images'].includes(tabParam)) {
+    else if (tabParam && ['planner', 'topics', 'keywords', 'posts', 'ai-creator', 'images'].includes(tabParam)) {
       setActiveTab(tabParam);
     }
   }, []);
@@ -45,7 +46,7 @@ export default function ContentProductionHub() {
       if (tabParam === 'blog-edit' && idParam) {
         setActiveTab('blog-edit');
         setEditPostId(idParam);
-      } else if (tabParam && ['planner', 'topics', 'keywords', 'posts', 'images'].includes(tabParam)) {
+      } else if (tabParam && ['planner', 'topics', 'keywords', 'posts', 'ai-creator', 'images'].includes(tabParam)) {
         setActiveTab(tabParam);
         setEditPostId(null);
       }
@@ -80,7 +81,7 @@ export default function ContentProductionHub() {
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         {/* Desktop: Grid layout */}
-        <TabsList className="hidden md:grid md:grid-cols-5 w-full bg-gray-100 dark:bg-gray-800 p-1">
+        <TabsList className="hidden md:grid md:grid-cols-6 w-full bg-gray-100 dark:bg-gray-800 p-1">
           <TabsTrigger 
             value="planner" 
             data-testid="tab-planner"
@@ -105,16 +106,24 @@ export default function ContentProductionHub() {
             <Search className="h-4 w-4 mr-2" />
             Keywords
           </TabsTrigger>
-          <TabsTrigger 
-            value="posts" 
+          <TabsTrigger
+            value="posts"
             data-testid="tab-posts"
             className="data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
           >
             <BookOpen className="h-4 w-4 mr-2" />
             Posts
           </TabsTrigger>
-          <TabsTrigger 
-            value="images" 
+          <TabsTrigger
+            value="ai-creator"
+            data-testid="tab-ai-creator"
+            className="data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+          >
+            <Sparkles className="h-4 w-4 mr-2" />
+            AI Creator
+          </TabsTrigger>
+          <TabsTrigger
+            value="images"
             data-testid="tab-images"
             className="data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
           >
@@ -149,16 +158,24 @@ export default function ContentProductionHub() {
             <Search className="h-4 w-4 mr-1" />
             Keywords
           </TabsTrigger>
-          <TabsTrigger 
-            value="posts" 
+          <TabsTrigger
+            value="posts"
             data-testid="tab-posts-mobile"
             className="flex-shrink-0 data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
           >
             <BookOpen className="h-4 w-4 mr-1" />
             Posts
           </TabsTrigger>
-          <TabsTrigger 
-            value="images" 
+          <TabsTrigger
+            value="ai-creator"
+            data-testid="tab-ai-creator-mobile"
+            className="flex-shrink-0 data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+          >
+            <Sparkles className="h-4 w-4 mr-1" />
+            AI
+          </TabsTrigger>
+          <TabsTrigger
+            value="images"
             data-testid="tab-images-mobile"
             className="flex-shrink-0 data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
           >
@@ -183,6 +200,12 @@ export default function ContentProductionHub() {
         <TabsContent value="posts" className="mt-6">
           <ErrorBoundary>
             <BlogManagePosts />
+          </ErrorBoundary>
+        </TabsContent>
+
+        <TabsContent value="ai-creator" className="mt-6">
+          <ErrorBoundary>
+            <BlogAICreator />
           </ErrorBoundary>
         </TabsContent>
 
