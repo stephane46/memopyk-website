@@ -501,6 +501,12 @@ router.put('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Resp
     const { id } = req.params;
     const updates = req.body;
 
+    // DEBUG: Trace published_at through the update flow
+    console.log('🔍 PUT /admin/blog/posts/:id - DEBUGGING published_at');
+    console.log('🔍 req.body keys:', Object.keys(updates));
+    console.log('🔍 req.body.published_at:', updates.published_at);
+    console.log('🔍 typeof published_at:', typeof updates.published_at);
+
     const supabase = getSupabase();
 
     // Get current post to check if status actually changes
@@ -515,12 +521,19 @@ router.put('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Resp
       updates.published_at = new Date().toISOString();
     }
 
+    // DEBUG: Log exactly what we're sending to Supabase
+    console.log('🔍 Sending to Supabase update:', JSON.stringify(updates, null, 2));
+
     const { data: post, error } = await supabase
       .from('blog_posts')
       .update(updates)
       .eq('id', id)
       .select()
       .single();
+
+    // DEBUG: Log the result
+    console.log('🔍 Supabase response - error:', error);
+    console.log('🔍 Supabase response - post.published_at:', post?.published_at);
 
     if (error) throw error;
 
