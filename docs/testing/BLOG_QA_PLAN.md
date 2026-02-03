@@ -192,18 +192,26 @@ Commit message: "feat: add AI Creator as 6th tab in Blog Hub"
 
 ---
 
-### M2: Discovery Runner
+### M2: Discovery Runner ✅
 **Goal:** Automated script that navigates all Blog Hub tabs, screenshots each, lists interactive elements, and outputs `discovery.json` + `discovery.md`.
 **Duration:** ~2 hours
 **Depends on:** M1 complete
+**Result:** 5/6 tabs discovered (AI Creator pending deployment). Full screenshots + testid inventory generated.
 
 | Step | Task | Output | Status |
 |------|------|--------|--------|
-| M2.1 | Create `tests/e2e/discovery.spec.ts` | Test file | ⬜ |
-| M2.2 | Login → navigate Blog Hub → iterate all tabs | Screenshots per tab | ⬜ |
-| M2.3 | Collect visible headings, counters, interactive elements per tab | `discovery.json` | ⬜ |
-| M2.4 | Generate `discovery.md` from JSON | Human-readable map | ⬜ |
-| M2.5 | Run and validate against staging | Green run + artifacts | ⬜ |
+| M2.1 | Create `tests/e2e/discovery.spec.ts` | Test file | ✅ |
+| M2.2 | Login → navigate Blog Hub → iterate all tabs | Screenshots per tab | ✅ |
+| M2.3 | Collect visible headings, counters, interactive elements per tab | `discovery.json` | ✅ |
+| M2.4 | Generate `discovery.md` from JSON | Human-readable map | ✅ |
+| M2.5 | Run and validate against staging | Green run + artifacts | ✅ |
+
+**M2 Artifacts (2026-02-03):**
+- `test-results/discovery/discovery.json` - Full structured output
+- `test-results/discovery/discovery.md` - Human-readable report
+- `test-results/discovery/tab-*.png` - Screenshots per tab
+- `tests/e2e/helpers/auth.ts` - Extracted login helper
+- `npm run e2e:discovery` - Run command
 
 **Claude Code Prompt — M2:**
 ```
@@ -366,9 +374,9 @@ Commit message: "test: add Blog Hub discovery runner for E2E QA"
 
 | Criteria | Milestone | Status |
 |----------|-----------|--------|
-| Runs unattended against staging | M2 | ⬜ |
-| Produces discovery.md + screenshots per tab | M2 | ⬜ |
-| Fails with clear reason if tab missing/broken | M2 | ⬜ |
+| Runs unattended against staging | M2 | ✅ |
+| Produces discovery.md + screenshots per tab | M2 | ✅ |
+| Fails with clear reason if tab missing/broken | M2 | ✅ |
 | Creates draft post + verifies it exists | M3 | ⬜ |
 | Sets priority + schedule + hero image, verifies persistence | M3 | ⬜ |
 | Produces qa-report.md with step list + evidence | M4 | ⬜ |
