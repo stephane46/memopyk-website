@@ -83,14 +83,10 @@ export function HelpFlowViewer({ flow, onBack }: HelpFlowViewerProps) {
       {step && (
         <div className="bg-muted/50 rounded-lg p-4">
           <h4 className="font-medium text-base mb-2">{step.title}</h4>
-          <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-            {step.instruction}
-          </p>
-          {step.route && (
-            <p className="text-xs text-muted-foreground mt-3 pt-3 border-t">
-              Location: <code className="bg-muted px-1 rounded">{step.route}</code>
-            </p>
-          )}
+          <div
+            className="text-sm text-muted-foreground prose prose-sm max-w-none"
+            dangerouslySetInnerHTML={{ __html: step.instruction }}
+          />
         </div>
       )}
 
