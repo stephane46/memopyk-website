@@ -4,11 +4,11 @@ const BASE_URL = 'https://memopyk.memopyk.com/en-US';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 
 const SCREENS = [
-  { tab: 'content-production', name: 'blog-hub' },
-  { tab: 'planner', name: 'weekly-planner' },
+  { tab: 'blog', name: 'hub' },
+  { tab: 'planner', name: 'planner' },
   { tab: 'topics', name: 'topics' },
   { tab: 'posts', name: 'posts' },
-  { tab: 'images', name: 'image-bank' },
+  { tab: 'images', name: 'images' },
   { tab: 'keywords', name: 'keywords' },
 ];
 
@@ -43,7 +43,7 @@ async function captureScreenshots() {
     await page.goto(url, { waitUntil: 'networkidle' });
     await page.waitForTimeout(1500);
     await page.screenshot({
-      path: `screenshots/blog-${screen.name}.png`,
+      path: `docs/help/screenshots/blog/${screen.name}.png`,
       fullPage: false
     });
   }

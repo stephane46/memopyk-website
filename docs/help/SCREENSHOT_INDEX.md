@@ -6,12 +6,12 @@ Quick reference for all admin help screenshots.
 
 | File | Screen | Route | Last Updated |
 |------|--------|-------|--------------|
-| hub.png | Blog Hub (default) | `/admin?tab=blog` | 2026-02-02 |
-| planner.png | Weekly Planner | `/admin?tab=planner` | 2026-02-02 |
-| topics.png | Topics | `/admin?tab=topics` | 2026-02-02 |
-| keywords.png | Keywords | `/admin?tab=keywords` | 2026-02-02 |
-| posts.png | Posts | `/admin?tab=posts` | 2026-02-02 |
-| images.png | Image Bank | `/admin?tab=images` | **TODO: retake** |
+| hub.png | Blog Hub (default) | `/admin?tab=blog` | 2026-02-03 |
+| planner.png | Weekly Planner | `/admin?tab=planner` | 2026-02-03 |
+| topics.png | Topics | `/admin?tab=topics` | 2026-02-03 |
+| keywords.png | Keywords | `/admin?tab=keywords` | 2026-02-03 |
+| posts.png | Posts | `/admin?tab=posts` | 2026-02-03 |
+| images.png | Image Bank | `/admin?tab=images` | **BUG: renders blank** |
 
 ## Partners (`/admin?tab=...`)
 
