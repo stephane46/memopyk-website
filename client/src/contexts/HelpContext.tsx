@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 interface HelpContextType {
   isHelpOpen: boolean;
@@ -12,8 +12,16 @@ interface HelpContextType {
 const HelpContext = createContext<HelpContextType | null>(null);
 
 export function HelpProvider({ children }: { children: React.ReactNode }) {
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  // Persist help panel state to localStorage so it survives page reloads
+  const [isHelpOpen, setIsHelpOpen] = useState(() =>
+    localStorage.getItem('helpPanelOpen') === 'true'
+  );
   const [currentRoute, setCurrentRoute] = useState('');
+
+  // Save help panel state to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('helpPanelOpen', isHelpOpen ? 'true' : 'false');
+  }, [isHelpOpen]);
 
   const openHelp = useCallback(() => setIsHelpOpen(true), []);
   const closeHelp = useCallback(() => setIsHelpOpen(false), []);

@@ -27,6 +27,48 @@
   margin-bottom: 0.5em;
 }
 
+/* Help content action indicators - for highlighting UI elements in help text */
+.help-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Orange badge for buttons to click */
+.help-btn {
+  background-color: #FFF3E0;
+  color: #D67C4A;
+  border: 1px solid #FFCC80;
+}
+
+/* Blue badge for tabs to select */
+.help-tab {
+  background-color: #E3F2FD;
+  color: #1565C0;
+  border: 1px solid #90CAF9;
+}
+
+/* Gray badge for exact UI labels / field names */
+.help-label {
+  background-color: #F5F5F5;
+  color: #424242;
+  border: 1px solid #E0E0E0;
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+}
+
+/* Green badge for status/state values */
+.help-status {
+  background-color: #E8F5E9;
+  color: #2E7D32;
+  border: 1px solid #A5D6A7;
+}
+
 /* Hide fullscreen button from video controls */
 video::-webkit-media-controls-fullscreen-button {
   display: none !important;
