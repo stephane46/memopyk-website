@@ -19,7 +19,10 @@
     "db:generate": "drizzle-kit generate",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
-    "test:headed": "playwright test --headed"
+    "test:headed": "playwright test --headed",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "e2e:report": "playwright show-report"
   },
   "engines": {
     "node": ">=20.0.0"
