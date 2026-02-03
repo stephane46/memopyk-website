@@ -46,26 +46,36 @@ test.describe('Blog Hub Flow Tests', () => {
   });
 
   test.afterAll(async ({ browser }) => {
-    // Cleanup E2E posts
+    // Generate flow narrative first (most important)
+    generateFlowNarrative(flowResults);
+
+    // Cleanup E2E posts (best effort, don't fail the test)
     const context = await browser.newContext();
     const page = await context.newPage();
 
     try {
-      await loginToAdmin(page);
-      await navigateToBlogHub(page);
-      const cleanup = await cleanupE2EPosts(page);
-      console.log(`Cleanup result: ${cleanup.deleted} posts deleted`);
-      if (cleanup.errors.length > 0) {
-        console.warn('Cleanup errors:', cleanup.errors);
-      }
-    } catch (error) {
-      console.error('Cleanup failed:', error);
-    } finally {
-      await context.close();
-    }
+      // Set a 30-second timeout for cleanup
+      const cleanupPromise = (async () => {
+        await loginToAdmin(page);
+        await navigateToBlogHub(page);
+        const cleanup = await cleanupE2EPosts(page);
+        console.log(`Cleanup result: ${cleanup.deleted} posts deleted`);
+        if (cleanup.errors.length > 0) {
+          console.warn('Cleanup errors:', cleanup.errors);
+        }
+      })();
 
-    // Generate flow narrative
-    generateFlowNarrative(flowResults);
+      const timeoutPromise = new Promise<void>((_, reject) =>
+        setTimeout(() => reject(new Error('Cleanup timeout (30s)')), 30000)
+      );
+
+      await Promise.race([cleanupPromise, timeoutPromise]);
+    } catch (error) {
+      // Don't throw - just log. Cleanup failure shouldn't fail the test suite.
+      console.warn('Cleanup skipped or incomplete:', error instanceof Error ? error.message : error);
+    } finally {
+      await context.close().catch(() => {}); // Ignore close errors
+    }
   });
 
   test('Flow 1: Blog Hub loads with all tabs', async ({ page }) => {
