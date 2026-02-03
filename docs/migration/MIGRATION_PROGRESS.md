@@ -1,7 +1,7 @@
 # MEMOPYK Migration Progress Report
 
-**Last Updated:** 2026-01-31
-**Status:** Staging Live - Ready for Production Cutover
+**Last Updated:** 2026-02-03
+**Status:** Staging & Production Live - Help System in progress
 
 ---
 
@@ -20,6 +20,10 @@
 | **Admin Panel** | ✅ Working | Authentication fixed |
 | **Partners API** | ✅ Working | Database queries implemented |
 | **Analytics** | ✅ Functional | P1-P8 rebuild complete Jan 31, 2026 |
+| **Help System** | 🔧 In Progress | 6/18 screens documented (Blog section complete) |
+| **Blog Editor** | 🔧 In Progress | New Post button added, editor tab navigation fix pending |
+| **DNS** | ✅ Complete | Migrated from Replit (34.111.179.208) → Coolify (82.29.168.136) |
+| **Production URL** | ✅ Live | https://memopyk.com |
 
 ---
 
@@ -48,7 +52,7 @@
 - ✅ Direct database access (no hybrid-storage complexity)
 
 ### Phase 5-8: Code Migration
-- ✅ 15 route modules extracted from monolithic routes.ts
+- ✅ 17 route modules extracted from monolithic routes.ts
 - ✅ Service layer implemented
 - ✅ Frontend migrated (React 18 + Vite)
 - ✅ Admin panel functional
@@ -121,6 +125,38 @@ Any component using `useMap()` or `useMapEvents()` triggered infinite recursion 
 
 ---
 
+## Recent Work (Feb 1-3, 2026)
+
+### Help System Implementation
+- ✅ Database schema: `help_screens`, `help_flows` tables
+- ✅ Backend: `/api/admin/help` routes
+- ✅ Frontend: HelpDrawer (push layout), HelpButton, HelpFlowViewer components
+- ✅ HelpContext for global state management
+- ✅ Blog section: 6 screens documented with detailed HTML content
+- ✅ Automated testing: Playwright script validates help accuracy (95% pass rate)
+- ✅ Screenshot organization: `docs/help/screenshots/[section]/`
+- 🔧 Remaining: 12 screens (Partners, Site Content, System, Analytics, SEO)
+
+### Admin UX Improvements
+- ✅ Tab renaming: "Topic Backlog" → "Topics", "Manage Posts" → "Posts"
+- ✅ Header: "Blog Posts" → "Blog Hub"
+- ✅ HelpDrawer: Push layout (content shrinks, no overlay)
+- ✅ Skeleton loaders for premium feel
+- ✅ "+ New Post" button added to Posts screen
+- 🔧 Blog editor tab (`blog-edit`) not registered — fix in progress
+
+### Production Cutover
+- ✅ DNS migrated to Coolify VPS
+- ✅ Staging auto-deploys from `staging` branch
+- ✅ Production auto-deploys from `main` branch
+
+### Documentation
+- ✅ Tech Stack table added to `docs/architecture/OVERVIEW.md`
+- ✅ `docs/help/SCREENSHOT_INDEX.md` created
+- ✅ `docs/help/TEST_REPORT.md` — help content verification results
+
+---
+
 ## Planned Work
 
 ### Next Sprint: Mapbox GL JS Migration
@@ -144,11 +180,16 @@ Any component using `useMap()` or `useMapEvents()` triggered infinite recursion 
 
 ### Production Cutover
 
+**Completed:**
+- ✅ DNS cutover done
+- ✅ Both staging and production live
+
 **Remaining Steps:**
-1. Final stakeholder review of staging
-2. DNS cutover (memopyk.com → Coolify VPS)
-3. Monitor for 72 hours
-4. Decommission Replit
+1. Complete Help System (all 18 screens)
+2. Fix blog editor navigation
+3. Fix Image Bank rendering bug
+4. Analytics system rebuild (methodical, not patching legacy)
+5. Decommission Replit
 
 ---
 
@@ -156,6 +197,12 @@ Any component using `useMap()` or `useMapEvents()` triggered infinite recursion 
 
 | Commit | Description | Date |
 |--------|-------------|------|
+| fc8d314 | Add New Post button + adminFetch fix | 2026-02-03 |
+| 9b87247 | HelpDrawer push layout + HelpContext | 2026-02-03 |
+| 27a4523 | Help drawer persist on outside click | 2026-02-03 |
+| 12ad77b | Screenshot automation + organization | 2026-02-03 |
+| 27fb93f | Blog tab renaming (Hub/Topics/Posts) | 2026-02-02 |
+| 8f26512 | HelpFlowViewer steps parsing fix | 2026-02-02 |
 | (latest) | Style gallery card-back button | 2026-01-30 |
 | (latest) | CSS exception for buttons on dark backgrounds | 2026-01-30 |
 | (latest) | Add card-back-gradient to gallery flip cards | 2026-01-30 |
