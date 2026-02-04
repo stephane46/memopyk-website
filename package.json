@@ -32,6 +32,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.72.1",
     "@google-analytics/data": "^4.9.0",
     "@google-cloud/bigquery": "^7.9.2",
     "@hookform/resolvers": "^3.10.0",
