@@ -1,0 +1,309 @@
+{
+  "testDate": "2026-02-04",
+  "environment": "Staging (https://memopyk.memopyk.com)",
+  "flows": [
+    {
+      "flowName": "Create a blog post",
+      "description": "Step-by-step guide to create a blog post, manually or with AI assistance",
+      "totalSteps": 7,
+      "results": [
+        {
+          "step": 1,
+          "title": "Go to Posts tab",
+          "instruction": "In the Blog Hub, click the Posts tab to see all your blog posts.",
+          "helpScreenshot": "flow1-step1-help.png",
+          "actionScreenshot": "flow1-step1-action.png",
+          "rating": "AMBIGUOUS",
+          "notes": "Found: \"Posts\"; NOT FOUND: \"the\"",
+          "uiElementFound": true
+        },
+        {
+          "step": 2,
+          "title": "Click New Post",
+          "instruction": "Click the + New Post button in the top-right corner. This opens the creation page.",
+          "helpScreenshot": "flow1-step2-help.png",
+          "actionScreenshot": "flow1-step2-action.png",
+          "rating": "BLOCKED",
+          "notes": "NOT FOUND: \"+ New Post\"; NOT FOUND: \"the\"",
+          "uiElementFound": false
+        },
+        {
+          "step": 3,
+          "title": "Choose your method",
+          "instruction": "You have two options: Write from scratch opens the Blog Editor directly. Generate with AI uses AI to create a draft.",
+          "helpScreenshot": "flow1-step3-help.png",
+          "actionScreenshot": "flow1-step3-action.png",
+          "rating": "BLOCKED",
+          "notes": "",
+          "uiElementFound": false
+        },
+        {
+          "step": 4,
+          "title": "Manual: Write your content",
+          "instruction": "If you chose \"Write from scratch\": The Blog Editor opens with a blank post. Enter your Title, write your content in the editor, and add images as needed.",
+          "helpScreenshot": "flow1-step4-help.png",
+          "actionScreenshot": "flow1-step4-action.png",
+          "rating": "BLOCKED",
+          "notes": "",
+          "uiElementFound": false
+        },
+        {
+          "step": 5,
+          "title": "AI: Configure and generate",
+          "instruction": "If you chose \"Generate with AI\": Enter your topic, select tone and keywords, then click Generate AI Prompt. Copy the prompt to your AI assistant, paste the JSON response, then click Save Blog Post to save and open in Blog Editor.",
+          "helpScreenshot": "flow1-step5-help.png",
+          "actionScreenshot": "flow1-step5-action.png",
+          "rating": "BLOCKED",
+          "notes": "NOT FOUND: \"Generate\"; NOT FOUND: \"Save\"",
+          "uiElementFound": false
+        },
+        {
+          "step": 6,
+          "title": "Set metadata",
+          "instruction": "In the Blog Editor, configure: Tags, Hero Image, and Description (SEO).",
+          "helpScreenshot": "flow1-step6-help.png",
+          "actionScreenshot": "flow1-step6-action.png",
+          "rating": "BLOCKED",
+          "notes": "",
+          "uiElementFound": false
+        },
+        {
+          "step": 7,
+          "title": "Save and publish",
+          "instruction": "Set Status to Draft, In Review, or Published. Click Save Changes.",
+          "helpScreenshot": "flow1-step7-help.png",
+          "actionScreenshot": "flow1-step7-action.png",
+          "rating": "BLOCKED",
+          "notes": "NOT FOUND: \"Save\"",
+          "uiElementFound": false
+        }
+      ],
+      "summary": {
+        "clear": 0,
+        "ambiguous": 1,
+        "blocked": 6
+      }
+    },
+    {
+      "flowName": "Translate a post",
+      "description": "Translate a post to another language using AI or manual tools",
+      "totalSteps": 8,
+      "results": [
+        {
+          "step": 1,
+          "title": "Find your post",
+          "instruction": "Go to Posts and locate the post you want to translate.",
+          "helpScreenshot": "flow2-step1-help.png",
+          "actionScreenshot": "flow2-step1-action.png",
+          "rating": "BLOCKED",
+          "notes": "",
+          "uiElementFound": false
+        },
+        {
+          "step": 2,
+          "title": "Click translate icon",
+          "instruction": "Click the 🌐 translate icon next to the post. A dialog will appear.",
+          "helpScreenshot": "flow2-step2-help.png",
+          "actionScreenshot": "flow2-step2-action.png",
+          "rating": "BLOCKED",
+          "notes": "NOT FOUND: \"🌐 translate\"; NOT FOUND: \"the\"",
+          "uiElementFound": false
+        },
+        {
+          "step": 3,
+          "title": "Choose translation method",
+          "instruction": "Choose ✨ Translate with AI for automatic translation, or Translate manually to use your own tools.",
+          "helpScreenshot": "flow2-step3-help.png",
+          "actionScreenshot": "flow2-step3-action.png",
+          "rating": "BLOCKED",
+          "notes": "",
+          "uiElementFound": false
+        },
+        {
+          "step": 4,
+          "title": "Review AI translation",
+          "instruction": "If you chose AI: the editor opens with the translated content. Review the title, description, and content for accuracy.",
+          "helpScreenshot": "flow2-step4-help.png",
+          "actionScreenshot": "flow2-step4-action.png",
+          "rating": "BLOCKED",
+          "notes": "",
+          "uiElementFound": false
+        },
+        {
+          "step": 5,
+          "title": "Manual translation (if chosen)",
+          "instruction": "If you chose manual: the editor opens with the original content. Click Translation Assistant to use the translation helper, or translate directly.",
+          "helpScreenshot": "flow2-step5-help.png",
+          "actionScreenshot": "flow2-step5-action.png",
+          "rating": "BLOCKED",
+          "notes": "NOT FOUND: \"Translation\"",
+          "uiElementFound": false
+        },
+        {
+          "step": 6,
+          "title": "Edit and refine",
+          "instruction": "Make any necessary edits to the translation. Images are automatically preserved in their original positions.",
+          "helpScreenshot": "flow2-step6-help.png",
+          "actionScreenshot": "flow2-step6-action.png",
+          "rating": "BLOCKED",
+          "notes": "",
+          "uiElementFound": false
+        },
+        {
+          "step": 7,
+          "title": "Update metadata",
+          "instruction": "Verify the Slug is language-appropriate (e.g., ends in -en or -fr). Update the Description (SEO) if needed.",
+          "helpScreenshot": "flow2-step7-help.png",
+          "actionScreenshot": "flow2-step7-action.png",
+          "rating": "BLOCKED",
+          "notes": "",
+          "uiElementFound": false
+        },
+        {
+          "step": 8,
+          "title": "Set status and save",
+          "instruction": "Change Status to Published when ready. Click Save Changes.",
+          "helpScreenshot": "flow2-step8-help.png",
+          "actionScreenshot": "flow2-step8-action.png",
+          "rating": "BLOCKED",
+          "notes": "NOT FOUND: \"Save\"",
+          "uiElementFound": false
+        }
+      ],
+      "summary": {
+        "clear": 0,
+        "ambiguous": 0,
+        "blocked": 8
+      }
+    }
+  ],
+  "screens": [
+    {
+      "route": "/admin?tab=blog",
+      "helpTitle": "Blog Hub",
+      "actualTitle": "MEMOPYK",
+      "helpScreenshot": "screen-blog-hub-help.png",
+      "uiScreenshot": "screen-blog-hub-ui.png",
+      "titleMatches": true,
+      "contentAccurate": true,
+      "missingElements": [],
+      "extraElements": [],
+      "rating": "CLEAR",
+      "notes": ""
+    },
+    {
+      "route": "/admin?tab=posts",
+      "helpTitle": "(not found)",
+      "actualTitle": "MEMOPYK",
+      "helpScreenshot": "screen-posts-help.png",
+      "uiScreenshot": "screen-posts-ui.png",
+      "titleMatches": true,
+      "contentAccurate": true,
+      "missingElements": [],
+      "extraElements": [],
+      "rating": "AMBIGUOUS",
+      "notes": "Could not extract help title from screen content"
+    },
+    {
+      "route": "/admin?tab=ai-creator",
+      "helpTitle": "AI Creator",
+      "actualTitle": "MEMOPYK",
+      "helpScreenshot": "screen-ai-creator-help.png",
+      "uiScreenshot": "screen-ai-creator-ui.png",
+      "titleMatches": true,
+      "contentAccurate": true,
+      "missingElements": [],
+      "extraElements": [],
+      "rating": "CLEAR",
+      "notes": ""
+    },
+    {
+      "route": "/admin?tab=blog-edit&id=test",
+      "helpTitle": "Blog Editor",
+      "actualTitle": "MEMOPYK",
+      "helpScreenshot": "screen-blog-editor-help.png",
+      "uiScreenshot": "screen-blog-editor-ui.png",
+      "titleMatches": true,
+      "contentAccurate": true,
+      "missingElements": [],
+      "extraElements": [],
+      "rating": "CLEAR",
+      "notes": ""
+    },
+    {
+      "route": "/admin?tab=planner",
+      "helpTitle": "(not found)",
+      "actualTitle": "MEMOPYK",
+      "helpScreenshot": "screen-planner-help.png",
+      "uiScreenshot": "screen-planner-ui.png",
+      "titleMatches": true,
+      "contentAccurate": true,
+      "missingElements": [],
+      "extraElements": [],
+      "rating": "AMBIGUOUS",
+      "notes": "Could not extract help title from screen content"
+    },
+    {
+      "route": "/admin?tab=keywords",
+      "helpTitle": "Keywords",
+      "actualTitle": "MEMOPYK",
+      "helpScreenshot": "screen-keywords-help.png",
+      "uiScreenshot": "screen-keywords-ui.png",
+      "titleMatches": true,
+      "contentAccurate": true,
+      "missingElements": [],
+      "extraElements": [],
+      "rating": "CLEAR",
+      "notes": ""
+    },
+    {
+      "route": "/admin?tab=topics",
+      "helpTitle": "(not found)",
+      "actualTitle": "MEMOPYK",
+      "helpScreenshot": "screen-topics-help.png",
+      "uiScreenshot": "screen-topics-ui.png",
+      "titleMatches": true,
+      "contentAccurate": true,
+      "missingElements": [],
+      "extraElements": [],
+      "rating": "AMBIGUOUS",
+      "notes": "Could not extract help title from screen content"
+    },
+    {
+      "route": "/admin?tab=images",
+      "helpTitle": "Image Bank",
+      "actualTitle": "MEMOPYK",
+      "helpScreenshot": "screen-images-help.png",
+      "uiScreenshot": "screen-images-ui.png",
+      "titleMatches": false,
+      "contentAccurate": true,
+      "missingElements": [],
+      "extraElements": [],
+      "rating": "AMBIGUOUS",
+      "notes": "Help title \"Image Bank\" may not match screen \"MEMOPYK\""
+    },
+    {
+      "route": "/admin?tab=new-post",
+      "helpTitle": "Create a New Blog Post",
+      "actualTitle": "MEMOPYK",
+      "helpScreenshot": "screen-new-post-help.png",
+      "uiScreenshot": "screen-new-post-ui.png",
+      "titleMatches": false,
+      "contentAccurate": true,
+      "missingElements": [],
+      "extraElements": [],
+      "rating": "AMBIGUOUS",
+      "notes": "Help title \"Create a New Blog Post\" may not match screen \"MEMOPYK\""
+    }
+  ],
+  "summary": {
+    "totalFlowSteps": 15,
+    "flowClear": 0,
+    "flowAmbiguous": 1,
+    "flowBlocked": 14,
+    "totalScreens": 9,
+    "screenClear": 4,
+    "screenAmbiguous": 5,
+    "screenBlocked": 0
+  }
+}
