@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Naive User Test Report V2 — Help Accuracy + Functional Testing</title>
+  <style>
+    :root {
+      --pass: #10b981;
+      --fail: #ef4444;
+      --warn: #f59e0b;
+      --bg: #f9fafb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #D67C4A;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 1.875rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 0.875rem;
+      margin-bottom: 2rem;
+    }
+
+    .meta span {
+      margin-right: 1.5rem;
+    }
+
+    /* Summary Cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .summary-card {
+      background: var(--card);
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border-left: 4px solid var(--border);
+    }
+
+    .summary-card.pass { border-left-color: var(--pass); }
+    .summary-card.fail { border-left-color: var(--fail); }
+    .summary-card.warn { border-left-color: var(--warn); }
+
+    .summary-card h3 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .summary-card .count {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .summary-card.pass .count { color: var(--pass); }
+    .summary-card.fail .count { color: var(--fail); }
+    .summary-card.warn .count { color: var(--warn); }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
+    }
+
+    .badge-pass { background: #d1fae5; color: #065f46; }
+    .badge-fail { background: #fee2e2; color: #991b1b; }
+    .badge-warn { background: #fef3c7; color: #92400e; }
+    .badge-info { background: #dbeafe; color: #1e40af; }
+
+    /* Collapsible Sections */
+    .section {
+      background: var(--card);
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid transparent;
+      transition: background 0.15s;
+    }
+
+    .section-header:hover {
+      background: #f3f4f6;
+    }
+
+    .section.open .section-header {
+      border-bottom-color: var(--border);
+    }
+
+    .section-header h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-header .chevron {
+      transition: transform 0.2s;
+      color: var(--muted);
+    }
+
+    .section.open .section-header .chevron {
+      transform: rotate(180deg);
+    }
+
+    .section-content {
+      display: none;
+      padding: 1.25rem;
+    }
+
+    .section.open .section-content {
+      display: block;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: #f9fafb;
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: #f9fafb;
+    }
+
+    code {
+      background: #f3f4f6;
+      padding: 0.125rem 0.375rem;
+      border-radius: 0.25rem;
+      font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+      font-size: 0.8125rem;
+      color: #be185d;
+    }
+
+    /* Fix Items */
+    .fix-item {
+      background: #f9fafb;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      border-left: 3px solid var(--accent);
+    }
+
+    .fix-item h4 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .fix-item .before-after {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 0.75rem;
+    }
+
+    .fix-item .before, .fix-item .after {
+      padding: 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.8125rem;
+    }
+
+    .fix-item .before {
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+    }
+
+    .fix-item .after {
+      background: #d1fae5;
+      border: 1px solid #a7f3d0;
+    }
+
+    .fix-item .label {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.875rem;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    footer .commits code {
+      background: #e0e7ff;
+      color: #3730a3;
+    }
+
+    /* Category badges in summary */
+    .category-summary {
+      margin-top: 1.5rem;
+    }
+
+    .category-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .category-row:last-child {
+      border-bottom: none;
+    }
+
+    .category-name {
+      font-weight: 500;
+    }
+
+    .category-badges {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .mini-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .mini-badge.pass { background: #d1fae5; color: #065f46; }
+    .mini-badge.fail { background: #fee2e2; color: #991b1b; }
+    .mini-badge.warn { background: #fef3c7; color: #92400e; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body { padding: 1rem; }
+      .fix-item .before-after { grid-template-columns: 1fr; }
+      footer { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Naive User Test Report V2</h1>
+    <p class="meta">
+      <span><strong>Date:</strong> 2026-02-04</span>
+      <span><strong>Tester:</strong> Claude (Opus 4.5)</span>
+      <span><strong>Environment:</strong> Staging + Supabase DB</span>
+    </p>
+
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+      <div class="summary-card pass">
+        <h3>Passed</h3>
+        <div class="count">18</div>
+      </div>
+      <div class="summary-card fail">
+        <h3>Failed</h3>
+        <div class="count">11</div>
+      </div>
+      <div class="summary-card warn">
+        <h3>Warnings</h3>
+        <div class="count">2</div>
+      </div>
+    </div>
+
+    <!-- Category Breakdown -->
+    <div class="section open">
+      <div class="section-header" onclick="toggleSection(this.parentElement)">
+        <h2>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          Summary by Category
+        </h2>
+      </div>
+      <div class="section-content">
+        <div class="category-summary">
+          <div class="category-row">
+            <span class="category-name">Create Blog Post Flow (7 steps)</span>
+            <div class="category-badges">
+              <span class="mini-badge pass">5 Pass</span>
+              <span class="mini-badge fail">2 Fail</span>
+              <span class="mini-badge warn">1 Warn</span>
+            </div>
+          </div>
+          <div class="category-row">
+            <span class="category-name">Translate Post Flow (8 steps)</span>
+            <div class="category-badges">
+              <span class="mini-badge pass">6 Pass</span>
+              <span class="mini-badge fail">1 Fail</span>
+              <span class="mini-badge warn">1 Warn</span>
+            </div>
+          </div>
+          <div class="category-row">
+            <span class="category-name">Help Screens (DB content)</span>
+            <div class="category-badges">
+              <span class="mini-badge pass">3 Pass</span>
+              <span class="mini-badge fail">4 Fail</span>
+            </div>
+          </div>
+          <div class="category-row">
+            <span class="category-name">Help APIs</span>
+            <div class="category-badges">
+              <span class="mini-badge pass">4 Pass</span>
+            </div>
+          </div>
+          <div class="category-row">
+            <span class="category-name">Stale Reference Search</span>
+            <div class="category-badges">
+              <span class="mini-badge fail">4 Fail</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Blog Post Flow -->
+    <div class="section open">
+      <div class="section-header" onclick="toggleSection(this.parentElement)">
+        <h2>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          Flow: Create a blog post (7 steps)
+        </h2>
+        <div>
+          <span class="badge badge-pass">5 Pass</span>
+          <span class="badge badge-fail">2 Fail</span>
+          <span class="badge badge-warn">1 Warn</span>
+        </div>
+      </div>
+      <div class="section-content">
+        <table>
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>DB Instruction</th>
+              <th>Code Actual</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Click <code>Posts</code> tab</td>
+              <td>Tab labeled "Posts" <small>(ContentProductionHub.tsx:110-116)</small></td>
+              <td><span class="badge badge-pass">Pass</span></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Click <code>+ New Post</code> button</td>
+              <td>Button shows Plus icon + "New Post" <small>(BlogManagePosts.tsx:321-323)</small></td>
+              <td><span class="badge badge-warn">Warn</span></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Options: <code>Write from scratch</code> / <code>Generate with AI</code></td>
+              <td>Exact match <small>(CreatePostLanding.tsx:103,122)</small></td>
+              <td><span class="badge badge-pass">Pass</span></td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>Enter <code>Title</code>, write content</td>
+              <td>Title field + TinyMCE editor <small>(BlogEditor.tsx:330,424-437)</small></td>
+              <td><span class="badge badge-pass">Pass</span></td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>Click <code>Generate</code>, then <code>Edit in Blog Editor</code></td>
+              <td>Button says "Generate AI Prompt"; "Save Blog Post" <small>(BlogAICreator.tsx:477-484,656-660)</small></td>
+              <td><span class="badge badge-fail">Fail</span></td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>Set <code>Category</code>, <code>Tags</code>, <code>Featured Image</code>, <code>Description (SEO)</code></td>
+              <td><strong>No Category field exists</strong>; Tags/Hero/Description exist <small>(BlogEditor.tsx:354,366,378)</small></td>
+              <td><span class="badge badge-fail">Fail</span></td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>Set <code>Status</code>, click <code>Save Changes</code></td>
+              <td>Exact match <small>(BlogEditor.tsx:34,306-323)</small></td>
+              <td><span class="badge badge-pass">Pass</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Translate Post Flow -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this.parentElement)">
+        <h2>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          Flow: Translate a post (8 steps)
+        </h2>
+        <div>
+          <span class="badge badge-pass">6 Pass</span>
+          <span class="badge badge-fail">1 Fail</span>
+          <span class="badge badge-warn">1 Warn</span>
+        </div>
+      </div>
+      <div class="section-content">
+        <table>
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>DB Instruction</th>
+              <th>Code Actual</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Go to <code>Posts</code> tab</td>
+              <td>Tab exists as "Posts"</td>
+              <td><span class="badge badge-pass">Pass</span></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Click <code>🌐</code> translate icon</td>
+              <td>Icon is <code>&lt;Languages /&gt;</code> component, not emoji <small>(BlogManagePosts.tsx:561-562)</small></td>
+              <td><span class="badge badge-warn">Warn</span></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Choose <code>Translate with AI</code> or <code>Translate manually</code></td>
+              <td>Sparkles icon + text; Pencil icon + text <small>(BlogManagePosts.tsx:656,680)</small></td>
+              <td><span class="badge badge-pass">Pass</span></td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>AI: editor opens with translated content</td>
+              <td>Mutation navigates to blog-edit <small>(BlogManagePosts.tsx:236-240)</small></td>
+              <td><span class="badge badge-pass">Pass</span></td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>Manual: editor opens with original + Translation Assistant</td>
+              <td>Translation Assistant button shows for drafts <small>(BlogEditor.tsx:285-294)</small></td>
+              <td><span class="badge badge-pass">Pass</span></td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>Edit and refine</td>
+              <td>Editor allows editing</td>
+              <td><span class="badge badge-pass">Pass</span></td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>Verify Slug is language-appropriate</td>
+              <td>Slug field exists <small>(BlogEditor.tsx:343)</small></td>
+              <td><span class="badge badge-pass">Pass</span></td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td>Set Status to Published, click <code>Save Changes</code></td>
+              <td>Exact match</td>
+              <td><span class="badge badge-pass">Pass</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Help Screens -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this.parentElement)">
+        <h2>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          Help Screens (DB Content vs UI)
+        </h2>
+        <div>
+          <span class="badge badge-pass">3 Pass</span>
+          <span class="badge badge-fail">4 Fail</span>
+        </div>
+      </div>
+      <div class="section-content">
+        <table>
+          <thead>
+            <tr>
+              <th>Route</th>
+              <th>Title</th>
+              <th>Issue</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>/admin?tab=posts</code></td>
+              <td>Posts</td>
+              <td>Tips mention "Posts (AI)" tab which no longer exists</td>
+              <td><span class="badge badge-fail">Fail</span></td>
+            </tr>
+            <tr>
+              <td><code>/admin?tab=new-post</code></td>
+              <td>New Post</td>
+              <td>Correct — references correct button labels</td>
+              <td><span class="badge badge-pass">Pass</span></td>
+            </tr>
+            <tr>
+              <td><code>/admin?tab=blog-edit</code></td>
+              <td>Blog Editor</td>
+              <td>Mentions "ChatGPT or Claude" — should be generic</td>
+              <td><span class="badge badge-fail">Fail</span></td>
+            </tr>
+            <tr>
+              <td><code>/admin?tab=ai-creator</code></td>
+              <td>Posts (AI)</td>
+              <td>Title is stale; mentions "ChatGPT"</td>
+              <td><span class="badge badge-fail">Fail</span></td>
+            </tr>
+            <tr>
+              <td><code>/admin?tab=blog</code></td>
+              <td>Blog Hub</td>
+              <td>Lists 6 tabs including old names — now 5 tabs</td>
+              <td><span class="badge badge-fail">Fail</span></td>
+            </tr>
+            <tr>
+              <td><code>/admin?tab=planner</code></td>
+              <td>Weekly Planner</td>
+              <td>Correct</td>
+              <td><span class="badge badge-pass">Pass</span></td>
+            </tr>
+            <tr>
+              <td><code>/admin?tab=keywords</code></td>
+              <td>Keywords</td>
+              <td>Correct</td>
+              <td><span class="badge badge-pass">Pass</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Help APIs -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this.parentElement)">
+        <h2>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          Help APIs (Staging)
+        </h2>
+        <div>
+          <span class="badge badge-pass">4 Pass</span>
+        </div>
+      </div>
+      <div class="section-content">
+        <table>
+          <thead>
+            <tr>
+              <th>Test</th>
+              <th>Endpoint</th>
+              <th>Expected</th>
+              <th>Actual</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>List flows</td>
+              <td><code>GET /api/help/flows</code></td>
+              <td>Array of flows</td>
+              <td>Returns 2 flows</td>
+              <td><span class="badge badge-pass">Pass</span></td>
+            </tr>
+            <tr>
+              <td>Get flow by ID</td>
+              <td><code>GET /api/help/flows/:id</code></td>
+              <td>Flow with stepsJson</td>
+              <td>Returns 7/8 steps</td>
+              <td><span class="badge badge-pass">Pass</span></td>
+            </tr>
+            <tr>
+              <td>Get screen: posts</td>
+              <td><code>GET /api/help/screens/...</code></td>
+              <td>Screen object</td>
+              <td>Returns title "Posts"</td>
+              <td><span class="badge badge-pass">Pass</span></td>
+            </tr>
+            <tr>
+              <td>Get screen: new-post</td>
+              <td><code>GET /api/help/screens/...</code></td>
+              <td>Screen object</td>
+              <td>Returns correct labels</td>
+              <td><span class="badge badge-pass">Pass</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Stale References -->
+    <div class="section">
+      <div class="section-header" onclick="toggleSection(this.parentElement)">
+        <h2>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          Stale Reference Search
+        </h2>
+        <div>
+          <span class="badge badge-fail">4 Fail</span>
+        </div>
+      </div>
+      <div class="section-content">
+        <h3 style="font-size: 0.875rem; margin-bottom: 1rem; color: var(--muted);">Search: "ChatGPT" or "chatgpt"</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Location</th>
+              <th>Issue</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>help_screens /admin?tab=ai-creator</code></td>
+              <td>"Copy this prompt and paste it into <strong>ChatGPT</strong>..."</td>
+            </tr>
+            <tr>
+              <td><code>help_screens /admin?tab=blog-edit</code></td>
+              <td>Translation Assistant "using <strong>ChatGPT</strong> or Claude"</td>
+            </tr>
+            <tr>
+              <td><code>BlogAICreator.tsx:492</code></td>
+              <td>"Give this prompt to Claude, <strong>ChatGPT</strong>..."</td>
+            </tr>
+            <tr>
+              <td><code>BlogAICreator.tsx:529</code></td>
+              <td>"After giving the prompt to <strong>ChatGPT</strong>/Claude..."</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 style="font-size: 0.875rem; margin: 1.5rem 0 1rem; color: var(--muted);">Search: "Posts (Manual)" or "Posts (AI)"</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Location</th>
+              <th>Issue</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>help_screens /admin?tab=blog</code></td>
+              <td>Lists tabs as "Posts (Manual)" and "Posts (AI)"</td>
+            </tr>
+            <tr>
+              <td><code>help_screens /admin?tab=posts</code></td>
+              <td>Tips say "use the Posts (AI) tab instead"</td>
+            </tr>
+            <tr>
+              <td><code>help_screens /admin?tab=ai-creator</code></td>
+              <td>Title is "Posts (AI)"</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Fixes Applied -->
+    <div class="section open">
+      <div class="section-header" onclick="toggleSection(this.parentElement)">
+        <h2>
+          <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          Fixes Applied (11 total)
+        </h2>
+        <span class="badge badge-info">All Fixed</span>
+      </div>
+      <div class="section-content">
+
+        <div class="fix-item">
+          <h4><span class="badge badge-pass">1</span> Create Flow Step 5 — Button Label #1</h4>
+          <div class="before-after">
+            <div class="before">
+              <div class="label">Before</div>
+              click <code>Generate</code>
+            </div>
+            <div class="after">
+              <div class="label">After</div>
+              click <code>Generate AI Prompt</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="fix-item">
+          <h4><span class="badge badge-pass">2</span> Create Flow Step 5 — Button Label #2</h4>
+          <div class="before-after">
+            <div class="before">
+              <div class="label">Before</div>
+              click <code>Edit in Blog Editor</code>
+            </div>
+            <div class="after">
+              <div class="label">After</div>
+              click <code>Save Blog Post</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="fix-item">
+          <h4><span class="badge badge-pass">3</span> Create Flow Step 6 — Non-existent Field</h4>
+          <div class="before-after">
+            <div class="before">
+              <div class="label">Before</div>
+              <code>Category</code>, Tags, Featured Image, Description (SEO)
+            </div>
+            <div class="after">
+              <div class="label">After</div>
+              Tags, <code>Hero Image</code>, Description (SEO)
+            </div>
+          </div>
+        </div>
+
+        <div class="fix-item">
+          <h4><span class="badge badge-pass">4</span> Blog Hub Screen — Tab List</h4>
+          <div class="before-after">
+            <div class="before">
+              <div class="label">Before</div>
+              6 tabs: Posts (Manual), Posts (AI)
+            </div>
+            <div class="after">
+              <div class="label">After</div>
+              5 tabs: Posts (unified)
+            </div>
+          </div>
+        </div>
+
+        <div class="fix-item">
+          <h4><span class="badge badge-pass">5</span> Posts Screen — Stale Tip</h4>
+          <div class="before-after">
+            <div class="before">
+              <div class="label">Before</div>
+              "For AI-assisted posts, use the Posts (AI) tab instead"
+            </div>
+            <div class="after">
+              <div class="label">After</div>
+              "Click New Post to choose between writing from scratch or generating with AI"
+            </div>
+          </div>
+        </div>
+
+        <div class="fix-item">
+          <h4><span class="badge badge-pass">6</span> Posts Screen — Button Description</h4>
+          <div class="before-after">
+            <div class="before">
+              <div class="label">Before</div>
+              "Creates a blank post and opens it in the Blog Editor immediately"
+            </div>
+            <div class="after">
+              <div class="label">After</div>
+              "Opens the creation page where you choose to write from scratch or generate with AI"
+            </div>
+          </div>
+        </div>
+
+        <div class="fix-item">
+          <h4><span class="badge badge-pass">7</span> AI Creator Screen — Title Rename</h4>
+          <div class="before-after">
+            <div class="before">
+              <div class="label">Before</div>
+              Title: "Posts (AI)"
+            </div>
+            <div class="after">
+              <div class="label">After</div>
+              Title: "AI Creator"
+            </div>
+          </div>
+        </div>
+
+        <div class="fix-item">
+          <h4><span class="badge badge-pass">8</span> AI Creator Screen — ChatGPT References</h4>
+          <div class="before-after">
+            <div class="before">
+              <div class="label">Before</div>
+              "ChatGPT", "ChatGPT/Claude"
+            </div>
+            <div class="after">
+              <div class="label">After</div>
+              "your AI assistant"
+            </div>
+          </div>
+        </div>
+
+        <div class="fix-item">
+          <h4><span class="badge badge-pass">9</span> Blog Editor Screen — ChatGPT Reference</h4>
+          <div class="before-after">
+            <div class="before">
+              <div class="label">Before</div>
+              "ChatGPT or Claude"
+            </div>
+            <div class="after">
+              <div class="label">After</div>
+              "your AI assistant"
+            </div>
+          </div>
+        </div>
+
+        <div class="fix-item">
+          <h4><span class="badge badge-pass">10</span> Blog Editor Screen — Posts (Manual) Reference</h4>
+          <div class="before-after">
+            <div class="before">
+              <div class="label">Before</div>
+              "the Posts (Manual) tab"
+            </div>
+            <div class="after">
+              <div class="label">After</div>
+              "the Posts tab"
+            </div>
+          </div>
+        </div>
+
+        <div class="fix-item">
+          <h4><span class="badge badge-pass">11</span> BlogAICreator.tsx — Code Changes</h4>
+          <div class="before-after">
+            <div class="before">
+              <div class="label">Before</div>
+              "Give this prompt to Claude, ChatGPT, or your AI assistant"<br>
+              "After giving the prompt to ChatGPT/Claude"
+            </div>
+            <div class="after">
+              <div class="label">After</div>
+              "Give this prompt to your AI assistant"<br>
+              "After giving the prompt to your AI assistant"
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <footer>
+      <div>
+        <strong>Naive User Test Report V2</strong><br>
+        Help Accuracy + Functional Testing
+      </div>
+      <div class="commits">
+        <strong>Commits:</strong><br>
+        Test Report: <code>3401924</code><br>
+        Fixes Applied: <code>fdd0ce9</code>
+      </div>
+      <div>
+        <strong>Generated:</strong> 2026-02-04<br>
+        <strong>Branch:</strong> staging
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    function toggleSection(section) {
+      section.classList.toggle('open');
+    }
+  </script>
+</body>
+</html>
