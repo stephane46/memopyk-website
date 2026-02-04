@@ -51,4 +51,4 @@ drizzle/meta/
 *-service-account.json
 service-account*.json
 credentials*.json
-screenshots/
+/screenshots/

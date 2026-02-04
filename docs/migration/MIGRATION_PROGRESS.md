@@ -1,7 +1,7 @@
 # MEMOPYK Migration Progress Report
 
-**Last Updated:** 2026-02-03
-**Status:** Staging & Production Live - Help System in progress
+**Last Updated:** 2026-02-04
+**Status:** Help System Blog section complete — AI integration & Contenu Site next
 
 ---
 
@@ -10,20 +10,147 @@
 | Component | Status | Notes |
 |-----------|--------|-------|
 | **Staging URL** | ✅ Live | https://memopyk.memopyk.com |
+| **Production URL** | ✅ Live | https://memopyk.com |
 | **Homepage** | ✅ Working | 67% faster than Replit |
 | **Gallery** | ✅ Working | |
 | **FAQ** | ✅ Working | |
 | **Blog** | ✅ Working | |
 | **Contact Form** | ✅ Working | |
 | **Travel Upload Portal** | ✅ Working | Form submission + Nextcloud integration |
-| **Partner Directory** | ✅ Working | Minimal map (see Lessons Learned) |
-| **Admin Panel** | ✅ Working | Authentication fixed |
+| **Partner Directory** | ✅ Working | Minimal map (Mapbox migration planned) |
+| **Admin Panel** | ✅ Working | 6 categories, authentication fixed |
 | **Partners API** | ✅ Working | Database queries implemented |
 | **Analytics** | ✅ Functional | P1-P8 rebuild complete Jan 31, 2026 |
-| **Help System** | 🔧 In Progress | 6/18 screens documented (Blog section complete) |
-| **Blog Editor** | 🔧 In Progress | New Post button added, editor tab navigation fix pending |
-| **DNS** | ✅ Complete | Migrated from Replit (34.111.179.208) → Coolify (82.29.168.136) |
-| **Production URL** | ✅ Live | https://memopyk.com |
+| **Help System — Blog** | ✅ Complete | 8 screens, 3 flows, visual badges, localStorage persistence |
+| **Help System — Other** | 🔧 Not started | Partners, Contenu Site, System, Analytics, SEO |
+| **Blog Status Model** | ✅ Complete | Draft / In Review / Published / Archived (4 statuses) |
+| **E2E Tests** | ✅ Infrastructure complete | Rate limit bypass, 9 flows |
+| **DNS** | ✅ Complete | Migrated to Coolify (82.29.168.136) |
+
+---
+
+## Help System Status (Feb 4, 2026)
+
+### Help Screens: 8 total (Blog section complete)
+
+| Screen | Route | Chars | Visual Badges |
+|--------|-------|-------|---------------|
+| Blog Hub | /admin?tab=blog | ~1,000 | ✅ |
+| Posts (AI) | /admin?tab=ai-creator | ~2,400 | ✅ |
+| Topics | /admin?tab=topics | ~1,300 | ✅ |
+| Keywords | /admin?tab=keywords | ~900 | ✅ |
+| Image Bank | /admin?tab=images | ~640 | ✅ |
+| Weekly Planner | /admin?tab=planner | ~580 | ✅ |
+| Posts (Manual) | /admin?tab=posts | ~3,000 | ✅ |
+| Blog Editor | /admin?tab=blog-edit | ~4,700 | ✅ (includes Translation Assistant section) |
+
+### Help Flows: 3 total
+
+| Flow | Steps | Linked Screens |
+|------|-------|----------------|
+| Publish a blog article | 8 | Posts (Manual), Blog Editor |
+| Create a Post with AI | 8 | Posts (AI), Blog Editor, Posts (Manual) |
+| Translate a post | 9 | Posts (Manual), Blog Editor |
+
+### Features Implemented
+- ✅ localStorage persistence (help panel stays open across navigation)
+- ✅ CSS badge classes: `.help-btn` (orange), `.help-tab` (blue), `.help-label` (gray), `.help-status` (green)
+- ✅ Flow steps render HTML via `dangerouslySetInnerHTML`
+- ✅ Route/location hidden from user-facing flow display
+- ✅ All content uses visual badges for interactive elements
+
+### Remaining Help Sections (not started)
+- Partners (1-2 screens)
+- Contenu Site (6 screens — screenshots captured in docs/screenshots/contenu-site/)
+- System (TBD)
+- Analytics (TBD)
+- SEO (TBD)
+
+---
+
+## Active Work — Feb 4, 2026
+
+### ✅ Completed: Brand Brain Foundation
+
+**Commit:** (staging) — AI Context system fully operational
+
+- `ai_context` Supabase table with 6 seed entries (brand identity, tone/voice, writing rules, target audience, SEO guidelines, translation rules)
+- Admin screen: Système → AI Context (editable textarea per entry)
+- API: CRUD endpoints + `/api/internal/ai-context/full` (returns brand data + published posts list)
+- Drizzle schema updated
+
+### ✅ Completed: Unified Post Creation (Phase 1)
+
+**Commit:** (staging) — CreatePostLanding screen
+
+- "New Post" button on Posts (Manual) now opens CreatePostLanding
+- Two cards: "Write from scratch" → Blog Editor, "Generate with AI" → Posts (AI)
+- Route: `/admin?tab=new-post` (not in tab bar)
+- Zero logic duplication — reuses existing draft creation
+
+### In Progress: Server-Side Translation via Claude API
+
+**Goal:** Replace manual copy/paste in Translation Assistant with one-click AI translation.
+
+- Server calls Claude API with extracted text + Brand Brain context
+- User reviews before applying (no blind auto-insert)
+- Manual fallback preserved ("Prefer to translate manually?" link)
+- Requires ANTHROPIC_API_KEY on staging/production
+
+### Planned: Naive-User Help Flow Testing
+
+**Concept:** Claude Code reads ONLY help flow steps (no code knowledge) and follows them literally. Rates each step ✅ Clear / ⚠️ Ambiguous / ❌ Blocked. This is "doc QA" — validates clarity of help content, not business logic.
+
+**Constraints (per IT manager review):**
+- May only read help content + screenshots
+- Must not open source files
+- Must report ambiguity with justification instead of assuming
+- Stop rule: if "click X" has 2 plausible matches → ⚠️ with justification
+- Coverage score: % of steps ✅ vs ⚠️ vs ❌
+
+### Sequence (remaining today)
+1. ~~Brand Brain~~ ✅
+2. ~~CreatePostLanding~~ ✅
+3. Translation API wiring (in progress)
+4. Naive-user test on all 3 help flows
+5. Help content for CreatePostLanding screen + flow updates
+
+---
+
+## Recent Commits (Feb 3-4, 2026)
+
+| Commit | Description | Date |
+|--------|-------------|------|
+| (staging) | CreatePostLanding + help flow renames | 2026-02-04 |
+| (staging) | Brand Brain: ai_context table + admin screen + API | 2026-02-04 |
+| eceba65 | feat: add Archived status + help content updates + Translation flow | 2026-02-04 |
+| 6ab3418 | rename blog tabs, AI navigation fix, help flows, Contenu Site discovery | 2026-02-04 |
+| aead5de | help system visual badges, hide route display, render HTML in flow steps | 2026-02-04 |
+| 914456a | persist help panel state + add help content CSS badges | 2026-02-04 |
+| 3a776e0 | fix published_at blog post bug | 2026-02-03 |
+| 3721f90 | Add tinymce dependency for Coolify build | 2026-02-03 |
+| 659930b | Add 9 flow tests for Blog Hub E2E QA (M3) | 2026-02-03 |
+
+---
+
+## Important Process Rules
+
+### Deployment Protocol
+- **Claude Code pushes to staging only** — never merges to main or pushes to production
+- **Merging staging → main requires Stéphane's explicit approval**
+- Incident: Feb 4 — Claude Code merged to main without approval. Rule reinforced.
+
+### Help Content Workflow
+1. **Write** help content with visual badges
+2. **Validate** against screenshots/Playwright (exact label matching)
+3. **Refine** based on validation results
+- Badge labels must EXACTLY match screen labels
+- Use semantic CSS classes for formatting
+
+### Three-Way Workflow
+- **Stéphane** → strategic decisions, approval authority
+- **Claude Chat** → planning, verification, prompts for Claude Code
+- **Claude Code** → file execution, no deployment decisions
 
 ---
 
@@ -34,195 +161,44 @@
 | Metric | Replit | Coolify | Improvement |
 |--------|--------|---------|-------------|
 | Homepage TTFB (avg) | 348ms | 121ms | **2.9x faster** |
-| French Page TTFB | 275ms | 131ms | **2.1x faster** |
-| API Response (avg) | 508ms | 141ms | **3.6x faster** |
 | Gallery API | 984ms | 129ms | **7.6x faster** |
 | FAQ API | 760ms | 121ms | **6.3x faster** |
 | Blog Posts API | 250ms | 97ms | **2.6x faster** |
 
-*Tested 2026-01-31 with 5 runs per endpoint*
-
 ---
 
-## Completed Work
+## Backlog
 
-### Phase 1-4: Database & Schema
-- ✅ Supabase PostgreSQL (17 tables, 12,000+ records)
-- ✅ Drizzle ORM schema (shared/schema.ts)
-- ✅ Direct database access (no hybrid-storage complexity)
-
-### Phase 5-8: Code Migration
-- ✅ 17 route modules extracted from monolithic routes.ts
-- ✅ Service layer implemented
-- ✅ Frontend migrated (React 18 + Vite)
-- ✅ Admin panel functional
-
-### Phase 9: Deployment
-- ✅ Coolify Docker deployment
-- ✅ Staging environment live
-- ✅ SSL certificates active
-- ✅ All critical pages functional
-
----
-
-## Lessons Learned
-
-### Leaflet Map Crash (2026-01-30)
-
-**Problem:** Partner Directory page crashed with "Maximum call stack size exceeded" in Leaflet. 8 different code fixes attempted over 3+ hours, all failed.
-
-**Investigation:** Same component code worked on Replit but crashed on Coolify.
-
-**Root Cause:** NOT the component code — it was an incompatibility between:
-- Leaflet 1.9.4's class extension system
-- react-leaflet hooks (`useMap()`, `useMapEvents()`)
-- Vite production build configuration
-
-Any component using `useMap()` or `useMapEvents()` triggered infinite recursion in Leaflet's class initialization.
-
-**Resolution:** Deployed minimal working configuration:
-- Removed: MapBoundsTracker, MapFitBounds, MapZoomController, MapAutoZoomToSearch, ClusterClickHandler, MarkerClusterGroup
-- Kept: MapContainer, TileLayer, Markers, Tooltips
-- Added: MapErrorBoundary (graceful error handling)
-
-**Key Insight:** When identical code works in one environment but crashes in another, compare BUILD CONFIGURATION before modifying component code.
-
-**Full Report:** `/PARTNER_DIRECTORY_LEAFLET_BUG_REPORT.md`
-
-### vite.config.ts Alignment (2026-01-30)
-
-**Problem:** Build output path mismatch caused deployment failures.
-
-**Changes Made:**
-- Aligned vite.config.ts with Replit's working configuration
-- Changed path resolution from `__dirname` to `process.cwd()`
-- Updated build output from `dist/client` to `dist/public`
-- Updated Dockerfile and server static paths to match
-
-**Key Insight:** When changing Vite's `outDir`, must also update:
-1. Dockerfile verification commands
-2. Server static file serving paths
-
-### CSS Architecture Fix (2026-01-30)
-
-**Problem:** Multiple invisible UI elements on staging — submit buttons, homepage banner, gallery card-back buttons. Elements were functional (clickable) but not visible.
-
-**Root Cause:** `tailwind.config.ts` used `hsl(var(--xxx))` color format, but CSS variables contained hex values (e.g., `#D67C4A`). This produced invalid CSS like `hsl(#D67C4A)` → browser renders as transparent.
-
-**Additional Issues Found:**
-- Missing MEMOPYK brand colors (`bg-memopyk-orange`, `text-navy`)
-- Missing `@tailwindcss/typography` plugin
-- Wrong default font (Inter instead of Poppins)
-
-**Resolution:**
-1. Replaced `tailwind.config.ts` with source version (commit 1d0ffe8)
-2. Installed `@tailwindcss/typography` plugin
-3. Added `card-back-gradient` class to gallery flip cards
-4. Added CSS exception for buttons on dark backgrounds
-5. Styled Retour button with `rounded-full` + `hover:scale-105`
-
-**Key Insight:** When identical code displays correctly in one environment but has invisible elements in another, compare CSS/Tailwind configuration before modifying component code.
-
----
-
-## Recent Work (Feb 1-3, 2026)
-
-### Help System Implementation
-- ✅ Database schema: `help_screens`, `help_flows` tables
-- ✅ Backend: `/api/admin/help` routes
-- ✅ Frontend: HelpDrawer (push layout), HelpButton, HelpFlowViewer components
-- ✅ HelpContext for global state management
-- ✅ Blog section: 6 screens documented with detailed HTML content
-- ✅ Automated testing: Playwright script validates help accuracy (95% pass rate)
-- ✅ Screenshot organization: `docs/help/screenshots/[section]/`
-- 🔧 Remaining: 12 screens (Partners, Site Content, System, Analytics, SEO)
-
-### Admin UX Improvements
-- ✅ Tab renaming: "Topic Backlog" → "Topics", "Manage Posts" → "Posts"
-- ✅ Header: "Blog Posts" → "Blog Hub"
-- ✅ HelpDrawer: Push layout (content shrinks, no overlay)
-- ✅ Skeleton loaders for premium feel
-- ✅ "+ New Post" button added to Posts screen
-- 🔧 Blog editor tab (`blog-edit`) not registered — fix in progress
-
-### Production Cutover
-- ✅ DNS migrated to Coolify VPS
-- ✅ Staging auto-deploys from `staging` branch
-- ✅ Production auto-deploys from `main` branch
-
-### Documentation
-- ✅ Tech Stack table added to `docs/architecture/OVERVIEW.md`
-- ✅ `docs/help/SCREENSHOT_INDEX.md` created
-- ✅ `docs/help/TEST_REPORT.md` — help content verification results
-
----
-
-## Planned Work
-
-### Next Sprint: Mapbox GL JS Migration
-
-**Decision:** Replace Leaflet with Mapbox GL JS for Partner Directory maps.
-
-**Why:**
-- Modern API with native React hooks that work
-- No class extension system bugs
-- Better performance
-- Cleaner developer experience
-- Free tier: 50K map loads/month
-
-**Scope:**
-- Replace MapContainer with Mapbox Map component
-- Implement clustering natively
-- Add auto-fit bounds on load
-- Add search-to-zoom functionality
-
-**Estimated Effort:** 4-8 hours
-
-### Production Cutover
-
-**Completed:**
-- ✅ DNS cutover done
-- ✅ Both staging and production live
-
-**Remaining Steps:**
-1. Complete Help System (all 18 screens)
-2. Fix blog editor navigation
-3. Fix Image Bank rendering bug
-4. Analytics system rebuild (methodical, not patching legacy)
-5. Decommission Replit
-
----
-
-## Key Commits (Recent)
-
-| Commit | Description | Date |
-|--------|-------------|------|
-| fc8d314 | Add New Post button + adminFetch fix | 2026-02-03 |
-| 9b87247 | HelpDrawer push layout + HelpContext | 2026-02-03 |
-| 27a4523 | Help drawer persist on outside click | 2026-02-03 |
-| 12ad77b | Screenshot automation + organization | 2026-02-03 |
-| 27fb93f | Blog tab renaming (Hub/Topics/Posts) | 2026-02-02 |
-| 8f26512 | HelpFlowViewer steps parsing fix | 2026-02-02 |
-| (latest) | Style gallery card-back button | 2026-01-30 |
-| (latest) | CSS exception for buttons on dark backgrounds | 2026-01-30 |
-| (latest) | Add card-back-gradient to gallery flip cards | 2026-01-30 |
-| 1d0ffe8 | Replace tailwind.config.ts - fixes invisible elements | 2026-01-30 |
-| 7dfd312 | Minimal working Partner Directory map | 2026-01-30 |
-| 1e368b6 | Server serves from dist/public | 2026-01-30 |
-| 81210ee | Align vite.config.ts with Replit | 2026-01-30 |
-| cea63aa | Fix partners transform camelCase | 2026-01-29 |
-| 5763d1e | Implement partners service | 2026-01-29 |
+| Item | Priority | Notes |
+|------|----------|-------|
+| ~~Brand Brain~~ | ✅ Done | ai_context table + admin screen + API |
+| ~~CreatePostLanding~~ | ✅ Done | Unified post creation entry point |
+| Translation API wiring | ✅ Done | Claude API replaces copy/paste (code deployed) |
+| ⚠️ Add ANTHROPIC_API_KEY to Coolify | 🔴 Blocked | Console down — retry at platform.claude.com, buy $5 credits, add key to staging env vars |
+| Naive-user help flow testing | 🔴 Active | Doc QA for 3 flows |
+| Help content: CreatePostLanding screen | 🔴 Active | New screen needs help entry |
+| Help flow updates (new entry point) | 🔴 Active | Flows reference CreatePostLanding |
+| Unified creation Phase 2 (partial unification) | 🟡 Next | AI stays in same flow, reuse components |
+| Contenu Site help content (6 screens) | 🟡 Next | Screenshots already captured |
+| Analytics rebuild | 🟡 Next | 300+ lines of docs prepared |
+| Unified creation Phase 3 (true unification) | 🟢 Later | AI becomes panel inside Blog Editor |
+| Mapbox GL JS migration | 🟢 Later | Replace Leaflet for Partner Directory |
+| Image Bank rendering bug | 🟢 Later | Tab renders blank |
+| Date picker UI language | 🟢 Later | Blog Editor date picker shows French ("Choisir une date", "Définir maintenant"). Decide whether to translate to English or keep French. Help content matches French UI. |
+| Decommission Replit | 🟢 Later | After full confidence in Coolify |
 
 ---
 
 ## Architecture Decisions
 
-| Decision | Rationale |
-|----------|-----------|
-| **Direct Supabase** | Eliminates hybrid-storage complexity |
-| **No JSON sync** | Coolify single-server = no data sync issues |
-| **Mapbox GL JS** | Modern, stable, better React integration than Leaflet |
-| **Clean slate** | Don't chase Replit spaghetti code for bug fixes |
+Full ADR log: `docs/architecture/DECISIONS.md`
+
+| ADR | Decision | Date |
+|-----|----------|------|
+| ADR-013 | Database-Driven Help System | Feb 2026 |
+| ADR-014 | E2E Test Rate Limit Bypass | Feb 2026 |
+| ADR-015 | 4-Status Blog Post Model (Draft/In Review/Published/Archived) | Feb 2026 |
+| ADR-016 | AI Brand Brain + Server-Side Claude API | Feb 2026 (proposed) |
 
 ---
 
@@ -231,12 +207,13 @@ Any component using `useMap()` or `useMapEvents()` triggered infinite recursion 
 | File | Purpose |
 |------|---------|
 | `CLAUDE.md` | Project context for Claude Code sessions |
-| `PARTNER_DIRECTORY_LEAFLET_BUG_REPORT.md` | Full Leaflet crash diagnostic |
+| `docs/WORKING_WITH_CLAUDE.md` | Three-way workflow guide |
 | `docs/migration/MIGRATION_PROGRESS.md` | This file |
-| `docs/migration/PERFORMANCE_COMPARISON.md` | Detailed Replit vs Coolify benchmarks |
-| `docs/guides/ANALYTICS.md` | Analytics system documentation |
-| `vite.config.ts` | Build configuration (aligned with working setup) |
-| `Dockerfile` | Production container definition |
+| `docs/migration/PERFORMANCE_COMPARISON.md` | Replit vs Coolify benchmarks |
+| `docs/architecture/DECISIONS.md` | Architecture Decision Records |
+| `docs/help/TEST_REPORT.md` | Help content verification results |
+| `docs/help/SCREENSHOT_INDEX.md` | Screenshot organization |
+| `docs/testing/BLOG_QA_PLAN.md` | Blog E2E QA plan |
 
 ---
 

@@ -18,12 +18,6 @@ The following tab labels were verified from the actual UI screenshot:
 | 4 | Posts (Manual) |
 | 5 | Posts (AI) |
 | 6 | Image Bank |
-| 7 | Planner |
-| 8 | Topics |
-| 9 | Keywords |
-| 10 | Images |
-| 11 | Topics |
-| 12 | Posts |
 
 ![Blog Hub Tabs](screenshots/blog-hub-full.png)
 
