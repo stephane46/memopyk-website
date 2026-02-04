@@ -36,21 +36,21 @@
 | Screen | Route | Chars | Visual Badges |
 |--------|-------|-------|---------------|
 | Blog Hub | /admin?tab=blog | ~1,000 | ✅ |
-| Posts (AI) | /admin?tab=ai-creator | ~2,400 | ✅ |
+| AI Creator | /admin?tab=ai-creator | ~2,400 | ✅ |
 | Topics | /admin?tab=topics | ~1,300 | ✅ |
 | Keywords | /admin?tab=keywords | ~900 | ✅ |
 | Image Bank | /admin?tab=images | ~640 | ✅ |
 | Weekly Planner | /admin?tab=planner | ~580 | ✅ |
-| Posts (Manual) | /admin?tab=posts | ~3,000 | ✅ |
+| Posts | /admin?tab=posts | ~3,000 | ✅ |
 | Blog Editor | /admin?tab=blog-edit | ~4,700 | ✅ (includes Translation Assistant section) |
 
 ### Help Flows: 3 total
 
 | Flow | Steps | Linked Screens |
 |------|-------|----------------|
-| Publish a blog article | 8 | Posts (Manual), Blog Editor |
-| Create a Post with AI | 8 | Posts (AI), Blog Editor, Posts (Manual) |
-| Translate a post | 9 | Posts (Manual), Blog Editor |
+| Publish a blog article | 8 | Posts, Blog Editor |
+| Create a Post with AI | 8 | AI Creator, Blog Editor, Posts |
+| Translate a post | 9 | Posts, Blog Editor |
 
 ### Features Implemented
 - ✅ localStorage persistence (help panel stays open across navigation)
@@ -100,6 +100,15 @@
 - All brand mentions (ChatGPT/Claude) removed from UI ✅
 - Requires ANTHROPIC_API_KEY on staging/production
 
+### ✅ Completed: Tab Unification (Posts)
+
+**Commits:** 83d2f08, 1c76e23 (staging)
+
+- Merged "Posts (Manual)" and "Posts (AI)" into single "Posts" tab ✅
+- AI Creator kept as hidden tab for backward compatibility ✅
+- CreatePostLanding navigation fixed (posts instead of blog) ✅
+- Help content SQL migration prepared (`migrations/update-posts-tab-help-content.sql`) ✅
+
 ### Planned: Naive-User Help Flow Testing
 
 **Concept:** Claude Code reads ONLY help flow steps (no code knowledge) and follows them literally. Rates each step ✅ Clear / ⚠️ Ambiguous / ❌ Blocked. This is "doc QA" — validates clarity of help content, not business logic.
@@ -125,6 +134,8 @@
 
 | Commit | Description | Date |
 |--------|-------------|------|
+| 83d2f08 | feat: unify Posts tabs - merge Posts (Manual) and Posts (AI) into single Posts tab | 2026-02-04 |
+| 1c76e23 | docs: update migration progress, ADR-018, and help content for one-click translation | 2026-02-04 |
 | 1c23b41 | feat: one-click AI translation from Posts list, translation choice dialog | 2026-02-04 |
 | 2201d2c | fix: simplify Translation Assistant to 2 steps, remove brand mentions, fix button sizing | 2026-02-04 |
 | (staging) | CreatePostLanding + help flow renames | 2026-02-04 |
