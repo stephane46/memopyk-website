@@ -285,7 +285,6 @@ export function BlogEditor({ postId }: BlogEditorProps) {
               {isTranslationDraft && (
                 <Button
                   variant="outline"
-                  size="sm"
                   onClick={() => setIsTranslationAssistantOpen(true)}
                   className="border-[#D67C4A] text-[#D67C4A] hover:bg-orange-50"
                   data-testid="button-translation-assistant"
@@ -297,7 +296,6 @@ export function BlogEditor({ postId }: BlogEditorProps) {
               {post.status === 'published' && (
                 <Button
                   variant="outline"
-                  size="sm"
                   onClick={handlePreview}
                   data-testid="button-preview"
                 >
