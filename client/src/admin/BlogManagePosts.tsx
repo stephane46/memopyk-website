@@ -50,7 +50,7 @@ import { BlogPostListSkeleton } from './skeletons/BlogPostSkeleton';
 
 export function BlogManagePosts() {
   const { toast } = useToast();
-  const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'in_review' | 'published'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'in_review' | 'published' | 'archived'>('all');
   const [languageFilter, setLanguageFilter] = useState<'all' | 'en-US' | 'fr-FR'>('all');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState<BlogPost | null>(null);
@@ -130,7 +130,7 @@ export function BlogManagePosts() {
 
   // Update status mutation
   const statusUpdateMutation = useMutation({
-    mutationFn: async ({ id, newStatus }: { id: string; newStatus: 'draft' | 'in_review' | 'published' }) => {
+    mutationFn: async ({ id, newStatus }: { id: string; newStatus: 'draft' | 'in_review' | 'published' | 'archived' }) => {
       const updates: any = { status: newStatus };
       if (newStatus === 'published') {
         updates.published_at = new Date().toISOString();
@@ -236,7 +236,7 @@ export function BlogManagePosts() {
     }
   });
 
-  const handleStatusChange = (post: BlogPost, newStatus: 'draft' | 'in_review' | 'published') => {
+  const handleStatusChange = (post: BlogPost, newStatus: 'draft' | 'in_review' | 'published' | 'archived') => {
     statusUpdateMutation.mutate({ id: post.id, newStatus });
   };
 
@@ -342,6 +342,7 @@ export function BlogManagePosts() {
                   <SelectItem value="draft">Draft Only</SelectItem>
                   <SelectItem value="in_review">In Review Only</SelectItem>
                   <SelectItem value="published">Published Only</SelectItem>
+                  <SelectItem value="archived">Archived Only</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -487,14 +488,18 @@ export function BlogManagePosts() {
                               ? 'bg-green-100 text-green-700 border-green-200 px-2.5 py-0.5 text-xs font-medium'
                               : post.status === 'in_review'
                               ? 'bg-amber-100 text-amber-700 border-amber-200 px-2.5 py-0.5 text-xs font-medium'
+                              : post.status === 'archived'
+                              ? 'bg-purple-100 text-purple-700 border-purple-200 px-2.5 py-0.5 text-xs font-medium'
                               : 'bg-gray-100 text-gray-700 border-gray-200 px-2.5 py-0.5 text-xs font-medium'
                           }
                         >
                           <Calendar className="h-3 w-3 mr-1 inline" />
-                          {post.status === 'published' 
+                          {post.status === 'published'
                             ? formatDate(post.published_at)
                             : post.status === 'in_review'
                             ? 'In Review'
+                            : post.status === 'archived'
+                            ? 'Archived'
                             : 'Draft'
                           }
                         </Badge>
@@ -524,6 +529,7 @@ export function BlogManagePosts() {
                           <SelectItem value="draft">Draft</SelectItem>
                           <SelectItem value="in_review">In Review</SelectItem>
                           <SelectItem value="published">Published</SelectItem>
+                          <SelectItem value="archived">Archived</SelectItem>
                         </SelectContent>
                       </Select>
 

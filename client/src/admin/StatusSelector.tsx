@@ -1,8 +1,8 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Edit, MessageSquare, CheckCircle } from 'lucide-react';
+import { Edit, MessageSquare, CheckCircle, Archive } from 'lucide-react';
 
-type BlogStatus = 'draft' | 'in_review' | 'published';
+type BlogStatus = 'draft' | 'in_review' | 'published' | 'archived';
 
 interface StatusSelectorProps {
   value: BlogStatus;
@@ -11,7 +11,7 @@ interface StatusSelectorProps {
 }
 
 export function StatusSelector({ value, onChange, label = "Status" }: StatusSelectorProps) {
-  const statusConfig = {
+  const statusConfig: Record<BlogStatus, { icon: any; label: string; color: string; bgColor: string }> = {
     draft: {
       icon: Edit,
       label: 'Draft',
@@ -29,6 +29,12 @@ export function StatusSelector({ value, onChange, label = "Status" }: StatusSele
       label: 'Published',
       color: 'text-green-600',
       bgColor: 'bg-green-100'
+    },
+    archived: {
+      icon: Archive,
+      label: 'Archived',
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-100'
     }
   };
 
