@@ -59,73 +59,76 @@ export function CreatePostLanding() {
     navigateTo('ai-creator');
   };
 
-  // Navigate back to Posts (Manual) tab
+  // Navigate back to Posts tab
   const handleBackToPosts = () => {
-    navigateTo('blog');
+    navigateTo('posts');
   };
 
   return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center p-8">
-      {/* Title */}
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-        Create a New Blog Post
-      </h1>
-
-      {/* Two Cards Side by Side */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl w-full mb-8">
-        {/* Card 1: Write from Scratch */}
-        <Card
-          className="cursor-pointer transition-all hover:shadow-lg hover:border-[#D67C4A] group"
-          onClick={!isCreatingPost ? handleWriteFromScratch : undefined}
-          data-testid="card-write-from-scratch"
-        >
-          <CardHeader className="text-center pb-2">
-            <div className="mx-auto w-16 h-16 rounded-full bg-gray-100 group-hover:bg-orange-50 flex items-center justify-center mb-4 transition-colors">
-              {isCreatingPost ? (
-                <Loader2 className="h-8 w-8 text-[#D67C4A] animate-spin" />
-              ) : (
-                <Pencil className="h-8 w-8 text-gray-600 group-hover:text-[#D67C4A] transition-colors" />
-              )}
-            </div>
-            <CardTitle className="text-xl">Write from scratch</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
-            <CardDescription className="text-base">
-              Open the editor and start writing
-            </CardDescription>
-          </CardContent>
-        </Card>
-
-        {/* Card 2: Generate with AI */}
-        <Card
-          className="cursor-pointer transition-all hover:shadow-lg hover:border-[#D67C4A] group"
-          onClick={handleGenerateWithAI}
-          data-testid="card-generate-with-ai"
-        >
-          <CardHeader className="text-center pb-2">
-            <div className="mx-auto w-16 h-16 rounded-full bg-gray-100 group-hover:bg-orange-50 flex items-center justify-center mb-4 transition-colors">
-              <Sparkles className="h-8 w-8 text-gray-600 group-hover:text-[#D67C4A] transition-colors" />
-            </div>
-            <CardTitle className="text-xl">Generate with AI</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
-            <CardDescription className="text-base">
-              Use AI to generate content, then edit
-            </CardDescription>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Back to Posts Link */}
+    <div className="p-8">
+      {/* Back to Posts - Top left */}
       <Button
         variant="ghost"
+        size="sm"
         onClick={handleBackToPosts}
-        className="text-gray-600 hover:text-gray-900"
-        data-testid="button-back-to-posts"
+        className="text-blue-600 hover:text-blue-700 mb-4"
+        data-testid="button-back-to-posts-top"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Posts
       </Button>
+
+      <div className="min-h-[50vh] flex flex-col items-center justify-center">
+        {/* Title */}
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+          Create a New Blog Post
+        </h1>
+
+        {/* Two Cards Side by Side */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl w-full">
+          {/* Card 1: Write from Scratch */}
+          <Card
+            className="cursor-pointer transition-all hover:shadow-lg hover:border-[#D67C4A] group"
+            onClick={!isCreatingPost ? handleWriteFromScratch : undefined}
+            data-testid="card-write-from-scratch"
+          >
+            <CardHeader className="text-center pb-2">
+              <div className="mx-auto w-16 h-16 rounded-full bg-gray-100 group-hover:bg-orange-50 flex items-center justify-center mb-4 transition-colors">
+                {isCreatingPost ? (
+                  <Loader2 className="h-8 w-8 text-[#D67C4A] animate-spin" />
+                ) : (
+                  <Pencil className="h-8 w-8 text-gray-600 group-hover:text-[#D67C4A] transition-colors" />
+                )}
+              </div>
+              <CardTitle className="text-xl">Write from scratch</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <CardDescription className="text-base">
+                Open the editor and start writing
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          {/* Card 2: Generate with AI */}
+          <Card
+            className="cursor-pointer transition-all hover:shadow-lg hover:border-[#D67C4A] group"
+            onClick={handleGenerateWithAI}
+            data-testid="card-generate-with-ai"
+          >
+            <CardHeader className="text-center pb-2">
+              <div className="mx-auto w-16 h-16 rounded-full bg-gray-100 group-hover:bg-orange-50 flex items-center justify-center mb-4 transition-colors">
+                <Sparkles className="h-8 w-8 text-gray-600 group-hover:text-[#D67C4A] transition-colors" />
+              </div>
+              <CardTitle className="text-xl">Generate with AI</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <CardDescription className="text-base">
+                Use AI to generate content, then edit
+              </CardDescription>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
