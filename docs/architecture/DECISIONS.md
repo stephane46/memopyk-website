@@ -629,6 +629,58 @@ Implement one-click AI translation directly from the Posts list:
 
 ---
 
+## ADR-019: Unified Blog Post Creation Flow
+
+**Date:** February 2026
+**Status:** Accepted
+
+### Context
+
+After implementing CreatePostLanding (ADR-017), the Blog Hub still had two visible tabs: "Posts (Manual)" and "Posts (AI)". Users had to understand which tab did what. The help system had two separate flows: "Create a blog post (Manual)" and "Create a blog post (AI-assisted)", which duplicated content and referenced the old "Posts (AI)" tab name and "ChatGPT" brand.
+
+### Decision
+
+Complete the unification:
+
+1. **Tab consolidation:** Merge "Posts (Manual)" and "Posts (AI)" into a single "Posts" tab
+   - AI Creator remains accessible as a hidden tab (for CreatePostLanding → "Generate with AI" navigation)
+   - Tab bar now shows 5 tabs: Planner, Topics, Keywords, Posts, Image Bank
+
+2. **Help flow consolidation:** Merge two creation flows into one "Create a blog post" flow with 7 steps:
+   1. Go to Blog Hub → Posts tab
+   2. Click "+ New Post"
+   3. Choose method: "Write from scratch" or "Generate with AI"
+   4. Manual path: Blog Editor opens, write content
+   5. AI path: Configure and generate, then edit in Blog Editor
+   6. Set metadata (category, tags, featured image, SEO)
+   7. Set status and save
+
+3. **Clean up references:** Remove all mentions of:
+   - "Posts (Manual)" → "Posts"
+   - "Posts (AI)" → "AI Creator" (internal tab name)
+   - "ChatGPT" → removed entirely
+
+### Rationale
+
+- **Simplified mental model:** "Posts" is where you manage posts, "New Post" is how you create
+- **Single help flow:** One flow covers both creation methods with branching at step 3
+- **No brand mentions:** UI should be tool-agnostic (AI, not ChatGPT/Claude)
+- **Backward compatible:** AI Creator tab still works for direct URL access
+
+### Consequences
+
+- Tab bar reduced from 6 to 5 visible tabs
+- Help system reduced from 3 flows to 2 (Create + Translate)
+- CreatePostLanding is now the sole entry point for post creation
+- All SQL migrations must be run to update help content in database
+
+**Files:**
+- `client/src/components/admin/ContentProductionHub.tsx` — tab consolidation
+- `migrations/merge-create-post-help-flows.sql` — help content updates
+- `migrations/update-posts-tab-help-content.sql` — "Posts (Manual)" → "Posts"
+
+---
+
 ## Template for New ADRs
 
 ```markdown

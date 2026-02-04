@@ -1,7 +1,7 @@
 # MEMOPYK Migration Progress Report
 
 **Last Updated:** 2026-02-04
-**Status:** One-click AI translation complete — Help content & Contenu Site next
+**Status:** Unified blog creation complete — Contenu Site help content next
 
 ---
 
@@ -21,7 +21,7 @@
 | **Admin Panel** | ✅ Working | 6 categories, authentication fixed |
 | **Partners API** | ✅ Working | Database queries implemented |
 | **Analytics** | ✅ Functional | P1-P8 rebuild complete Jan 31, 2026 |
-| **Help System — Blog** | ✅ Complete | 8 screens, 3 flows, visual badges, localStorage persistence |
+| **Help System — Blog** | ✅ Complete | 9 screens, 2 flows (Create + Translate), visual badges, localStorage persistence |
 | **Help System — Other** | 🔧 Not started | Partners, Contenu Site, System, Analytics, SEO |
 | **Blog Status Model** | ✅ Complete | Draft / In Review / Published / Archived (4 statuses) |
 | **E2E Tests** | ✅ Infrastructure complete | Rate limit bypass, 9 flows |
@@ -31,7 +31,7 @@
 
 ## Help System Status (Feb 4, 2026)
 
-### Help Screens: 8 total (Blog section complete)
+### Help Screens: 9 total (Blog section complete)
 
 | Screen | Route | Chars | Visual Badges |
 |--------|-------|-------|---------------|
@@ -42,15 +42,15 @@
 | Image Bank | /admin?tab=images | ~640 | ✅ |
 | Weekly Planner | /admin?tab=planner | ~580 | ✅ |
 | Posts | /admin?tab=posts | ~3,000 | ✅ |
+| New Post | /admin?tab=new-post | ~800 | ✅ (CreatePostLanding with method tip) |
 | Blog Editor | /admin?tab=blog-edit | ~4,700 | ✅ (includes Translation Assistant section) |
 
-### Help Flows: 3 total
+### Help Flows: 2 total (unified creation flow)
 
 | Flow | Steps | Linked Screens |
 |------|-------|----------------|
-| Publish a blog article | 8 | Posts, Blog Editor |
-| Create a Post with AI | 8 | AI Creator, Blog Editor, Posts |
-| Translate a post | 9 | Posts, Blog Editor |
+| Create a blog post | 7 | Posts, New Post, AI Creator, Blog Editor |
+| Translate a post | 8 | Posts, Blog Editor |
 
 ### Features Implemented
 - ✅ localStorage persistence (help panel stays open across navigation)
@@ -125,8 +125,10 @@
 2. ~~CreatePostLanding~~ ✅
 3. ~~Translation API wiring~~ ✅
 4. ~~One-click translation from Posts list~~ ✅
-5. Naive-user test on all 3 help flows
-6. Help content for CreatePostLanding screen + flow updates
+5. ~~Tab unification (Posts)~~ ✅
+6. ~~Help content: CreatePostLanding screen~~ ✅
+7. ~~Help flow merge (2 creation flows → 1)~~ ✅
+8. Naive-user test on 2 help flows (re-test after merge)
 
 ---
 
@@ -134,6 +136,8 @@
 
 | Commit | Description | Date |
 |--------|-------------|------|
+| a0e1a4d | fix: merge two blog creation help flows into one, clean up all help references | 2026-02-04 |
+| 168f2d4 | docs: update help content and migration progress for tab unification | 2026-02-04 |
 | 83d2f08 | feat: unify Posts tabs - merge Posts (Manual) and Posts (AI) into single Posts tab | 2026-02-04 |
 | 1c76e23 | docs: update migration progress, ADR-018, and help content for one-click translation | 2026-02-04 |
 | 1c23b41 | feat: one-click AI translation from Posts list, translation choice dialog | 2026-02-04 |
@@ -191,11 +195,11 @@
 | ~~Brand Brain~~ | ✅ Done | ai_context table + admin screen + API |
 | ~~CreatePostLanding~~ | ✅ Done | Unified post creation entry point |
 | ~~Translation API wiring~~ | ✅ Done | One-click AI translation + choice dialog + translation-service.ts |
-| ⚠️ Add ANTHROPIC_API_KEY to Coolify | 🔴 Blocked | Console down — retry at platform.claude.com, buy $5 credits, add key to staging env vars |
-| Naive-user help flow testing | 🔴 Active | Doc QA for 3 flows |
-| Help content: CreatePostLanding screen | 🔴 Active | New screen needs help entry |
-| Help flow updates (new entry point) | 🔴 Active | Flows reference CreatePostLanding |
-| Unified creation Phase 2 (partial unification) | 🟡 Next | AI stays in same flow, reuse components |
+| ~~ANTHROPIC_API_KEY to Coolify~~ | ✅ Done | Added to staging + main env vars |
+| ~~Help content: CreatePostLanding screen~~ | ✅ Done | Screen + tip added via SQL migration |
+| ~~Help flow updates (new entry point)~~ | ✅ Done | Merged 2 creation flows into 1 unified flow (7 steps) |
+| ~~Unified creation Phase 2~~ | ✅ Done | Tabs merged, AI accessible via CreatePostLanding |
+| Naive-user help flow testing | 🟡 Next | Re-test needed after help flow merge (2 flows now) |
 | Contenu Site help content (6 screens) | 🟡 Next | Screenshots already captured |
 | Analytics rebuild | 🟡 Next | 300+ lines of docs prepared |
 | Unified creation Phase 3 (true unification) | 🟢 Later | AI becomes panel inside Blog Editor |
@@ -217,6 +221,7 @@ Full ADR log: `docs/architecture/DECISIONS.md`
 | ADR-015 | 4-Status Blog Post Model (Draft/In Review/Published/Archived) | Feb 2026 |
 | ADR-016 | AI Brand Brain + Server-Side Claude API | Feb 2026 |
 | ADR-018 | Server-Side Translation via Claude API | Feb 2026 |
+| ADR-019 | Unified Blog Post Creation Flow (CreatePostLanding) | Feb 2026 |
 
 ---
 
