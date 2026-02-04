@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Naive User Help Flow Test Report</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
+    }
+    h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+    h2 { color: #34495e; margin-top: 40px; border-bottom: 1px solid #bdc3c7; padding-bottom: 5px; }
+    h3 { color: #2980b9; }
+    .meta { color: #7f8c8d; font-size: 0.9em; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; }
+    th, td { padding: 12px; text-align: left; border: 1px solid #ddd; }
+    th { background: #3498db; color: white; }
+    tr:nth-child(even) { background: #f9f9f9; }
+    .rating-clear { color: #27ae60; font-weight: bold; }
+    .rating-ambiguous { color: #f39c12; font-weight: bold; }
+    .rating-blocked { color: #e74c3c; font-weight: bold; }
+    .step-card { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .step-card h3 { margin-top: 0; }
+    .instruction { background: #ecf0f1; padding: 15px; border-radius: 5px; margin: 10px 0; font-style: italic; }
+    .notes { background: #fff3cd; padding: 15px; border-radius: 5px; margin: 10px 0; }
+    img { max-width: 800px; width: 100%; border: 1px solid #ddd; border-radius: 5px; margin: 15px 0; }
+    .score-box { display: inline-block; padding: 10px 20px; margin: 5px; border-radius: 5px; color: white; font-weight: bold; }
+    .score-clear { background: #27ae60; }
+    .score-ambiguous { background: #f39c12; }
+    .score-blocked { background: #e74c3c; }
+    hr { border: none; border-top: 1px solid #ddd; margin: 30px 0; }
+  </style>
+</head>
+<body>
+  <h1>Naive User Help Flow Test Report</h1>
+  <p class="meta">
+    <strong>Generated:</strong> 2026-02-04<br>
+    <strong>Test Environment:</strong> https://memopyk.memopyk.com (staging)<br>
+    <strong>Flow Tested:</strong> Create a blog post (Manual)
+  </p>
+
+  <hr>
+
+  <h2>Part A: Verified Tab Labels</h2>
+  <p>The following tab labels were verified from the actual UI screenshot:</p>
+  <table>
+    <tr><th>Tab Position</th><th>Actual Label</th></tr>
+    <tr><td>1</td><td>Weekly Planner</td></tr>
+<tr><td>2</td><td>Topics</td></tr>
+<tr><td>3</td><td>Keywords</td></tr>
+<tr><td>4</td><td>Posts (Manual)</td></tr>
+<tr><td>5</td><td>Posts (AI)</td></tr>
+<tr><td>6</td><td>Image Bank</td></tr>
+<tr><td>7</td><td>Planner</td></tr>
+<tr><td>8</td><td>Topics</td></tr>
+<tr><td>9</td><td>Keywords</td></tr>
+<tr><td>10</td><td>Images</td></tr>
+<tr><td>11</td><td>Topics</td></tr>
+<tr><td>12</td><td>Posts</td></tr>
+  </table>
+  <img src="screenshots/blog-hub-full.png" alt="Blog Hub Tabs">
+
+  <hr>
+
+  <h2>Part B: Login Screen</h2>
+  <img src="screenshots/login-screen.png" alt="Login Screen">
+  <p>
+    <strong>Login button text:</strong> "Access Admin Panel"<br>
+    <strong>Password field placeholder:</strong> "Enter admin password"<br>
+    <strong>Authentication fix:</strong> Using <code>page.getByRole('button', { name: /access admin/i })</code>
+  </p>
+
+  <hr>
+
+  <h2>Part C: Flow Test Results</h2>
+
+  <h3>Overall Score</h3>
+  <div>
+    <span class="score-box score-clear">CLEAR: 8/8 (100%)</span>
+    <span class="score-box score-ambiguous">AMBIGUOUS: 0/8 (0%)</span>
+    <span class="score-box score-blocked">BLOCKED: 0/8 (0%)</span>
+  </div>
+
+  <hr>
+
+  <div class="step-card">
+    <h3>Step 1: Open the Posts (Manual) tab</h3>
+    <div class="instruction">
+      <strong>Instruction:</strong> Click Blog in the sidebar menu, then click the Posts (Manual) tab. Click New Post at the top right. On the choice screen, select "Write from scratch" to open a blank post in the Blog Editor.
+    </div>
+    <p><strong>Rating:</strong> <span class="rating-clear">✅ CLEAR</span></p>
+    <div class="notes">
+      <strong>Notes:</strong> Found Blog in sidebar. Found and clicked "Posts (Manual)" tab. Found "New Post" button. Navigated to choice screen. Found "Write from scratch" option (matches help instruction). Navigating to existing post to test editor UI. Opened existing post in editor. 
+    </div>
+    <img src="screenshots/manual-flow-step1-open-the-posts-manual-tab.png" alt="Step 1 screenshot">
+  </div>
+
+  <div class="step-card">
+    <h3>Step 2: Enter the title</h3>
+    <div class="instruction">
+      <strong>Instruction:</strong> Type your post title in the Title field at the top. The slug (URL) is generated automatically - you can edit it if needed.
+    </div>
+    <p><strong>Rating:</strong> <span class="rating-clear">✅ CLEAR</span></p>
+    <div class="notes">
+      <strong>Notes:</strong> Found Title input field, entered test title. 
+    </div>
+    <img src="screenshots/manual-flow-step2-enter-the-title.png" alt="Step 2 screenshot">
+  </div>
+
+  <div class="step-card">
+    <h3>Step 3: Write your content</h3>
+    <div class="instruction">
+      <strong>Instruction:</strong> Use the rich text editor to write or paste your article. You can format text, add headings, insert images, and create links using the toolbar.
+    </div>
+    <p><strong>Rating:</strong> <span class="rating-clear">✅ CLEAR</span></p>
+    <div class="notes">
+      <strong>Notes:</strong> Found TinyMCE editor, entered test content. 
+    </div>
+    <img src="screenshots/manual-flow-step3-write-your-content.png" alt="Step 3 screenshot">
+  </div>
+
+  <div class="step-card">
+    <h3>Step 4: Add a hero image</h3>
+    <div class="instruction">
+      <strong>Instruction:</strong> Click Select Hero Image. Upload a new image or choose from existing ones. This image appears at the top of the published article.
+    </div>
+    <p><strong>Rating:</strong> <span class="rating-clear">✅ CLEAR</span></p>
+    <div class="notes">
+      <strong>Notes:</strong> Found hero image button: "Select Hero Image". Not clicking (would open modal). 
+    </div>
+    <img src="screenshots/manual-flow-step4-add-a-hero-image.png" alt="Step 4 screenshot">
+  </div>
+
+  <div class="step-card">
+    <h3>Step 5: Add tags and description</h3>
+    <div class="instruction">
+      <strong>Instruction:</strong> Click on tag badges in the Tags section on the right sidebar to assign tags to your post. Write a short Description (SEO) - this appears in search results and social media previews.
+    </div>
+    <p><strong>Rating:</strong> <span class="rating-clear">✅ CLEAR</span></p>
+    <div class="notes">
+      <strong>Notes:</strong> Found Tags section. Found 4 clickable tag badge(s). Found and filled Description (SEO) field. 
+    </div>
+    <img src="screenshots/manual-flow-step5-add-tags-and-description.png" alt="Step 5 screenshot">
+  </div>
+
+  <div class="step-card">
+    <h3>Step 6: Set status to Published</h3>
+    <div class="instruction">
+      <strong>Instruction:</strong> Change the Status dropdown from Draft to Published. Other options are In Review and Archived.
+    </div>
+    <p><strong>Rating:</strong> <span class="rating-clear">✅ CLEAR</span></p>
+    <div class="notes">
+      <strong>Notes:</strong> Found Status dropdown. Not changing to Published (keeping as Draft for cleanup). 
+    </div>
+    <img src="screenshots/manual-flow-step6-set-status-to-published.png" alt="Step 6 screenshot">
+  </div>
+
+  <div class="step-card">
+    <h3>Step 7: Set the publication date</h3>
+    <div class="instruction">
+      <strong>Instruction:</strong> Click Choisir une date to open the date picker. Click Définir maintenant to use the current time, or pick a specific date and time.
+    </div>
+    <p><strong>Rating:</strong> <span class="rating-clear">✅ CLEAR</span></p>
+    <div class="notes">
+      <strong>Notes:</strong> Found date picker button: "Choisir une date". Button text matches instruction (French). 
+    </div>
+    <img src="screenshots/manual-flow-step7-set-the-publication-date.png" alt="Step 7 screenshot">
+  </div>
+
+  <div class="step-card">
+    <h3>Step 8: Save and verify</h3>
+    <div class="instruction">
+      <strong>Instruction:</strong> Click Save Changes at the top. Your post is now live. Go back to the Posts (Manual) tab and use the eye icon to preview it on the public blog.
+    </div>
+    <p><strong>Rating:</strong> <span class="rating-clear">✅ CLEAR</span></p>
+    <div class="notes">
+      <strong>Notes:</strong> Found "Save Changes" button. 
+    </div>
+    <img src="screenshots/manual-flow-step8-save-and-verify.png" alt="Step 8 screenshot">
+  </div>
+
+  <hr>
+  <h2>Summary of Issues</h2>
+<p>No issues found - all steps rated CLEAR.</p>
+  <hr>
+  <p class="meta"><em>Report generated by naive-user-manual-flow-test.ts</em></p>
+</body>
+</html>
