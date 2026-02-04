@@ -1,7 +1,7 @@
 # MEMOPYK Migration Progress Report
 
 **Last Updated:** 2026-02-04
-**Status:** Help System Blog section complete — AI integration & Contenu Site next
+**Status:** One-click AI translation complete — Help content & Contenu Site next
 
 ---
 
@@ -88,13 +88,16 @@
 - Route: `/admin?tab=new-post` (not in tab bar)
 - Zero logic duplication — reuses existing draft creation
 
-### In Progress: Server-Side Translation via Claude API
+### ✅ Completed: Server-Side Translation via Claude API
 
-**Goal:** Replace manual copy/paste in Translation Assistant with one-click AI translation.
+**Commits:** 2201d2c, 1c23b41 (staging)
 
-- Server calls Claude API with extracted text + Brand Brain context
-- User reviews before applying (no blind auto-insert)
-- Manual fallback preserved ("Prefer to translate manually?" link)
+- One-click AI translation from Posts list ✅
+- Translation choice dialog (AI or Manual) ✅
+- Shared `translation-service.ts` for reuse across endpoints ✅
+- Graceful fallback: if AI fails, duplicate kept as manual translation draft ✅
+- Translation Assistant simplified to 2 steps (Translate → Review & Apply) ✅
+- All brand mentions (ChatGPT/Claude) removed from UI ✅
 - Requires ANTHROPIC_API_KEY on staging/production
 
 ### Planned: Naive-User Help Flow Testing
@@ -111,9 +114,10 @@
 ### Sequence (remaining today)
 1. ~~Brand Brain~~ ✅
 2. ~~CreatePostLanding~~ ✅
-3. Translation API wiring (in progress)
-4. Naive-user test on all 3 help flows
-5. Help content for CreatePostLanding screen + flow updates
+3. ~~Translation API wiring~~ ✅
+4. ~~One-click translation from Posts list~~ ✅
+5. Naive-user test on all 3 help flows
+6. Help content for CreatePostLanding screen + flow updates
 
 ---
 
@@ -121,6 +125,8 @@
 
 | Commit | Description | Date |
 |--------|-------------|------|
+| 1c23b41 | feat: one-click AI translation from Posts list, translation choice dialog | 2026-02-04 |
+| 2201d2c | fix: simplify Translation Assistant to 2 steps, remove brand mentions, fix button sizing | 2026-02-04 |
 | (staging) | CreatePostLanding + help flow renames | 2026-02-04 |
 | (staging) | Brand Brain: ai_context table + admin screen + API | 2026-02-04 |
 | eceba65 | feat: add Archived status + help content updates + Translation flow | 2026-02-04 |
@@ -173,7 +179,7 @@
 |------|----------|-------|
 | ~~Brand Brain~~ | ✅ Done | ai_context table + admin screen + API |
 | ~~CreatePostLanding~~ | ✅ Done | Unified post creation entry point |
-| Translation API wiring | ✅ Done | Claude API replaces copy/paste (code deployed) |
+| ~~Translation API wiring~~ | ✅ Done | One-click AI translation + choice dialog + translation-service.ts |
 | ⚠️ Add ANTHROPIC_API_KEY to Coolify | 🔴 Blocked | Console down — retry at platform.claude.com, buy $5 credits, add key to staging env vars |
 | Naive-user help flow testing | 🔴 Active | Doc QA for 3 flows |
 | Help content: CreatePostLanding screen | 🔴 Active | New screen needs help entry |
@@ -198,7 +204,8 @@ Full ADR log: `docs/architecture/DECISIONS.md`
 | ADR-013 | Database-Driven Help System | Feb 2026 |
 | ADR-014 | E2E Test Rate Limit Bypass | Feb 2026 |
 | ADR-015 | 4-Status Blog Post Model (Draft/In Review/Published/Archived) | Feb 2026 |
-| ADR-016 | AI Brand Brain + Server-Side Claude API | Feb 2026 (proposed) |
+| ADR-016 | AI Brand Brain + Server-Side Claude API | Feb 2026 |
+| ADR-018 | Server-Side Translation via Claude API | Feb 2026 |
 
 ---
 
