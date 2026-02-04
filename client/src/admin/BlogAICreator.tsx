@@ -489,7 +489,7 @@ export const BlogAICreator: React.FC = () => {
           <Card className="bg-white">
             <CardHeader>
               <CardTitle>Step 2: Copy Prompt to AI</CardTitle>
-              <CardDescription>Give this prompt to Claude, ChatGPT, or your AI assistant</CardDescription>
+              <CardDescription>Give this prompt to your AI assistant</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {generatedPrompt ? (
@@ -526,7 +526,7 @@ export const BlogAICreator: React.FC = () => {
           <CardHeader>
             <CardTitle>Step 3: Paste AI's JSON Response</CardTitle>
             <CardDescription>
-              After giving the prompt to ChatGPT/Claude, copy the JSON response it returns and paste it below
+              After giving the prompt to your AI assistant, copy the JSON response it returns and paste it below
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
