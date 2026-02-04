@@ -47,6 +47,9 @@ export function TranslationAssistant({
   // Source language is the opposite of target
   const sourceLanguage = targetLanguage === 'en-US' ? 'fr-FR' : 'en-US';
 
+  // Debug log for translation direction
+  console.log(`🌐 Translation Assistant: target=${targetLanguage}, source=${sourceLanguage}, postTitle="${currentTitle}"`);
+
   // Reset all state when dialog opens/closes
   useEffect(() => {
     if (isOpen) {

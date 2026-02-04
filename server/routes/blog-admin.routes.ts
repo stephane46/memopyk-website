@@ -25,6 +25,12 @@ import { Router, Request, Response } from 'express';
 import { DateTime } from 'luxon';
 import { requireAdmin } from '../middleware/auth.middleware';
 import { getSupabase } from './blog-shared';
+import {
+  translateContent,
+  fetchAIContext,
+  extractImagesFromContent,
+  reinsertImages
+} from './translation-service';
 
 const router = Router();
 
@@ -273,12 +279,18 @@ router.post('/admin/blog/create-from-ai', requireAdmin, async (req: Request, res
 /**
  * POST /admin/blog/posts/:id/translate
  * Duplicate blog post to other language
+ *
+ * Request body:
+ * - method: 'manual' | 'ai' (default: 'manual')
+ *   - 'manual': Creates duplicate with [TRANSLATE TO...] prefix for manual translation
+ *   - 'ai': Creates duplicate + automatically translates using Claude API
  */
 router.post('/admin/blog/posts/:id/translate', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const { method = 'manual' } = req.body;
 
-    console.log(`📋 Duplicating post for translation: ${id}`);
+    console.log(`📋 Duplicating post for translation: ${id} (method: ${method})`);
 
     const supabase = getSupabase();
 
@@ -296,6 +308,7 @@ router.post('/admin/blog/posts/:id/translate', requireAdmin, async (req: Request
     }
 
     const targetLanguage = sourcePost.language === 'en-US' ? 'fr-FR' : 'en-US';
+    const sourceLanguage = sourcePost.language as 'en-US' | 'fr-FR';
     const languageSuffix = targetLanguage === 'en-US' ? '-en' : '-fr';
     const languageLabel = targetLanguage === 'en-US' ? 'English' : 'French';
 
@@ -312,6 +325,7 @@ router.post('/admin/blog/posts/:id/translate', requireAdmin, async (req: Request
       newSlug = `${newSlug}-${Date.now()}`;
     }
 
+    // Create the duplicate post (with [TRANSLATE TO...] prefix for now)
     const { data: duplicatedPost, error: createError } = await supabase
       .from('blog_posts')
       .insert({
@@ -335,10 +349,82 @@ router.post('/admin/blog/posts/:id/translate', requireAdmin, async (req: Request
 
     console.log(`✅ Post duplicated for translation: ${sourcePost.language} → ${targetLanguage} (ID: ${duplicatedPost.id})`);
 
-    res.json({
-      success: true,
-      data: duplicatedPost
-    });
+    // If method is 'manual', return the duplicate as-is
+    if (method !== 'ai') {
+      return res.json({
+        success: true,
+        data: duplicatedPost,
+        method: 'manual'
+      });
+    }
+
+    // AI translation: Extract images, translate, and update the post
+    console.log(`🤖 Starting AI translation for post ${duplicatedPost.id}`);
+
+    try {
+      // Extract images from content
+      const { textWithPlaceholders, images } = extractImagesFromContent(sourcePost.content_html || '');
+      console.log(`📷 Extracted ${images.length} image(s) from content`);
+
+      // Fetch AI context
+      const aiContext = await fetchAIContext(supabase);
+
+      // Translate content
+      const translationResult = await translateContent(
+        {
+          text: textWithPlaceholders,
+          title: sourcePost.title,
+          slug: sourcePost.slug,
+          description: sourcePost.description || '',
+          sourceLanguage,
+          targetLanguage
+        },
+        aiContext
+      );
+
+      // Re-insert images into translated content
+      const translatedContentWithImages = reinsertImages(translationResult.content, images);
+
+      // Update the duplicate post with translated content (remove [TRANSLATE TO...] prefix)
+      const { data: updatedPost, error: updateError } = await supabase
+        .from('blog_posts')
+        .update({
+          title: translationResult.title,
+          slug: translationResult.slug,
+          description: translationResult.description,
+          content_html: translatedContentWithImages
+        })
+        .eq('id', duplicatedPost.id)
+        .select()
+        .single();
+
+      if (updateError) {
+        console.error('❌ Error updating post with translation:', updateError);
+        throw updateError;
+      }
+
+      console.log(`✅ AI translation applied to post ${updatedPost.id}`);
+
+      return res.json({
+        success: true,
+        data: updatedPost,
+        method: 'ai',
+        imagesPreserved: images.length
+      });
+
+    } catch (translationError) {
+      // AI translation failed - keep the duplicate as manual
+      const errorMessage = translationError instanceof Error ? translationError.message : 'Translation failed';
+      console.error(`⚠️ AI translation failed for post ${duplicatedPost.id}:`, errorMessage);
+
+      return res.json({
+        success: true,
+        data: duplicatedPost,
+        method: 'manual',
+        translationError: errorMessage
+      });
+    }
+
   } catch (error) {
     console.error('❌ Error duplicating post:', error);
     res.status(500).json({
@@ -501,12 +587,6 @@ router.put('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Resp
     const { id } = req.params;
     const updates = req.body;
 
-    // DEBUG: Trace published_at through the update flow
-    console.log('🔍 PUT /admin/blog/posts/:id - DEBUGGING published_at');
-    console.log('🔍 req.body keys:', Object.keys(updates));
-    console.log('🔍 req.body.published_at:', updates.published_at);
-    console.log('🔍 typeof published_at:', typeof updates.published_at);
-
     const supabase = getSupabase();
 
     // Get current post to check if status actually changes
@@ -521,19 +601,12 @@ router.put('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Resp
       updates.published_at = new Date().toISOString();
     }
 
-    // DEBUG: Log exactly what we're sending to Supabase
-    console.log('🔍 Sending to Supabase update:', JSON.stringify(updates, null, 2));
-
     const { data: post, error } = await supabase
       .from('blog_posts')
       .update(updates)
       .eq('id', id)
       .select()
       .single();
-
-    // DEBUG: Log the result
-    console.log('🔍 Supabase response - error:', error);
-    console.log('🔍 Supabase response - post.published_at:', post?.published_at);
 
     if (error) throw error;
 

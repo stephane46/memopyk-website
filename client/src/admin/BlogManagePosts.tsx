@@ -31,7 +31,8 @@ import {
   X,
   Target,
   Tag as TagIcon,
-  ChevronRight
+  ChevronRight,
+  Sparkles
 } from 'lucide-react';
 // Note: Loader2 still used for translateMutation loading state
 import {
@@ -58,6 +59,10 @@ export function BlogManagePosts() {
   const [filterTopic, setFilterTopic] = useState<string | null>(null);
   const [filterKeyword, setFilterKeyword] = useState<string | null>(null);
   const [tagManagementOpen, setTagManagementOpen] = useState(false);
+
+  // Translation dialog state
+  const [translateDialogPost, setTranslateDialogPost] = useState<BlogPost | null>(null);
+  const [translateMethod, setTranslateMethod] = useState<'ai' | 'manual' | null>(null);
 
   // Navigate to CreatePostLanding screen
   const navigateToNewPost = () => {
@@ -191,19 +196,53 @@ export function BlogManagePosts() {
 
   // Translate mutation
   const translateMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return apiRequest(`/api/admin/blog/posts/${id}/translate`, 'POST');
+    mutationFn: async ({ id, method }: { id: string; method: 'ai' | 'manual' }) => {
+      return apiRequest(`/api/admin/blog/posts/${id}/translate`, 'POST', { method });
     },
     onSuccess: (response: any) => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/blog/posts'] });
       queryClient.invalidateQueries({ queryKey: ['/api/blog-tags'] });
+
       const targetLang = response?.data?.language === 'en-US' ? 'English' : 'French';
-      toast({
-        title: "Draft created! 📋",
-        description: `Duplicate created for ${targetLang} translation. All images are preserved in position. Edit the post and replace the text with your ${targetLang} translation.`
-      });
+      const responseMethod = response?.method;
+      const translationError = response?.translationError;
+
+      // Close the dialog
+      setTranslateDialogPost(null);
+      setTranslateMethod(null);
+
+      if (responseMethod === 'ai' && !translationError) {
+        // AI translation succeeded
+        toast({
+          title: "Translation complete! ✨",
+          description: `Post translated to ${targetLang}. Review the translated content.`
+        });
+      } else if (translationError) {
+        // AI translation failed, fallback to manual
+        toast({
+          title: "AI translation failed",
+          description: `${translationError}. Opening post for manual translation.`,
+          variant: "destructive"
+        });
+      } else {
+        // Manual mode
+        toast({
+          title: "Draft created! 📋",
+          description: `Duplicate created for ${targetLang} translation. Use the Translation Assistant to translate.`
+        });
+      }
+
+      // Navigate to the new post in the editor
+      const newPostId = response?.data?.id;
+      if (newPostId) {
+        const currentPath = window.location.pathname;
+        const langPrefix = currentPath.match(/^\/(en-US|fr-FR)/)?.[0] || '';
+        window.location.href = `${langPrefix}/admin?tab=blog-edit&id=${newPostId}`;
+      }
     },
     onError: (error: Error) => {
+      setTranslateDialogPost(null);
+      setTranslateMethod(null);
       toast({
         title: "Failed to create translation draft",
         description: error.message || "Unable to duplicate post.",
@@ -516,16 +555,11 @@ export function BlogManagePosts() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => translateMutation.mutate(post.id)}
-                        disabled={translateMutation.isPending}
-                        title="Duplicate for translation"
+                        onClick={() => setTranslateDialogPost(post)}
+                        title="Translate to other language"
                         data-testid={`button-translate-${post.id}`}
                       >
-                        {translateMutation.isPending ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Languages className="h-4 w-4" />
-                        )}
+                        <Languages className="h-4 w-4" />
                       </Button>
 
                       <Button
@@ -583,10 +617,84 @@ export function BlogManagePosts() {
       </AlertDialog>
 
       {/* Tag Management Modal */}
-      <TagManagementModal 
+      <TagManagementModal
         open={tagManagementOpen}
         onOpenChange={setTagManagementOpen}
       />
+
+      {/* Translation Choice Dialog */}
+      <Dialog open={!!translateDialogPost} onOpenChange={(open) => !open && setTranslateDialogPost(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Languages className="h-5 w-5 text-[#D67C4A]" />
+              Translate Post
+            </DialogTitle>
+            <DialogDescription>
+              Create a {translateDialogPost?.language === 'en-US' ? 'French' : 'English'} version of "{translateDialogPost?.title}"
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-4">
+            {/* AI Translation Button */}
+            <Button
+              onClick={() => {
+                setTranslateMethod('ai');
+                translateMutation.mutate({ id: translateDialogPost!.id, method: 'ai' });
+              }}
+              disabled={translateMutation.isPending}
+              className="w-full h-12 bg-[#D67C4A] hover:bg-[#B86A3E] text-white justify-start"
+              data-testid="button-translate-ai"
+            >
+              {translateMutation.isPending && translateMethod === 'ai' ? (
+                <>
+                  <Loader2 className="h-5 w-5 mr-3 animate-spin" />
+                  Creating & translating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-5 w-5 mr-3" />
+                  Translate with AI
+                </>
+              )}
+            </Button>
+
+            {/* Manual Translation Button */}
+            <Button
+              onClick={() => {
+                setTranslateMethod('manual');
+                translateMutation.mutate({ id: translateDialogPost!.id, method: 'manual' });
+              }}
+              disabled={translateMutation.isPending}
+              variant="outline"
+              className="w-full h-12 justify-start"
+              data-testid="button-translate-manual"
+            >
+              {translateMutation.isPending && translateMethod === 'manual' ? (
+                <>
+                  <Loader2 className="h-5 w-5 mr-3 animate-spin" />
+                  Creating duplicate...
+                </>
+              ) : (
+                <>
+                  <Pencil className="h-5 w-5 mr-3" />
+                  Translate manually
+                </>
+              )}
+            </Button>
+          </div>
+
+          <DialogFooter className="sm:justify-center">
+            <button
+              onClick={() => setTranslateDialogPost(null)}
+              disabled={translateMutation.isPending}
+              className="text-sm text-gray-500 hover:text-gray-700 underline"
+            >
+              Cancel
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
