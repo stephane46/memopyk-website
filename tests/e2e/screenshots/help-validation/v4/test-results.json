@@ -1,0 +1,312 @@
+{
+  "testDate": "2026-02-04",
+  "environment": "Staging (https://memopyk.memopyk.com)",
+  "flows": [
+    {
+      "flowName": "Create a blog post",
+      "description": "Step-by-step guide to create a blog post, manually or with AI assistance",
+      "totalSteps": 7,
+      "results": [
+        {
+          "step": 1,
+          "title": "Go to Posts tab",
+          "instruction": "In the Blog Hub, click the Posts tab to see all your blog posts.",
+          "expectedRoute": "",
+          "helpScreenshot": "flow1-step1-help.png",
+          "actionScreenshot": "flow1-step1-action.png",
+          "rating": "CLEAR",
+          "notes": "Posts heading visible",
+          "actionPerformed": "Navigate to Posts tab",
+          "elementFound": true
+        },
+        {
+          "step": 2,
+          "title": "Step 2",
+          "instruction": "Posts\nThis is where you manage all your blog posts - create, edit, preview, translate, and delete.\n\nTop Buttons\n\n  New Post (orange, top right) - Opens the creation page where you choose to write from scratch or generate with AI.\n  Manage Tags - Opens a dialog where you can add new tags, rename existing ones, or delete them.\n\n\nFilters\nUse the filter card at the top to narrow your list:\n\n  Status - Show All Posts, Draft Only, In Review Only, Published Only, or Archived Only.\n  Language - Show All Languages, English, or French.\n  Title Keyword - Type a word to search by post title.\n  The post count on the right shows how many posts match your current filters.\n\nIf you arrived from the Topics tab with a topic filter active, a blue banner appears. Click the X on the badge to clear it.\n\nPost Cards\nEach post appears as a card showing:\n\n  Title - The post name. If created from a topic, a View source topic link appears next to it.\n  Description - A short summary (2 lines max).\n  Badges below the description: language (EN/FR), status (Draft / In Review / Published date / Archived), tag badges, and Featured (purple) if marked.\n\n\nAction Icons (right side of each card)\nEach card has 5 controls on the right:\n\n  Status dropdown - Change status directly (Draft, In Review, Published, or Archived). No need to open the editor.\n  Eye icon (\"View post\") - Open the post on the public blog in a new tab.\n  Translation icon (\"Duplicate for translation\") - Create a copy for translation. All images are preserved.\n  Pencil icon (\"Edit post\") - Open the post in the Blog Editor.\n  Trash icon (\"Delete post\", red) - Delete the post with confirmation.\n\n\nTips\n\n  To quickly change a post status, use the Status dropdown on the card - no need to open the editor.\n  The Translation button copies everything (title, content, images). Just replace the text.\n  To create a post from scratch, click New Post. To create one from a content plan, go to the Topics tab instead.\n  Click New Post to choose between writing from scratch or generating with AI.\n\n\nTranslating Posts\nClick the 🌐 translate icon on any post to create a translation. Choose ✨ Translate with AI for one-click automatic translation, or Translate manually to use your own tools.",
+          "expectedRoute": "",
+          "helpScreenshot": "flow1-step2-help.png",
+          "actionScreenshot": "flow1-step2-action.png",
+          "rating": "CLEAR",
+          "notes": "Navigated to new-post page",
+          "actionPerformed": "Click \"+ New Post\" button",
+          "elementFound": true
+        },
+        {
+          "step": 3,
+          "title": "Step 3",
+          "instruction": "Create a New Blog Post\nThis is your starting point for creating new content. Choose the method that works best for you:\n\nWrite from scratch\nOpens the Blog Editor with a blank post. Best when you have a clear idea of what you want to write.\n\nGenerate with AI\nUses AI to generate a draft based on your topic and preferences. Great for overcoming writer's block or getting a head start.\n\n\n  💡 Tip: You can always switch methods — start with AI to get a draft, then refine manually in the Blog Editor.",
+          "expectedRoute": "",
+          "helpScreenshot": "flow1-step3-help.png",
+          "actionScreenshot": "flow1-step3-action.png",
+          "rating": "CLEAR",
+          "notes": "Both method cards visible",
+          "actionPerformed": "Verify creation method cards",
+          "elementFound": true
+        },
+        {
+          "step": 4,
+          "title": "Step 4",
+          "instruction": "Create a New Blog Post\nThis is your starting point for creating new content. Choose the method that works best for you:\n\nWrite from scratch\nOpens the Blog Editor with a blank post. Best when you have a clear idea of what you want to write.\n\nGenerate with AI\nUses AI to generate a draft based on your topic and preferences. Great for overcoming writer's block or getting a head start.\n\n\n  💡 Tip: You can always switch methods — start with AI to get a draft, then refine manually in the Blog Editor.",
+          "expectedRoute": "",
+          "helpScreenshot": "flow1-step4-help.png",
+          "actionScreenshot": "flow1-step4-action.png",
+          "rating": "CLEAR",
+          "notes": "Blog Editor opened",
+          "actionPerformed": "Click \"Write from scratch\", verify Blog Editor",
+          "elementFound": true
+        },
+        {
+          "step": 5,
+          "title": "Step 5",
+          "instruction": "Blog Editor\nThis screen lets you edit a blog post. All changes are saved only when you click Save Changes - nothing is saved automatically.\n\nTop Bar\nThe top-right corner has action buttons:\n\n  Save Changes (orange) - Saves all fields at once: title, content, status, tags, hero image, and publication date\n  Preview - Opens the published post in a new browser tab. Only available when the post status is Published\n  Translation Assistant - Appears only for translation drafts (posts with \"[TRANSLATE TO...]\" in the title). Guides you through a 3-step translation process using your AI assistant, automatically preserving images.\n\n\nFields (top to bottom)\n\nTitle - The post headline. This is what readers see first.\n\nSlug (URL) - The URL path for this post. Example: my-blog-post becomes /blog/my-blog-post. Use lowercase letters, numbers, and hyphens only.\n\nDescription (SEO) - A short summary shown in search engine results and social media previews. Keep it under 160 characters.\n\nHero Image\nThe main image displayed at the top of the post.\n\n  Click Select Hero Image (or Change Hero Image if one is already set)\n  A dialog opens with two options:\n    \n      Upload new image - Click Choose File to upload from your computer (PNG, JPG, GIF, WEBP, max 5 MB)\n      Select from existing images - Click any image thumbnail to use it\n    \n  \n\n\nStatus & Publication Date\nThese two fields appear side by side.\nStatus - Choose the workflow stage:\n\n  Draft - Work in progress, not visible to readers\n  In Review - Ready for review before publishing\n  Published - Live and visible on the blog\n  Archived - Hidden from the public blog but preserved in the system\n\n\nPublished At - Controls when the post appears on the blog.\n\n  Click Choisir une date to open the date picker\n  Pick a day on the calendar, then set the time (hours : minutes)\n  Click Définir maintenant to set the current date and time (French timezone)\n  Click Effacer to clear the date\n\n\nTags\nColored labels that categorize your post. Click a tag to select it (it gets a ring highlight). Click again to deselect. The count of selected tags is shown below.\nIf no tags exist, create them first in the Posts tab using Manage Tags.\n\nFeatured Post\nAn orange section that lets you highlight this post in the featured carousel on the blog page.\n\n  Toggle the switch on to mark as featured\n  Set Featured Order (1 = appears first in the carousel)\n  Toggle off to remove from the carousel\n\n\nContent\nThe main body of your post - a rich text editor with a full toolbar. You can format text, insert images, add links, tables, and switch to code view for direct HTML editing.\n\nLanguage\nShown at the bottom - displays whether this post is in English or French. The language is set when the post is created and cannot be changed here.\n\nTranslation Assistant\nThe Translation Assistant button only appears for posts with \"[TRANSLATE TO...]\" in the title. It provides a 3-step process:\n\n  Extract - Replaces images with [IMAGE 1], [IMAGE 2] placeholders\n  Translate - Copy the prompt to your AI assistant and get the translated content\n  Apply - Paste the translation and images are automatically restored\n\n\nTips\n\n  Always click Save Changes after making edits - there is no auto-save\n  Write your Description (SEO) before publishing - it improves search visibility\n  Set a hero image - posts without one look incomplete on the blog page\n  Use Draft while writing, switch to Published only when ready",
+          "expectedRoute": "",
+          "helpScreenshot": "flow1-step5-help.png",
+          "actionScreenshot": "flow1-step5-action.png",
+          "rating": "CLEAR",
+          "notes": "AI Creator opened",
+          "actionPerformed": "Go back, click \"Generate with AI\", verify AI Creator",
+          "elementFound": true
+        },
+        {
+          "step": 6,
+          "title": "Step 6",
+          "instruction": "AI Creator\nGenerate blog posts using AI. This tool creates a structured prompt, which you copy to your AI assistant (e.g., your AI assistant, Claude). Then paste the AI response back to create a fully formatted blog post.\n\nStep 1: Configure Post\nFill in the following fields:\n\n  Topic - Describe what the blog post should be about (required)\n  Language - English (EN) or French (FR)\n  Status - Choose Draft, In Review, Published, or Archived\n  Published At - Schedule a future date (optional)\n  SEO Keywords - Comma-separated keywords to target (optional)\n\nClick Generate AI Prompt when ready.\n\nStep 2: Copy Prompt to AI\nThe generated prompt appears in this panel. Click Copy to Clipboard to copy it. Then paste into your AI assistant, Claude, or your preferred AI assistant. The AI will generate a complete blog post in JSON format.\n\nStep 3: Paste AI's JSON Response\nPaste the AI's JSON response into the textarea. If there are formatting issues, click Auto-Fix to repair common JSON problems. Then click Validate & Edit Content to preview and edit the content.\n\nStep 4: Refine Your Content\nIn this step you can:\n\n  Edit the Post Title\n  Upload a Hero Image from your Image Bank\n  Add Tags to categorize the post\n  Use the rich text editor to refine the content, add tables, or format text\n\nClick Save Blog Post to save. You'll be automatically taken to the Blog Editor for final review.\n\nTips\n\n  Be specific with your topic for better results\n  Always review and edit AI content before publishing\n  Use the SEO keywords field - it improves content targeting\n  The generated prompt includes MEMOPYK brand guidelines automatically\n  Start with Draft status and review before publishing",
+          "expectedRoute": "",
+          "helpScreenshot": "flow1-step6-help.png",
+          "actionScreenshot": "flow1-step6-action.png",
+          "rating": "BLOCKED",
+          "notes": "No posts found to edit",
+          "actionPerformed": "Open existing post, verify metadata fields (Tags, Hero Image, Description)",
+          "elementFound": false
+        },
+        {
+          "step": 7,
+          "title": "Step 7",
+          "instruction": "Posts\nThis is where you manage all your blog posts - create, edit, preview, translate, and delete.\n\nTop Buttons\n\n  New Post (orange, top right) - Opens the creation page where you choose to write from scratch or generate with AI.\n  Manage Tags - Opens a dialog where you can add new tags, rename existing ones, or delete them.\n\n\nFilters\nUse the filter card at the top to narrow your list:\n\n  Status - Show All Posts, Draft Only, In Review Only, Published Only, or Archived Only.\n  Language - Show All Languages, English, or French.\n  Title Keyword - Type a word to search by post title.\n  The post count on the right shows how many posts match your current filters.\n\nIf you arrived from the Topics tab with a topic filter active, a blue banner appears. Click the X on the badge to clear it.\n\nPost Cards\nEach post appears as a card showing:\n\n  Title - The post name. If created from a topic, a View source topic link appears next to it.\n  Description - A short summary (2 lines max).\n  Badges below the description: language (EN/FR), status (Draft / In Review / Published date / Archived), tag badges, and Featured (purple) if marked.\n\n\nAction Icons (right side of each card)\nEach card has 5 controls on the right:\n\n  Status dropdown - Change status directly (Draft, In Review, Published, or Archived). No need to open the editor.\n  Eye icon (\"View post\") - Open the post on the public blog in a new tab.\n  Translation icon (\"Duplicate for translation\") - Create a copy for translation. All images are preserved.\n  Pencil icon (\"Edit post\") - Open the post in the Blog Editor.\n  Trash icon (\"Delete post\", red) - Delete the post with confirmation.\n\n\nTips\n\n  To quickly change a post status, use the Status dropdown on the card - no need to open the editor.\n  The Translation button copies everything (title, content, images). Just replace the text.\n  To create a post from scratch, click New Post. To create one from a content plan, go to the Topics tab instead.\n  Click New Post to choose between writing from scratch or generating with AI.\n\n\nTranslating Posts\nClick the 🌐 translate icon on any post to create a translation. Choose ✨ Translate with AI for one-click automatic translation, or Translate manually to use your own tools.",
+          "expectedRoute": "",
+          "helpScreenshot": "flow1-step7-help.png",
+          "actionScreenshot": "flow1-step7-action.png",
+          "rating": "BLOCKED",
+          "notes": "Could not find status dropdown or save button",
+          "actionPerformed": "Verify Status dropdown and \"Save Changes\" button",
+          "elementFound": false
+        }
+      ],
+      "summary": {
+        "clear": 5,
+        "ambiguous": 0,
+        "blocked": 2
+      }
+    },
+    {
+      "flowName": "Translate a post",
+      "description": "Translate a post to another language using AI or manual tools",
+      "totalSteps": 8,
+      "results": [
+        {
+          "step": 1,
+          "title": "Find your post",
+          "instruction": "Go to Posts and locate the post you want to translate.",
+          "expectedRoute": "",
+          "helpScreenshot": "flow2-step1-help.png",
+          "actionScreenshot": "flow2-step1-action.png",
+          "rating": "BLOCKED",
+          "notes": "No posts found",
+          "actionPerformed": "Navigate to Posts tab",
+          "elementFound": false
+        },
+        {
+          "step": 2,
+          "title": "Step 2",
+          "instruction": "Posts\nThis is where you manage all your blog posts - create, edit, preview, translate, and delete.\n\nTop Buttons\n\n  New Post (orange, top right) - Opens the creation page where you choose to write from scratch or generate with AI.\n  Manage Tags - Opens a dialog where you can add new tags, rename existing ones, or delete them.\n\n\nFilters\nUse the filter card at the top to narrow your list:\n\n  Status - Show All Posts, Draft Only, In Review Only, Published Only, or Archived Only.\n  Language - Show All Languages, English, or French.\n  Title Keyword - Type a word to search by post title.\n  The post count on the right shows how many posts match your current filters.\n\nIf you arrived from the Topics tab with a topic filter active, a blue banner appears. Click the X on the badge to clear it.\n\nPost Cards\nEach post appears as a card showing:\n\n  Title - The post name. If created from a topic, a View source topic link appears next to it.\n  Description - A short summary (2 lines max).\n  Badges below the description: language (EN/FR), status (Draft / In Review / Published date / Archived), tag badges, and Featured (purple) if marked.\n\n\nAction Icons (right side of each card)\nEach card has 5 controls on the right:\n\n  Status dropdown - Change status directly (Draft, In Review, Published, or Archived). No need to open the editor.\n  Eye icon (\"View post\") - Open the post on the public blog in a new tab.\n  Translation icon (\"Duplicate for translation\") - Create a copy for translation. All images are preserved.\n  Pencil icon (\"Edit post\") - Open the post in the Blog Editor.\n  Trash icon (\"Delete post\", red) - Delete the post with confirmation.\n\n\nTips\n\n  To quickly change a post status, use the Status dropdown on the card - no need to open the editor.\n  The Translation button copies everything (title, content, images). Just replace the text.\n  To create a post from scratch, click New Post. To create one from a content plan, go to the Topics tab instead.\n  Click New Post to choose between writing from scratch or generating with AI.\n\n\nTranslating Posts\nClick the 🌐 translate icon on any post to create a translation. Choose ✨ Translate with AI for one-click automatic translation, or Translate manually to use your own tools.",
+          "expectedRoute": "",
+          "helpScreenshot": "flow2-step2-help.png",
+          "actionScreenshot": "flow2-step2-action.png",
+          "rating": "CLEAR",
+          "notes": "Translate dialog opened",
+          "actionPerformed": "Click translate icon (🌐) on a post",
+          "elementFound": true
+        },
+        {
+          "step": 3,
+          "title": "Step 3",
+          "instruction": "Posts\nThis is where you manage all your blog posts - create, edit, preview, translate, and delete.\n\nTop Buttons\n\n  New Post (orange, top right) - Opens the creation page where you choose to write from scratch or generate with AI.\n  Manage Tags - Opens a dialog where you can add new tags, rename existing ones, or delete them.\n\n\nFilters\nUse the filter card at the top to narrow your list:\n\n  Status - Show All Posts, Draft Only, In Review Only, Published Only, or Archived Only.\n  Language - Show All Languages, English, or French.\n  Title Keyword - Type a word to search by post title.\n  The post count on the right shows how many posts match your current filters.\n\nIf you arrived from the Topics tab with a topic filter active, a blue banner appears. Click the X on the badge to clear it.\n\nPost Cards\nEach post appears as a card showing:\n\n  Title - The post name. If created from a topic, a View source topic link appears next to it.\n  Description - A short summary (2 lines max).\n  Badges below the description: language (EN/FR), status (Draft / In Review / Published date / Archived), tag badges, and Featured (purple) if marked.\n\n\nAction Icons (right side of each card)\nEach card has 5 controls on the right:\n\n  Status dropdown - Change status directly (Draft, In Review, Published, or Archived). No need to open the editor.\n  Eye icon (\"View post\") - Open the post on the public blog in a new tab.\n  Translation icon (\"Duplicate for translation\") - Create a copy for translation. All images are preserved.\n  Pencil icon (\"Edit post\") - Open the post in the Blog Editor.\n  Trash icon (\"Delete post\", red) - Delete the post with confirmation.\n\n\nTips\n\n  To quickly change a post status, use the Status dropdown on the card - no need to open the editor.\n  The Translation button copies everything (title, content, images). Just replace the text.\n  To create a post from scratch, click New Post. To create one from a content plan, go to the Topics tab instead.\n  Click New Post to choose between writing from scratch or generating with AI.\n\n\nTranslating Posts\nClick the 🌐 translate icon on any post to create a translation. Choose ✨ Translate with AI for one-click automatic translation, or Translate manually to use your own tools.",
+          "expectedRoute": "",
+          "helpScreenshot": "flow2-step3-help.png",
+          "actionScreenshot": "flow2-step3-action.png",
+          "rating": "CLEAR",
+          "notes": "Both AI and Manual options visible",
+          "actionPerformed": "Verify AI and Manual translation options",
+          "elementFound": true
+        },
+        {
+          "step": 4,
+          "title": "Step 4",
+          "instruction": "Posts\nThis is where you manage all your blog posts - create, edit, preview, translate, and delete.\n\nTop Buttons\n\n  New Post (orange, top right) - Opens the creation page where you choose to write from scratch or generate with AI.\n  Manage Tags - Opens a dialog where you can add new tags, rename existing ones, or delete them.\n\n\nFilters\nUse the filter card at the top to narrow your list:\n\n  Status - Show All Posts, Draft Only, In Review Only, Published Only, or Archived Only.\n  Language - Show All Languages, English, or French.\n  Title Keyword - Type a word to search by post title.\n  The post count on the right shows how many posts match your current filters.\n\nIf you arrived from the Topics tab with a topic filter active, a blue banner appears. Click the X on the badge to clear it.\n\nPost Cards\nEach post appears as a card showing:\n\n  Title - The post name. If created from a topic, a View source topic link appears next to it.\n  Description - A short summary (2 lines max).\n  Badges below the description: language (EN/FR), status (Draft / In Review / Published date / Archived), tag badges, and Featured (purple) if marked.\n\n\nAction Icons (right side of each card)\nEach card has 5 controls on the right:\n\n  Status dropdown - Change status directly (Draft, In Review, Published, or Archived). No need to open the editor.\n  Eye icon (\"View post\") - Open the post on the public blog in a new tab.\n  Translation icon (\"Duplicate for translation\") - Create a copy for translation. All images are preserved.\n  Pencil icon (\"Edit post\") - Open the post in the Blog Editor.\n  Trash icon (\"Delete post\", red) - Delete the post with confirmation.\n\n\nTips\n\n  To quickly change a post status, use the Status dropdown on the card - no need to open the editor.\n  The Translation button copies everything (title, content, images). Just replace the text.\n  To create a post from scratch, click New Post. To create one from a content plan, go to the Topics tab instead.\n  Click New Post to choose between writing from scratch or generating with AI.\n\n\nTranslating Posts\nClick the 🌐 translate icon on any post to create a translation. Choose ✨ Translate with AI for one-click automatic translation, or Translate manually to use your own tools.",
+          "expectedRoute": "",
+          "helpScreenshot": "flow2-step4-help.png",
+          "actionScreenshot": "flow2-step4-action.png",
+          "rating": "BLOCKED",
+          "notes": "Could not verify editor",
+          "actionPerformed": "Click AI translate option, verify editor with translated content",
+          "elementFound": false
+        },
+        {
+          "step": 5,
+          "title": "Step 5",
+          "instruction": "Posts\nThis is where you manage all your blog posts - create, edit, preview, translate, and delete.\n\nTop Buttons\n\n  New Post (orange, top right) - Opens the creation page where you choose to write from scratch or generate with AI.\n  Manage Tags - Opens a dialog where you can add new tags, rename existing ones, or delete them.\n\n\nFilters\nUse the filter card at the top to narrow your list:\n\n  Status - Show All Posts, Draft Only, In Review Only, Published Only, or Archived Only.\n  Language - Show All Languages, English, or French.\n  Title Keyword - Type a word to search by post title.\n  The post count on the right shows how many posts match your current filters.\n\nIf you arrived from the Topics tab with a topic filter active, a blue banner appears. Click the X on the badge to clear it.\n\nPost Cards\nEach post appears as a card showing:\n\n  Title - The post name. If created from a topic, a View source topic link appears next to it.\n  Description - A short summary (2 lines max).\n  Badges below the description: language (EN/FR), status (Draft / In Review / Published date / Archived), tag badges, and Featured (purple) if marked.\n\n\nAction Icons (right side of each card)\nEach card has 5 controls on the right:\n\n  Status dropdown - Change status directly (Draft, In Review, Published, or Archived). No need to open the editor.\n  Eye icon (\"View post\") - Open the post on the public blog in a new tab.\n  Translation icon (\"Duplicate for translation\") - Create a copy for translation. All images are preserved.\n  Pencil icon (\"Edit post\") - Open the post in the Blog Editor.\n  Trash icon (\"Delete post\", red) - Delete the post with confirmation.\n\n\nTips\n\n  To quickly change a post status, use the Status dropdown on the card - no need to open the editor.\n  The Translation button copies everything (title, content, images). Just replace the text.\n  To create a post from scratch, click New Post. To create one from a content plan, go to the Topics tab instead.\n  Click New Post to choose between writing from scratch or generating with AI.\n\n\nTranslating Posts\nClick the 🌐 translate icon on any post to create a translation. Choose ✨ Translate with AI for one-click automatic translation, or Translate manually to use your own tools.",
+          "expectedRoute": "",
+          "helpScreenshot": "flow2-step5-help.png",
+          "actionScreenshot": "flow2-step5-action.png",
+          "rating": "BLOCKED",
+          "notes": "Could not find translate button",
+          "actionPerformed": "Navigate back, choose manual, verify Translation Assistant",
+          "elementFound": false
+        },
+        {
+          "step": 6,
+          "title": "Step 6",
+          "instruction": "Posts\nThis is where you manage all your blog posts - create, edit, preview, translate, and delete.\n\nTop Buttons\n\n  New Post (orange, top right) - Opens the creation page where you choose to write from scratch or generate with AI.\n  Manage Tags - Opens a dialog where you can add new tags, rename existing ones, or delete them.\n\n\nFilters\nUse the filter card at the top to narrow your list:\n\n  Status - Show All Posts, Draft Only, In Review Only, Published Only, or Archived Only.\n  Language - Show All Languages, English, or French.\n  Title Keyword - Type a word to search by post title.\n  The post count on the right shows how many posts match your current filters.\n\nIf you arrived from the Topics tab with a topic filter active, a blue banner appears. Click the X on the badge to clear it.\n\nPost Cards\nEach post appears as a card showing:\n\n  Title - The post name. If created from a topic, a View source topic link appears next to it.\n  Description - A short summary (2 lines max).\n  Badges below the description: language (EN/FR), status (Draft / In Review / Published date / Archived), tag badges, and Featured (purple) if marked.\n\n\nAction Icons (right side of each card)\nEach card has 5 controls on the right:\n\n  Status dropdown - Change status directly (Draft, In Review, Published, or Archived). No need to open the editor.\n  Eye icon (\"View post\") - Open the post on the public blog in a new tab.\n  Translation icon (\"Duplicate for translation\") - Create a copy for translation. All images are preserved.\n  Pencil icon (\"Edit post\") - Open the post in the Blog Editor.\n  Trash icon (\"Delete post\", red) - Delete the post with confirmation.\n\n\nTips\n\n  To quickly change a post status, use the Status dropdown on the card - no need to open the editor.\n  The Translation button copies everything (title, content, images). Just replace the text.\n  To create a post from scratch, click New Post. To create one from a content plan, go to the Topics tab instead.\n  Click New Post to choose between writing from scratch or generating with AI.\n\n\nTranslating Posts\nClick the 🌐 translate icon on any post to create a translation. Choose ✨ Translate with AI for one-click automatic translation, or Translate manually to use your own tools.",
+          "expectedRoute": "",
+          "helpScreenshot": "flow2-step6-help.png",
+          "actionScreenshot": "flow2-step6-action.png",
+          "rating": "BLOCKED",
+          "notes": "Could not find content editor",
+          "actionPerformed": "Verify editor has editable content",
+          "elementFound": false
+        },
+        {
+          "step": 7,
+          "title": "Step 7",
+          "instruction": "Blog Editor\nThis screen lets you edit a blog post. All changes are saved only when you click Save Changes - nothing is saved automatically.\n\nTop Bar\nThe top-right corner has action buttons:\n\n  Save Changes (orange) - Saves all fields at once: title, content, status, tags, hero image, and publication date\n  Preview - Opens the published post in a new browser tab. Only available when the post status is Published\n  Translation Assistant - Appears only for translation drafts (posts with \"[TRANSLATE TO...]\" in the title). Guides you through a 3-step translation process using your AI assistant, automatically preserving images.\n\n\nFields (top to bottom)\n\nTitle - The post headline. This is what readers see first.\n\nSlug (URL) - The URL path for this post. Example: my-blog-post becomes /blog/my-blog-post. Use lowercase letters, numbers, and hyphens only.\n\nDescription (SEO) - A short summary shown in search engine results and social media previews. Keep it under 160 characters.\n\nHero Image\nThe main image displayed at the top of the post.\n\n  Click Select Hero Image (or Change Hero Image if one is already set)\n  A dialog opens with two options:\n    \n      Upload new image - Click Choose File to upload from your computer (PNG, JPG, GIF, WEBP, max 5 MB)\n      Select from existing images - Click any image thumbnail to use it\n    \n  \n\n\nStatus & Publication Date\nThese two fields appear side by side.\nStatus - Choose the workflow stage:\n\n  Draft - Work in progress, not visible to readers\n  In Review - Ready for review before publishing\n  Published - Live and visible on the blog\n  Archived - Hidden from the public blog but preserved in the system\n\n\nPublished At - Controls when the post appears on the blog.\n\n  Click Choisir une date to open the date picker\n  Pick a day on the calendar, then set the time (hours : minutes)\n  Click Définir maintenant to set the current date and time (French timezone)\n  Click Effacer to clear the date\n\n\nTags\nColored labels that categorize your post. Click a tag to select it (it gets a ring highlight). Click again to deselect. The count of selected tags is shown below.\nIf no tags exist, create them first in the Posts tab using Manage Tags.\n\nFeatured Post\nAn orange section that lets you highlight this post in the featured carousel on the blog page.\n\n  Toggle the switch on to mark as featured\n  Set Featured Order (1 = appears first in the carousel)\n  Toggle off to remove from the carousel\n\n\nContent\nThe main body of your post - a rich text editor with a full toolbar. You can format text, insert images, add links, tables, and switch to code view for direct HTML editing.\n\nLanguage\nShown at the bottom - displays whether this post is in English or French. The language is set when the post is created and cannot be changed here.\n\nTranslation Assistant\nThe Translation Assistant button only appears for posts with \"[TRANSLATE TO...]\" in the title. It provides a 3-step process:\n\n  Extract - Replaces images with [IMAGE 1], [IMAGE 2] placeholders\n  Translate - Copy the prompt to your AI assistant and get the translated content\n  Apply - Paste the translation and images are automatically restored\n\n\nTips\n\n  Always click Save Changes after making edits - there is no auto-save\n  Write your Description (SEO) before publishing - it improves search visibility\n  Set a hero image - posts without one look incomplete on the blog page\n  Use Draft while writing, switch to Published only when ready",
+          "expectedRoute": "",
+          "helpScreenshot": "flow2-step7-help.png",
+          "actionScreenshot": "flow2-step7-action.png",
+          "rating": "CLEAR",
+          "notes": "Found: Slug Description",
+          "actionPerformed": "Verify Slug and Description (SEO) fields",
+          "elementFound": true
+        },
+        {
+          "step": 8,
+          "title": "Step 8",
+          "instruction": "Blog Editor\nThis screen lets you edit a blog post. All changes are saved only when you click Save Changes - nothing is saved automatically.\n\nTop Bar\nThe top-right corner has action buttons:\n\n  Save Changes (orange) - Saves all fields at once: title, content, status, tags, hero image, and publication date\n  Preview - Opens the published post in a new browser tab. Only available when the post status is Published\n  Translation Assistant - Appears only for translation drafts (posts with \"[TRANSLATE TO...]\" in the title). Guides you through a 3-step translation process using your AI assistant, automatically preserving images.\n\n\nFields (top to bottom)\n\nTitle - The post headline. This is what readers see first.\n\nSlug (URL) - The URL path for this post. Example: my-blog-post becomes /blog/my-blog-post. Use lowercase letters, numbers, and hyphens only.\n\nDescription (SEO) - A short summary shown in search engine results and social media previews. Keep it under 160 characters.\n\nHero Image\nThe main image displayed at the top of the post.\n\n  Click Select Hero Image (or Change Hero Image if one is already set)\n  A dialog opens with two options:\n    \n      Upload new image - Click Choose File to upload from your computer (PNG, JPG, GIF, WEBP, max 5 MB)\n      Select from existing images - Click any image thumbnail to use it\n    \n  \n\n\nStatus & Publication Date\nThese two fields appear side by side.\nStatus - Choose the workflow stage:\n\n  Draft - Work in progress, not visible to readers\n  In Review - Ready for review before publishing\n  Published - Live and visible on the blog\n  Archived - Hidden from the public blog but preserved in the system\n\n\nPublished At - Controls when the post appears on the blog.\n\n  Click Choisir une date to open the date picker\n  Pick a day on the calendar, then set the time (hours : minutes)\n  Click Définir maintenant to set the current date and time (French timezone)\n  Click Effacer to clear the date\n\n\nTags\nColored labels that categorize your post. Click a tag to select it (it gets a ring highlight). Click again to deselect. The count of selected tags is shown below.\nIf no tags exist, create them first in the Posts tab using Manage Tags.\n\nFeatured Post\nAn orange section that lets you highlight this post in the featured carousel on the blog page.\n\n  Toggle the switch on to mark as featured\n  Set Featured Order (1 = appears first in the carousel)\n  Toggle off to remove from the carousel\n\n\nContent\nThe main body of your post - a rich text editor with a full toolbar. You can format text, insert images, add links, tables, and switch to code view for direct HTML editing.\n\nLanguage\nShown at the bottom - displays whether this post is in English or French. The language is set when the post is created and cannot be changed here.\n\nTranslation Assistant\nThe Translation Assistant button only appears for posts with \"[TRANSLATE TO...]\" in the title. It provides a 3-step process:\n\n  Extract - Replaces images with [IMAGE 1], [IMAGE 2] placeholders\n  Translate - Copy the prompt to your AI assistant and get the translated content\n  Apply - Paste the translation and images are automatically restored\n\n\nTips\n\n  Always click Save Changes after making edits - there is no auto-save\n  Write your Description (SEO) before publishing - it improves search visibility\n  Set a hero image - posts without one look incomplete on the blog page\n  Use Draft while writing, switch to Published only when ready",
+          "expectedRoute": "",
+          "helpScreenshot": "flow2-step8-help.png",
+          "actionScreenshot": "flow2-step8-action.png",
+          "rating": "CLEAR",
+          "notes": "Save Changes button visible",
+          "actionPerformed": "Verify Status dropdown and Save Changes button",
+          "elementFound": true
+        }
+      ],
+      "summary": {
+        "clear": 4,
+        "ambiguous": 0,
+        "blocked": 4
+      }
+    }
+  ],
+  "screens": [
+    {
+      "route": "/admin?tab=blog",
+      "helpTitle": "Blog Hub",
+      "actualTitle": "Blog Hub",
+      "helpScreenshot": "screen-blog-hub-help.png",
+      "uiScreenshot": "screen-blog-hub-ui.png",
+      "titleMatches": true,
+      "rating": "CLEAR",
+      "notes": ""
+    },
+    {
+      "route": "/admin?tab=posts",
+      "helpTitle": "Posts",
+      "actualTitle": "Posts",
+      "helpScreenshot": "screen-posts-help.png",
+      "uiScreenshot": "screen-posts-ui.png",
+      "titleMatches": true,
+      "rating": "CLEAR",
+      "notes": ""
+    },
+    {
+      "route": "/admin?tab=ai-creator",
+      "helpTitle": "AI Creator",
+      "actualTitle": "AI Creator",
+      "helpScreenshot": "screen-ai-creator-help.png",
+      "uiScreenshot": "screen-ai-creator-ui.png",
+      "titleMatches": true,
+      "rating": "CLEAR",
+      "notes": ""
+    },
+    {
+      "route": "/admin?tab=blog-edit&id=test",
+      "helpTitle": "Blog Editor",
+      "actualTitle": "Blog Editor",
+      "helpScreenshot": "screen-blog-editor-help.png",
+      "uiScreenshot": "screen-blog-editor-ui.png",
+      "titleMatches": true,
+      "rating": "CLEAR",
+      "notes": ""
+    },
+    {
+      "route": "/admin?tab=planner",
+      "helpTitle": "Weekly Planner",
+      "actualTitle": "Planner",
+      "helpScreenshot": "screen-planner-help.png",
+      "uiScreenshot": "screen-planner-ui.png",
+      "titleMatches": true,
+      "rating": "CLEAR",
+      "notes": ""
+    },
+    {
+      "route": "/admin?tab=keywords",
+      "helpTitle": "Keywords",
+      "actualTitle": "Keywords",
+      "helpScreenshot": "screen-keywords-help.png",
+      "uiScreenshot": "screen-keywords-ui.png",
+      "titleMatches": true,
+      "rating": "CLEAR",
+      "notes": ""
+    },
+    {
+      "route": "/admin?tab=topics",
+      "helpTitle": "Topics",
+      "actualTitle": "Topics",
+      "helpScreenshot": "screen-topics-help.png",
+      "uiScreenshot": "screen-topics-ui.png",
+      "titleMatches": true,
+      "rating": "CLEAR",
+      "notes": ""
+    },
+    {
+      "route": "/admin?tab=images",
+      "helpTitle": "(not found)",
+      "actualTitle": "Images",
+      "helpScreenshot": "screen-images-help.png",
+      "uiScreenshot": "screen-images-ui.png",
+      "titleMatches": true,
+      "rating": "AMBIGUOUS",
+      "notes": "No help title found in .prose h3"
+    },
+    {
+      "route": "/admin?tab=new-post",
+      "helpTitle": "Create a New Blog Post",
+      "actualTitle": "New Post",
+      "helpScreenshot": "screen-new-post-help.png",
+      "uiScreenshot": "screen-new-post-ui.png",
+      "titleMatches": true,
+      "rating": "CLEAR",
+      "notes": ""
+    }
+  ],
+  "summary": {
+    "totalFlowSteps": 15,
+    "flowClear": 9,
+    "flowAmbiguous": 0,
+    "flowBlocked": 6,
+    "totalScreens": 9,
+    "screenClear": 8,
+    "screenAmbiguous": 1,
+    "screenBlocked": 0
+  }
+}
