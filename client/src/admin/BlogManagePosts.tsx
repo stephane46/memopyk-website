@@ -15,12 +15,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  BookOpen, 
-  Plus, 
-  Trash2, 
-  CheckCircle, 
-  XCircle, 
+import {
+  BookOpen,
+  Plus,
+  Trash2,
+  CheckCircle,
+  XCircle,
   Eye,
   Loader2,
   Calendar,
@@ -33,6 +33,7 @@ import {
   Tag as TagIcon,
   ChevronRight
 } from 'lucide-react';
+// Note: Loader2 still used for translateMutation loading state
 import {
   AlertDialog,
   AlertDialogAction,
@@ -57,37 +58,12 @@ export function BlogManagePosts() {
   const [filterTopic, setFilterTopic] = useState<string | null>(null);
   const [filterKeyword, setFilterKeyword] = useState<string | null>(null);
   const [tagManagementOpen, setTagManagementOpen] = useState(false);
-  const [isCreatingPost, setIsCreatingPost] = useState(false);
 
-  // Create new post and navigate to editor
-  const createNewPost = async () => {
-    setIsCreatingPost(true);
-    try {
-      const response = await adminFetch('/api/admin/blog/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ language: 'en-US' })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create post');
-      }
-
-      const result = await response.json();
-      if (result.success && result.data?.id) {
-        // Navigate to editor
-        const currentPath = window.location.pathname;
-        const langPrefix = currentPath.match(/^\/(en-US|fr-FR)/)?.[0] || '';
-        window.location.href = `${langPrefix}/admin?tab=blog-edit&id=${result.data.id}`;
-      }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to create new post',
-        variant: 'destructive'
-      });
-      setIsCreatingPost(false);
-    }
+  // Navigate to CreatePostLanding screen
+  const navigateToNewPost = () => {
+    const currentPath = window.location.pathname;
+    const langPrefix = currentPath.match(/^\/(en-US|fr-FR)/)?.[0] || '';
+    window.location.href = `${langPrefix}/admin?tab=new-post`;
   };
 
   // Check URL params for topic filtering
@@ -300,16 +276,11 @@ export function BlogManagePosts() {
         </div>
         <div className="flex gap-2">
           <Button
-            onClick={createNewPost}
-            disabled={isCreatingPost}
+            onClick={navigateToNewPost}
             className="bg-[#D67C4A] hover:bg-[#C56B39] text-white"
             data-testid="button-new-post"
           >
-            {isCreatingPost ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Plus className="w-4 h-4 mr-2" />
-            )}
+            <Plus className="w-4 h-4 mr-2" />
             New Post
           </Button>
           <Button
@@ -426,8 +397,7 @@ export function BlogManagePosts() {
                     <>
                       Get started by{' '}
                       <button
-                        onClick={createNewPost}
-                        disabled={isCreatingPost}
+                        onClick={navigateToNewPost}
                         className="text-[#D67C4A] hover:text-[#C56B39] underline font-medium"
                       >
                         creating your first blog post

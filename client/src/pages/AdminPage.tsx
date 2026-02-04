@@ -37,6 +37,7 @@ import { HelpButton } from '@/components/admin/HelpButton';
 import { HelpDrawer } from '@/components/admin/HelpDrawer';
 import { HelpProvider, useHelp } from '@/contexts/HelpContext';
 import { AIContextManager } from '@/admin/AIContextManager';
+import { CreatePostLanding } from '@/admin/CreatePostLanding';
 
 
 interface HeroVideo {
@@ -1669,6 +1670,11 @@ function AdminPageContent() {
           {/* Blog Posts - Unified Content Production Hub */}
           {activeSection === 'blog' && (
             <ContentProductionHub />
+          )}
+
+          {/* Create New Post Landing - Choice screen for manual vs AI creation */}
+          {activeSection === 'new-post' && (
+            <CreatePostLanding />
           )}
 
           {/* FAQ */}
