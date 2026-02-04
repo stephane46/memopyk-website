@@ -1058,3 +1058,27 @@ export const insertHelpFlowSchema = createInsertSchema(helpFlows).omit({
 
 export type HelpFlow = typeof helpFlows.$inferSelect;
 export type InsertHelpFlow = z.infer<typeof insertHelpFlowSchema>;
+
+// ============================================================================
+// AI CONTEXT (BRAND BRAIN) TABLES
+// ============================================================================
+
+// AI context table - central context for Claude API calls
+export const aiContext = pgTable("ai_context", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  key: text("key").notNull().unique(),
+  title: text("title").notNull(),
+  content: text("content").notNull().default(''),
+  category: text("category").notNull().default('brand'),
+  sortOrder: integer("sort_order").default(0),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  updatedBy: text("updated_by")
+});
+
+export const insertAiContextSchema = createInsertSchema(aiContext).omit({
+  id: true,
+  updatedAt: true
+});
+
+export type AiContext = typeof aiContext.$inferSelect;
+export type InsertAiContext = z.infer<typeof insertAiContextSchema>;

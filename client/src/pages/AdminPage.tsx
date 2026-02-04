@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ArrowUp, ArrowDown, Play, RefreshCw, BarChart3, Video, HardDrive, Users, MessageSquare, FileText, LogOut, TestTube, Rocket, X, Type, Save, ChevronUp, ChevronDown, ChevronRight, Trash2, Eye, EyeOff, Upload, FileVideo, Database, Check, Zap, Search, Clock, TrendingUp, Globe, Sparkles, Layers, UserCheck, LayoutDashboard, Handshake, Scale, Settings, PenTool } from 'lucide-react';
+import { ArrowUp, ArrowDown, Play, RefreshCw, BarChart3, Video, HardDrive, Users, MessageSquare, FileText, LogOut, TestTube, Rocket, X, Type, Save, ChevronUp, ChevronDown, ChevronRight, Trash2, Eye, EyeOff, Upload, FileVideo, Database, Check, Zap, Search, Clock, TrendingUp, Globe, Sparkles, Layers, UserCheck, LayoutDashboard, Handshake, Scale, Settings, PenTool, Brain } from 'lucide-react';
 import { AnalyticsNewDashboard } from '@/admin/analyticsNew/AnalyticsNewDashboard';
 import { formatFrenchDateTime } from '@/utils/date-format';
 import { useToast } from '@/hooks/use-toast';
@@ -36,6 +36,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { HelpButton } from '@/components/admin/HelpButton';
 import { HelpDrawer } from '@/components/admin/HelpDrawer';
 import { HelpProvider, useHelp } from '@/contexts/HelpContext';
+import { AIContextManager } from '@/admin/AIContextManager';
 
 
 interface HeroVideo {
@@ -320,6 +321,7 @@ function AdminPageContent() {
       label: 'Système',
       icon: Settings,
       children: [
+        { id: 'ai-context', label: 'AI Context', icon: Brain },
         { id: 'cache', label: 'Cache', icon: HardDrive },
         { id: 'tests', label: 'Tests', icon: TestTube },
         { id: 'deployment', label: 'Déploiement', icon: Rocket },
@@ -1783,6 +1785,13 @@ function AdminPageContent() {
           {activeSection === 'cache-management' && (
             <div className="space-y-6">
               <CacheManagementPage />
+            </div>
+          )}
+
+          {/* AI Context (Brand Brain) */}
+          {activeSection === 'ai-context' && (
+            <div className="space-y-6">
+              <AIContextManager />
             </div>
           )}
 

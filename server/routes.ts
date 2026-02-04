@@ -31,6 +31,7 @@ import mediaRoutes from "./routes/media.routes";
 import analyticsLegacyRoutes from "./routes/analytics-legacy.routes";
 import travelUploadRoutes from "./routes/travel-upload.routes";
 import helpRoutes from "./routes/help.routes";
+import aiContextRoutes from "./routes/ai-context.routes";
 
 /**
  * Register all API routes on the Express app
@@ -89,7 +90,10 @@ export async function registerRoutes(app: Express): Promise<void> {
   // Help System routes
   app.use("/api", helpRoutes);              // /api/help/screens, /api/help/flows
 
-  console.log("✅ All 21 route modules registered: health, hero, gallery, faq, contact, cta, legal, analytics, analytics-legacy(stub), newsletter, partners, admin, content, seo, blog, blog-tags, blog-admin, blog-images, media, travel-upload, help");
+  // AI Context (Brand Brain) routes
+  app.use("/api", aiContextRoutes);         // /api/admin/ai-context, /api/internal/ai-context/full
+
+  console.log("✅ All 22 route modules registered: health, hero, gallery, faq, contact, cta, legal, analytics, analytics-legacy(stub), newsletter, partners, admin, content, seo, blog, blog-tags, blog-admin, blog-images, media, travel-upload, help, ai-context");
   console.log("✅ All routes migrated ✅");
 }
 
