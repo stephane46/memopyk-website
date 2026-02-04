@@ -233,6 +233,33 @@ Despite this authentication failure, we can still analyze the help content again
 
 ---
 
+## FIXES APPLIED (2026-02-04)
+
+All 6 issues have been fixed in Supabase using `scripts/fix-help-content.ts`.
+
+### Changes Made:
+
+**Help Flows (3 flows updated):**
+
+| Flow | Changes |
+|------|---------|
+| Create a blog post (Manual) | Step 1: "Posts (Manual)" → "Posts", added CreatePostLanding mention; Step 5: added tag location hint; Step 7: "Choisir une date" → "Choose a date", "Definir maintenant" → "Set to now"; Step 8: "Posts (Manual)" → "Posts" |
+| Translate a post | Step 1: "Posts (Manual)" → "Posts"; Step 2: icon description improved; Step 6: Updated for new "Translate with AI" feature |
+| Create a blog post (AI-assisted) | Description: "Posts (AI)" → "Create a Post"; Step 1: "Posts (AI)" → "Create a Post" |
+
+**Help Screens (4 screens updated):**
+
+| Screen | Changes |
+|--------|---------|
+| Posts (AI) | "Posts (AI)" → "Create a Post" in heading and content |
+| Blog Editor | "Posts (Manual)" → "Posts"; French date picker text translated |
+| Blog Hub | "Posts (Manual)" → "Posts"; "Posts (AI)" → "Create a Post" |
+| Posts (Manual) | "Posts (Manual)" → "Posts"; "Posts (AI)" → "Create a Post"; tag location hint added |
+
+**Total: 25 field updates across 7 records**
+
+---
+
 ## TEST ARTIFACTS
 
 Screenshots captured:
