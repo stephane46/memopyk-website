@@ -482,7 +482,7 @@ export function ContentProductionTopics() {
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <div className="pt-4 pb-2 space-y-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="mt-2 p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 border-l-4 border-l-[#D67C4A] rounded-lg space-y-4">
                       {/* SEO Info */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -598,8 +598,8 @@ export function ContentProductionTopics() {
                         )}
                       </div>
 
-                      {/* Actions */}
-                      <div className="flex justify-between items-center gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                      {/* Actions - all primary actions grouped on the left */}
+                      <div className="flex items-center gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                         <div className="flex gap-2">
                           <Button
                             variant="outline"
@@ -620,28 +620,28 @@ export function ContentProductionTopics() {
                             <Trash2 className="h-4 w-4 mr-1" />
                             Delete
                           </Button>
-                        </div>
-                        <div className="flex gap-2">
-                          {topic.times_generated > 0 && (
-                            <Button
-                              onClick={() => navigateToPosts(topic.id)}
-                              variant="outline"
-                              className="border-[#D67C4A] text-[#D67C4A] hover:bg-[#D67C4A] hover:bg-opacity-10"
-                              data-testid={`button-view-posts-${topic.id}`}
-                            >
-                              <BookOpen className="h-4 w-4 mr-2" />
-                              View Generated Posts ({topic.post_count || 0})
-                            </Button>
-                          )}
                           <Button
+                            size="sm"
                             onClick={() => setSelectedTopicForPost(topic)}
                             className="bg-[#D67C4A] hover:bg-[#C56B3A] text-white"
                             data-testid={`button-create-post-${topic.id}`}
                           >
-                            <Sparkles className="h-4 w-4 mr-2" />
+                            <Sparkles className="h-4 w-4 mr-1" />
                             Create Post from Topic
                           </Button>
                         </div>
+                        {topic.times_generated > 0 && (
+                          <Button
+                            onClick={() => navigateToPosts(topic.id)}
+                            variant="outline"
+                            size="sm"
+                            className="ml-auto border-[#D67C4A] text-[#D67C4A] hover:bg-[#D67C4A] hover:bg-opacity-10"
+                            data-testid={`button-view-posts-${topic.id}`}
+                          >
+                            <BookOpen className="h-4 w-4 mr-1" />
+                            View Posts ({topic.post_count || 0})
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </AccordionContent>
