@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { BlogPostCreatorModal } from './BlogPostCreatorModal';
+import { ContentTopicsSkeleton } from '@/admin/skeletons/ContentTopicsSkeleton';
 
 interface ContentTopic {
   id: string;
@@ -241,11 +242,7 @@ export function ContentProductionTopics() {
   ].filter(Boolean).length;
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-gray-500 dark:text-gray-400">Loading topics...</div>
-      </div>
-    );
+    return <ContentTopicsSkeleton />;
   }
 
   return (

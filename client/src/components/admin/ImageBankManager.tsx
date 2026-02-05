@@ -35,6 +35,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import type { ImageBankItem, ImageLabel } from '@shared/schema';
 import { ImageLabelPicker } from './ImageLabelPicker';
+import { ImageBankSkeleton } from '@/admin/skeletons/ImageBankSkeleton';
 
 const CATEGORIES = [
   'Photo Organization & Preservation',
@@ -439,9 +440,7 @@ export function ImageBankManager() {
 
       {/* Image Grid */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-[#D67C4A]" />
-        </div>
+        <ImageBankSkeleton />
       ) : images.length === 0 ? (
         <Card className="p-12 text-center">
           <p className="text-gray-500 dark:text-gray-400">

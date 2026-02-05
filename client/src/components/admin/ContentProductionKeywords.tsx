@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, TrendingUp, Target, Filter, ArrowUpDown, ArrowUp, ArrowDown, FileText } from 'lucide-react';
+import { ContentKeywordsSkeleton } from '@/admin/skeletons/ContentKeywordsSkeleton';
 
 interface ContentKeyword {
   id: string;
@@ -128,11 +129,7 @@ export function ContentProductionKeywords() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-lg text-gray-600 dark:text-gray-400">Loading keywords...</div>
-      </div>
-    );
+    return <ContentKeywordsSkeleton />;
   }
 
   return (

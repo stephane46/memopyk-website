@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { BlogPostCreatorModal } from './BlogPostCreatorModal';
+import { ContentPlannerSkeleton } from '@/admin/skeletons/ContentPlannerSkeleton';
 
 interface ContentTopic {
   id: string;
@@ -89,12 +90,12 @@ export function ContentProductionPlanner() {
   endDate.setDate(endDate.getDate() + (weeksToShow * 7) - 1);
 
   // Fetch all topics
-  const { data: allTopics = [] } = useQuery<ContentTopic[]>({
+  const { data: allTopics = [], isLoading: isLoadingTopics } = useQuery<ContentTopic[]>({
     queryKey: ['/api/admin/content/topics'],
   });
 
   // Fetch assignments for visible weeks
-  const { data: assignments = [] } = useQuery<ContentDailyAssignment[]>({
+  const { data: assignments = [], isLoading: isLoadingAssignments } = useQuery<ContentDailyAssignment[]>({
     queryKey: ['/api/admin/content/assignments', weekOffset, weeksToShow],
     queryFn: async () => {
       const start = startDate.toISOString().split('T')[0];
@@ -466,6 +467,11 @@ export function ContentProductionPlanner() {
       setDraggedTopicId(null);
     }
   };
+
+  // Show skeleton while loading
+  if (isLoadingTopics || isLoadingAssignments) {
+    return <ContentPlannerSkeleton />;
+  }
 
   const getCategoryColor = (category: string) => {
     const categoryMap: Record<string, string> = {

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import type { BlogTag } from '@shared/schema';
 import { useTagsQuery, useCreateTag, useUpdateTag, useDeleteTag } from './hooks/useTagMutations';
+import { BlogTagSkeleton } from '@/admin/skeletons/BlogTagSkeleton';
 
 export function BlogTagManagement() {
   const { toast } = useToast();
@@ -115,9 +116,7 @@ export function BlogTagManagement() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-[#D67C4A]" />
-            </div>
+            <BlogTagSkeleton />
           ) : tags.length === 0 ? (
             <div className="text-center py-12">
               <Tag className="h-12 w-12 text-gray-300 mx-auto mb-4" />
