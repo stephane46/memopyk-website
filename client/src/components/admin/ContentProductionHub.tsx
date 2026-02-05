@@ -18,7 +18,7 @@ export default function ContentProductionHub() {
   const [activeTab, setActiveTab] = useState<string>('planner');
   const [editPostId, setEditPostId] = useState<string | null>(null);
 
-  // Initialize from URL on mount
+  // Initialize from URL on mount and sync URL with actual active tab
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const tabParam = params.get('tab');
@@ -28,11 +28,27 @@ export default function ContentProductionHub() {
     if (tabParam === 'blog-edit' && idParam) {
       setActiveTab('blog-edit');
       setEditPostId(idParam);
+      return; // Don't modify URL for blog-edit
     }
-    // If there's a tab parameter, use it
+
+    // Valid sub-tabs that have their own help content
+    const validSubTabs = ['planner', 'topics', 'keywords', 'posts', 'ai-creator', 'images', 'image-bank'];
+
+    // If there's a valid sub-tab parameter, use it
     // Note: 'image-bank' is an alias for 'images'
-    else if (tabParam && ['planner', 'topics', 'keywords', 'posts', 'ai-creator', 'images', 'image-bank'].includes(tabParam)) {
+    if (tabParam && validSubTabs.includes(tabParam)) {
       setActiveTab(tabParam === 'image-bank' ? 'images' : tabParam);
+    } else {
+      // No valid sub-tab in URL (e.g., ?tab=blog or no tab at all)
+      // Default to 'planner' and update URL to reflect this
+      // This ensures HelpContext detects /admin?tab=planner (not /admin?tab=blog)
+      const defaultTab = 'planner';
+      setActiveTab(defaultTab);
+
+      // Update URL to include the actual tab being shown
+      params.set('tab', defaultTab);
+      const newUrl = `${window.location.pathname}?${params.toString()}`;
+      window.history.replaceState({}, '', newUrl);
     }
   }, []);
 
@@ -47,10 +63,25 @@ export default function ContentProductionHub() {
       if (tabParam === 'blog-edit' && idParam) {
         setActiveTab('blog-edit');
         setEditPostId(idParam);
-      } else if (tabParam && ['planner', 'topics', 'keywords', 'posts', 'ai-creator', 'images', 'image-bank'].includes(tabParam)) {
+        return;
+      }
+
+      // Valid sub-tabs
+      const validSubTabs = ['planner', 'topics', 'keywords', 'posts', 'ai-creator', 'images', 'image-bank'];
+
+      if (tabParam && validSubTabs.includes(tabParam)) {
         // Note: 'image-bank' is an alias for 'images'
         setActiveTab(tabParam === 'image-bank' ? 'images' : tabParam);
         setEditPostId(null);
+      } else {
+        // Invalid or no sub-tab - default to planner and update URL
+        const defaultTab = 'planner';
+        setActiveTab(defaultTab);
+        setEditPostId(null);
+
+        params.set('tab', defaultTab);
+        const newUrl = `${window.location.pathname}?${params.toString()}`;
+        window.history.replaceState({}, '', newUrl);
       }
     };
 
