@@ -65,7 +65,7 @@ IMPORTANT OUTPUT RULES:
 ARTICLE STYLE REQUIREMENTS:
 - Topic: {{TOPIC}}
 - Language: {{LOCALE}}
-- SEO keywords: {{SEO_KEYWORDS}} (use naturally)
+- SEO keywords: {{SEO_KEYWORDS}} (use naturally){{ADDITIONAL_CONTEXT}}
 - Style: professional, warm, family-centric, actionable, inspirational
 - Structure: 
   * 2-3 paragraph hook
@@ -129,6 +129,18 @@ export function BlogPostCreatorModal({ topic, isOpen, onClose }: BlogPostCreator
     const minWords = Math.floor(topic.target_word_count * 0.9); // 90% of target
     const maxWords = Math.ceil(topic.target_word_count * 1.1); // 110% of target
 
+    // Build additional context from optional fields (only include non-empty values)
+    let additionalContext = '';
+    if (topic.content_angle) {
+      additionalContext += `\n- Content angle: ${topic.content_angle}`;
+    }
+    if (topic.description) {
+      additionalContext += `\n- Article scope: ${topic.description}`;
+    }
+    if (topic.search_intent) {
+      additionalContext += `\n- Search intent: ${topic.search_intent}`;
+    }
+
     const prompt = MASTER_PROMPT_TEMPLATE
       .replace(/\{\{TOPIC\}\}/g, topic.title)
       .replace(/\{\{LOCALE\}\}/g, language)
@@ -137,6 +149,7 @@ export function BlogPostCreatorModal({ topic, isOpen, onClose }: BlogPostCreator
       .replace(/\{\{TARGET_WORDS_MIN\}\}/g, minWords.toString())
       .replace(/\{\{TARGET_WORDS_MAX\}\}/g, maxWords.toString())
       .replace(/\{\{SEO_KEYWORDS\}\}/g, allKeywords)
+      .replace(/\{\{ADDITIONAL_CONTEXT\}\}/g, additionalContext)
       .replace(/\{\{READ_TIME\}\}/g, estimatedReadTime.toString());
 
     setGeneratedPrompt(prompt);

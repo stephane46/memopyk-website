@@ -76,11 +76,9 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showImageFields, setShowImageFields] = useState(false);
-  const [autoSlug, setAutoSlug] = useState('');
 
-  // Form fields
+  // Form fields (slug auto-generated from title, not shown in form)
   const [title, setTitle] = useState('');
-  const [slug, setSlug] = useState('');
   const [category, setCategory] = useState('');
   const [type, setType] = useState('');
   const [status, setStatus] = useState('backlog');
@@ -99,7 +97,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
 
   const isEditMode = !!topic;
 
-  // Generate slug from title
+  // Generate slug from title (used when submitting, not shown in UI)
   const generateSlug = (text: string): string => {
     return text
       .toLowerCase()
@@ -109,23 +107,10 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
       .trim();
   };
 
-  // Auto-generate slug when title changes
-  useEffect(() => {
-    if (!isEditMode) {
-      const newAutoSlug = generateSlug(title);
-      setAutoSlug(newAutoSlug);
-      // Only update slug if it matches the previous auto-slug or is empty
-      if (slug === '' || slug === autoSlug) {
-        setSlug(newAutoSlug);
-      }
-    }
-  }, [title, isEditMode]);
-
   // Populate form when editing
   useEffect(() => {
     if (topic) {
       setTitle(topic.title || '');
-      setSlug(topic.slug || '');
       setCategory(topic.category || '');
       setType(topic.type || '');
       setStatus(topic.status || 'backlog');
@@ -144,7 +129,6 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
     } else {
       // Reset form for create mode
       setTitle('');
-      setSlug('');
       setCategory('');
       setType('');
       setStatus('backlog');
@@ -160,7 +144,6 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
       setHeroImageConcept('');
       setBodyImageConcepts('');
       setMemopykLinkOpportunities('');
-      setAutoSlug('');
     }
   }, [topic, isOpen]);
 
@@ -168,10 +151,6 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
     // Validation
     if (!title.trim()) {
       toast({ title: 'Title is required', variant: 'destructive' });
-      return;
-    }
-    if (!slug.trim()) {
-      toast({ title: 'Slug is required', variant: 'destructive' });
       return;
     }
     if (!category) {
@@ -190,9 +169,12 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
     setIsSubmitting(true);
 
     try {
+      // Auto-generate slug from title for new topics, keep existing for edits
+      const slug = isEditMode && topic?.slug ? topic.slug : generateSlug(title.trim());
+
       const topicData = {
         title: title.trim(),
-        slug: slug.trim(),
+        slug,
         category,
         type,
         status,
@@ -267,18 +249,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                   className="text-gray-900 dark:text-white"
                   data-testid="input-title"
                 />
-              </div>
-
-              <div className="md:col-span-2">
-                <Label className="text-gray-900 dark:text-white">Slug *</Label>
-                <Input
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
-                  placeholder="url-friendly-slug"
-                  className="text-gray-900 dark:text-white font-mono"
-                  data-testid="input-slug"
-                />
-                <p className="text-xs text-gray-500 mt-1">Auto-generated from title. Edit to customize.</p>
+                <p className="text-xs text-gray-500 mt-0.5">Used as the basis for AI-generated post titles</p>
               </div>
 
               <div>
@@ -351,6 +322,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                   className="text-gray-900 dark:text-white"
                   data-testid="input-word-count"
                 />
+                <p className="text-xs text-gray-500 mt-0.5">Controls AI prompt word count targets and estimated read time</p>
               </div>
             </div>
           </div>
@@ -369,6 +341,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                   className="text-gray-900 dark:text-white"
                   data-testid="input-primary-keyword"
                 />
+                <p className="text-xs text-gray-500 mt-0.5">Injected into AI prompts and saved to generated posts for SEO</p>
               </div>
 
               <div className="md:col-span-2">
@@ -380,7 +353,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                   className="text-gray-900 dark:text-white"
                   data-testid="input-secondary-keywords"
                 />
-                <p className="text-xs text-gray-500 mt-1">Comma-separated list</p>
+                <p className="text-xs text-gray-500 mt-0.5">Included in AI prompts alongside primary keyword (comma-separated)</p>
               </div>
 
               <div>
@@ -393,6 +366,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                   className="text-gray-900 dark:text-white"
                   data-testid="input-search-volume"
                 />
+                <p className="text-xs text-gray-500 mt-0.5">Monthly search volume from keyword research — for planning only</p>
               </div>
 
               <div>
@@ -404,6 +378,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                   className="text-gray-900 dark:text-white"
                   data-testid="input-competition"
                 />
+                <p className="text-xs text-gray-500 mt-0.5">Keyword competition level — for planning only</p>
               </div>
 
               <div className="md:col-span-2">
@@ -415,6 +390,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                   className="text-gray-900 dark:text-white"
                   data-testid="input-search-intent"
                 />
+                <p className="text-xs text-gray-500 mt-0.5">Guides AI tone: informational, transactional, navigational</p>
               </div>
             </div>
           </div>
@@ -432,6 +408,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                 className="text-gray-900 dark:text-white h-20"
                 data-testid="textarea-content-angle"
               />
+              <p className="text-xs text-gray-500 mt-0.5">Your unique perspective — will be included in AI prompts</p>
             </div>
 
             <div>
@@ -443,6 +420,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                 className="text-gray-900 dark:text-white h-24"
                 data-testid="textarea-description"
               />
+              <p className="text-xs text-gray-500 mt-0.5">Article scope guidance — will be included in AI prompts</p>
             </div>
 
             <div>
@@ -454,6 +432,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                 className="text-gray-900 dark:text-white h-20"
                 data-testid="textarea-link-opportunities"
               />
+              <p className="text-xs text-gray-500 mt-0.5">Manual reference for internal linking — not yet used by AI</p>
             </div>
           </div>
 
@@ -479,6 +458,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                     className="text-gray-900 dark:text-white h-20"
                     data-testid="textarea-hero-image"
                   />
+                  <p className="text-xs text-gray-500 mt-0.5">Reference for hero image creation — not yet used by AI</p>
                 </div>
 
                 <div>
@@ -490,7 +470,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                     className="text-gray-900 dark:text-white h-20"
                     data-testid="textarea-body-images"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Comma-separated list of image concepts</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Reference for in-article visuals — not yet used by AI (comma-separated)</p>
                 </div>
               </div>
             )}
