@@ -99,6 +99,15 @@ export default function ContentProductionHub() {
     window.history.pushState({}, '', newUrl);
   };
 
+  // Workflow steps configuration
+  const workflowSteps = [
+    { id: 'topics', num: 1, name: 'Topics', desc: 'Create ideas' },
+    { id: 'keywords', num: 2, name: 'Keywords', desc: 'Research SEO' },
+    { id: 'planner', num: 3, name: 'Planner', desc: 'Schedule when' },
+    { id: 'posts', num: 4, name: 'Posts', desc: 'Write & publish' },
+    { id: 'images', num: 5, name: 'Image Bank', desc: 'Store media' },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -107,9 +116,46 @@ export default function ContentProductionHub() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Blog Hub</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Plan topics, research keywords, create and publish blog posts
+            Plan topics, research keywords, schedule content, and publish blog posts
           </p>
         </div>
+      </div>
+
+      {/* Workflow Bar */}
+      <div className="hidden md:flex items-center justify-center gap-1 py-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+        {workflowSteps.map((step, index) => (
+          <div key={step.id} className="flex items-center">
+            <button
+              onClick={() => handleTabChange(step.id)}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                activeTab === step.id ? 'bg-white dark:bg-gray-700 shadow-sm' : ''
+              }`}
+            >
+              <span
+                className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium ${
+                  activeTab === step.id
+                    ? 'bg-[#D67C4A] text-white'
+                    : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                }`}
+              >
+                {step.num}
+              </span>
+              <div className="flex flex-col items-start">
+                <span
+                  className={`text-xs font-medium ${
+                    activeTab === step.id ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'
+                  }`}
+                >
+                  {step.name}
+                </span>
+                <span className="text-[10px] text-gray-400 dark:text-gray-500">{step.desc}</span>
+              </div>
+            </button>
+            {index < workflowSteps.length - 1 && (
+              <span className="text-gray-300 dark:text-gray-600 mx-1">→</span>
+            )}
+          </div>
+        ))}
       </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
