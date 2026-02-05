@@ -539,21 +539,31 @@ export function ContentProductionPlanner() {
                   variant={viewMode === 'topics' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setViewMode('topics')}
-                  className={viewMode === 'topics' ? 'bg-[#D67C4A] hover:bg-[#D67C4A]/90' : ''}
+                  className={`${viewMode === 'topics' ? 'bg-[#D67C4A] hover:bg-[#D67C4A]/90' : ''} h-auto py-2`}
                   data-testid="button-view-topics"
                 >
-                  <ListTodo className="h-4 w-4 mr-2" />
-                  Topics
+                  <div className="flex flex-col items-center">
+                    <div className="flex items-center">
+                      <ListTodo className="h-4 w-4 mr-2" />
+                      Topics
+                    </div>
+                    <span className={`text-xs ${viewMode === 'topics' ? 'text-white/70' : 'text-gray-500'}`}>Plan when to write</span>
+                  </div>
                 </Button>
                 <Button
                   variant={viewMode === 'posts' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setViewMode('posts')}
-                  className={viewMode === 'posts' ? 'bg-[#D67C4A] hover:bg-[#D67C4A]/90' : ''}
+                  className={`${viewMode === 'posts' ? 'bg-[#D67C4A] hover:bg-[#D67C4A]/90' : ''} h-auto py-2`}
                   data-testid="button-view-posts"
                 >
-                  <PenSquare className="h-4 w-4 mr-2" />
-                  Posts
+                  <div className="flex flex-col items-center">
+                    <div className="flex items-center">
+                      <PenSquare className="h-4 w-4 mr-2" />
+                      Posts
+                    </div>
+                    <span className={`text-xs ${viewMode === 'posts' ? 'text-white/70' : 'text-gray-500'}`}>See when they go live</span>
+                  </div>
                 </Button>
               </div>
             </div>
