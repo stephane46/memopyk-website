@@ -1,7 +1,7 @@
 # MEMOPYK Migration Progress Report
 
-**Last Updated:** 2026-02-04
-**Status:** Unified blog creation complete — Contenu Site help content next
+**Last Updated:** 2026-02-05
+**Status:** Blog Hub UX polish (workflow tabs) — help content sync needed
 
 ---
 
@@ -68,9 +68,27 @@
 
 ---
 
-## Active Work — Feb 4, 2026
+## Active Work — Feb 5, 2026
 
-### ✅ Completed: Brand Brain Foundation
+### ✅ Completed: Blog Hub Workflow Tabs (Feb 5)
+
+**Commits:** ce62f5f, c4dbd11, bede359, 7feb390 + in progress (staging)
+
+Merged the separate workflow bar and tab bar into a single unified navigation:
+- Tab order now matches workflow: ① Topics → ② Keywords → ③ Planner → ④ Posts → ⑤ Image Bank
+- Each tab has a numbered circle (orange when active, gray when inactive)
+- Arrow separators (⟶) between tabs, gray for contrast
+- Subtitle descriptions under each tab name ("Create ideas", "Research SEO", etc.)
+- Full-width grid layout matching SEO Management tab pattern
+- Planner remains the default landing tab (step 3)
+- Mobile: reordered, no circles/arrows (too cramped)
+- Workflow bar removed — tabs ARE the workflow
+
+**TODO:** Update Blog Hub help_screens content (`/admin?tab=blog`) to reflect new tab layout
+
+---
+
+### ✅ Completed: Brand Brain Foundation (Feb 4)
 
 **Commit:** (staging) — AI Context system fully operational
 
@@ -120,7 +138,7 @@
 - Stop rule: if "click X" has 2 plausible matches → ⚠️ with justification
 - Coverage score: % of steps ✅ vs ⚠️ vs ❌
 
-### Sequence (remaining today)
+### Sequence (Feb 4 — completed)
 1. ~~Brand Brain~~ ✅
 2. ~~CreatePostLanding~~ ✅
 3. ~~Translation API wiring~~ ✅
@@ -128,14 +146,19 @@
 5. ~~Tab unification (Posts)~~ ✅
 6. ~~Help content: CreatePostLanding screen~~ ✅
 7. ~~Help flow merge (2 creation flows → 1)~~ ✅
-8. Naive-user test on 2 help flows (re-test after merge)
+8. Naive-user test — deferred (help content needs sync after UI changes)
 
 ---
 
-## Recent Commits (Feb 3-4, 2026)
+## Recent Commits (Feb 3-5, 2026)
 
 | Commit | Description | Date |
 |--------|-------------|------|
+| (staging) | feat: add workflow subtitle descriptions to Blog Hub tabs | 2026-02-05 |
+| 7feb390 | fix: bigger and more visible arrow separators between Blog Hub tabs | 2026-02-05 |
+| bede359 | fix: make Blog Hub tabs full-width grid to match SEO admin pattern | 2026-02-05 |
+| c4dbd11 | feat: merge workflow bar into tabs with numbered steps and arrows | 2026-02-05 |
+| ce62f5f | feat: add workflow bar to Blog Hub header + update subtitle | 2026-02-05 |
 | a0e1a4d | fix: merge two blog creation help flows into one, clean up all help references | 2026-02-04 |
 | 168f2d4 | docs: update help content and migration progress for tab unification | 2026-02-04 |
 | 83d2f08 | feat: unify Posts tabs - merge Posts (Manual) and Posts (AI) into single Posts tab | 2026-02-04 |
@@ -199,7 +222,8 @@
 | ~~Help content: CreatePostLanding screen~~ | ✅ Done | Screen + tip added via SQL migration |
 | ~~Help flow updates (new entry point)~~ | ✅ Done | Merged 2 creation flows into 1 unified flow (7 steps) |
 | ~~Unified creation Phase 2~~ | ✅ Done | Tabs merged, AI accessible via CreatePostLanding |
-| Naive-user help flow testing | 🟡 Next | Re-test needed after help flow merge (2 flows now) |
+| Blog Hub help content sync | 🟡 Next | Update help_screens for /admin?tab=blog after tab reorder + workflow merge |
+| Naive-user help flow testing | 🟡 Next | Re-test needed after help flow merge + UI changes |
 | Contenu Site help content (6 screens) | 🟡 Next | Screenshots already captured |
 | Analytics rebuild | 🟡 Next | 300+ lines of docs prepared |
 | Unified creation Phase 3 (true unification) | 🟢 Later | AI becomes panel inside Blog Editor |

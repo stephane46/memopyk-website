@@ -99,13 +99,13 @@ export default function ContentProductionHub() {
     window.history.pushState({}, '', newUrl);
   };
 
-  // Tab configuration with workflow step numbers
+  // Tab configuration with workflow step numbers and descriptions
   const tabConfig = [
-    { id: 'topics', num: 1, label: 'Topics', icon: FileText, testId: 'tab-topics' },
-    { id: 'keywords', num: 2, label: 'Keywords', icon: Search, testId: 'tab-keywords' },
-    { id: 'planner', num: 3, label: 'Planner', icon: Calendar, testId: 'tab-planner' },
-    { id: 'posts', num: 4, label: 'Posts', icon: BookOpen, testId: 'tab-posts' },
-    { id: 'images', num: 5, label: 'Image Bank', icon: Image, testId: 'tab-images' },
+    { id: 'topics', num: 1, label: 'Topics', desc: 'Create ideas', icon: FileText, testId: 'tab-topics' },
+    { id: 'keywords', num: 2, label: 'Keywords', desc: 'Research SEO', icon: Search, testId: 'tab-keywords' },
+    { id: 'planner', num: 3, label: 'Planner', desc: 'Schedule when', icon: Calendar, testId: 'tab-planner' },
+    { id: 'posts', num: 4, label: 'Posts', desc: 'Write & publish', icon: BookOpen, testId: 'tab-posts' },
+    { id: 'images', num: 5, label: 'Image Bank', desc: 'Store media', icon: Image, testId: 'tab-images' },
   ];
 
   return (
@@ -132,7 +132,7 @@ export default function ContentProductionHub() {
                 <TabsTrigger
                   value={tab.id}
                   data-testid={tab.testId}
-                  className="w-full data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 flex items-center justify-center gap-2"
+                  className="w-full data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 flex items-center justify-center gap-2 py-2"
                 >
                   <span
                     className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 ${
@@ -143,8 +143,11 @@ export default function ContentProductionHub() {
                   >
                     {tab.num}
                   </span>
-                  <IconComponent className="h-4 w-4" />
-                  {tab.label}
+                  <IconComponent className="h-4 w-4 flex-shrink-0" />
+                  <div className="flex flex-col items-start">
+                    <span className="font-medium">{tab.label}</span>
+                    <span className={`text-[10px] ${isActive ? 'text-white/70' : 'text-gray-400'}`}>{tab.desc}</span>
+                  </div>
                 </TabsTrigger>
                 {index < tabConfig.length - 1 && (
                   <span className="absolute right-0 translate-x-1/2 text-3xl text-gray-400 dark:text-gray-500 z-10 pointer-events-none">→</span>
