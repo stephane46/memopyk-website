@@ -30,8 +30,9 @@ export default function ContentProductionHub() {
       setEditPostId(idParam);
     }
     // If there's a tab parameter, use it
-    else if (tabParam && ['planner', 'topics', 'keywords', 'posts', 'ai-creator', 'images'].includes(tabParam)) {
-      setActiveTab(tabParam);
+    // Note: 'image-bank' is an alias for 'images'
+    else if (tabParam && ['planner', 'topics', 'keywords', 'posts', 'ai-creator', 'images', 'image-bank'].includes(tabParam)) {
+      setActiveTab(tabParam === 'image-bank' ? 'images' : tabParam);
     }
   }, []);
 
@@ -46,8 +47,9 @@ export default function ContentProductionHub() {
       if (tabParam === 'blog-edit' && idParam) {
         setActiveTab('blog-edit');
         setEditPostId(idParam);
-      } else if (tabParam && ['planner', 'topics', 'keywords', 'posts', 'ai-creator', 'images'].includes(tabParam)) {
-        setActiveTab(tabParam);
+      } else if (tabParam && ['planner', 'topics', 'keywords', 'posts', 'ai-creator', 'images', 'image-bank'].includes(tabParam)) {
+        // Note: 'image-bank' is an alias for 'images'
+        setActiveTab(tabParam === 'image-bank' ? 'images' : tabParam);
         setEditPostId(null);
       }
     };
@@ -82,13 +84,13 @@ export default function ContentProductionHub() {
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         {/* Desktop: Grid layout - 5 visible tabs (AI Creator accessed via CreatePostLanding) */}
         <TabsList className="hidden md:grid md:grid-cols-5 w-full bg-gray-100 dark:bg-gray-800 p-1">
-          <TabsTrigger 
-            value="planner" 
+          <TabsTrigger
+            value="planner"
             data-testid="tab-planner"
             className="data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
           >
             <Calendar className="h-4 w-4 mr-2" />
-            Weekly Planner
+            Planner
           </TabsTrigger>
           <TabsTrigger 
             value="topics" 

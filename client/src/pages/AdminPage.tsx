@@ -76,7 +76,8 @@ function AdminPageContent() {
     
     // Handle Content Production Hub sub-tabs
     // If user has ?tab=topics or ?tab=keywords etc, show blog section
-    if (tab && ['planner', 'topics', 'keywords', 'posts', 'ai-creator', 'images'].includes(tab)) {
+    // Note: 'image-bank' is an alias for 'images'
+    if (tab && ['planner', 'topics', 'keywords', 'posts', 'ai-creator', 'images', 'image-bank'].includes(tab)) {
       return 'blog';
     }
     
@@ -176,7 +177,7 @@ function AdminPageContent() {
       
       if (tab === 'blog-edit') {
         setActiveSection('blog');
-      } else if (tab && ['planner', 'topics', 'keywords', 'posts', 'ai-creator', 'images'].includes(tab)) {
+      } else if (tab && ['planner', 'topics', 'keywords', 'posts', 'ai-creator', 'images', 'image-bank'].includes(tab)) {
         setActiveSection('blog');
       } else if (tab) {
         setActiveSection(tab);
