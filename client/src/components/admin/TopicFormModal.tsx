@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, FileText, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { Loader2, Save, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 
 interface ContentTopic {
@@ -233,9 +233,6 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
           <DialogDescription className="text-gray-600 dark:text-gray-400">
             {isEditMode ? 'Update the topic details below' : 'Fill in the details to create a new topic'}
           </DialogDescription>
-          <p className="text-xs text-gray-500 flex items-center gap-1 mt-2">
-            <Sparkles className="h-3 w-3 flex-shrink-0" fill="#f59e0b" stroke="#f59e0b" /> = Feeds into AI-generated content
-          </p>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
@@ -245,9 +242,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <Label className="text-gray-900 dark:text-white flex items-center gap-1">
-                  Title * <Sparkles className="h-3 w-3 flex-shrink-0" fill="#f59e0b" stroke="#f59e0b" />
-                </Label>
+                <Label className="text-gray-900 dark:text-white">Title *</Label>
                 <Input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -255,7 +250,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                   className="text-gray-900 dark:text-white"
                   data-testid="input-title"
                 />
-                <p className="text-xs text-gray-500 mt-0.5">Used as the basis for AI-generated post titles</p>
+                <p className="text-xs text-gray-500 mt-0.5">The blog post title will be based on this</p>
               </div>
 
               <div>
@@ -319,9 +314,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
               </div>
 
               <div>
-                <Label className="text-gray-900 dark:text-white flex items-center gap-1">
-                  Target Word Count <Sparkles className="h-3 w-3 flex-shrink-0" fill="#f59e0b" stroke="#f59e0b" />
-                </Label>
+                <Label className="text-gray-900 dark:text-white">Target Word Count</Label>
                 <Input
                   type="number"
                   value={targetWordCount}
@@ -330,7 +323,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                   className="text-gray-900 dark:text-white"
                   data-testid="input-word-count"
                 />
-                <p className="text-xs text-gray-500 mt-0.5">Controls AI prompt word count targets and estimated read time</p>
+                <p className="text-xs text-gray-500 mt-0.5">Target length for the generated article (default: 900)</p>
               </div>
             </div>
           </div>
@@ -341,9 +334,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <Label className="text-gray-900 dark:text-white flex items-center gap-1">
-                  Primary Keyword * <Sparkles className="h-3 w-3 flex-shrink-0" fill="#f59e0b" stroke="#f59e0b" />
-                </Label>
+                <Label className="text-gray-900 dark:text-white">Primary Keyword *</Label>
                 <Input
                   value={primaryKeyword}
                   onChange={(e) => setPrimaryKeyword(e.target.value)}
@@ -351,13 +342,11 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                   className="text-gray-900 dark:text-white"
                   data-testid="input-primary-keyword"
                 />
-                <p className="text-xs text-gray-500 mt-0.5">Injected into AI prompts and saved to generated posts for SEO</p>
+                <p className="text-xs text-gray-500 mt-0.5">Main keyword for SEO — appears in the post title and content</p>
               </div>
 
               <div className="md:col-span-2">
-                <Label className="text-gray-900 dark:text-white flex items-center gap-1">
-                  Secondary Keywords <Sparkles className="h-3 w-3 flex-shrink-0" fill="#f59e0b" stroke="#f59e0b" />
-                </Label>
+                <Label className="text-gray-900 dark:text-white">Secondary Keywords</Label>
                 <Input
                   value={secondaryKeywords}
                   onChange={(e) => setSecondaryKeywords(e.target.value)}
@@ -365,13 +354,11 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                   className="text-gray-900 dark:text-white"
                   data-testid="input-secondary-keywords"
                 />
-                <p className="text-xs text-gray-500 mt-0.5">Included in AI prompts alongside primary keyword (comma-separated)</p>
+                <p className="text-xs text-gray-500 mt-0.5">Supporting keywords woven into the article (comma-separated)</p>
               </div>
 
               <div className="md:col-span-2">
-                <Label className="text-gray-900 dark:text-white flex items-center gap-1">
-                  Search Intent <Sparkles className="h-3 w-3 flex-shrink-0" fill="#f59e0b" stroke="#f59e0b" />
-                </Label>
+                <Label className="text-gray-900 dark:text-white">Search Intent</Label>
                 <Select value={searchIntent} onValueChange={setSearchIntent}>
                   <SelectTrigger data-testid="select-search-intent">
                     <SelectValue placeholder="Select search intent" />
@@ -383,7 +370,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                     <SelectItem value="Commercial">Commercial</SelectItem>
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-gray-500 mt-0.5">Guides AI tone: informational, transactional, navigational</p>
+                <p className="text-xs text-gray-500 mt-0.5">What is the reader looking for? Sets the article's tone</p>
               </div>
             </div>
           </div>
@@ -411,7 +398,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                     className="text-gray-900 dark:text-white"
                     data-testid="input-search-volume"
                   />
-                  <p className="text-xs text-gray-500 mt-0.5">Monthly search volume from keyword research — for planning only</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Monthly searches — helps prioritize which topics to write first</p>
                 </div>
 
                 <div>
@@ -426,7 +413,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                       <SelectItem value="High">High</SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-gray-500 mt-0.5">Keyword competition level — for planning only</p>
+                  <p className="text-xs text-gray-500 mt-0.5">How hard is it to rank for this keyword?</p>
                 </div>
               </div>
             )}
@@ -437,9 +424,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b pb-2">Content</h3>
 
             <div>
-              <Label className="text-gray-900 dark:text-white flex items-center gap-1">
-                Content Angle <Sparkles className="h-3 w-3 flex-shrink-0" fill="#f59e0b" stroke="#f59e0b" />
-              </Label>
+              <Label className="text-gray-900 dark:text-white">Content Angle</Label>
               <Textarea
                 value={contentAngle}
                 onChange={(e) => setContentAngle(e.target.value)}
@@ -447,13 +432,11 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                 className="text-gray-900 dark:text-white h-20"
                 data-testid="textarea-content-angle"
               />
-              <p className="text-xs text-gray-500 mt-0.5">Your unique perspective — will be included in AI prompts</p>
+              <p className="text-xs text-gray-500 mt-0.5">What makes this article different? Your unique take on the topic</p>
             </div>
 
             <div>
-              <Label className="text-gray-900 dark:text-white flex items-center gap-1">
-                Description <Sparkles className="h-3 w-3 flex-shrink-0" fill="#f59e0b" stroke="#f59e0b" />
-              </Label>
+              <Label className="text-gray-900 dark:text-white">Description</Label>
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -461,7 +444,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                 className="text-gray-900 dark:text-white h-24"
                 data-testid="textarea-description"
               />
-              <p className="text-xs text-gray-500 mt-0.5">Article scope guidance — will be included in AI prompts</p>
+              <p className="text-xs text-gray-500 mt-0.5">What should the article cover? A brief outline or scope</p>
             </div>
 
             <div>
@@ -473,7 +456,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                 className="text-gray-900 dark:text-white h-20"
                 data-testid="textarea-link-opportunities"
               />
-              <p className="text-xs text-gray-500 mt-0.5">Manual reference for internal linking — not yet used by AI</p>
+              <p className="text-xs text-gray-500 mt-0.5">Which MEMOPYK pages could this article link to?</p>
             </div>
           </div>
 
@@ -499,7 +482,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                     className="text-gray-900 dark:text-white h-20"
                     data-testid="textarea-hero-image"
                   />
-                  <p className="text-xs text-gray-500 mt-0.5">Reference for hero image creation — not yet used by AI</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Describe the ideal banner image for this article</p>
                 </div>
 
                 <div>
@@ -511,7 +494,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                     className="text-gray-900 dark:text-white h-20"
                     data-testid="textarea-body-images"
                   />
-                  <p className="text-xs text-gray-500 mt-0.5">Reference for in-article visuals — not yet used by AI (comma-separated)</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Image ideas for inside the article (comma-separated)</p>
                 </div>
               </div>
             )}
