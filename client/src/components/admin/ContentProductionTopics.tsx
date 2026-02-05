@@ -488,9 +488,11 @@ export function ContentProductionTopics() {
                         <div>
                           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">SEO Data</h4>
                           <div className="space-y-2 text-sm">
-                            <div>
+                            <div className="flex items-center gap-2">
                               <span className="text-gray-600 dark:text-gray-400">Primary Keyword:</span>
-                              <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.primary_keyword}</span>
+                              <Badge variant="custom" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                                {topic.primary_keyword}
+                              </Badge>
                             </div>
                             {topic.search_volume && (
                               <div>
