@@ -147,7 +147,7 @@ export default function ContentProductionHub() {
                   {tab.label}
                 </TabsTrigger>
                 {index < tabConfig.length - 1 && (
-                  <span className="absolute right-0 translate-x-1/2 text-xl text-[#D67C4A]/40 dark:text-[#D67C4A]/50 z-10 pointer-events-none">⟶</span>
+                  <span className="absolute right-0 translate-x-1/2 text-3xl text-gray-400 dark:text-gray-500 z-10 pointer-events-none">→</span>
                 )}
               </div>
             );
