@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { Loader2, Save, FileText, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 
 interface ContentTopic {
@@ -76,6 +76,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showImageFields, setShowImageFields] = useState(false);
+  const [showSeoResearch, setShowSeoResearch] = useState(false);
 
   // Form fields (slug auto-generated from title, not shown in form)
   const [title, setTitle] = useState('');
@@ -232,6 +233,9 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
           <DialogDescription className="text-gray-600 dark:text-gray-400">
             {isEditMode ? 'Update the topic details below' : 'Fill in the details to create a new topic'}
           </DialogDescription>
+          <p className="text-xs text-gray-500 flex items-center gap-1 mt-2">
+            <Sparkles className="h-3 w-3 text-amber-500" /> = Feeds into AI-generated content
+          </p>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
@@ -241,7 +245,9 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <Label className="text-gray-900 dark:text-white">Title *</Label>
+                <Label className="text-gray-900 dark:text-white flex items-center gap-1">
+                  Title * <Sparkles className="h-3 w-3 text-amber-500" />
+                </Label>
                 <Input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -313,7 +319,9 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
               </div>
 
               <div>
-                <Label className="text-gray-900 dark:text-white">Target Word Count</Label>
+                <Label className="text-gray-900 dark:text-white flex items-center gap-1">
+                  Target Word Count <Sparkles className="h-3 w-3 text-amber-500" />
+                </Label>
                 <Input
                   type="number"
                   value={targetWordCount}
@@ -327,13 +335,15 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
             </div>
           </div>
 
-          {/* SEO */}
+          {/* SEO Keywords */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b pb-2">SEO</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b pb-2">SEO Keywords</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <Label className="text-gray-900 dark:text-white">Primary Keyword *</Label>
+                <Label className="text-gray-900 dark:text-white flex items-center gap-1">
+                  Primary Keyword * <Sparkles className="h-3 w-3 text-amber-500" />
+                </Label>
                 <Input
                   value={primaryKeyword}
                   onChange={(e) => setPrimaryKeyword(e.target.value)}
@@ -345,7 +355,9 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
               </div>
 
               <div className="md:col-span-2">
-                <Label className="text-gray-900 dark:text-white">Secondary Keywords</Label>
+                <Label className="text-gray-900 dark:text-white flex items-center gap-1">
+                  Secondary Keywords <Sparkles className="h-3 w-3 text-amber-500" />
+                </Label>
                 <Input
                   value={secondaryKeywords}
                   onChange={(e) => setSecondaryKeywords(e.target.value)}
@@ -356,43 +368,68 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                 <p className="text-xs text-gray-500 mt-0.5">Included in AI prompts alongside primary keyword (comma-separated)</p>
               </div>
 
-              <div>
-                <Label className="text-gray-900 dark:text-white">Search Volume</Label>
-                <Input
-                  type="number"
-                  value={searchVolume}
-                  onChange={(e) => setSearchVolume(e.target.value)}
-                  placeholder="Monthly searches"
-                  className="text-gray-900 dark:text-white"
-                  data-testid="input-search-volume"
-                />
-                <p className="text-xs text-gray-500 mt-0.5">Monthly search volume from keyword research — for planning only</p>
-              </div>
-
-              <div>
-                <Label className="text-gray-900 dark:text-white">Competition</Label>
-                <Input
-                  value={competition}
-                  onChange={(e) => setCompetition(e.target.value)}
-                  placeholder="Low / Medium / High"
-                  className="text-gray-900 dark:text-white"
-                  data-testid="input-competition"
-                />
-                <p className="text-xs text-gray-500 mt-0.5">Keyword competition level — for planning only</p>
-              </div>
-
               <div className="md:col-span-2">
-                <Label className="text-gray-900 dark:text-white">Search Intent</Label>
-                <Input
-                  value={searchIntent}
-                  onChange={(e) => setSearchIntent(e.target.value)}
-                  placeholder="Informational / Transactional / Navigational"
-                  className="text-gray-900 dark:text-white"
-                  data-testid="input-search-intent"
-                />
+                <Label className="text-gray-900 dark:text-white flex items-center gap-1">
+                  Search Intent <Sparkles className="h-3 w-3 text-amber-500" />
+                </Label>
+                <Select value={searchIntent} onValueChange={setSearchIntent}>
+                  <SelectTrigger data-testid="select-search-intent">
+                    <SelectValue placeholder="Select search intent" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Informational">Informational</SelectItem>
+                    <SelectItem value="Transactional">Transactional</SelectItem>
+                    <SelectItem value="Navigational">Navigational</SelectItem>
+                    <SelectItem value="Commercial">Commercial</SelectItem>
+                  </SelectContent>
+                </Select>
                 <p className="text-xs text-gray-500 mt-0.5">Guides AI tone: informational, transactional, navigational</p>
               </div>
             </div>
+          </div>
+
+          {/* SEO Research (Collapsible) */}
+          <div className="space-y-4">
+            <button
+              type="button"
+              onClick={() => setShowSeoResearch(!showSeoResearch)}
+              className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white border-b pb-2 w-full"
+            >
+              SEO Research (Optional)
+              {showSeoResearch ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+            </button>
+
+            {showSeoResearch && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-gray-900 dark:text-white">Search Volume</Label>
+                  <Input
+                    type="number"
+                    value={searchVolume}
+                    onChange={(e) => setSearchVolume(e.target.value)}
+                    placeholder="Monthly searches"
+                    className="text-gray-900 dark:text-white"
+                    data-testid="input-search-volume"
+                  />
+                  <p className="text-xs text-gray-500 mt-0.5">Monthly search volume from keyword research — for planning only</p>
+                </div>
+
+                <div>
+                  <Label className="text-gray-900 dark:text-white">Competition</Label>
+                  <Select value={competition} onValueChange={setCompetition}>
+                    <SelectTrigger data-testid="select-competition">
+                      <SelectValue placeholder="Select competition level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Low">Low</SelectItem>
+                      <SelectItem value="Medium">Medium</SelectItem>
+                      <SelectItem value="High">High</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-gray-500 mt-0.5">Keyword competition level — for planning only</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Content */}
@@ -400,7 +437,9 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b pb-2">Content</h3>
 
             <div>
-              <Label className="text-gray-900 dark:text-white">Content Angle</Label>
+              <Label className="text-gray-900 dark:text-white flex items-center gap-1">
+                Content Angle <Sparkles className="h-3 w-3 text-amber-500" />
+              </Label>
               <Textarea
                 value={contentAngle}
                 onChange={(e) => setContentAngle(e.target.value)}
@@ -412,7 +451,9 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
             </div>
 
             <div>
-              <Label className="text-gray-900 dark:text-white">Description</Label>
+              <Label className="text-gray-900 dark:text-white flex items-center gap-1">
+                Description <Sparkles className="h-3 w-3 text-amber-500" />
+              </Label>
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
