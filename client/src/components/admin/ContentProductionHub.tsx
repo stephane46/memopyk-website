@@ -122,17 +122,17 @@ export default function ContentProductionHub() {
       </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        {/* Desktop: Workflow-style tabs with numbered steps and arrows */}
-        <TabsList className="hidden md:flex w-full bg-gray-100 dark:bg-gray-800 p-1 justify-center">
+        {/* Desktop: Full-width grid layout with workflow arrows */}
+        <TabsList className="hidden md:grid md:grid-cols-5 w-full bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
           {tabConfig.map((tab, index) => {
             const IconComponent = tab.icon;
             const isActive = activeTab === tab.id;
             return (
-              <div key={tab.id} className="flex items-center">
+              <div key={tab.id} className="relative flex items-center justify-center">
                 <TabsTrigger
                   value={tab.id}
                   data-testid={tab.testId}
-                  className="data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 flex items-center gap-2"
+                  className="w-full data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 flex items-center justify-center gap-2"
                 >
                   <span
                     className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 ${
@@ -147,7 +147,7 @@ export default function ContentProductionHub() {
                   {tab.label}
                 </TabsTrigger>
                 {index < tabConfig.length - 1 && (
-                  <span className="text-gray-300 dark:text-gray-600 mx-1 flex-shrink-0">→</span>
+                  <span className="absolute right-0 translate-x-1/2 text-gray-300 dark:text-gray-600 z-10 pointer-events-none">→</span>
                 )}
               </div>
             );
