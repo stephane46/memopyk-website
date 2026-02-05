@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Search, FileText, BookOpen, Filter, ChevronDown, Sparkles } from 'lucide-react';
+import { Search, FileText, BookOpen, Filter, ChevronDown, Sparkles, Plus, Pencil, Trash2 } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -15,6 +15,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { BlogPostCreatorModal } from './BlogPostCreatorModal';
+import { TopicFormModal } from './TopicFormModal';
+import { TopicDeleteDialog } from './TopicDeleteDialog';
 import { ContentTopicsSkeleton } from '@/admin/skeletons/ContentTopicsSkeleton';
 
 interface ContentTopic {
@@ -83,7 +85,12 @@ export function ContentProductionTopics() {
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedTopicForPost, setSelectedTopicForPost] = useState<ContentTopic | null>(null);
   const [highlightedTopicId, setHighlightedTopicId] = useState<string | null>(null);
-  
+
+  // CRUD modal state
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingTopic, setEditingTopic] = useState<ContentTopic | null>(null);
+  const [deletingTopic, setDeletingTopic] = useState<ContentTopic | null>(null);
+
   const topicRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const { data: topics = [], isLoading } = useQuery<ContentTopic[]>({
@@ -163,6 +170,18 @@ export function ContentProductionTopics() {
       'SEASONAL & HOLIDAY CONTENT': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
     };
     return categoryMap[category] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+  };
+
+  const getCategoryShortLabel = (category: string) => {
+    const labelMap: Record<string, string> = {
+      'PHOTO ORGANIZATION & PRESERVATION': 'Photo',
+      'VIDEO MEMORY & LEGACY': 'Video',
+      'FAMILY STORYTELLING & TRADITIONS': 'Family',
+      'DIGITAL ORGANIZATION & TECHNOLOGY': 'Digital',
+      'MEMORY PRODUCTS & CRAFTS': 'Crafts',
+      'SEASONAL & HOLIDAY CONTENT': 'Seasonal',
+    };
+    return labelMap[category] || category.split(' ')[0];
   };
 
   const getPriorityBadgeColor = (priority: number) => {
@@ -370,13 +389,25 @@ export function ContentProductionTopics() {
       {/* Topics List with Expandable Rows */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
-            <FileText className="h-5 w-5" />
-            Topics ({filteredTopics.length})
-          </CardTitle>
-          <CardDescription className="text-gray-600 dark:text-gray-400">
-            Click on any topic to see full details
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                <FileText className="h-5 w-5" />
+                Topics ({filteredTopics.length})
+              </CardTitle>
+              <CardDescription className="text-gray-600 dark:text-gray-400 mt-1">
+                Click on any topic to see full details
+              </CardDescription>
+            </div>
+            <Button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="bg-[#D67C4A] hover:bg-[#C56B3A] text-white"
+              data-testid="button-new-topic"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              New Topic
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {filteredTopics.length === 0 ? (
@@ -436,7 +467,7 @@ export function ContentProductionTopics() {
                           </Badge>
                         )}
                         <Badge variant="custom" className={getCategoryColor(topic.category)}>
-                          {topic.category.split(' ')[0]}
+                          {getCategoryShortLabel(topic.category)}
                         </Badge>
                         <Badge variant="custom" className={getPriorityBadgeColor(topic.priority)}>
                           P{topic.priority}
@@ -567,27 +598,50 @@ export function ContentProductionTopics() {
                         )}
                       </div>
 
-                      {/* Create Post Action */}
-                      <div className="flex justify-end gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                        {topic.times_generated > 0 && (
+                      {/* Actions */}
+                      <div className="flex justify-between items-center gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <div className="flex gap-2">
                           <Button
-                            onClick={() => navigateToPosts(topic.id)}
                             variant="outline"
-                            className="border-[#D67C4A] text-[#D67C4A] hover:bg-[#D67C4A] hover:bg-opacity-10"
-                            data-testid={`button-view-posts-${topic.id}`}
+                            size="sm"
+                            onClick={() => setEditingTopic(topic)}
+                            data-testid={`button-edit-topic-${topic.id}`}
                           >
-                            <BookOpen className="h-4 w-4 mr-2" />
-                            View Generated Posts ({topic.post_count || 0})
+                            <Pencil className="h-4 w-4 mr-1" />
+                            Edit
                           </Button>
-                        )}
-                        <Button
-                          onClick={() => setSelectedTopicForPost(topic)}
-                          className="bg-[#D67C4A] hover:bg-[#C56B3A] text-white"
-                          data-testid={`button-create-post-${topic.id}`}
-                        >
-                          <Sparkles className="h-4 w-4 mr-2" />
-                          Create Post from Topic
-                        </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setDeletingTopic(topic)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                            data-testid={`button-delete-topic-${topic.id}`}
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Delete
+                          </Button>
+                        </div>
+                        <div className="flex gap-2">
+                          {topic.times_generated > 0 && (
+                            <Button
+                              onClick={() => navigateToPosts(topic.id)}
+                              variant="outline"
+                              className="border-[#D67C4A] text-[#D67C4A] hover:bg-[#D67C4A] hover:bg-opacity-10"
+                              data-testid={`button-view-posts-${topic.id}`}
+                            >
+                              <BookOpen className="h-4 w-4 mr-2" />
+                              View Generated Posts ({topic.post_count || 0})
+                            </Button>
+                          )}
+                          <Button
+                            onClick={() => setSelectedTopicForPost(topic)}
+                            className="bg-[#D67C4A] hover:bg-[#C56B3A] text-white"
+                            data-testid={`button-create-post-${topic.id}`}
+                          >
+                            <Sparkles className="h-4 w-4 mr-2" />
+                            Create Post from Topic
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </AccordionContent>
@@ -605,6 +659,25 @@ export function ContentProductionTopics() {
           topic={selectedTopicForPost}
           isOpen={true}
           onClose={() => setSelectedTopicForPost(null)}
+        />
+      )}
+
+      {/* Topic Create/Edit Modal */}
+      <TopicFormModal
+        isOpen={isCreateModalOpen || editingTopic !== null}
+        onClose={() => {
+          setIsCreateModalOpen(false);
+          setEditingTopic(null);
+        }}
+        topic={editingTopic}
+      />
+
+      {/* Topic Delete Dialog */}
+      {deletingTopic && (
+        <TopicDeleteDialog
+          isOpen={true}
+          onClose={() => setDeletingTopic(null)}
+          topic={deletingTopic}
         />
       )}
     </div>

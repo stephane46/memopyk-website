@@ -130,7 +130,7 @@ const SeoManagement: React.FC = () => {
   const loadSeoData = async () => {
     setLoading(true);
     try {
-      const response = await apiRequest(`/api/admin/seo?lang=${currentLang}`);
+      const response = await apiRequest(`/api/admin/seo?lang=${currentLang}`, 'GET');
       
       if (!response.ok) {
         throw new Error('Failed to load SEO data');
@@ -232,10 +232,7 @@ const SeoManagement: React.FC = () => {
         changeReason: `Updated SEO settings for ${currentLang}`,
       };
 
-      const response = await apiRequest('/api/admin/seo', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      });
+      const response = await apiRequest('/api/admin/seo', 'POST', payload);
 
       if (!response.ok) {
         const error = await response.json();
@@ -264,7 +261,7 @@ const SeoManagement: React.FC = () => {
   // Generate preview
   const generatePreview = async () => {
     try {
-      const response = await apiRequest(`/api/admin/seo/preview?lang=${currentLang}`);
+      const response = await apiRequest(`/api/admin/seo/preview?lang=${currentLang}`, 'GET');
       
       if (!response.ok) {
         throw new Error('Failed to generate preview');
@@ -286,7 +283,7 @@ const SeoManagement: React.FC = () => {
   // Load history
   const loadHistory = async () => {
     try {
-      const response = await apiRequest(`/api/admin/seo/history?lang=${currentLang}`);
+      const response = await apiRequest(`/api/admin/seo/history?lang=${currentLang}`, 'GET');
       
       if (!response.ok) {
         throw new Error('Failed to load history');
@@ -309,9 +306,7 @@ const SeoManagement: React.FC = () => {
   const publishSettings = async () => {
     setPublishing(true);
     try {
-      const response = await apiRequest(`/api/admin/seo/publish?lang=${currentLang}`, {
-        method: 'POST',
-      });
+      const response = await apiRequest(`/api/admin/seo/publish?lang=${currentLang}`, 'POST');
 
       if (!response.ok) {
         throw new Error('Failed to publish settings');

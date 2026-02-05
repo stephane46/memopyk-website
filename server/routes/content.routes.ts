@@ -243,14 +243,14 @@ router.patch('/topics/:id', requireAdmin, async (req: Request, res: Response) =>
 
 /**
  * DELETE /topics/:id
- * Delete topic (with dependency check)
+ * Delete topic (unlinks blog posts, blocks if assignments exist)
  */
 router.delete('/topics/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const sb = getSupabase();
     const topicId = req.params.id;
 
-    // Check for dependent assignments
+    // Check for dependent assignments - still block if any exist
     const { data: assignments, error: assignmentError } = await sb
       .from('content_daily_assignments')
       .select('id')
@@ -267,25 +267,15 @@ router.delete('/topics/:id', requireAdmin, async (req: Request, res: Response) =
       });
     }
 
-    // Check for dependent blog posts
-    const { data: posts, error: postError } = await sb
+    // Unlink any blog posts that reference this topic (set source_topic_id to null)
+    const { error: unlinkError } = await sb
       .from('blog_posts')
-      .select('id, title')
-      .eq('source_topic_id', topicId)
-      .limit(5);
+      .update({ source_topic_id: null })
+      .eq('source_topic_id', topicId);
 
-    if (postError) throw postError;
+    if (unlinkError) throw unlinkError;
 
-    if (posts && posts.length > 0) {
-      return res.status(409).json({
-        error: 'Cannot delete topic linked to blog posts',
-        code: 'HAS_POSTS',
-        posts: posts.map(p => ({ id: p.id, title: p.title })),
-        hint: 'Unlink or delete the blog posts first'
-      });
-    }
-
-    // Safe to delete
+    // Now safe to delete the topic
     const { error } = await sb
       .from('content_topics')
       .delete()
