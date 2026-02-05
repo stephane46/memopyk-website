@@ -2,7 +2,7 @@
 
 ## Current Status
 
-**Last updated:** January 31, 2026
+**Last updated:** February 2, 2026
 **Staging:** https://memopyk.memopyk.com (auto-deploys on push to `staging` branch)
 **Production:** https://memopyk.com (auto-deploys on push to `main` branch)
 
@@ -12,10 +12,12 @@
 |-----------|--------|
 | Server | ✅ Running (port 5000) |
 | Client | ✅ Running (Vite) |
-| Database | ✅ Supabase PostgreSQL (40 tables) |
+| Database | ✅ Supabase PostgreSQL (42 tables) |
 | Analytics | ✅ Functional (P1-P8 complete) |
 | Partner Directory | ✅ Working (Mapbox GL JS upgrade planned) |
 | Auto-deploy | ✅ Enabled (push → GitHub webhook → Coolify) |
+| Help System | ✅ Complete (5 screens + 1 flow, step progress dots working) |
+| **Production** | ✅ **LIVE on Coolify** (Replit replaced) |
 
 ## Quick Commands
 
@@ -34,13 +36,13 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-02: Help System complete — HelpDrawer, HelpFlowViewer with 4-step progress dots, 5 screens seeded
+- 2026-02-02: Blog tabs renamed for clarity (Blog Hub, Topics, Posts)
+- 2026-02-02: Admin menu restructured (3 direct links + 3 collapsible categories)
+- 2026-02-02: 🎉 **PRODUCTION LIVE ON COOLIFY** — DNS switched from Replit to Coolify (82.29.168.136)
+- 2026-02-02: Security fixes + blog gallery implementation merged to main
 - 2026-02-01: Created content.routes.ts (17th route module) for Content Production Hub
 - 2026-01-31: Staging/production branch workflow established
-- 2026-01-31: Documentation restructure (roles, workflow, single source of truth)
-- 2026-01-31: Analytics rebuild complete (P1-P8)
-- 2026-01-31: Auto-deploy webhook configured
-- 2026-01-30: Partner Directory Leaflet bug fixed
-- 2026-01-30: CSS/Tailwind config fixed
 
 ## Known Issues
 

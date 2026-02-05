@@ -22,7 +22,7 @@ Reference for help system content. Each route maps to a `help_screens` entry.
 |--------|-------|-------------|
 | Topics | `/admin?tab=content-topics` | Manage 102 pre-researched topics |
 | Calendar | `/admin?tab=content-calendar` | Weekly content planning |
-| Image Bank | `/admin?tab=image-bank` | Centralized image library |
+| Image Bank | Blog Hub → Image Bank tab | Centralized image library (⚠️ no direct URL — must navigate via sidebar → Blog → Image Bank tab) |
 
 ## Site Content
 

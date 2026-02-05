@@ -1,0 +1,453 @@
+{
+  "timestamp": "2026-02-05T06:27:35.759Z",
+  "duration": 115842,
+  "config": {
+    "url": "https://memopyk.memopyk.com",
+    "adminUrl": "https://memopyk.memopyk.com/admin",
+    "password": "memopyk2025admin",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "screenshotsDir": "C:\\Users\\ngocn\\OneDrive\\1 Personal\\1 NOUS\\MEMOPYK EURL\\Systems\\MEMOPYK Website\\tests\\e2e\\screenshots\\analytics-audit",
+    "reportsDir": "C:\\Users\\ngocn\\OneDrive\\1 Personal\\1 NOUS\\MEMOPYK EURL\\Systems\\MEMOPYK Website\\docs\\analytics",
+    "timeout": 60000,
+    "waitAfterAction": 3000
+  },
+  "tabs": [
+    {
+      "id": "overview",
+      "label": "Overview",
+      "rating": "PLACEHOLDER",
+      "hasContent": true,
+      "hasKpis": true,
+      "hasCharts": true,
+      "hasTables": false,
+      "consoleErrors": [],
+      "apiCalls": [
+        "https://memopyk.memopyk.com/api/cache/breakdown",
+        "https://memopyk.memopyk.com/api/unified-cache/stats"
+      ],
+      "screenshot": "tab-overview.png",
+      "notes": [
+        "Placeholder content detected"
+      ],
+      "timestamp": "2026-02-05T06:25:47.145Z"
+    },
+    {
+      "id": "live",
+      "label": "Live View",
+      "rating": "WORKING",
+      "hasContent": true,
+      "hasKpis": true,
+      "hasCharts": true,
+      "hasTables": false,
+      "consoleErrors": [],
+      "apiCalls": [
+        "https://memopyk.memopyk.com/api/analytics/live-tracking",
+        "https://memopyk.memopyk.com/api/analytics/recent-visitors?datePreset=today&skipEnrichment=true",
+        "https://memopyk.memopyk.com/api/tracker/currently-watching"
+      ],
+      "screenshot": "tab-live.png",
+      "notes": [
+        "Has KPI cards",
+        "Has charts"
+      ],
+      "timestamp": "2026-02-05T06:25:50.320Z"
+    },
+    {
+      "id": "trends",
+      "label": "Trends",
+      "rating": "WORKING",
+      "hasContent": true,
+      "hasKpis": true,
+      "hasCharts": true,
+      "hasTables": false,
+      "consoleErrors": [],
+      "apiCalls": [
+        "https://memopyk.memopyk.com/api/ga4/trend?locale=all&startDate=2026-01-30&endDate=2026-02-05&preset=7d&videoId=&dataSource=ga4",
+        "https://memopyk.memopyk.com/api/cache/breakdown",
+        "https://memopyk.memopyk.com/api/unified-cache/stats"
+      ],
+      "screenshot": "tab-trends.png",
+      "notes": [
+        "Has KPI cards",
+        "Has charts"
+      ],
+      "timestamp": "2026-02-05T06:25:53.503Z"
+    },
+    {
+      "id": "video",
+      "label": "Video",
+      "rating": "WORKING",
+      "hasContent": true,
+      "hasKpis": true,
+      "hasCharts": true,
+      "hasTables": false,
+      "consoleErrors": [],
+      "apiCalls": [
+        "https://memopyk.memopyk.com/api/ga4/report?locale=all&startDate=2026-01-30&endDate=2026-02-05&preset=7d&videoId=&dataSource=ga4&report=topVideos"
+      ],
+      "screenshot": "tab-video.png",
+      "notes": [
+        "Has KPI cards",
+        "Has charts"
+      ],
+      "timestamp": "2026-02-05T06:25:56.686Z"
+    },
+    {
+      "id": "geo",
+      "label": "Geo",
+      "rating": "WORKING",
+      "hasContent": true,
+      "hasKpis": true,
+      "hasCharts": true,
+      "hasTables": false,
+      "consoleErrors": [],
+      "apiCalls": [
+        "https://memopyk.memopyk.com/api/cache/breakdown",
+        "https://memopyk.memopyk.com/api/ga4/geo?locale=all&startDate=2026-01-30&endDate=2026-02-05&preset=7d&videoId=&dataSource=ga4"
+      ],
+      "screenshot": "tab-geo.png",
+      "notes": [
+        "Has KPI cards",
+        "Has charts"
+      ],
+      "timestamp": "2026-02-05T06:25:59.890Z"
+    },
+    {
+      "id": "cta",
+      "label": "CTA",
+      "rating": "WORKING",
+      "hasContent": true,
+      "hasKpis": true,
+      "hasCharts": true,
+      "hasTables": false,
+      "consoleErrors": [],
+      "apiCalls": [
+        "https://memopyk.memopyk.com/api/ga4/cta?locale=all&startDate=2026-01-30&endDate=2026-02-05&preset=7d&videoId=&dataSource=ga4",
+        "https://memopyk.memopyk.com/api/unified-cache/stats",
+        "https://memopyk.memopyk.com/api/cache/breakdown"
+      ],
+      "screenshot": "tab-cta.png",
+      "notes": [
+        "Has KPI cards",
+        "Has charts"
+      ],
+      "timestamp": "2026-02-05T06:26:03.066Z"
+    },
+    {
+      "id": "blog",
+      "label": "Blog",
+      "rating": "WORKING",
+      "hasContent": true,
+      "hasKpis": true,
+      "hasCharts": true,
+      "hasTables": false,
+      "consoleErrors": [],
+      "apiCalls": [
+        "https://memopyk.memopyk.com/api/analytics/blog/ga4/popular?days=7",
+        "https://memopyk.memopyk.com/api/analytics/blog/ga4/trends?days=7",
+        "https://memopyk.memopyk.com/api/analytics/blog/ga4/topics?days=7",
+        "https://memopyk.memopyk.com/api/analytics/blog/ga4/keywords?days=7",
+        "https://memopyk.memopyk.com/api/analytics/blog/ga4/categories?days=7",
+        "https://memopyk.memopyk.com/api/analytics/blog/popular?days=7",
+        "https://memopyk.memopyk.com/api/analytics/blog/trends?days=7",
+        "https://memopyk.memopyk.com/api/analytics/blog/topics?days=7",
+        "https://memopyk.memopyk.com/api/analytics/blog/keywords?days=7",
+        "https://memopyk.memopyk.com/api/analytics/blog/categories?days=7"
+      ],
+      "screenshot": "tab-blog.png",
+      "notes": [
+        "Has KPI cards",
+        "Has charts"
+      ],
+      "timestamp": "2026-02-05T06:26:06.250Z"
+    },
+    {
+      "id": "clarity",
+      "label": "Clarity",
+      "rating": "PLACEHOLDER",
+      "hasContent": true,
+      "hasKpis": true,
+      "hasCharts": true,
+      "hasTables": false,
+      "consoleErrors": [],
+      "apiCalls": [
+        "https://memopyk.memopyk.com/api/unified-cache/stats",
+        "https://memopyk.memopyk.com/api/cache/breakdown"
+      ],
+      "screenshot": "tab-clarity.png",
+      "notes": [
+        "Placeholder content detected"
+      ],
+      "timestamp": "2026-02-05T06:26:09.425Z"
+    },
+    {
+      "id": "fallback",
+      "label": "Fallback",
+      "rating": "PLACEHOLDER",
+      "hasContent": true,
+      "hasKpis": true,
+      "hasCharts": true,
+      "hasTables": false,
+      "consoleErrors": [],
+      "apiCalls": [
+        "https://memopyk.memopyk.com/api/unified-cache/stats",
+        "https://memopyk.memopyk.com/api/cache/breakdown"
+      ],
+      "screenshot": "tab-fallback.png",
+      "notes": [
+        "Placeholder content detected"
+      ],
+      "timestamp": "2026-02-05T06:26:12.565Z"
+    },
+    {
+      "id": "exclusions",
+      "label": "Exclusions",
+      "rating": "BROKEN",
+      "hasContent": false,
+      "hasKpis": false,
+      "hasCharts": false,
+      "hasTables": false,
+      "consoleErrors": [
+        "TypeError: re.split is not a function\n    at de (https://memopyk.memopyk.com/assets/index-ToykXIHh.js:741:254191)\n    at Rct (https://memopyk.memopyk.com/assets/index-ToykXIHh.js:741:257316)\n    at fSe (https://memopyk.memopyk.com/assets/index-ToykXIHh.js:38:17179)\n    at zxe (https://memopyk.memopyk.com/assets/index-ToykXIHh.js:40:3170)\n    at zFe (https://memopyk.memopyk.com/assets/index-ToykXIHh.js:40:45275)\n    at LFe (https://memopyk.memopyk.com/assets/index-ToykXIHh.js:40:40162)\n    at oKe (https://memopyk.memopyk.com/assets/index-ToykXIHh.js:40:40085)\n    at Rte (https://memopyk.memopyk.com/assets/index-ToykXIHh.js:40:39932)\n    at Qxe (https://memopyk.memopyk.com/assets/index-ToykXIHh.js:40:36244)\n    at Qje (https://memopyk.memopyk.com/assets/index-ToykXIHh.js:40:37058)"
+      ],
+      "apiCalls": [
+        "https://memopyk.memopyk.com/api/analytics/current-ip"
+      ],
+      "screenshot": "tab-exclusions.png",
+      "notes": [
+        "Error state detected"
+      ],
+      "timestamp": "2026-02-05T06:26:15.712Z"
+    }
+  ],
+  "dataSources": [
+    {
+      "source": "ga4",
+      "kpiValues": {
+        "kpi_0": "Sessions (GA4)12▼ 56% vs previous periodVisitor sessions from Google Analytics",
+        "kpi_1": "Unique Visitors12▼ 48% vs previous periodDistinct visitors (IP-based)",
+        "kpi_2": "Return Visitors1▼ 75% vs previous periodReturning visitors",
+        "kpi_3": "Total Sessions12-55.6%",
+        "kpi_4": "Video Plays00.0%",
+        "kpi_5": "Avg Watch Time0min0.0%",
+        "kpi_6": "Completion Rate00.0%",
+        "kpi_7": "Creator of souvenir films to immortalize your most precious moments.",
+        "kpi_8": "NavigationOur serviceQuotationWhy MEMOPYKGalleryFAQBlogDigitization DirectoryContact",
+        "kpi_9": "LegalLegal NoticeTerms of ServiceTerms of SalePrivacy PolicyCookie PolicyCookie settings",
+        "active_users": "0 active now"
+      },
+      "screenshot": "datasource-ga4.png",
+      "notes": [
+        "Toggled to GA4"
+      ]
+    },
+    {
+      "source": "memopyk",
+      "kpiValues": {
+        "kpi_0": "Sessions (MEMOPYK)12▼ 56% vs previous periodVisitor sessions from MEMOPYK logs (IP-filtered)",
+        "kpi_1": "Unique Visitors12▼ 48% vs previous periodDistinct IP-filtered visitors from MEMOPYK",
+        "kpi_2": "Return Visitors1▼ 75% vs previous periodReturning visitors from MEMOPYK logs",
+        "kpi_3": "Total Sessions12-55.6%",
+        "kpi_4": "Video Plays00.0%",
+        "kpi_5": "Avg Watch Time0min0.0%",
+        "kpi_6": "Completion Rate00.0%",
+        "kpi_7": "Creator of souvenir films to immortalize your most precious moments.",
+        "kpi_8": "NavigationOur serviceQuotationWhy MEMOPYKGalleryFAQBlogDigitization DirectoryContact",
+        "kpi_9": "LegalLegal NoticeTerms of ServiceTerms of SalePrivacy PolicyCookie PolicyCookie settings",
+        "active_users": "0 active now"
+      },
+      "screenshot": "datasource-memopyk.png",
+      "notes": [
+        "Toggled to MEMOPYK"
+      ]
+    }
+  ],
+  "dateFilters": [
+    {
+      "filter": "date",
+      "value": "today",
+      "applied": true,
+      "screenshot": "date-today.png",
+      "notes": []
+    },
+    {
+      "filter": "date",
+      "value": "yesterday",
+      "applied": true,
+      "screenshot": "date-yesterday.png",
+      "notes": []
+    },
+    {
+      "filter": "date",
+      "value": "7d",
+      "applied": true,
+      "screenshot": "date-7d.png",
+      "notes": []
+    },
+    {
+      "filter": "date",
+      "value": "30d",
+      "applied": true,
+      "screenshot": "date-30d.png",
+      "notes": []
+    },
+    {
+      "filter": "date",
+      "value": "90d",
+      "applied": true,
+      "screenshot": "date-90d.png",
+      "notes": []
+    },
+    {
+      "filter": "date",
+      "value": "custom (Jan 1-31 2026)",
+      "applied": true,
+      "screenshot": "date-custom.png",
+      "notes": [
+        "Custom date range applied"
+      ]
+    }
+  ],
+  "languageFilters": [
+    {
+      "filter": "language",
+      "value": "all",
+      "applied": true,
+      "screenshot": "lang-all.png",
+      "notes": []
+    },
+    {
+      "filter": "language",
+      "value": "en",
+      "applied": true,
+      "screenshot": "lang-en.png",
+      "notes": []
+    },
+    {
+      "filter": "language",
+      "value": "fr",
+      "applied": true,
+      "screenshot": "lang-fr.png",
+      "notes": []
+    }
+  ],
+  "countryFilters": [
+    {
+      "filter": "country",
+      "value": "all",
+      "applied": true,
+      "screenshot": "country-all.png",
+      "notes": []
+    },
+    {
+      "filter": "country",
+      "value": "France",
+      "applied": true,
+      "screenshot": "country-france.png",
+      "notes": []
+    },
+    {
+      "filter": "country",
+      "value": "United States",
+      "applied": true,
+      "screenshot": "country-united-states.png",
+      "notes": []
+    },
+    {
+      "filter": "country",
+      "value": "Canada",
+      "applied": true,
+      "screenshot": "country-canada.png",
+      "notes": []
+    },
+    {
+      "filter": "country",
+      "value": "United Kingdom",
+      "applied": true,
+      "screenshot": "country-united-kingdom.png",
+      "notes": []
+    },
+    {
+      "filter": "country",
+      "value": "Germany",
+      "applied": true,
+      "screenshot": "country-germany.png",
+      "notes": []
+    }
+  ],
+  "apiHealth": [
+    {
+      "endpoint": "/api/admin/analytics/overview",
+      "status": 404,
+      "responseTime": 24,
+      "hasData": true
+    },
+    {
+      "endpoint": "/api/admin/analytics/kpis",
+      "status": 404,
+      "responseTime": 24,
+      "hasData": true
+    },
+    {
+      "endpoint": "/api/admin/analytics/sessions",
+      "status": 404,
+      "responseTime": 22,
+      "hasData": true
+    },
+    {
+      "endpoint": "/api/admin/analytics/video-stats",
+      "status": 404,
+      "responseTime": 23,
+      "hasData": true
+    },
+    {
+      "endpoint": "/api/admin/analytics/geographic",
+      "status": 404,
+      "responseTime": 24,
+      "hasData": true
+    },
+    {
+      "endpoint": "/api/admin/analytics/realtime",
+      "status": 404,
+      "responseTime": 23,
+      "hasData": true
+    },
+    {
+      "endpoint": "/api/admin/analytics/trends",
+      "status": 404,
+      "responseTime": 23,
+      "hasData": true
+    },
+    {
+      "endpoint": "/api/admin/analytics/exclusions",
+      "status": 401,
+      "responseTime": 22,
+      "hasData": true
+    },
+    {
+      "endpoint": "/api/ga4/realtime",
+      "status": 200,
+      "responseTime": 23,
+      "hasData": true
+    },
+    {
+      "endpoint": "/api/ga4/kpis",
+      "status": 200,
+      "responseTime": 42,
+      "hasData": true
+    }
+  ],
+  "summary": {
+    "totalTabs": 10,
+    "workingTabs": 6,
+    "partialTabs": 0,
+    "placeholderTabs": 3,
+    "brokenTabs": 1,
+    "emptyTabs": 0,
+    "totalConsoleErrors": 16,
+    "totalApiCalls": 142
+  }
+}

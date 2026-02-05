@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "postgres": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-postgres", "postgresql://postgres:cXrb6cA6Zpy9aDVR3v60Z0XPBIw3cVlY@supabase.memopyk.org:5432/postgres"]
+    }
+  }
+}

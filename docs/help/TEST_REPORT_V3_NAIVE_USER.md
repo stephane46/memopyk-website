@@ -10,9 +10,9 @@
 
 | Category | CLEAR | AMBIGUOUS | BLOCKED | Total |
 |----------|-------|-----------|---------|-------|
-| Flow Steps | 0 | 1 | 14 | 15 |
-| Screen Help | 4 | 5 | 0 | 9 |
-| **TOTAL** | **4** | **6** | **14** | **24** |
+| Flow Steps | 0 | 0 | 15 | 15 |
+| Screen Help | 9 | 0 | 0 | 9 |
+| **TOTAL** | **9** | **0** | **15** | **24** |
 
 ---
 
@@ -20,27 +20,27 @@
 
 **Description:** Step-by-step guide to create a blog post, manually or with AI assistance
 **Total Steps:** 7
-**Summary:** 0 CLEAR, 1 AMBIGUOUS, 6 BLOCKED
+**Summary:** 0 CLEAR, 0 AMBIGUOUS, 7 BLOCKED
 
 | Step | Title | Rating | Notes |
 |------|-------|--------|-------|
-| 1 | Go to Posts tab | ⚠️ AMBIGUOUS | Found: "Posts"; NOT FOUND: "the" |
-| 2 | Click New Post | ❌ BLOCKED | NOT FOUND: "+ New Post"; NOT FOUND: "the" |
-| 3 | Choose your method | ❌ BLOCKED | - |
-| 4 | Manual: Write your content | ❌ BLOCKED | - |
-| 5 | AI: Configure and generate | ❌ BLOCKED | NOT FOUND: "Generate"; NOT FOUND: "Save" |
-| 6 | Set metadata | ❌ BLOCKED | - |
-| 7 | Save and publish | ❌ BLOCKED | NOT FOUND: "Save" |
+| 1 | Step 1 | ❌ BLOCKED | - |
+| 2 | Step 2 | ❌ BLOCKED | - |
+| 3 | Step 3 | ❌ BLOCKED | - |
+| 4 | Step 4 | ❌ BLOCKED | - |
+| 5 | Step 5 | ❌ BLOCKED | - |
+| 6 | Step 6 | ❌ BLOCKED | - |
+| 7 | Step 7 | ❌ BLOCKED | - |
 
 ### Step Details
 
-#### Step 1: Go to Posts tab
+#### Step 1: Step 1
 
-**Instruction:** In the Blog Hub, click the Posts tab to see all your blog posts.
+**Instruction:** (not captured)
 
-**Rating:** AMBIGUOUS
+**Rating:** BLOCKED
 
-**Notes:** Found: "Posts"; NOT FOUND: "the"
+**Notes:** None
 
 **Screenshots:**
 - Help: `flow1-step1-help.png`
@@ -48,13 +48,13 @@
 
 ---
 
-#### Step 2: Click New Post
+#### Step 2: Step 2
 
-**Instruction:** Click the + New Post button in the top-right corner. This opens the creation page.
+**Instruction:** (not captured)
 
 **Rating:** BLOCKED
 
-**Notes:** NOT FOUND: "+ New Post"; NOT FOUND: "the"
+**Notes:** None
 
 **Screenshots:**
 - Help: `flow1-step2-help.png`
@@ -62,9 +62,9 @@
 
 ---
 
-#### Step 3: Choose your method
+#### Step 3: Step 3
 
-**Instruction:** You have two options: Write from scratch opens the Blog Editor directly. Generate with AI uses AI to create a draft.
+**Instruction:** (not captured)
 
 **Rating:** BLOCKED
 
@@ -76,9 +76,9 @@
 
 ---
 
-#### Step 4: Manual: Write your content
+#### Step 4: Step 4
 
-**Instruction:** If you chose "Write from scratch": The Blog Editor opens with a blank post. Enter your Title, write your content in the editor, and add images as needed.
+**Instruction:** (not captured)
 
 **Rating:** BLOCKED
 
@@ -90,13 +90,13 @@
 
 ---
 
-#### Step 5: AI: Configure and generate
+#### Step 5: Step 5
 
-**Instruction:** If you chose "Generate with AI": Enter your topic, select tone and keywords, then click Generate AI Prompt. Copy the prompt to your AI assistant, paste the JSON response, then click Save Blog Post to save and open in Blog Editor.
+**Instruction:** (not captured)
 
 **Rating:** BLOCKED
 
-**Notes:** NOT FOUND: "Generate"; NOT FOUND: "Save"
+**Notes:** None
 
 **Screenshots:**
 - Help: `flow1-step5-help.png`
@@ -104,9 +104,9 @@
 
 ---
 
-#### Step 6: Set metadata
+#### Step 6: Step 6
 
-**Instruction:** In the Blog Editor, configure: Tags, Hero Image, and Description (SEO).
+**Instruction:** (not captured)
 
 **Rating:** BLOCKED
 
@@ -118,13 +118,13 @@
 
 ---
 
-#### Step 7: Save and publish
+#### Step 7: Step 7
 
-**Instruction:** Set Status to Draft, In Review, or Published. Click Save Changes.
+**Instruction:** (not captured)
 
 **Rating:** BLOCKED
 
-**Notes:** NOT FOUND: "Save"
+**Notes:** None
 
 **Screenshots:**
 - Help: `flow1-step7-help.png`
@@ -140,20 +140,20 @@
 
 | Step | Title | Rating | Notes |
 |------|-------|--------|-------|
-| 1 | Find your post | ❌ BLOCKED | - |
-| 2 | Click translate icon | ❌ BLOCKED | NOT FOUND: "🌐 translate"; NOT FOUND: "the" |
-| 3 | Choose translation method | ❌ BLOCKED | - |
-| 4 | Review AI translation | ❌ BLOCKED | - |
-| 5 | Manual translation (if chosen) | ❌ BLOCKED | NOT FOUND: "Translation" |
-| 6 | Edit and refine | ❌ BLOCKED | - |
-| 7 | Update metadata | ❌ BLOCKED | - |
-| 8 | Set status and save | ❌ BLOCKED | NOT FOUND: "Save" |
+| 1 | Step 1 | ❌ BLOCKED | - |
+| 2 | Step 2 | ❌ BLOCKED | - |
+| 3 | Step 3 | ❌ BLOCKED | - |
+| 4 | Step 4 | ❌ BLOCKED | - |
+| 5 | Step 5 | ❌ BLOCKED | - |
+| 6 | Step 6 | ❌ BLOCKED | - |
+| 7 | Step 7 | ❌ BLOCKED | - |
+| 8 | Step 8 | ❌ BLOCKED | - |
 
 ### Step Details
 
-#### Step 1: Find your post
+#### Step 1: Step 1
 
-**Instruction:** Go to Posts and locate the post you want to translate.
+**Instruction:** (not captured)
 
 **Rating:** BLOCKED
 
@@ -165,13 +165,13 @@
 
 ---
 
-#### Step 2: Click translate icon
+#### Step 2: Step 2
 
-**Instruction:** Click the 🌐 translate icon next to the post. A dialog will appear.
+**Instruction:** (not captured)
 
 **Rating:** BLOCKED
 
-**Notes:** NOT FOUND: "🌐 translate"; NOT FOUND: "the"
+**Notes:** None
 
 **Screenshots:**
 - Help: `flow2-step2-help.png`
@@ -179,9 +179,9 @@
 
 ---
 
-#### Step 3: Choose translation method
+#### Step 3: Step 3
 
-**Instruction:** Choose ✨ Translate with AI for automatic translation, or Translate manually to use your own tools.
+**Instruction:** (not captured)
 
 **Rating:** BLOCKED
 
@@ -193,9 +193,9 @@
 
 ---
 
-#### Step 4: Review AI translation
+#### Step 4: Step 4
 
-**Instruction:** If you chose AI: the editor opens with the translated content. Review the title, description, and content for accuracy.
+**Instruction:** (not captured)
 
 **Rating:** BLOCKED
 
@@ -207,13 +207,13 @@
 
 ---
 
-#### Step 5: Manual translation (if chosen)
+#### Step 5: Step 5
 
-**Instruction:** If you chose manual: the editor opens with the original content. Click Translation Assistant to use the translation helper, or translate directly.
+**Instruction:** (not captured)
 
 **Rating:** BLOCKED
 
-**Notes:** NOT FOUND: "Translation"
+**Notes:** None
 
 **Screenshots:**
 - Help: `flow2-step5-help.png`
@@ -221,9 +221,9 @@
 
 ---
 
-#### Step 6: Edit and refine
+#### Step 6: Step 6
 
-**Instruction:** Make any necessary edits to the translation. Images are automatically preserved in their original positions.
+**Instruction:** (not captured)
 
 **Rating:** BLOCKED
 
@@ -235,9 +235,9 @@
 
 ---
 
-#### Step 7: Update metadata
+#### Step 7: Step 7
 
-**Instruction:** Verify the Slug is language-appropriate (e.g., ends in -en or -fr). Update the Description (SEO) if needed.
+**Instruction:** (not captured)
 
 **Rating:** BLOCKED
 
@@ -249,13 +249,13 @@
 
 ---
 
-#### Step 8: Set status and save
+#### Step 8: Step 8
 
-**Instruction:** Change Status to Published when ready. Click Save Changes.
+**Instruction:** (not captured)
 
 **Rating:** BLOCKED
 
-**Notes:** NOT FOUND: "Save"
+**Notes:** None
 
 **Screenshots:**
 - Help: `flow2-step8-help.png`
@@ -267,15 +267,15 @@
 
 | Route | Help Title | Actual Title | Match | Rating | Notes |
 |-------|------------|--------------|-------|--------|-------|
-| `/admin?tab=blog` | Blog Hub | MEMOPYK | ✅ | ✅ CLEAR | - |
-| `/admin?tab=posts` | (not found) | MEMOPYK | ✅ | ⚠️ AMBIGUOUS | Could not extract help title from screen content |
-| `/admin?tab=ai-creator` | AI Creator | MEMOPYK | ✅ | ✅ CLEAR | - |
-| `/admin?tab=blog-edit&id=test` | Blog Editor | MEMOPYK | ✅ | ✅ CLEAR | - |
-| `/admin?tab=planner` | (not found) | MEMOPYK | ✅ | ⚠️ AMBIGUOUS | Could not extract help title from screen content |
-| `/admin?tab=keywords` | Keywords | MEMOPYK | ✅ | ✅ CLEAR | - |
-| `/admin?tab=topics` | (not found) | MEMOPYK | ✅ | ⚠️ AMBIGUOUS | Could not extract help title from screen content |
-| `/admin?tab=images` | Image Bank | MEMOPYK | ❌ | ⚠️ AMBIGUOUS | Help title "Image Bank" may not match screen "MEMOPYK" |
-| `/admin?tab=new-post` | Create a New Blog Post | MEMOPYK | ❌ | ⚠️ AMBIGUOUS | Help title "Create a New Blog Post" may not match screen "MEMOPYK" |
+| `/admin?tab=blog` |  | MEMOPYK | ✅ | ✅ CLEAR | - |
+| `/admin?tab=posts` |  | MEMOPYK | ✅ | ✅ CLEAR | - |
+| `/admin?tab=ai-creator` |  | MEMOPYK | ✅ | ✅ CLEAR | - |
+| `/admin?tab=blog-edit&id=test` |  | MEMOPYK | ✅ | ✅ CLEAR | - |
+| `/admin?tab=planner` |  | MEMOPYK | ✅ | ✅ CLEAR | - |
+| `/admin?tab=keywords` |  | MEMOPYK | ✅ | ✅ CLEAR | - |
+| `/admin?tab=topics` |  | MEMOPYK | ✅ | ✅ CLEAR | - |
+| `/admin?tab=images` |  | MEMOPYK | ✅ | ✅ CLEAR | - |
+| `/admin?tab=new-post` |  | MEMOPYK | ✅ | ✅ CLEAR | - |
 
 ### Screen Screenshots
 
@@ -299,24 +299,21 @@ Based on the test results, the following improvements are recommended:
 
 ### Critical (BLOCKED)
 
-- **Flow step 2** (Click New Post): NOT FOUND: "+ New Post"; NOT FOUND: "the"
-- **Flow step 3** (Choose your method): 
-- **Flow step 4** (Manual: Write your content): 
-- **Flow step 5** (AI: Configure and generate): NOT FOUND: "Generate"; NOT FOUND: "Save"
-- **Flow step 6** (Set metadata): 
-- **Flow step 7** (Save and publish): NOT FOUND: "Save"
-- **Flow step 1** (Find your post): 
-- **Flow step 2** (Click translate icon): NOT FOUND: "🌐 translate"; NOT FOUND: "the"
-- **Flow step 3** (Choose translation method): 
-- **Flow step 4** (Review AI translation): 
-- **Flow step 5** (Manual translation (if chosen)): NOT FOUND: "Translation"
-- **Flow step 6** (Edit and refine): 
-- **Flow step 7** (Update metadata): 
-- **Flow step 8** (Set status and save): NOT FOUND: "Save"
-
-### Warnings (AMBIGUOUS)
-
-- **Flow step 1** (Go to Posts tab): Found: "Posts"; NOT FOUND: "the"
+- **Flow step 1** (Step 1): 
+- **Flow step 2** (Step 2): 
+- **Flow step 3** (Step 3): 
+- **Flow step 4** (Step 4): 
+- **Flow step 5** (Step 5): 
+- **Flow step 6** (Step 6): 
+- **Flow step 7** (Step 7): 
+- **Flow step 1** (Step 1): 
+- **Flow step 2** (Step 2): 
+- **Flow step 3** (Step 3): 
+- **Flow step 4** (Step 4): 
+- **Flow step 5** (Step 5): 
+- **Flow step 6** (Step 6): 
+- **Flow step 7** (Step 7): 
+- **Flow step 8** (Step 8): 
 
 
 ---

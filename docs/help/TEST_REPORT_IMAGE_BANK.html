@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Naive User Test — Image Bank (V3)</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+    h1 { color: #333; border-bottom: 3px solid #D67C4A; padding-bottom: 10px; }
+    h2 { color: #444; margin-top: 30px; border-left: 4px solid #D67C4A; padding-left: 10px; }
+    h3 { color: #555; }
+    .summary-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin: 20px 0; }
+    .status { font-size: 24px; font-weight: bold; padding: 10px 20px; border-radius: 4px; display: inline-block; }
+    .pass { background: #d4edda; color: #155724; }
+    .warning { background: #fff3cd; color: #856404; }
+    .fail { background: #f8d7da; color: #721c24; }
+    table { width: 100%; border-collapse: collapse; margin: 15px 0; background: white; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+    th { background: #f8f9fa; }
+    .rating-clear { color: #28a745; font-weight: bold; }
+    .rating-ambiguous { color: #ffc107; font-weight: bold; }
+    .rating-blocked { color: #dc3545; font-weight: bold; }
+    .screenshot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 15px; margin: 15px 0; }
+    .screenshot-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .screenshot-card img { width: 100%; height: auto; display: block; }
+    .screenshot-card .caption { padding: 10px; font-size: 12px; color: #666; }
+    .phase-section { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .recommendations { background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; }
+    .recommendations li { margin: 8px 0; }
+    pre { background: #f8f9fa; padding: 15px; border-radius: 4px; overflow-x: auto; font-size: 12px; max-height: 400px; }
+    .version-badge { background: #D67C4A; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-left: 10px; }
+  </style>
+</head>
+<body>
+  <h1>🖼️ Naive User Test — Image Bank Screen <span class="version-badge">V2</span></h1>
+
+  <div class="summary-box">
+    <p><strong>Test Date:</strong> 05/02/2026 08:45:37</p>
+    <p><strong>Environment:</strong> https://memopyk.memopyk.com</p>
+    <p><strong>Screen Tested:</strong> Image Bank</p>
+    <p><strong>Version:</strong> V2 (Fixed help content timing)</p>
+
+    <div class="status pass">PASS — 93% CLEAR</div>
+
+    <table style="margin-top: 15px; width: auto;">
+      <tr><th>Rating</th><th>Count</th></tr>
+      <tr><td class="rating-clear">✅ CLEAR</td><td>14</td></tr>
+      <tr><td class="rating-ambiguous">⚠️ AMBIGUOUS</td><td>0</td></tr>
+      <tr><td class="rating-blocked">❌ BLOCKED</td><td>1</td></tr>
+      <tr><th>Total</th><th>15</th></tr>
+    </table>
+  </div>
+
+  
+  <div class="phase-section">
+    <h2>Route Discovery</h2>
+    <p><strong>Summary:</strong> 2 CLEAR, 0 AMBIGUOUS, 1 BLOCKED</p>
+
+    <table>
+      <tr><th>Item</th><th>Rating</th><th>Description</th><th>Notes</th></tr>
+      
+      <tr>
+        <td><strong>Direct URL: /admin?tab=images</strong></td>
+        <td class="rating-clear">✅ CLEAR</td>
+        <td>Page title: "Image Bank". Help works: true</td>
+        <td>Direct URL loads Image Bank with working help</td>
+      </tr>
+      
+      <tr>
+        <td><strong>Direct URL: /admin?tab=image-bank</strong></td>
+        <td class="rating-blocked">❌ BLOCKED</td>
+        <td>Page title: "unknown"</td>
+        <td>Route does NOT load Image Bank - invalid tab name</td>
+      </tr>
+      
+      <tr>
+        <td><strong>Proper Navigation: Sidebar → Blog → Image Bank tab</strong></td>
+        <td class="rating-clear">✅ CLEAR</td>
+        <td>Navigation success: true. URL: https://memopyk.memopyk.com/en-US/admin?tab=images</td>
+        <td>Proper navigation works - this is how users should access Image Bank</td>
+      </tr>
+      
+    </table>
+
+    <div class="screenshot-grid">
+      
+      <div class="screenshot-card">
+        <img src="../../tests/e2e/screenshots/help-validation/image-bank/p1-direct-url-images.png" alt="p1-direct-url-images.png" loading="lazy">
+        <div class="caption">p1-direct-url-images.png — Direct URL: /admin?tab=images</div>
+      </div>
+      
+      <div class="screenshot-card">
+        <img src="../../tests/e2e/screenshots/help-validation/image-bank/p1-direct-url-image-bank.png" alt="p1-direct-url-image-bank.png" loading="lazy">
+        <div class="caption">p1-direct-url-image-bank.png — Direct URL: /admin?tab=image-bank</div>
+      </div>
+      
+      <div class="screenshot-card">
+        <img src="../../tests/e2e/screenshots/help-validation/image-bank/p1-proper-navigation.png" alt="p1-proper-navigation.png" loading="lazy">
+        <div class="caption">p1-proper-navigation.png — Proper Navigation: Sidebar → Blog → Image Bank tab</div>
+      </div>
+      
+    </div>
+  </div>
+  
+  <div class="phase-section">
+    <h2>Help Panel Content</h2>
+    <p><strong>Summary:</strong> 3 CLEAR, 0 AMBIGUOUS, 0 BLOCKED</p>
+
+    <table>
+      <tr><th>Item</th><th>Rating</th><th>Description</th><th>Notes</th></tr>
+      
+      <tr>
+        <td><strong>Help Panel Opened</strong></td>
+        <td class="rating-clear">✅ CLEAR</td>
+        <td>Title: "This Screen". Content length: 606 chars. Real content: true</td>
+        <td>Help panel opens successfully</td>
+      </tr>
+      
+      <tr>
+        <td><strong>Help Content Quality</strong></td>
+        <td class="rating-clear">✅ CLEAR</td>
+        <td>Real content: true. Purpose explained: true</td>
+        <td>Help clearly explains Image Bank purpose and features</td>
+      </tr>
+      
+      <tr>
+        <td><strong>Help Sections Coverage</strong></td>
+        <td class="rating-clear">✅ CLEAR</td>
+        <td>Features section: true. Best practices: true</td>
+        <td>Help includes: Features ✓ Best Practices ✓</td>
+      </tr>
+      
+    </table>
+
+    <div class="screenshot-grid">
+      
+      <div class="screenshot-card">
+        <img src="../../tests/e2e/screenshots/help-validation/image-bank/p2-help-panel-open.png" alt="p2-help-panel-open.png" loading="lazy">
+        <div class="caption">p2-help-panel-open.png — Help Panel Opened</div>
+      </div>
+      
+    </div>
+  </div>
+  
+  <div class="phase-section">
+    <h2>UI Verification</h2>
+    <p><strong>Summary:</strong> 5 CLEAR, 0 AMBIGUOUS, 0 BLOCKED</p>
+
+    <table>
+      <tr><th>Item</th><th>Rating</th><th>Description</th><th>Notes</th></tr>
+      
+      <tr>
+        <td><strong>Upload Button</strong></td>
+        <td class="rating-clear">✅ CLEAR</td>
+        <td>Button text: "Upload Images"</td>
+        <td>Upload button found: "Upload Images"</td>
+      </tr>
+      
+      <tr>
+        <td><strong>Manage Labels Button</strong></td>
+        <td class="rating-clear">✅ CLEAR</td>
+        <td>Button text: "Manage Labels"</td>
+        <td>Labels button found: "Manage Labels"</td>
+      </tr>
+      
+      <tr>
+        <td><strong>Category Filter</strong></td>
+        <td class="rating-clear">✅ CLEAR</td>
+        <td>Filter dropdown visible</td>
+        <td>Category filter is present</td>
+      </tr>
+      
+      <tr>
+        <td><strong>Search Input</strong></td>
+        <td class="rating-clear">✅ CLEAR</td>
+        <td>Search field visible</td>
+        <td>Search input is present</td>
+      </tr>
+      
+      <tr>
+        <td><strong>Image Cards/Grid</strong></td>
+        <td class="rating-clear">✅ CLEAR</td>
+        <td>Found 1 image cards</td>
+        <td>1 images displayed in grid</td>
+      </tr>
+      
+    </table>
+
+    <div class="screenshot-grid">
+      
+      <div class="screenshot-card">
+        <img src="../../tests/e2e/screenshots/help-validation/image-bank/p3-upload-btn.png" alt="p3-upload-btn.png" loading="lazy">
+        <div class="caption">p3-upload-btn.png — Upload Button</div>
+      </div>
+      
+      <div class="screenshot-card">
+        <img src="../../tests/e2e/screenshots/help-validation/image-bank/p3-labels-btn.png" alt="p3-labels-btn.png" loading="lazy">
+        <div class="caption">p3-labels-btn.png — Manage Labels Button</div>
+      </div>
+      
+      <div class="screenshot-card">
+        <img src="../../tests/e2e/screenshots/help-validation/image-bank/p3-category-filter.png" alt="p3-category-filter.png" loading="lazy">
+        <div class="caption">p3-category-filter.png — Category Filter</div>
+      </div>
+      
+      <div class="screenshot-card">
+        <img src="../../tests/e2e/screenshots/help-validation/image-bank/p3-search-input.png" alt="p3-search-input.png" loading="lazy">
+        <div class="caption">p3-search-input.png — Search Input</div>
+      </div>
+      
+      <div class="screenshot-card">
+        <img src="../../tests/e2e/screenshots/help-validation/image-bank/p3-image-grid.png" alt="p3-image-grid.png" loading="lazy">
+        <div class="caption">p3-image-grid.png — Image Cards/Grid</div>
+      </div>
+      
+    </div>
+  </div>
+  
+  <div class="phase-section">
+    <h2>Naive User Actions</h2>
+    <p><strong>Summary:</strong> 4 CLEAR, 0 AMBIGUOUS, 0 BLOCKED</p>
+
+    <table>
+      <tr><th>Item</th><th>Rating</th><th>Description</th><th>Notes</th></tr>
+      
+      <tr>
+        <td><strong>Upload Image Action</strong></td>
+        <td class="rating-clear">✅ CLEAR</td>
+        <td>Modal opened: true. Dropzone visible: true.</td>
+        <td>Upload modal shows clear instructions: "Drop images here or click to browseSupports JPG, PNG, WebP up to 5MB each"</td>
+      </tr>
+      
+      <tr>
+        <td><strong>Search Images Action</strong></td>
+        <td class="rating-clear">✅ CLEAR</td>
+        <td>Searched "test". Cards before: 1, after: 0</td>
+        <td>Search filtered results</td>
+      </tr>
+      
+      <tr>
+        <td><strong>View Image Details</strong></td>
+        <td class="rating-clear">✅ CLEAR</td>
+        <td>Clicked image card. Details visible: true</td>
+        <td>Image details modal opened on click</td>
+      </tr>
+      
+      <tr>
+        <td><strong>Category Filter Action</strong></td>
+        <td class="rating-clear">✅ CLEAR</td>
+        <td>Clicked filter. Options shown: 8</td>
+        <td>Filter dropdown shows 8 options</td>
+      </tr>
+      
+    </table>
+
+    <div class="screenshot-grid">
+      
+      <div class="screenshot-card">
+        <img src="../../tests/e2e/screenshots/help-validation/image-bank/p4-upload-before.png" alt="p4-upload-before.png" loading="lazy">
+        <div class="caption">p4-upload-before.png — Upload Image Action</div>
+      </div>
+      
+      <div class="screenshot-card">
+        <img src="../../tests/e2e/screenshots/help-validation/image-bank/p4-upload-modal.png" alt="p4-upload-modal.png" loading="lazy">
+        <div class="caption">p4-upload-modal.png — Upload Image Action</div>
+      </div>
+      
+      <div class="screenshot-card">
+        <img src="../../tests/e2e/screenshots/help-validation/image-bank/p4-search-action.png" alt="p4-search-action.png" loading="lazy">
+        <div class="caption">p4-search-action.png — Search Images Action</div>
+      </div>
+      
+      <div class="screenshot-card">
+        <img src="../../tests/e2e/screenshots/help-validation/image-bank/p4-image-details.png" alt="p4-image-details.png" loading="lazy">
+        <div class="caption">p4-image-details.png — View Image Details</div>
+      </div>
+      
+      <div class="screenshot-card">
+        <img src="../../tests/e2e/screenshots/help-validation/image-bank/p4-category-dropdown.png" alt="p4-category-dropdown.png" loading="lazy">
+        <div class="caption">p4-category-dropdown.png — Category Filter Action</div>
+      </div>
+      
+    </div>
+  </div>
+  
+
+  <h2>Help Content Extracted</h2>
+  <pre>Help
+This Screen
+Image Bank
+
+Central library for all blog images and media assets.
+
+Features
+Upload — Add new images to the library
+Search — Find images by name or tag
+Organize — Group images by category
+Use in posts — Insert images into blog articles from the Blog Editor
+Best Practices
+Use descriptive filenames for SEO
+Compress images before uploading
+Add alt text for accessibility
+How do I...
+
+Create a blog post
+
+Step-by-step guide to create a blog post, manually or with AI assistance
+
+Translate a post
+
+Translate a post to another language using AI or manual tools
+
+Need more help? Contact support.</pre>
+
+  <h2>Recommendations</h2>
+  
+  <div class="recommendations">
+    <ol>
+      <li>[CRITICAL] Route Discovery → Direct URL: /admin?tab=image-bank: Route does NOT load Image Bank - invalid tab name</li>
+    </ol>
+  </div>
+  
+
+  <footer style="margin-top: 40px; color: #666; font-size: 12px;">
+    Generated by naive-user-image-bank-test.ts (V3)
+  </footer>
+</body>
+</html>

@@ -9,14 +9,35 @@ Quick reference for reporting issues and requesting changes.
 | Who | Owns | Responsibility |
 |-----|------|----------------|
 | **Stéphane** | Decisions | Makes decisions, approves plans, tests in browser |
-| **Claude Chat** | Documentation (*.md) | Writes/updates all markdown files directly, planning, verification |
-| **Claude Code** | Code + Commands | Executes code changes, runs terminal commands (npm, git, curl, etc.), reports back |
+| **Claude Chat** | Documentation (*.md) | Writes/updates all markdown files directly, planning, verification, **proposing UX/UI improvements** |
+| **Claude Code** | Code + Commands + Database | Executes code changes, runs terminal commands (npm, git, psql, etc.), reports back |
 
 **Key rules:**
 - **Claude Chat writes documentation directly** — no prompts needed for .md files
 - **Claude Code writes code** — Claude Chat creates prompts for code changes only
+- **Claude Code handles ALL database operations** — Supabase MCP is unreliable for writes; use `psql` via Claude Code
 - Claude Chat verifies Claude Code's work by reading files
 - Claude Chat MUST put Claude Code prompts in a single code block (for easy copy-paste)
+- **After admin UI changes** — Claude Chat updates help_screens content via Claude Code
+- **Claude Chat proactively suggests UX/UI improvements** — don't hesitate, propose changes
+
+---
+
+## UX/UI Improvements
+
+Part of the Coolify migration is improving the user experience. Claude Chat should:
+
+- **Proactively suggest improvements** — naming, layout, flow, clarity
+- **Point out inconsistencies** — mismatched labels, confusing terminology, dev jargon
+- **Propose before implementing** — explain the suggestion, get approval, then create prompt
+- **Think like a user** — not a developer
+
+Examples of what to look for:
+- Unclear button/tab labels (e.g., "Backlog" → "Topics")
+- Jargon that users won't understand
+- Inconsistent naming across screens
+- Missing feedback (loading states, success messages)
+- Confusing navigation or flow
 
 ---
 
@@ -60,7 +81,12 @@ It's been a while. Please also check:
 6. YOU         → Test in browser, confirm done
 7. CLAUDE CODE → Commits and pushes to `staging` (default)
 
-⚠️ **Deploy where?** Always push to `staging` first. Only push to `main` when Stéphane explicitly says to promote. If unclear, ask: "Deploy to staging or main?"
+**For Database Changes (INSERT/UPDATE/DELETE/DDL):**
+1. CLAUDE CHAT → Creates SQL in Claude Code prompt
+2. CLAUDE CODE → Runs via `psql $DATABASE_URL -c "..."`
+3. No commit needed for data-only changes
+
+⚠️ **Deploy where?** Always push to `staging` first. Only push to `main` when Stéphane explicitly says to promote.
 
 ---
 
@@ -78,99 +104,130 @@ Two branches, two environments:
 ```bash
 # 1. Work on staging branch
 git checkout staging
-# ... make changes ...
 git add . && git commit -m "feat: description"
 git push origin staging
 # → Auto-deploys to memopyk.memopyk.com (~1-2 min)
 
 # 2. Test on staging site
 
-# 3. When ready for main, merge staging to main
+# 3. When ready, merge to main
 git checkout main
 git merge staging
 git push origin main
 # → Auto-deploys to memopyk.com (~1-2 min)
 
-# 4. Return to staging for next work
+# 4. Return to staging
 git checkout staging
 ```
 
-⚠️ **Important Rules:**
-- **Always work on `staging` branch** — never commit directly to `main`
-- **Always test on staging first** — visit memopyk.memopyk.com before promoting
-- **To promote to main:** merge staging → main (don't commit directly to main)
-- **If unsure which branch you're on:** run `git branch` (asterisk shows current branch)
+---
 
-To verify: Check Coolify Deployments tab or visit the appropriate URL
+## Help System
+
+The admin has a built-in Help button ("Aide" in sidebar). Content is stored in Supabase tables:
+- `help_screens` — contextual help per admin screen (HTML content)
+- `help_flows` — step-by-step guides (JSON array of steps)
+
+**Components:**
+- `HelpButton.tsx` — sidebar button, detects current route
+- `HelpDrawer.tsx` — right-side panel (320px), shows screen help + flow list
+- `HelpFlowViewer.tsx` — step-by-step viewer with progress dots
+- `HelpContext.tsx` — React context for help state
+- `useHelp.ts` — data fetching hooks
+
+**When Claude Code changes admin UI:**
+1. Claude Chat creates SQL to update the relevant help_screens entry
+2. Claude Code runs via psql (or Postgres MCP)
+3. Help stays in sync with UI automatically
+
+**Current help_screens (9 screens):**
+- `/admin?tab=blog` — Blog Hub (5 tabs overview)
+- `/admin?tab=posts` — Posts (list, filters, actions)
+- `/admin?tab=new-post` — New Post (CreatePostLanding choices)
+- `/admin?tab=ai-creator` — AI Creator
+- `/admin?tab=blog-edit` — Blog Editor (includes Translation Assistant)
+- `/admin?tab=planner` — Weekly Planner
+- `/admin?tab=keywords` — Keywords
+- `/admin?tab=topics` — Topics
+- `/admin?tab=images` — Image Bank
+
+**Current help_flows (2 flows):**
+- "Create a blog post" — 7 steps (Posts → New Post → Write/AI → Editor → Save)
+- "Translate a post" — 8 steps (Posts → Translate icon → AI/Manual → Editor → Save)
+
+**Visual badge CSS classes:**
+- `.help-btn` — orange (buttons: Save Changes, Generate AI Prompt)
+- `.help-tab` — blue (tabs: Posts, AI Creator)
+- `.help-label` — gray (field names: Title, Tags)
+- `.help-status` — green (statuses: Published, Draft)
+
+---
+
+## Before Writing Claude Code Prompts — Mandatory Checklist
+
+Claude Chat is the orchestrator. Before writing ANY prompt for Claude Code, Claude Chat MUST:
+
+1. **Check existing infrastructure** — Read relevant files to understand what tools, patterns, and code already exist. Never assume.
+2. **Check recent work** — Read MIGRATION_PROGRESS.md and recent commits to understand current state.
+3. **Use the right tools** — The project uses specific technologies. Check before suggesting alternatives:
+   - Browser testing: **Playwright** (not Puppeteer, not Selenium)
+   - Database: **Supabase PostgreSQL** via `psql` or Postgres MCP
+   - Package manager: **npm** (not yarn, not pnpm)
+   - Framework: **React 18 + Vite + Express** (not Next.js)
+4. **Read existing test files** — Before writing a test prompt, read `tests/e2e/` to see patterns, helpers, and naming conventions.
+5. **Reference existing helpers** — Use `tests/e2e/helpers/auth.ts` for login, existing config from `playwright.config.ts`, etc.
+6. **Never hallucinate tools** — If unsure whether a library is installed, check `package.json` first.
+
+**Why this matters:** A wrong prompt wastes Stéphane's time and Claude Code's context. Getting it right the first time is the orchestrator's core job.
+
+---
+
+## Testing Infrastructure
+
+The project has established testing patterns. Claude Chat must know these before writing test-related prompts.
+
+| Component | Location | Notes |
+|-----------|----------|-------|
+| Playwright config | `playwright.config.ts` | Viewport 2560x1440, staging URL, HTML+JSON reporters |
+| Auth helper | `tests/e2e/helpers/auth.ts` | `loginToAdmin()`, `navigateToBlogHub()`, `clickBlogTab()` |
+| E2E tests | `tests/e2e/*.spec.ts` | Standard Playwright test format |
+| Standalone scripts | `tests/e2e/*.ts` (non-spec) | Run with `npx tsx`, use Playwright directly |
+| Screenshots | `tests/e2e/screenshots/` | Organized by test type (help-validation/, etc.) |
+| Naive user test | `tests/e2e/naive-user-help-test.ts` | V1 pattern — Playwright browser walkthrough |
+| Help flow test | `tests/e2e/help-flow-validation.spec.ts` | Spec-based help validation |
+| Cleanup helper | `tests/e2e/helpers/cleanup.ts` | Post-test cleanup utilities |
+
+### Running Tests
+```bash
+# Standard Playwright spec tests
+npx playwright test tests/e2e/homepage.spec.ts
+
+# Standalone scripts (naive-user tests, discovery)
+npx tsx tests/e2e/naive-user-help-test.ts
+```
+
+### Naive User Testing (see docs/help/NAIVE_USER_TEST_PROCEDURE.md)
+This is our custom methodology for validating help content. Claude Chat must read the full procedure before writing any naive-user test prompts.
 
 ---
 
 ## Templates
 
-Use these when reporting issues or requesting changes to Stéphane or Claude Chat.
-
 ### Bug Report
-
 ```
 BUG: [Short description]
-
 Where: [Page URL or admin section]
 What happens:
 Expected:
-Screenshot: [if visual]
 ```
 
 ### Feature Request
-
 ```
 FEATURE: [Short description]
-
 Goal:
 Where: [Which page/section]
-Details:
 Priority: [Nice-to-have / Important / Critical]
 ```
-
-### UI/Design Change
-
-```
-UI CHANGE: [Component/page]
-
-Current:
-Desired:
-Reference: [screenshot or example]
-```
-
-### New Admin Feature
-
-```
-ADMIN FEATURE: [Short description]
-
-Goal:
-Location: [Which admin section]
-User flow: [Step by step]
-Data needed: [Database tables involved]
-```
-
-### Database/Schema Change
-
-```
-SCHEMA CHANGE: [Table or field]
-
-Schema file: shared/schema.ts
-Current:
-Desired:
-Reason:
-```
-
----
-
-## Tips
-
-- One request at a time — Easier to track and verify
-- Include file paths when you know them
-- Screenshots for visual issues
-- Always test Claude Code's changes before confirming done
 
 ---
 

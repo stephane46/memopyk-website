@@ -80,6 +80,7 @@ memopyk-website/
 | guides/BLOG_WORKFLOW.md | Blog post management |
 | guides/TRAVEL_PORTAL.md | Travel upload portal |
 | guides/NEXTCLOUD_INTEGRATION.md | Nextcloud integration design (reference) |
+| guides/PUPPETEER_SCREENSHOTS.md | Screenshot automation (Puppeteer, MCP tools) |
 
 ### Migration History
 | Document | Description |

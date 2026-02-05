@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics Dashboard Audit Report</title>
+  <style>
+    :root {
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --gray: #6b7280;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #f9fafb;
+      color: #111827;
+    }
+    h1, h2, h3 { color: #1f2937; }
+    .header {
+      background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+      color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+    }
+    .header h1 { color: white; margin: 0 0 1rem 0; }
+    .meta { opacity: 0.9; font-size: 0.9rem; }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .summary-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .summary-card .value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--blue);
+    }
+    .summary-card .label { color: var(--gray); font-size: 0.85rem; }
+    .summary-card.working .value { color: var(--green); }
+    .summary-card.broken .value { color: var(--red); }
+    .summary-card.partial .value { color: var(--yellow); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    th { background: #f3f4f6; font-weight: 600; }
+    tr:hover { background: #f9fafb; }
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-working { background: #dcfce7; color: #166534; }
+    .badge-partial { background: #fef3c7; color: #92400e; }
+    .badge-placeholder { background: #e5e7eb; color: #374151; }
+    .badge-broken { background: #fee2e2; color: #991b1b; }
+    .badge-empty { background: #f3f4f6; color: #6b7280; }
+    .check { color: var(--green); }
+    .cross { color: var(--red); }
+    .section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+    .section h2 { margin-top: 0; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+    .screenshot-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+    .screenshot-card {
+      background: #f3f4f6;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .screenshot-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .screenshot-card .caption {
+      padding: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Analytics Dashboard Audit Report</h1>
+    <div class="meta">
+      <strong>Generated:</strong> 2026-02-05T06:27:35.759Z<br>
+      <strong>Duration:</strong> 115.8 seconds<br>
+      <strong>URL:</strong> https://memopyk.memopyk.com
+    </div>
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="value">10</div>
+      <div class="label">Total Tabs</div>
+    </div>
+    <div class="summary-card working">
+      <div class="value">6</div>
+      <div class="label">Working</div>
+    </div>
+    <div class="summary-card partial">
+      <div class="value">0</div>
+      <div class="label">Partial</div>
+    </div>
+    <div class="summary-card">
+      <div class="value">3</div>
+      <div class="label">Placeholder</div>
+    </div>
+    <div class="summary-card broken">
+      <div class="value">1</div>
+      <div class="label">Broken</div>
+    </div>
+    <div class="summary-card">
+      <div class="value">0</div>
+      <div class="label">Empty</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Tab Audit Results</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Tab</th>
+          <th>Rating</th>
+          <th>KPIs</th>
+          <th>Charts</th>
+          <th>Tables</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td><strong>Overview</strong></td>
+          <td><span class="badge badge-placeholder">PLACEHOLDER</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td>Placeholder content detected</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Live View</strong></td>
+          <td><span class="badge badge-working">WORKING</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td>Has KPI cards, Has charts</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Trends</strong></td>
+          <td><span class="badge badge-working">WORKING</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td>Has KPI cards, Has charts</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Video</strong></td>
+          <td><span class="badge badge-working">WORKING</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td>Has KPI cards, Has charts</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Geo</strong></td>
+          <td><span class="badge badge-working">WORKING</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td>Has KPI cards, Has charts</td>
+        </tr>
+        
+        <tr>
+          <td><strong>CTA</strong></td>
+          <td><span class="badge badge-working">WORKING</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td>Has KPI cards, Has charts</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Blog</strong></td>
+          <td><span class="badge badge-working">WORKING</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td>Has KPI cards, Has charts</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Clarity</strong></td>
+          <td><span class="badge badge-placeholder">PLACEHOLDER</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td>Placeholder content detected</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Fallback</strong></td>
+          <td><span class="badge badge-placeholder">PLACEHOLDER</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="cross">✗</span></td>
+          <td>Placeholder content detected</td>
+        </tr>
+        
+        <tr>
+          <td><strong>Exclusions</strong></td>
+          <td><span class="badge badge-broken">BROKEN</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td>Error state detected</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Data Source Toggle</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Source</th>
+          <th>KPIs Captured</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td><strong>GA4</strong></td>
+          <td>11</td>
+          <td>Toggled to GA4</td>
+        </tr>
+        
+        <tr>
+          <td><strong>MEMOPYK</strong></td>
+          <td>11</td>
+          <td>Toggled to MEMOPYK</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Date Range Filters</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Preset</th>
+          <th>Applied</th>
+          <th>Screenshot</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td><strong>today</strong></td>
+          <td><span class="check">✓</span></td>
+          <td>date-today.png</td>
+        </tr>
+        
+        <tr>
+          <td><strong>yesterday</strong></td>
+          <td><span class="check">✓</span></td>
+          <td>date-yesterday.png</td>
+        </tr>
+        
+        <tr>
+          <td><strong>7d</strong></td>
+          <td><span class="check">✓</span></td>
+          <td>date-7d.png</td>
+        </tr>
+        
+        <tr>
+          <td><strong>30d</strong></td>
+          <td><span class="check">✓</span></td>
+          <td>date-30d.png</td>
+        </tr>
+        
+        <tr>
+          <td><strong>90d</strong></td>
+          <td><span class="check">✓</span></td>
+          <td>date-90d.png</td>
+        </tr>
+        
+        <tr>
+          <td><strong>custom (Jan 1-31 2026)</strong></td>
+          <td><span class="check">✓</span></td>
+          <td>date-custom.png</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Language & Country Filters</h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <table>
+        <thead>
+          <tr>
+            <th>Language</th>
+            <th>Applied</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          <tr>
+            <td><strong>ALL</strong></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          
+          <tr>
+            <td><strong>EN</strong></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          
+          <tr>
+            <td><strong>FR</strong></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          
+        </tbody>
+      </table>
+      <table>
+        <thead>
+          <tr>
+            <th>Country</th>
+            <th>Applied</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          <tr>
+            <td><strong>all</strong></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          
+          <tr>
+            <td><strong>France</strong></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          
+          <tr>
+            <td><strong>United States</strong></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          
+          <tr>
+            <td><strong>Canada</strong></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          
+          <tr>
+            <td><strong>United Kingdom</strong></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          
+          <tr>
+            <td><strong>Germany</strong></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>API Health Check</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Endpoint</th>
+          <th>Status</th>
+          <th>Response Time</th>
+          <th>Has Data</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td><code>/api/admin/analytics/overview</code></td>
+          <td><span class="cross">✗</span> 404</td>
+          <td>24ms</td>
+          <td><span class="check">✓</span></td>
+        </tr>
+        
+        <tr>
+          <td><code>/api/admin/analytics/kpis</code></td>
+          <td><span class="cross">✗</span> 404</td>
+          <td>24ms</td>
+          <td><span class="check">✓</span></td>
+        </tr>
+        
+        <tr>
+          <td><code>/api/admin/analytics/sessions</code></td>
+          <td><span class="cross">✗</span> 404</td>
+          <td>22ms</td>
+          <td><span class="check">✓</span></td>
+        </tr>
+        
+        <tr>
+          <td><code>/api/admin/analytics/video-stats</code></td>
+          <td><span class="cross">✗</span> 404</td>
+          <td>23ms</td>
+          <td><span class="check">✓</span></td>
+        </tr>
+        
+        <tr>
+          <td><code>/api/admin/analytics/geographic</code></td>
+          <td><span class="cross">✗</span> 404</td>
+          <td>24ms</td>
+          <td><span class="check">✓</span></td>
+        </tr>
+        
+        <tr>
+          <td><code>/api/admin/analytics/realtime</code></td>
+          <td><span class="cross">✗</span> 404</td>
+          <td>23ms</td>
+          <td><span class="check">✓</span></td>
+        </tr>
+        
+        <tr>
+          <td><code>/api/admin/analytics/trends</code></td>
+          <td><span class="cross">✗</span> 404</td>
+          <td>23ms</td>
+          <td><span class="check">✓</span></td>
+        </tr>
+        
+        <tr>
+          <td><code>/api/admin/analytics/exclusions</code></td>
+          <td><span class="cross">✗</span> 401</td>
+          <td>22ms</td>
+          <td><span class="check">✓</span></td>
+        </tr>
+        
+        <tr>
+          <td><code>/api/ga4/realtime</code></td>
+          <td><span class="check">✓</span> 200</td>
+          <td>23ms</td>
+          <td><span class="check">✓</span></td>
+        </tr>
+        
+        <tr>
+          <td><code>/api/ga4/kpis</code></td>
+          <td><span class="check">✓</span> 200</td>
+          <td>42ms</td>
+          <td><span class="check">✓</span></td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+
+  <footer style="text-align: center; color: var(--gray); padding: 2rem 0;">
+    Generated by Analytics Audit Script v1.0
+  </footer>
+</body>
+</html>

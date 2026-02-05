@@ -27,8 +27,13 @@
       "Bash(wget:*)",
       "Read(*)",
       "Write(*)",
-      "WebSearch"
+      "WebSearch",
+      "WebFetch(domain:memopyk.memopyk.com)",
+      "mcp__postgres__query"
     ],
     "deny": []
-  }
+  },
+  "disabledMcpjsonServers": [
+    "postgres"
+  ]
 }

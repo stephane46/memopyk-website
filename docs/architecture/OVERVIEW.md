@@ -6,6 +6,29 @@
 
 ---
 
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Frontend | React 18 + TypeScript |
+| Build Tool | Vite |
+| Styling | Tailwind CSS |
+| UI Components | shadcn/ui (Radix primitives) |
+| State/Data | React Query (TanStack Query) |
+| Backend | Express.js (Node.js) |
+| Database | Supabase PostgreSQL (40 tables) |
+| ORM | Drizzle ORM |
+| Hosting | Coolify (Docker) on VPS |
+| Maps | Leaflet (Mapbox GL JS upgrade planned) |
+| Icons | Lucide React |
+| Testing | Playwright (e2e) |
+
+**Key URLs:**
+- Staging: https://memopyk.memopyk.com (auto-deploys from `staging` branch)
+- Production: https://memopyk.com (auto-deploys from `main` branch)
+
+---
+
 ## High-Level Architecture
 
 ```
