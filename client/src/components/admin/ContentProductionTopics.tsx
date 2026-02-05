@@ -489,25 +489,25 @@ export function ContentProductionTopics() {
                           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">SEO Data</h4>
                           <div className="space-y-2 text-sm">
                             <div className="flex items-center gap-2">
-                              <span className="text-gray-600 dark:text-gray-400">Primary Keyword:</span>
+                              <span className="font-semibold text-gray-600 dark:text-gray-400">Primary Keyword:</span>
                               <Badge variant="custom" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
                                 {topic.primary_keyword}
                               </Badge>
                             </div>
                             {topic.search_volume && (
                               <div>
-                                <span className="text-gray-600 dark:text-gray-400">Search Volume:</span>
+                                <span className="font-semibold text-gray-600 dark:text-gray-400">Search Volume:</span>
                                 <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.search_volume.toLocaleString()}</span>
                               </div>
                             )}
                             {topic.competition && (
                               <div>
-                                <span className="text-gray-600 dark:text-gray-400">Competition:</span>
+                                <span className="font-semibold text-gray-600 dark:text-gray-400">Competition:</span>
                                 <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.competition}</span>
                               </div>
                             )}
                             <div>
-                              <span className="text-gray-600 dark:text-gray-400">Search Intent:</span>
+                              <span className="font-semibold text-gray-600 dark:text-gray-400">Search Intent:</span>
                               <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.search_intent}</span>
                             </div>
                           </div>
@@ -517,15 +517,15 @@ export function ContentProductionTopics() {
                           <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Content Type</h4>
                           <div className="space-y-2 text-sm">
                             <div>
-                              <span className="text-gray-600 dark:text-gray-400">Type:</span>
+                              <span className="font-semibold text-gray-600 dark:text-gray-400">Type:</span>
                               <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.type}</span>
                             </div>
                             <div>
-                              <span className="text-gray-600 dark:text-gray-400">Category:</span>
+                              <span className="font-semibold text-gray-600 dark:text-gray-400">Category:</span>
                               <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.category}</span>
                             </div>
                             <div>
-                              <span className="text-gray-600 dark:text-gray-400">Target Words:</span>
+                              <span className="font-semibold text-gray-600 dark:text-gray-400">Target Words:</span>
                               <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.target_word_count}</span>
                             </div>
                           </div>
@@ -587,12 +587,12 @@ export function ContentProductionTopics() {
                       {/* Generation Stats */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-gray-200 dark:border-gray-700">
                         <div>
-                          <span className="text-sm text-gray-600 dark:text-gray-400">Times Generated:</span>
+                          <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Times Generated:</span>
                           <span className="ml-2 text-sm font-medium text-gray-900 dark:text-white">{topic.times_generated}</span>
                         </div>
                         {topic.last_generated_at && (
                           <div>
-                            <span className="text-sm text-gray-600 dark:text-gray-400">Last Generated:</span>
+                            <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Last Generated:</span>
                             <span className="ml-2 text-sm font-medium text-gray-900 dark:text-white">
                               {new Date(topic.last_generated_at).toLocaleDateString()}
                             </span>
