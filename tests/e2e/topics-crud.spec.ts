@@ -25,152 +25,137 @@ async function waitForToast(page: Page, textMatch: RegExp | string): Promise<voi
 }
 
 // =============================================================================
-// TEST: TOPICS CRUD
+// TEST: TOPICS CRUD - FULL WORKFLOW
 // =============================================================================
 
 test.describe('Topics CRUD Operations', () => {
-  test.beforeEach(async ({ page }) => {
+  test('Full CRUD workflow: Create, Edit, Delete topic', async ({ page }) => {
+    // =========================================================================
+    // STEP 1: Login and navigate to Topics
+    // =========================================================================
     await loginToAdmin(page);
     await navigateToBlogHub(page);
-  });
-
-  test('1. Navigate to Topics tab and verify list loads', async ({ page }) => {
-    // Click Topics tab
     await clickBlogTab(page, 'topics');
 
-    // Wait for topics list to load - look for accordion items or the Topics card
+    // Wait for topics list to load
     await expect(page.getByTestId('button-new-topic')).toBeVisible({ timeout: 15000 });
-
-    // Verify the Topics card header is visible
     await expect(page.getByText('Topics (')).toBeVisible();
+    await screenshot(page, '1-topics-list-loaded');
+    console.log('✅ Step 1: Topics list loaded');
 
-    // Take screenshot
-    await screenshot(page, 'topics-list-loaded');
-  });
-
-  test('2. Create a new topic', async ({ page }) => {
-    await clickBlogTab(page, 'topics');
-    await expect(page.getByTestId('button-new-topic')).toBeVisible({ timeout: 15000 });
-
-    // Click "New Topic" button
+    // =========================================================================
+    // STEP 2: Create a new topic
+    // =========================================================================
     await page.getByTestId('button-new-topic').click();
 
     // Wait for TopicFormModal to appear
-    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 5000 });
-    await expect(page.getByText('New Topic')).toBeVisible();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible({ timeout: 5000 });
+    await expect(dialog.getByRole('heading', { name: 'New Topic' })).toBeVisible();
 
     // Fill in required fields
-    // Title
-    await page.getByTestId('input-title').fill(TEST_TOPIC_TITLE);
+    await dialog.getByTestId('input-title').fill(TEST_TOPIC_TITLE);
     await page.waitForTimeout(500); // Wait for slug auto-generation
 
     // Verify slug was auto-generated
-    const slugInput = page.getByTestId('input-slug');
+    const slugInput = dialog.getByTestId('input-slug');
     const slugValue = await slugInput.inputValue();
     expect(slugValue).toContain('playwright-test-topic');
 
     // Category - select first option
-    await page.getByTestId('select-category').click();
-    await page.getByRole('option').first().click();
+    await dialog.getByTestId('select-category').click();
+    await page.waitForTimeout(300);
+    await page.locator('[role="listbox"] [role="option"]').first().click();
+    await page.waitForTimeout(300);
 
     // Type - select first option
-    await page.getByTestId('select-type').click();
-    await page.getByRole('option').first().click();
+    await dialog.getByTestId('select-type').click();
+    await page.waitForTimeout(300);
+    await page.locator('[role="listbox"] [role="option"]').first().click();
+    await page.waitForTimeout(300);
 
     // Primary Keyword
-    await page.getByTestId('input-primary-keyword').fill(TEST_KEYWORD);
+    await dialog.getByTestId('input-primary-keyword').fill(TEST_KEYWORD);
 
     // Click Save/Create button
-    await page.getByTestId('button-save').click();
+    await dialog.getByTestId('button-save').click();
 
     // Wait for toast success message
     await waitForToast(page, /created|success/i);
 
     // Wait for modal to close
-    await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 5000 });
+    await expect(dialog).not.toBeVisible({ timeout: 5000 });
 
-    // Verify topic appears in the list - search for it
+    // Search for the created topic
     await page.getByTestId('input-search').fill(TEST_TOPIC_TITLE);
     await page.waitForTimeout(1000);
 
-    // Should see our new topic
+    // Verify topic appears in the list
     await expect(page.getByText(TEST_TOPIC_TITLE)).toBeVisible({ timeout: 5000 });
+    await screenshot(page, '2-topics-create-success');
+    console.log('✅ Step 2: Topic created successfully');
 
-    // Take screenshot
-    await screenshot(page, 'topics-create-success');
-  });
-
-  test('3. Edit the topic', async ({ page }) => {
-    await clickBlogTab(page, 'topics');
-    await expect(page.getByTestId('button-new-topic')).toBeVisible({ timeout: 15000 });
-
-    // Search for our test topic
-    await page.getByTestId('input-search').fill(TEST_TOPIC_TITLE);
-    await page.waitForTimeout(1000);
-
+    // =========================================================================
+    // STEP 3: Edit the topic
+    // =========================================================================
     // Find and expand the topic accordion
     const topicRow = page.locator('[data-testid^="topic-"]').filter({ hasText: TEST_TOPIC_TITLE });
-    await topicRow.click();
+    await topicRow.locator('button').first().click(); // Click the accordion trigger
     await page.waitForTimeout(500);
 
     // Find and click the Edit button
-    const editButton = page.locator(`button[data-testid^="button-edit-topic"]`).first();
+    const editButton = page.locator('button[data-testid^="button-edit-topic"]').first();
     await expect(editButton).toBeVisible({ timeout: 5000 });
     await editButton.click();
 
     // Wait for TopicFormModal in edit mode
-    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 5000 });
-    await expect(page.getByText('Edit Topic')).toBeVisible();
+    const editDialog = page.getByRole('dialog');
+    await expect(editDialog).toBeVisible({ timeout: 5000 });
+    await expect(editDialog.getByRole('heading', { name: 'Edit Topic' })).toBeVisible();
 
     // Change title
-    const titleInput = page.getByTestId('input-title');
+    const titleInput = editDialog.getByTestId('input-title');
     await titleInput.clear();
     await titleInput.fill(TEST_TOPIC_EDITED);
 
     // Click Save/Update button
-    await page.getByTestId('button-save').click();
+    await editDialog.getByTestId('button-save').click();
 
     // Wait for toast success message
     await waitForToast(page, /updated|success/i);
 
     // Wait for modal to close
-    await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 5000 });
+    await expect(editDialog).not.toBeVisible({ timeout: 5000 });
 
-    // Verify updated title shows in list
+    // Search for updated topic
     await page.getByTestId('input-search').clear();
     await page.getByTestId('input-search').fill(TEST_TOPIC_EDITED);
     await page.waitForTimeout(1000);
 
+    // Verify updated title shows
     await expect(page.getByText(TEST_TOPIC_EDITED)).toBeVisible({ timeout: 5000 });
+    await screenshot(page, '3-topics-edit-success');
+    console.log('✅ Step 3: Topic edited successfully');
 
-    // Take screenshot
-    await screenshot(page, 'topics-edit-success');
-  });
-
-  test('4. Delete the topic', async ({ page }) => {
-    await clickBlogTab(page, 'topics');
-    await expect(page.getByTestId('button-new-topic')).toBeVisible({ timeout: 15000 });
-
-    // Search for our edited test topic
-    await page.getByTestId('input-search').fill(TEST_TOPIC_EDITED);
-    await page.waitForTimeout(1000);
-
-    // Find and expand the topic accordion
-    const topicRow = page.locator('[data-testid^="topic-"]').filter({ hasText: TEST_TOPIC_EDITED });
-    await topicRow.click();
+    // =========================================================================
+    // STEP 4: Delete the topic
+    // =========================================================================
+    // Find and expand the edited topic
+    const editedTopicRow = page.locator('[data-testid^="topic-"]').filter({ hasText: TEST_TOPIC_EDITED });
+    await editedTopicRow.locator('button').first().click(); // Click accordion trigger
     await page.waitForTimeout(500);
 
     // Find and click the Delete button
-    const deleteButton = page.locator(`button[data-testid^="button-delete-topic"]`).first();
+    const deleteButton = page.locator('button[data-testid^="button-delete-topic"]').first();
     await expect(deleteButton).toBeVisible({ timeout: 5000 });
     await deleteButton.click();
 
     // Wait for TopicDeleteDialog confirmation
     await expect(page.getByRole('alertdialog')).toBeVisible({ timeout: 5000 });
-    await expect(page.getByText('Delete Topic')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Delete Topic' })).toBeVisible();
 
     // Verify the dialog shows the topic title
-    await expect(page.getByText(TEST_TOPIC_EDITED)).toBeVisible();
+    await expect(page.getByRole('alertdialog').getByText(TEST_TOPIC_EDITED)).toBeVisible();
 
     // Click "Delete Topic" confirmation button
     await page.getByRole('button', { name: /delete topic/i }).click();
@@ -185,14 +170,15 @@ test.describe('Topics CRUD Operations', () => {
     await page.waitForTimeout(1000);
     const topicGone = page.locator('[data-testid^="topic-"]').filter({ hasText: TEST_TOPIC_EDITED });
     await expect(topicGone).not.toBeVisible({ timeout: 5000 });
+    await screenshot(page, '4-topics-delete-success');
+    console.log('✅ Step 4: Topic deleted successfully');
 
-    // Take screenshot
-    await screenshot(page, 'topics-delete-success');
+    console.log('\n✅ All CRUD operations completed successfully!');
   });
 });
 
 // =============================================================================
-// CLEANUP TEST - runs if previous tests failed mid-way
+// CLEANUP TEST - runs to clean up any leftover test topics
 // =============================================================================
 
 test.describe('Topics CRUD Cleanup', () => {
@@ -217,10 +203,10 @@ test.describe('Topics CRUD Cleanup', () => {
       }
 
       // Expand and delete
-      await topicRow.click();
+      await topicRow.locator('button').first().click();
       await page.waitForTimeout(500);
 
-      const deleteButton = page.locator(`button[data-testid^="button-delete-topic"]`).first();
+      const deleteButton = page.locator('button[data-testid^="button-delete-topic"]').first();
       if (await deleteButton.isVisible({ timeout: 2000 }).catch(() => false)) {
         await deleteButton.click();
         await page.waitForTimeout(500);
