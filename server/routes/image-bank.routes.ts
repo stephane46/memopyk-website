@@ -27,7 +27,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { mkdirSync, unlinkSync } from 'fs';
 import sharp from 'sharp';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabase } from './blog-shared';
 import { v4 as uuidv4 } from 'uuid';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -35,17 +35,7 @@ const __dirname = path.dirname(__filename);
 
 const router = Router();
 
-// Lazy Supabase client
-let _supabase: any = null;
-function getSupabase() {
-  if (!_supabase) {
-    _supabase = createClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_KEY!
-    );
-  }
-  return _supabase;
-}
+// Supabase client imported from blog-shared.ts
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(__dirname, '../../uploads');
@@ -214,7 +204,7 @@ router.post('/image-bank/upload', requireAdmin, uploadImage.single('file'), asyn
     const fileBuffer = await sharp(file.path).toBuffer();
 
     const { error: uploadError } = await supabase.storage
-      .from('media')
+      .from('memopyk-blog')
       .upload(storagePath, fileBuffer, {
         contentType: file.mimetype,
         upsert: true
@@ -227,7 +217,7 @@ router.post('/image-bank/upload', requireAdmin, uploadImage.single('file'), asyn
 
     // Get public URL
     const { data: urlData } = supabase.storage
-      .from('media')
+      .from('memopyk-blog')
       .getPublicUrl(storagePath);
 
     const publicUrl = urlData.publicUrl;
@@ -331,7 +321,7 @@ router.delete('/image-bank/:id', requireAdmin, async (req: Request, res: Respons
     // Delete from Supabase Storage
     const supabase = getSupabase();
     const { error: deleteStorageError } = await supabase.storage
-      .from('media')
+      .from('memopyk-blog')
       .remove([image.storagePath]);
 
     if (deleteStorageError) {
