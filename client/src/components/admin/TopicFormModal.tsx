@@ -234,7 +234,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
             {isEditMode ? 'Update the topic details below' : 'Fill in the details to create a new topic'}
           </DialogDescription>
           <p className="text-xs text-gray-500 flex items-center gap-1 mt-2">
-            <Sparkles className="h-3 w-3 flex-shrink-0" style={{ color: '#f59e0b' }} /> = Feeds into AI-generated content
+            <Sparkles className="h-3 w-3 flex-shrink-0" fill="#f59e0b" stroke="#f59e0b" /> = Feeds into AI-generated content
           </p>
         </DialogHeader>
 
@@ -246,7 +246,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <Label className="text-gray-900 dark:text-white flex items-center gap-1">
-                  Title * <Sparkles className="h-3 w-3 flex-shrink-0" style={{ color: '#f59e0b' }} />
+                  Title * <Sparkles className="h-3 w-3 flex-shrink-0" fill="#f59e0b" stroke="#f59e0b" />
                 </Label>
                 <Input
                   value={title}
@@ -320,7 +320,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
 
               <div>
                 <Label className="text-gray-900 dark:text-white flex items-center gap-1">
-                  Target Word Count <Sparkles className="h-3 w-3 flex-shrink-0" style={{ color: '#f59e0b' }} />
+                  Target Word Count <Sparkles className="h-3 w-3 flex-shrink-0" fill="#f59e0b" stroke="#f59e0b" />
                 </Label>
                 <Input
                   type="number"
@@ -342,7 +342,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <Label className="text-gray-900 dark:text-white flex items-center gap-1">
-                  Primary Keyword * <Sparkles className="h-3 w-3 flex-shrink-0" style={{ color: '#f59e0b' }} />
+                  Primary Keyword * <Sparkles className="h-3 w-3 flex-shrink-0" fill="#f59e0b" stroke="#f59e0b" />
                 </Label>
                 <Input
                   value={primaryKeyword}
@@ -356,7 +356,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
 
               <div className="md:col-span-2">
                 <Label className="text-gray-900 dark:text-white flex items-center gap-1">
-                  Secondary Keywords <Sparkles className="h-3 w-3 flex-shrink-0" style={{ color: '#f59e0b' }} />
+                  Secondary Keywords <Sparkles className="h-3 w-3 flex-shrink-0" fill="#f59e0b" stroke="#f59e0b" />
                 </Label>
                 <Input
                   value={secondaryKeywords}
@@ -370,7 +370,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
 
               <div className="md:col-span-2">
                 <Label className="text-gray-900 dark:text-white flex items-center gap-1">
-                  Search Intent <Sparkles className="h-3 w-3 flex-shrink-0" style={{ color: '#f59e0b' }} />
+                  Search Intent <Sparkles className="h-3 w-3 flex-shrink-0" fill="#f59e0b" stroke="#f59e0b" />
                 </Label>
                 <Select value={searchIntent} onValueChange={setSearchIntent}>
                   <SelectTrigger data-testid="select-search-intent">
@@ -438,7 +438,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
 
             <div>
               <Label className="text-gray-900 dark:text-white flex items-center gap-1">
-                Content Angle <Sparkles className="h-3 w-3 flex-shrink-0" style={{ color: '#f59e0b' }} />
+                Content Angle <Sparkles className="h-3 w-3 flex-shrink-0" fill="#f59e0b" stroke="#f59e0b" />
               </Label>
               <Textarea
                 value={contentAngle}
@@ -452,7 +452,7 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
 
             <div>
               <Label className="text-gray-900 dark:text-white flex items-center gap-1">
-                Description <Sparkles className="h-3 w-3 flex-shrink-0" style={{ color: '#f59e0b' }} />
+                Description <Sparkles className="h-3 w-3 flex-shrink-0" fill="#f59e0b" stroke="#f59e0b" />
               </Label>
               <Textarea
                 value={description}
