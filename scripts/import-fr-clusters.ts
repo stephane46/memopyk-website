@@ -1,11 +1,8 @@
 /**
  * Import FR keyword clusters from classified CSV
  *
- * CSV format expected:
- * keyword,cluster
- * "organiser ses photos numériques","photo_organization"
- * "cadeau anniversaire mariage","gift_anniversary"
- * ...
+ * CSV format (from GKP + classification):
+ * "Keyword","Currency","Avg. monthly searches",...,"cluster","confidence"
  *
  * Usage: npx tsx scripts/import-fr-clusters.ts
  */
@@ -25,8 +22,9 @@ const supabase = createClient(
 const CSV_PATH = 'docs/Marketing/FR_keywords_classified.csv';
 
 interface CsvRow {
-  keyword: string;
+  Keyword: string;  // Capital K from CSV header
   cluster: string;
+  confidence?: string;
 }
 
 async function importFrClusters() {
@@ -65,18 +63,30 @@ async function importFrClusters() {
   let matched = 0;
   let updated = 0;
   let skipped = 0;
+  let noCluster = 0;
   const errors: string[] = [];
+  const notFound: string[] = [];
 
   for (const row of records) {
-    if (!row.keyword || !row.cluster) {
+    // Use "Keyword" (capital K) from CSV header
+    const keyword = row.Keyword;
+    const cluster = row.cluster;
+
+    if (!keyword) {
       skipped++;
       continue;
     }
 
-    const keywordLower = row.keyword.toLowerCase().trim();
+    if (!cluster) {
+      noCluster++;
+      continue;
+    }
+
+    const keywordLower = keyword.toLowerCase().trim();
     const keywordId = keywordMap.get(keywordLower);
 
     if (!keywordId) {
+      notFound.push(keyword);
       skipped++;
       continue;
     }
@@ -86,11 +96,11 @@ async function importFrClusters() {
     // Update cluster
     const { error: updateError } = await supabase
       .from('content_keywords')
-      .update({ cluster: row.cluster.trim() })
+      .update({ cluster: cluster.trim() })
       .eq('id', keywordId);
 
     if (updateError) {
-      errors.push(`${row.keyword}: ${updateError.message}`);
+      errors.push(`${keyword}: ${updateError.message}`);
     } else {
       updated++;
     }
@@ -98,10 +108,20 @@ async function importFrClusters() {
 
   // Report
   console.log('\n📊 Import Summary:');
-  console.log(`   CSV rows: ${records.length}`);
-  console.log(`   Matched:  ${matched}`);
-  console.log(`   Updated:  ${updated}`);
-  console.log(`   Skipped:  ${skipped} (not found in DB or empty)`);
+  console.log(`   CSV rows:     ${records.length}`);
+  console.log(`   Matched:      ${matched}`);
+  console.log(`   Updated:      ${updated}`);
+  console.log(`   No cluster:   ${noCluster} (empty cluster field)`);
+  console.log(`   Not in DB:    ${notFound.length}`);
+  console.log(`   Skipped:      ${skipped}`);
+
+  if (notFound.length > 0 && notFound.length <= 20) {
+    console.log(`\n⚠️  Keywords not found in DB:`);
+    notFound.forEach(k => console.log(`   - ${k}`));
+  } else if (notFound.length > 20) {
+    console.log(`\n⚠️  ${notFound.length} keywords not found in DB (showing first 10):`);
+    notFound.slice(0, 10).forEach(k => console.log(`   - ${k}`));
+  }
 
   if (errors.length > 0) {
     console.log(`\n❌ Errors (${errors.length}):`);
