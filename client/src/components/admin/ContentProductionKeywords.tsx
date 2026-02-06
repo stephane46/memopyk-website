@@ -349,7 +349,7 @@ export function ContentProductionKeywords() {
                   className={selectedMarket === 'en' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-market-en"
                 >
-                  🇬🇧 English ({(stats?.byMarket?.en || 0).toLocaleString()})
+                  🇺🇸 English ({(stats?.byMarket?.en || 0).toLocaleString()})
                 </Button>
               </div>
             </div>
@@ -572,7 +572,7 @@ export function ContentProductionKeywords() {
                     </td>
                     <td className="p-3 text-center">
                       <span title={keyword.market === 'fr' ? 'France' : 'English'}>
-                        {keyword.market === 'fr' ? '🇫🇷' : '🇬🇧'}
+                        {keyword.market === 'fr' ? '🇫🇷' : '🇺🇸'}
                       </span>
                     </td>
                     <td className="p-3">

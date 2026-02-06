@@ -215,7 +215,7 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="fr">🇫🇷 France</SelectItem>
-                    <SelectItem value="en">🇬🇧 English</SelectItem>
+                    <SelectItem value="en">🇺🇸 English</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-gray-500 mt-0.5">Target market/language</p>
