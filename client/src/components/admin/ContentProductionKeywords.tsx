@@ -37,6 +37,7 @@ interface KeywordsStats {
   byTier: Record<string, number>;
   byIntent: Record<string, number>;
   byCluster: Record<string, number>;
+  byVolume: Record<string, number>;
 }
 
 interface PaginatedResponse {
@@ -63,6 +64,7 @@ export function ContentProductionKeywords() {
   const [selectedMarkets, setSelectedMarkets] = useState<Set<string>>(new Set(['fr', 'en']));
   const [selectedTiers, setSelectedTiers] = useState<Set<string>>(new Set(['1', '2', '3']));
   const [selectedIntents, setSelectedIntents] = useState<Set<string>>(new Set(['high', 'medium', 'low']));
+  const [selectedVolumes, setSelectedVolumes] = useState<Set<string>>(new Set(['mega', 'high', 'medium', 'low', 'minimal']));
   const [selectedClusters, setSelectedClusters] = useState<Set<string>>(new Set());
   const [clustersInitialized, setClustersInitialized] = useState(false);
   const [sortColumn, setSortColumn] = useState<SortColumn>('monthly_searches');
@@ -129,6 +131,17 @@ export function ContentProductionKeywords() {
     ];
   }, [stats?.byIntent]);
 
+  const volumeOptions: FilterOption[] = useMemo(() => {
+    if (!stats?.byVolume) return [];
+    return [
+      { value: 'mega', label: '50,000+', count: stats.byVolume.mega || 0 },
+      { value: 'high', label: '5,000 - 49,999', count: stats.byVolume.high || 0 },
+      { value: 'medium', label: '500 - 4,999', count: stats.byVolume.medium || 0 },
+      { value: 'low', label: '50 - 499', count: stats.byVolume.low || 0 },
+      { value: 'minimal', label: '0 - 49', count: stats.byVolume.minimal || 0 },
+    ];
+  }, [stats?.byVolume]);
+
   const clusterOptions: FilterOption[] = useMemo(() => {
     if (!stats?.byCluster) return [];
     return Object.entries(stats.byCluster)
@@ -144,6 +157,7 @@ export function ContentProductionKeywords() {
   const allMarkets = marketOptions.length > 0 && selectedMarkets.size === marketOptions.length;
   const allTiers = tierOptions.length > 0 && selectedTiers.size === tierOptions.length;
   const allIntents = intentOptions.length > 0 && selectedIntents.size === intentOptions.length;
+  const allVolumes = volumeOptions.length > 0 && selectedVolumes.size === volumeOptions.length;
   const allClusters = clusterOptions.length > 0 && selectedClusters.size === clusterOptions.length;
 
   // Build query params for paginated fetch
@@ -155,20 +169,22 @@ export function ContentProductionKeywords() {
     if (!allMarkets && selectedMarkets.size > 0) params.set('market', [...selectedMarkets].join(','));
     if (!allTiers && selectedTiers.size > 0) params.set('tier', [...selectedTiers].join(','));
     if (!allIntents && selectedIntents.size > 0) params.set('intent', [...selectedIntents].join(','));
+    if (!allVolumes && selectedVolumes.size > 0) params.set('volume_range', [...selectedVolumes].join(','));
     if (!allClusters && selectedClusters.size > 0) params.set('cluster', [...selectedClusters].join(','));
     if (debouncedSearch) params.set('search', debouncedSearch);
     return params.toString();
-  }, [selectedMarkets, selectedTiers, selectedIntents, selectedClusters, allMarkets, allTiers, allIntents, allClusters, debouncedSearch]);
+  }, [selectedMarkets, selectedTiers, selectedIntents, selectedVolumes, selectedClusters, allMarkets, allTiers, allIntents, allVolumes, allClusters, debouncedSearch]);
 
   // Serialize filter sets for dependency tracking
   const marketKey = [...selectedMarkets].sort().join(',');
   const tierKey = [...selectedTiers].sort().join(',');
   const intentKey = [...selectedIntents].sort().join(',');
+  const volumeKey = [...selectedVolumes].sort().join(',');
   const clusterKey = [...selectedClusters].sort().join(',');
 
   // Fetch initial page of keywords
   const { data: initialData, isLoading: initialLoading, refetch } = useQuery<PaginatedResponse>({
-    queryKey: ['/api/admin/content/keywords', marketKey, tierKey, intentKey, clusterKey, debouncedSearch, currentPage],
+    queryKey: ['/api/admin/content/keywords', marketKey, tierKey, intentKey, volumeKey, clusterKey, debouncedSearch, currentPage],
     queryFn: async () => {
       const params = buildQueryParams(currentPage, PAGE_SIZE);
       const res = await adminFetch(`/api/admin/content/keywords?${params}`);
@@ -230,7 +246,7 @@ export function ContentProductionKeywords() {
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [marketKey, tierKey, intentKey, clusterKey]);
+  }, [marketKey, tierKey, intentKey, volumeKey, clusterKey]);
 
   const handleSort = (column: SortColumn) => {
     if (sortColumn === column) {
@@ -351,11 +367,27 @@ export function ContentProductionKeywords() {
         </Card>
       </div>
 
-      {/* Filters */}
+      {/* Filters — order matches table columns: Keyword | Market | Tier | Searches/mo | Competition | Intent */}
       <Card>
         <CardContent className="pt-4 pb-4">
           <div className="flex flex-wrap items-center gap-2">
-            <Filter className="h-4 w-4 text-gray-500 shrink-0" />
+            <div className="relative w-[180px]">
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-9 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                data-testid="input-keyword-search"
+              />
+            </div>
+            <MultiSelectFilter
+              label="Cluster"
+              options={clusterOptions}
+              selected={selectedClusters}
+              onChange={setSelectedClusters}
+              showSearch
+            />
             <MultiSelectFilter
               label="Market"
               options={marketOptions}
@@ -369,28 +401,17 @@ export function ContentProductionKeywords() {
               onChange={setSelectedTiers}
             />
             <MultiSelectFilter
+              label="Searches"
+              options={volumeOptions}
+              selected={selectedVolumes}
+              onChange={setSelectedVolumes}
+            />
+            <MultiSelectFilter
               label="Intent"
               options={intentOptions}
               selected={selectedIntents}
               onChange={setSelectedIntents}
             />
-            <MultiSelectFilter
-              label="Cluster"
-              options={clusterOptions}
-              selected={selectedClusters}
-              onChange={setSelectedClusters}
-              showSearch
-            />
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search keywords..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-9 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                data-testid="input-keyword-search"
-              />
-            </div>
           </div>
         </CardContent>
       </Card>
@@ -518,8 +539,15 @@ export function ContentProductionKeywords() {
                   >
                     <td className="p-3">
                       <div className="flex items-center gap-2">
-                        <TrendingUp className="h-4 w-4 text-gray-400" />
-                        <span className="font-medium text-gray-900 dark:text-white">{keyword.keyword}</span>
+                        <TrendingUp className="h-4 w-4 text-gray-400 shrink-0" />
+                        <div className="min-w-0">
+                          <span className="font-medium text-gray-900 dark:text-white">{keyword.keyword}</span>
+                          {keyword.cluster && (
+                            <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">
+                              · {formatCluster(keyword.cluster)}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </td>
                     <td className="p-3 text-center">

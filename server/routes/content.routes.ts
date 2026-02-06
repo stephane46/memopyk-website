@@ -138,10 +138,19 @@ router.get('/keywords/stats', requireAdmin, async (req: Request, res: Response) 
       byTier: {} as Record<string, number>,
       byIntent: {} as Record<string, number>,
       byCluster: {} as Record<string, number>,
+      byVolume: { mega: 0, high: 0, medium: 0, low: 0, minimal: 0 } as Record<string, number>,
     };
 
     for (const k of keywords || []) {
-      stats.totalVolume += k.monthly_searches || 0;
+      const vol = k.monthly_searches || 0;
+      stats.totalVolume += vol;
+
+      // Volume range counts
+      if (vol >= 50000) stats.byVolume.mega++;
+      else if (vol >= 5000) stats.byVolume.high++;
+      else if (vol >= 500) stats.byVolume.medium++;
+      else if (vol >= 50) stats.byVolume.low++;
+      else stats.byVolume.minimal++;
 
       // Tier counts
       const tier = String(k.tier || 0);
@@ -179,7 +188,7 @@ router.get('/keywords/stats', requireAdmin, async (req: Request, res: Response) 
  */
 router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const { tier, intent, market, cluster, search, page, limit, offset } = req.query;
+    const { tier, intent, market, cluster, search, volume_range, page, limit, offset } = req.query;
     const sb = getSupabase();
 
     // Parse pagination params
@@ -237,6 +246,26 @@ router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
       } else {
         countQuery = countQuery.in('cluster', clusters);
         dataQuery = dataQuery.in('cluster', clusters);
+      }
+    }
+    if (volume_range) {
+      // Volume ranges: mega(50000+), high(5000-49999), medium(500-4999), low(50-499), minimal(0-49)
+      const ranges = (volume_range as string).split(',').map(r => r.trim());
+      const rangeBounds: Record<string, [number, number]> = {
+        mega: [50000, 999999999],
+        high: [5000, 49999],
+        medium: [500, 4999],
+        low: [50, 499],
+        minimal: [0, 49],
+      };
+      // Build OR conditions for selected ranges
+      const conditions = ranges
+        .filter(r => rangeBounds[r])
+        .map(r => `monthly_searches.gte.${rangeBounds[r][0]},monthly_searches.lte.${rangeBounds[r][1]}`);
+      if (conditions.length > 0) {
+        const orFilter = conditions.map(c => `and(${c})`).join(',');
+        countQuery = countQuery.or(orFilter);
+        dataQuery = dataQuery.or(orFilter);
       }
     }
 

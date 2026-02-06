@@ -17,7 +17,7 @@
 | Partner Directory | ✅ Working (Mapbox GL JS upgrade planned) |
 | Auto-deploy | ✅ Enabled (push → GitHub webhook → Coolify) |
 | Help System | ✅ Complete (9 screens + 2 flows, visual badges, localStorage persistence) |
-| Blog Hub | ✅ Workflow tabs + Keywords (12,501 FR+EN) |
+| Blog Hub | ✅ Workflow tabs + Keywords (12,501 FR+EN, 25 clusters, multi-select filters) |
 | **Production** | ✅ **LIVE on Coolify** (Replit replaced) |
 
 ## Quick Commands
