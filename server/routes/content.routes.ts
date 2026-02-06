@@ -87,6 +87,7 @@ const keywordSchema = z.object({
   difficulty_score: z.number().int().min(0).max(100).nullable().optional(),
   intent: z.string().max(50).nullable().optional(),
   tier: z.number().int().min(1).max(4).nullable().optional(),
+  market: z.enum(['fr', 'en']).optional().default('fr'),
   seasonal: z.boolean().optional(),
   seasonal_months: z.array(z.string()).nullable().optional(),
   notes: z.string().max(2000).nullable().optional(),
@@ -104,13 +105,14 @@ const keywordUpdateSchema = keywordSchema.partial();
  */
 router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const { tier, intent } = req.query;
+    const { tier, intent, market } = req.query;
     const sb = getSupabase();
 
     let query = sb.from('content_keywords').select('*');
 
     if (tier) query = query.eq('tier', parseInt(tier as string));
     if (intent) query = query.eq('intent', intent as string);
+    if (market) query = query.eq('market', market as string);
 
     const { data, error } = await query.order('created_at', { ascending: false });
 

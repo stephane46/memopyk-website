@@ -796,17 +796,18 @@ export type InsertContentTopic = z.infer<typeof insertContentTopicSchema>;
 // Content keywords table - stores SEO keyword research data
 export const contentKeywords = pgTable("content_keywords", {
   id: uuid("id").primaryKey().defaultRandom(),
-  
+
   keyword: text("keyword").notNull().unique(),
   monthlySearches: integer("monthly_searches"),
   competition: text("competition"),
   difficultyScore: integer("difficulty_score"),
   intent: text("intent"),
   tier: integer("tier"),
+  market: text("market").default("fr"), // 'fr' | 'en'
   seasonal: boolean("seasonal").default(false),
   seasonalMonths: text("seasonal_months").array(),
   notes: text("notes"),
-  
+
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow()
 });

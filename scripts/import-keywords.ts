@@ -300,6 +300,7 @@ async function importKeywords() {
     competition: string;
     tier: number;
     intent: string;
+    market: string;
   }> = [];
 
   const tierCounts = { 1: 0, 2: 0, 3: 0, 4: 0 };
@@ -319,7 +320,8 @@ async function importKeywords() {
         monthly_searches: row.monthly_searches,
         competition: row.competition,
         tier,
-        intent
+        intent,
+        market: 'fr' // French keywords from GKP France
       });
     }
   }

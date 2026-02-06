@@ -17,6 +17,7 @@ interface ContentKeyword {
   competition: string;
   intent: string;
   tier: number;
+  market: string;
   difficulty_score?: number;
   seasonal?: boolean;
   seasonal_months?: string[];
@@ -47,6 +48,7 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
   const [competition, setCompetition] = useState('');
   const [intent, setIntent] = useState('');
   const [tier, setTier] = useState('');
+  const [market, setMarket] = useState('fr');
   const [difficultyScore, setDifficultyScore] = useState('');
   const [seasonal, setSeasonal] = useState(false);
   const [seasonalMonths, setSeasonalMonths] = useState<string[]>([]);
@@ -62,6 +64,7 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
       setCompetition(keyword.competition || '');
       setIntent(keyword.intent || '');
       setTier(keyword.tier?.toString() || '');
+      setMarket(keyword.market || 'fr');
       setDifficultyScore(keyword.difficulty_score?.toString() || '');
       setSeasonal(keyword.seasonal || false);
       setSeasonalMonths(keyword.seasonal_months || []);
@@ -73,6 +76,7 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
       setCompetition('');
       setIntent('medium');
       setTier('3');
+      setMarket('fr');
       setDifficultyScore('');
       setSeasonal(false);
       setSeasonalMonths([]);
@@ -96,6 +100,7 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
         competition: competition || null,
         intent: intent || 'medium',
         tier: tier ? parseInt(tier) : 3,
+        market: market || 'fr',
         difficulty_score: difficultyScore ? parseInt(difficultyScore) : null,
         seasonal,
         seasonal_months: seasonal && seasonalMonths.length > 0 ? seasonalMonths : null,
@@ -201,7 +206,21 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b pb-2">Classification</h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label className="text-gray-900 dark:text-white">Market</Label>
+                <Select value={market} onValueChange={setMarket}>
+                  <SelectTrigger data-testid="select-market">
+                    <SelectValue placeholder="Select market" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fr">🇫🇷 France</SelectItem>
+                    <SelectItem value="en">🇬🇧 English</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500 mt-0.5">Target market/language</p>
+              </div>
+
               <div>
                 <Label className="text-gray-900 dark:text-white">Tier</Label>
                 <Select value={tier} onValueChange={setTier}>

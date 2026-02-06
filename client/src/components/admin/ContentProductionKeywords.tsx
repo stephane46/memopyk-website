@@ -16,6 +16,7 @@ interface ContentKeyword {
   competition: string;
   intent: string;
   tier: number;
+  market: string;
   difficulty_score?: number;
   seasonal?: boolean;
   seasonal_months?: string[];
@@ -31,6 +32,7 @@ export function ContentProductionKeywords() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTier, setSelectedTier] = useState<number | null>(null);
   const [selectedIntent, setSelectedIntent] = useState<string | null>(null);
+  const [selectedMarket, setSelectedMarket] = useState<string | null>(null);
   const [sortColumn, setSortColumn] = useState<SortColumn>('monthly_searches');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
@@ -57,7 +59,8 @@ export function ContentProductionKeywords() {
       const matchesSearch = keyword.keyword.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesTier = selectedTier === null || keyword.tier === selectedTier;
       const matchesIntent = selectedIntent === null || keyword.intent.toLowerCase() === selectedIntent.toLowerCase();
-      return matchesSearch && matchesTier && matchesIntent;
+      const matchesMarket = selectedMarket === null || keyword.market === selectedMarket;
+      return matchesSearch && matchesTier && matchesIntent && matchesMarket;
     })
     .sort((a, b) => {
       let aValue: any = a[sortColumn];
@@ -88,6 +91,12 @@ export function ContentProductionKeywords() {
   const intentStats = keywords.reduce((acc, k) => {
     const intent = k.intent.toLowerCase();
     acc[intent] = (acc[intent] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const marketStats = keywords.reduce((acc, k) => {
+    const market = k.market || 'fr';
+    acc[market] = (acc[market] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
@@ -202,6 +211,40 @@ export function ContentProductionKeywords() {
                 className="pl-10 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 data-testid="input-keyword-search"
               />
+            </div>
+
+            {/* Market Filter */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Market</label>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedMarket(null)}
+                  className={selectedMarket === null ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
+                  data-testid="button-market-all"
+                >
+                  All ({keywords.length})
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedMarket('fr')}
+                  className={selectedMarket === 'fr' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
+                  data-testid="button-market-fr"
+                >
+                  🇫🇷 France ({marketStats['fr'] || 0})
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedMarket('en')}
+                  className={selectedMarket === 'en' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
+                  data-testid="button-market-en"
+                >
+                  🇬🇧 English ({marketStats['en'] || 0})
+                </Button>
+              </div>
             </div>
 
             {/* Tier Filter */}
@@ -335,6 +378,9 @@ export function ContentProductionKeywords() {
                       )}
                     </button>
                   </th>
+                  <th className="text-center p-3">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Market</span>
+                  </th>
                   <th className="text-left p-3">
                     <button
                       onClick={() => handleSort('tier')}
@@ -411,9 +457,14 @@ export function ContentProductionKeywords() {
                         <span className="font-medium text-gray-900 dark:text-white">{keyword.keyword}</span>
                       </div>
                     </td>
+                    <td className="p-3 text-center">
+                      <span title={keyword.market === 'fr' ? 'France' : 'English'}>
+                        {keyword.market === 'fr' ? '🇫🇷' : '🇬🇧'}
+                      </span>
+                    </td>
                     <td className="p-3">
-                      <Badge 
-                        variant="custom" 
+                      <Badge
+                        variant="custom"
                         className={getTierBadgeColor(keyword.tier)}
                         data-tier-badge={keyword.tier}
                       >
