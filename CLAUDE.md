@@ -37,6 +37,13 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-06: Keywords Topics/Posts counts — Clickable counts navigate to filtered Topics/Posts tabs
+- 2026-02-06: Keywords cluster formatting — Distinctive display (not plain text), filter alignment with columns
+- 2026-02-06: Keywords Competition colors — Restored colored text (green/amber/red)
+- 2026-02-06: Keywords help updated — Complete rewrite with filtering system, all columns documented
+- 2026-02-06: Topics cleanup — Deleted 102 old unverified topics, clean slate for fresh generation
+- 2026-02-06: Keywords volume filter — Added Searches/mo range filter (mega/high/medium/low/minimal)
+- 2026-02-06: Keywords cluster display — Inline after keyword, filter order matches table columns
 - 2026-02-06: Excel-style multi-select filters — All keyword filters (Market, Tier, Intent, Cluster) now use checkbox dropdowns with Select All, search, OK/Cancel
 - 2026-02-06: Cluster refinement — 4,079 keywords reclassified (split gift_anniversary, vhs_legacy; triaged "other" cluster)
 - 2026-02-06: FR clusters imported — 2,605 FR keywords classified into clusters

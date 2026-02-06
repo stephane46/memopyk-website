@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, TrendingUp, Target, Filter, ArrowUpDown, ArrowUp, ArrowDown, FileText, Plus, Pencil, Trash2, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, TrendingUp, Target, ArrowUpDown, ArrowUp, ArrowDown, Tag, Plus, Pencil, Trash2, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ContentKeywordsSkeleton } from '@/admin/skeletons/ContentKeywordsSkeleton';
 import { KeywordFormModal } from './KeywordFormModal';
 import { KeywordDeleteDialog } from './KeywordDeleteDialog';
@@ -24,6 +24,8 @@ interface ContentKeyword {
   seasonal?: boolean;
   seasonal_months?: string[];
   cluster?: string;
+  topics_count?: number;
+  posts_count?: number;
   created_at: string;
   updated_at: string;
 }
@@ -316,6 +318,29 @@ export function ContentProductionKeywords() {
     }
   };
 
+  // Competition colors: Low = easy = green, Medium = amber, High = hard = red
+  const getCompetitionColor = (comp: string) => {
+    switch (comp?.toLowerCase()) {
+      case 'low':
+        return 'text-green-600 dark:text-green-400';
+      case 'medium':
+        return 'text-amber-600 dark:text-amber-400';
+      case 'high':
+        return 'text-red-600 dark:text-red-400';
+      default:
+        return 'text-gray-500 dark:text-gray-400';
+    }
+  };
+
+  // Navigate to another tab with keyword filter
+  const navigateToTab = (tab: string, keyword: string) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set('tab', tab);
+    params.set('search', keyword);
+    params.delete('highlight');
+    window.location.href = `${window.location.pathname}?${params.toString()}`;
+  };
+
   if (statsLoading || initialLoading) {
     return <ContentKeywordsSkeleton />;
   }
@@ -367,55 +392,6 @@ export function ContentProductionKeywords() {
         </Card>
       </div>
 
-      {/* Filters — order matches table columns: Keyword | Market | Tier | Searches/mo | Competition | Intent */}
-      <Card>
-        <CardContent className="pt-4 pb-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="relative w-[180px]">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-9 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                data-testid="input-keyword-search"
-              />
-            </div>
-            <MultiSelectFilter
-              label="Cluster"
-              options={clusterOptions}
-              selected={selectedClusters}
-              onChange={setSelectedClusters}
-              showSearch
-            />
-            <MultiSelectFilter
-              label="Market"
-              options={marketOptions}
-              selected={selectedMarkets}
-              onChange={setSelectedMarkets}
-            />
-            <MultiSelectFilter
-              label="Tier"
-              options={tierOptions}
-              selected={selectedTiers}
-              onChange={setSelectedTiers}
-            />
-            <MultiSelectFilter
-              label="Searches"
-              options={volumeOptions}
-              selected={selectedVolumes}
-              onChange={setSelectedVolumes}
-            />
-            <MultiSelectFilter
-              label="Intent"
-              options={intentOptions}
-              selected={selectedIntents}
-              onChange={setSelectedIntents}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Keywords Table */}
       <Card>
         <CardHeader>
@@ -449,6 +425,67 @@ export function ContentProductionKeywords() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
+                {/* Filter row — aligned with table columns */}
+                <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                  <th className="p-2 text-left">
+                    <div className="flex items-center gap-1">
+                      <div className="relative flex-1">
+                        <Search className="absolute left-2 top-2 h-3.5 w-3.5 text-gray-400" />
+                        <Input
+                          placeholder="Search..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="pl-7 h-8 text-sm bg-white dark:bg-gray-800"
+                          data-testid="input-keyword-search"
+                        />
+                      </div>
+                      <MultiSelectFilter
+                        label="Cluster"
+                        options={clusterOptions}
+                        selected={selectedClusters}
+                        onChange={setSelectedClusters}
+                        showSearch
+                      />
+                    </div>
+                  </th>
+                  <th className="p-2 text-center">
+                    <MultiSelectFilter
+                      label="Market"
+                      options={marketOptions}
+                      selected={selectedMarkets}
+                      onChange={setSelectedMarkets}
+                    />
+                  </th>
+                  <th className="p-2">
+                    <MultiSelectFilter
+                      label="Tier"
+                      options={tierOptions}
+                      selected={selectedTiers}
+                      onChange={setSelectedTiers}
+                    />
+                  </th>
+                  <th className="p-2 text-right">
+                    <MultiSelectFilter
+                      label="Searches"
+                      options={volumeOptions}
+                      selected={selectedVolumes}
+                      onChange={setSelectedVolumes}
+                    />
+                  </th>
+                  <th className="p-2" />
+                  <th className="p-2">
+                    <MultiSelectFilter
+                      label="Intent"
+                      options={intentOptions}
+                      selected={selectedIntents}
+                      onChange={setSelectedIntents}
+                    />
+                  </th>
+                  <th className="p-2" />
+                  <th className="p-2" />
+                  <th className="p-2" />
+                </tr>
+                {/* Column headers row */}
                 <tr className="border-b border-gray-200 dark:border-gray-700">
                   <th className="text-left p-3">
                     <button
@@ -501,7 +538,7 @@ export function ContentProductionKeywords() {
                       className="flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
                       data-testid="sort-competition"
                     >
-                      Competition
+                      Comp.
                       {sortColumn === 'competition' ? (
                         sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />
                       ) : (
@@ -524,6 +561,12 @@ export function ContentProductionKeywords() {
                     </button>
                   </th>
                   <th className="text-center p-3">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Topics</span>
+                  </th>
+                  <th className="text-center p-3">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Posts</span>
+                  </th>
+                  <th className="text-center p-3">
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Actions
                     </span>
@@ -543,8 +586,9 @@ export function ContentProductionKeywords() {
                         <div className="min-w-0">
                           <span className="font-medium text-gray-900 dark:text-white">{keyword.keyword}</span>
                           {keyword.cluster && (
-                            <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">
-                              · {formatCluster(keyword.cluster)}
+                            <span className="inline-flex items-center gap-1 ml-2 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950 rounded px-1.5 py-0.5">
+                              <Tag className="h-3 w-3" />
+                              {formatCluster(keyword.cluster)}
                             </span>
                           )}
                         </div>
@@ -567,13 +611,41 @@ export function ContentProductionKeywords() {
                     <td className="p-3 text-right text-gray-900 dark:text-white">
                       {keyword.monthly_searches?.toLocaleString() || 'N/A'}
                     </td>
-                    <td className="p-3 text-gray-700 dark:text-gray-300">
-                      {keyword.competition || '—'}
+                    <td className="p-3">
+                      <span className={`font-medium ${getCompetitionColor(keyword.competition)}`}>
+                        {keyword.competition || '—'}
+                      </span>
                     </td>
                     <td className="p-3">
                       <Badge variant="custom" className={getIntentColor(keyword.intent)}>
                         {keyword.intent}
                       </Badge>
+                    </td>
+                    <td className="p-3 text-center">
+                      {keyword.topics_count ? (
+                        <button
+                          onClick={() => navigateToTab('topics', keyword.keyword)}
+                          className="text-sm font-medium text-[#D67C4A] hover:underline"
+                          title={`View ${keyword.topics_count} topic(s)`}
+                        >
+                          {keyword.topics_count}
+                        </button>
+                      ) : (
+                        <span className="text-gray-300 dark:text-gray-600">—</span>
+                      )}
+                    </td>
+                    <td className="p-3 text-center">
+                      {keyword.posts_count ? (
+                        <button
+                          onClick={() => navigateToTab('planner', keyword.keyword)}
+                          className="text-sm font-medium text-[#D67C4A] hover:underline"
+                          title={`View ${keyword.posts_count} post(s)`}
+                        >
+                          {keyword.posts_count}
+                        </button>
+                      ) : (
+                        <span className="text-gray-300 dark:text-gray-600">—</span>
+                      )}
                     </td>
                     <td className="p-3">
                       <div className="flex justify-center gap-1">
@@ -596,23 +668,6 @@ export function ContentProductionKeywords() {
                           data-testid={`button-delete-keyword-${keyword.id}`}
                         >
                           <Trash2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            const params = new URLSearchParams(window.location.search);
-                            params.set('tab', 'topics');
-                            params.set('search', keyword.keyword);
-                            params.delete('highlight');
-                            const newUrl = `${window.location.pathname}?${params.toString()}`;
-                            window.location.href = newUrl;
-                          }}
-                          className="text-[#D67C4A] hover:text-[#D67C4A] hover:bg-orange-50"
-                          title={`View topics using "${keyword.keyword}"`}
-                          data-testid={`button-view-topics-${keyword.id}`}
-                        >
-                          <FileText className="h-4 w-4" />
                         </Button>
                       </div>
                     </td>

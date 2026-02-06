@@ -280,19 +280,72 @@ router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
 
     if (error) throw error;
 
+    // Enrich with topics_count and posts_count for this page of keywords
+    const keywords = data || [];
+    if (keywords.length > 0) {
+      const kwTexts = [...new Set(keywords.map((k: any) => k.keyword))];
+      const kwMarkets = [...new Set(keywords.map((k: any) => k.market))];
+
+      // Topics count: group by (primary_keyword, market)
+      const { data: topicCounts } = await sb
+        .from('content_topics')
+        .select('id, primary_keyword, market')
+        .in('primary_keyword', kwTexts)
+        .in('market', kwMarkets);
+
+      // Posts count: topics that have linked blog posts
+      const topicIds = topicCounts?.map((t: any) => t.id).filter(Boolean) || [];
+      let postCounts: any[] = [];
+      if (topicIds.length > 0) {
+        const { data: posts } = await sb
+          .from('blog_posts')
+          .select('source_topic_id')
+          .in('source_topic_id', topicIds);
+        postCounts = posts || [];
+      }
+
+      // Build lookup maps: "keyword|market" → count
+      const topicCountMap: Record<string, number> = {};
+      const topicIdsByKw: Record<string, string[]> = {};
+      for (const t of topicCounts || []) {
+        const key = `${t.primary_keyword}|${t.market}`;
+        topicCountMap[key] = (topicCountMap[key] || 0) + 1;
+        if (!topicIdsByKw[key]) topicIdsByKw[key] = [];
+        topicIdsByKw[key].push(t.id);
+      }
+
+      const postCountMap: Record<string, number> = {};
+      for (const p of postCounts) {
+        // Find which keyword this post's topic belongs to
+        for (const [key, ids] of Object.entries(topicIdsByKw)) {
+          if (ids.includes(p.source_topic_id)) {
+            postCountMap[key] = (postCountMap[key] || 0) + 1;
+            break;
+          }
+        }
+      }
+
+      // Attach counts to each keyword
+      for (const kw of keywords) {
+        const key = `${kw.keyword}|${kw.market}`;
+        kw.topics_count = topicCountMap[key] || 0;
+        kw.posts_count = postCountMap[key] || 0;
+      }
+    }
+
     // Return paginated response
     const total = count || 0;
     const totalPages = Math.ceil(total / limitNum);
 
     res.json({
-      keywords: data || [],
+      keywords,
       pagination: {
         page: pageNum,
         limit: limitNum,
         offset: offsetNum,
         total,
         totalPages,
-        hasMore: offsetNum + (data?.length || 0) < total
+        hasMore: offsetNum + (keywords.length || 0) < total
       }
     });
   } catch (error: any) {
