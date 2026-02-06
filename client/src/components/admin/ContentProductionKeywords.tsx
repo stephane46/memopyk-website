@@ -10,6 +10,7 @@ import { ContentKeywordsSkeleton } from '@/admin/skeletons/ContentKeywordsSkelet
 import { KeywordFormModal } from './KeywordFormModal';
 import { KeywordDeleteDialog } from './KeywordDeleteDialog';
 import { adminFetch } from '@/lib/queryClient';
+import { formatCluster } from '@/lib/utils';
 
 interface ContentKeyword {
   id: string;
@@ -575,10 +576,12 @@ export function ContentProductionKeywords() {
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <StickyNote className="h-4 w-4 text-amber-500 cursor-help flex-shrink-0" />
+                                <Badge variant="custom" className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 text-xs cursor-help">
+                                  {formatCluster(keyword.cluster)}
+                                </Badge>
                               </TooltipTrigger>
                               <TooltipContent side="right" className="max-w-xs">
-                                <p className="text-sm font-medium">Cluster: {keyword.cluster}</p>
+                                <p className="text-sm">Cluster: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">{keyword.cluster}</code></p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
