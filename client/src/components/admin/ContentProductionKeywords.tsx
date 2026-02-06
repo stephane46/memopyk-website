@@ -199,10 +199,11 @@ export function ContentProductionKeywords() {
 
   // Pagination for display
   const totalFromServer = initialData?.pagination?.total || displayKeywords.length;
-  const totalPages = Math.ceil(sortedKeywords.length / PAGE_SIZE);
+  const loadedCount = sortedKeywords.length;
+  const totalPages = Math.ceil(totalFromServer / PAGE_SIZE);
   const paginatedKeywords = sortedKeywords.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-  const showingStart = sortedKeywords.length > 0 ? (currentPage - 1) * PAGE_SIZE + 1 : 0;
-  const showingEnd = Math.min(currentPage * PAGE_SIZE, sortedKeywords.length);
+  const showingStart = loadedCount > 0 ? (currentPage - 1) * PAGE_SIZE + 1 : 0;
+  const showingEnd = Math.min(currentPage * PAGE_SIZE, loadedCount);
 
   const getCompetitionColor = (competition: string) => {
     switch (competition?.toLowerCase()) {
@@ -649,11 +650,12 @@ export function ContentProductionKeywords() {
             )}
           </div>
 
-          {/* Pagination Controls */}
-          {sortedKeywords.length > PAGE_SIZE && (
+          {/* Pagination Controls - show when total exceeds page size */}
+          {totalFromServer > PAGE_SIZE && (
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                Showing {showingStart.toLocaleString()}-{showingEnd.toLocaleString()} of {sortedKeywords.length.toLocaleString()}
+                Showing {showingStart.toLocaleString()}-{showingEnd.toLocaleString()} of {totalFromServer.toLocaleString()}
+                {isBackgroundLoading && <span className="ml-2 text-gray-400">(loading more...)</span>}
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -672,7 +674,8 @@ export function ContentProductionKeywords() {
                   variant="outline"
                   size="sm"
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages}
+                  disabled={currentPage === totalPages || (currentPage * PAGE_SIZE >= loadedCount && isBackgroundLoading)}
+                  title={isBackgroundLoading && currentPage * PAGE_SIZE >= loadedCount ? 'Loading more data...' : ''}
                 >
                   Next
                   <ChevronRight className="h-4 w-4" />
