@@ -19,6 +19,14 @@ const router = Router();
 
 // Lazy-loaded Supabase client (same pattern as blog.routes.ts)
 let supabase: SupabaseClient | null = null;
+
+// Simple in-memory cache for keywords stats
+let keywordsStatsCache: { data: any; timestamp: number } | null = null;
+const STATS_CACHE_TTL = 60000; // 1 minute
+
+function invalidateStatsCache() {
+  keywordsStatsCache = null;
+}
 function getSupabase(): SupabaseClient {
   if (!supabase) {
     const url = process.env.SUPABASE_URL;
@@ -100,24 +108,129 @@ const keywordUpdateSchema = keywordSchema.partial();
 // ============================================
 
 /**
+ * GET /keywords/stats
+ * Aggregated stats for summary cards and filter counts (cached)
+ */
+router.get('/keywords/stats', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    // Return cached data if fresh
+    if (keywordsStatsCache && Date.now() - keywordsStatsCache.timestamp < STATS_CACHE_TTL) {
+      return res.json(keywordsStatsCache.data);
+    }
+
+    const sb = getSupabase();
+
+    // Fetch all keywords for aggregation (more efficient than multiple COUNT queries)
+    const { data: keywords, error } = await sb
+      .from('content_keywords')
+      .select('tier, intent, market, monthly_searches');
+
+    if (error) throw error;
+
+    // Calculate stats
+    const stats = {
+      totalKeywords: keywords?.length || 0,
+      totalVolume: 0,
+      tier1Count: 0,
+      highIntentCount: 0,
+      byMarket: {} as Record<string, number>,
+      byTier: {} as Record<string, number>,
+      byIntent: {} as Record<string, number>,
+    };
+
+    for (const k of keywords || []) {
+      stats.totalVolume += k.monthly_searches || 0;
+
+      // Tier counts
+      const tier = String(k.tier || 0);
+      stats.byTier[tier] = (stats.byTier[tier] || 0) + 1;
+      if (k.tier === 1) stats.tier1Count++;
+
+      // Intent counts
+      const intent = (k.intent || 'unknown').toLowerCase();
+      stats.byIntent[intent] = (stats.byIntent[intent] || 0) + 1;
+      if (intent === 'high') stats.highIntentCount++;
+
+      // Market counts
+      const market = k.market || 'fr';
+      stats.byMarket[market] = (stats.byMarket[market] || 0) + 1;
+    }
+
+    // Cache the result
+    keywordsStatsCache = { data: stats, timestamp: Date.now() };
+
+    res.json(stats);
+  } catch (error: any) {
+    console.error('Error fetching keyword stats:', error);
+    res.status(500).json({ error: 'Failed to fetch keyword stats' });
+  }
+});
+
+/**
  * GET /keywords
- * List all keywords with optional filters
+ * List keywords with pagination and server-side filtering
  */
 router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const { tier, intent, market } = req.query;
+    const { tier, intent, market, search, page, limit, offset } = req.query;
     const sb = getSupabase();
 
-    let query = sb.from('content_keywords').select('*');
+    // Parse pagination params
+    const pageNum = parseInt(page as string) || 1;
+    const limitNum = Math.min(parseInt(limit as string) || 100, 500); // Max 500 per request
+    const offsetNum = offset !== undefined
+      ? parseInt(offset as string)
+      : (pageNum - 1) * limitNum;
 
-    if (tier) query = query.eq('tier', parseInt(tier as string));
-    if (intent) query = query.eq('intent', intent as string);
-    if (market) query = query.eq('market', market as string);
+    // Build count query for total (with same filters)
+    let countQuery = sb.from('content_keywords').select('*', { count: 'exact', head: true });
+    let dataQuery = sb.from('content_keywords').select('*');
 
-    const { data, error } = await query.order('created_at', { ascending: false });
+    // Apply filters to both queries
+    if (tier) {
+      countQuery = countQuery.eq('tier', parseInt(tier as string));
+      dataQuery = dataQuery.eq('tier', parseInt(tier as string));
+    }
+    if (intent) {
+      countQuery = countQuery.ilike('intent', intent as string);
+      dataQuery = dataQuery.ilike('intent', intent as string);
+    }
+    if (market) {
+      countQuery = countQuery.eq('market', market as string);
+      dataQuery = dataQuery.eq('market', market as string);
+    }
+    if (search) {
+      const searchPattern = `%${search}%`;
+      countQuery = countQuery.ilike('keyword', searchPattern);
+      dataQuery = dataQuery.ilike('keyword', searchPattern);
+    }
+
+    // Execute count query
+    const { count, error: countError } = await countQuery;
+    if (countError) throw countError;
+
+    // Apply pagination and ordering to data query
+    const { data, error } = await dataQuery
+      .order('monthly_searches', { ascending: false, nullsFirst: false })
+      .range(offsetNum, offsetNum + limitNum - 1);
 
     if (error) throw error;
-    res.json(data);
+
+    // Return paginated response
+    const total = count || 0;
+    const totalPages = Math.ceil(total / limitNum);
+
+    res.json({
+      keywords: data || [],
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        offset: offsetNum,
+        total,
+        totalPages,
+        hasMore: offsetNum + (data?.length || 0) < total
+      }
+    });
   } catch (error: any) {
     console.error('Error fetching keywords:', error);
     res.status(500).json({ error: 'Failed to fetch keywords' });
@@ -169,6 +282,8 @@ router.post('/keywords', requireAdmin, async (req: Request, res: Response) => {
       .single();
 
     if (error) throw error;
+
+    invalidateStatsCache();
     res.json(data);
   } catch (error: any) {
     console.error('Error creating keyword:', error);
@@ -199,6 +314,8 @@ router.patch('/keywords/:id', requireAdmin, async (req: Request, res: Response) 
       .single();
 
     if (error) throw error;
+
+    invalidateStatsCache();
     res.json(data);
   } catch (error: any) {
     console.error('Error updating keyword:', error);
@@ -219,6 +336,8 @@ router.delete('/keywords/:id', requireAdmin, async (req: Request, res: Response)
       .eq('id', req.params.id);
 
     if (error) throw error;
+
+    invalidateStatsCache();
     res.json({ success: true });
   } catch (error: any) {
     console.error('Error deleting keyword:', error);

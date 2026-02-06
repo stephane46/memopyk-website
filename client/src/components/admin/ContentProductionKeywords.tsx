@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, TrendingUp, Target, Filter, ArrowUpDown, ArrowUp, ArrowDown, FileText, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Search, TrendingUp, Target, Filter, ArrowUpDown, ArrowUp, ArrowDown, FileText, Plus, Pencil, Trash2, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ContentKeywordsSkeleton } from '@/admin/skeletons/ContentKeywordsSkeleton';
 import { KeywordFormModal } from './KeywordFormModal';
 import { KeywordDeleteDialog } from './KeywordDeleteDialog';
@@ -25,25 +25,150 @@ interface ContentKeyword {
   updated_at: string;
 }
 
+interface KeywordsStats {
+  totalKeywords: number;
+  totalVolume: number;
+  tier1Count: number;
+  highIntentCount: number;
+  byMarket: Record<string, number>;
+  byTier: Record<string, number>;
+  byIntent: Record<string, number>;
+}
+
+interface PaginatedResponse {
+  keywords: ContentKeyword[];
+  pagination: {
+    page: number;
+    limit: number;
+    offset: number;
+    total: number;
+    totalPages: number;
+    hasMore: boolean;
+  };
+}
+
 type SortColumn = 'keyword' | 'tier' | 'monthly_searches' | 'competition' | 'intent';
 type SortDirection = 'asc' | 'desc';
 
+const PAGE_SIZE = 100;
+const BACKGROUND_CHUNK_SIZE = 500;
+
 export function ContentProductionKeywords() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedTier, setSelectedTier] = useState<number | null>(null);
   const [selectedIntent, setSelectedIntent] = useState<string | null>(null);
   const [selectedMarket, setSelectedMarket] = useState<string | null>(null);
   const [sortColumn, setSortColumn] = useState<SortColumn>('monthly_searches');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Background loading state
+  const [allKeywords, setAllKeywords] = useState<ContentKeyword[]>([]);
+  const [isBackgroundLoading, setIsBackgroundLoading] = useState(false);
+  const [backgroundProgress, setBackgroundProgress] = useState(0);
+  const backgroundLoadingRef = useRef(false);
 
   // CRUD modal state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingKeyword, setEditingKeyword] = useState<ContentKeyword | null>(null);
   const [deletingKeyword, setDeletingKeyword] = useState<ContentKeyword | null>(null);
 
-  const { data: keywords = [], isLoading } = useQuery<ContentKeyword[]>({
-    queryKey: ['/api/admin/content/keywords'],
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1); // Reset to page 1 on search
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Fetch stats (cached on server)
+  const { data: stats, isLoading: statsLoading } = useQuery<KeywordsStats>({
+    queryKey: ['/api/admin/content/keywords/stats'],
   });
+
+  // Build query params for paginated fetch
+  const buildQueryParams = useCallback((page: number, limit: number, offset?: number) => {
+    const params = new URLSearchParams();
+    params.set('page', String(page));
+    params.set('limit', String(limit));
+    if (offset !== undefined) params.set('offset', String(offset));
+    if (selectedTier !== null) params.set('tier', String(selectedTier));
+    if (selectedIntent !== null) params.set('intent', selectedIntent);
+    if (selectedMarket !== null) params.set('market', selectedMarket);
+    if (debouncedSearch) params.set('search', debouncedSearch);
+    return params.toString();
+  }, [selectedTier, selectedIntent, selectedMarket, debouncedSearch]);
+
+  // Fetch initial page of keywords
+  const { data: initialData, isLoading: initialLoading, refetch } = useQuery<PaginatedResponse>({
+    queryKey: ['/api/admin/content/keywords', selectedTier, selectedIntent, selectedMarket, debouncedSearch, currentPage],
+    queryFn: async () => {
+      const params = buildQueryParams(currentPage, PAGE_SIZE);
+      const res = await fetch(`/api/admin/content/keywords?${params}`, {
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Failed to fetch keywords');
+      return res.json();
+    },
+  });
+
+  // Background loading function
+  const loadRemainingKeywords = useCallback(async () => {
+    if (!initialData?.pagination || backgroundLoadingRef.current) return;
+
+    const { total, hasMore } = initialData.pagination;
+    if (!hasMore || total <= PAGE_SIZE) {
+      setAllKeywords(initialData.keywords);
+      return;
+    }
+
+    backgroundLoadingRef.current = true;
+    setIsBackgroundLoading(true);
+    setAllKeywords(initialData.keywords);
+
+    let offset = PAGE_SIZE;
+    const loadedKeywords = [...initialData.keywords];
+
+    while (offset < total && backgroundLoadingRef.current) {
+      try {
+        const params = buildQueryParams(1, BACKGROUND_CHUNK_SIZE, offset);
+        const res = await fetch(`/api/admin/content/keywords?${params}`, {
+          credentials: 'include',
+        });
+        if (!res.ok) break;
+
+        const data: PaginatedResponse = await res.json();
+        loadedKeywords.push(...data.keywords);
+        setAllKeywords([...loadedKeywords]);
+        setBackgroundProgress(Math.min(100, Math.round((loadedKeywords.length / total) * 100)));
+
+        offset += BACKGROUND_CHUNK_SIZE;
+      } catch (error) {
+        console.error('Background loading error:', error);
+        break;
+      }
+    }
+
+    setIsBackgroundLoading(false);
+    backgroundLoadingRef.current = false;
+  }, [initialData, buildQueryParams]);
+
+  // Start background loading after initial data arrives
+  useEffect(() => {
+    if (initialData && !initialLoading) {
+      // Reset background loading state when filters change
+      backgroundLoadingRef.current = false;
+      setBackgroundProgress(0);
+      loadRemainingKeywords();
+    }
+  }, [initialData, initialLoading, loadRemainingKeywords]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedTier, selectedIntent, selectedMarket]);
 
   const handleSort = (column: SortColumn) => {
     if (sortColumn === column) {
@@ -54,56 +179,36 @@ export function ContentProductionKeywords() {
     }
   };
 
-  const filteredKeywords = keywords
-    .filter(keyword => {
-      const matchesSearch = keyword.keyword.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesTier = selectedTier === null || keyword.tier === selectedTier;
-      const matchesIntent = selectedIntent === null || keyword.intent.toLowerCase() === selectedIntent.toLowerCase();
-      const matchesMarket = selectedMarket === null || keyword.market === selectedMarket;
-      return matchesSearch && matchesTier && matchesIntent && matchesMarket;
-    })
-    .sort((a, b) => {
-      let aValue: any = a[sortColumn];
-      let bValue: any = b[sortColumn];
+  // Use allKeywords if background loaded, otherwise use initial page
+  const displayKeywords = allKeywords.length > 0 ? allKeywords : (initialData?.keywords || []);
 
-      // Handle null/undefined values
-      if (aValue === null || aValue === undefined) return 1;
-      if (bValue === null || bValue === undefined) return -1;
+  // Client-side sorting (server returns by monthly_searches desc)
+  const sortedKeywords = [...displayKeywords].sort((a, b) => {
+    let aValue: any = a[sortColumn];
+    let bValue: any = b[sortColumn];
 
-      // String comparison for text columns
-      if (typeof aValue === 'string') {
-        aValue = aValue.toLowerCase();
-        bValue = bValue.toLowerCase();
-      }
+    if (aValue === null || aValue === undefined) return 1;
+    if (bValue === null || bValue === undefined) return -1;
 
-      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-      return 0;
-    });
+    if (typeof aValue === 'string') {
+      aValue = aValue.toLowerCase();
+      bValue = bValue.toLowerCase();
+    }
 
-  const tierStats = {
-    1: keywords.filter(k => k.tier === 1).length,
-    2: keywords.filter(k => k.tier === 2).length,
-    3: keywords.filter(k => k.tier === 3).length,
-    4: keywords.filter(k => k.tier === 4).length,
-  };
+    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
 
-  const intentStats = keywords.reduce((acc, k) => {
-    const intent = k.intent.toLowerCase();
-    acc[intent] = (acc[intent] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const marketStats = keywords.reduce((acc, k) => {
-    const market = k.market || 'fr';
-    acc[market] = (acc[market] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const totalSearchVolume = keywords.reduce((sum, k) => sum + (k.monthly_searches || 0), 0);
+  // Pagination for display
+  const totalFromServer = initialData?.pagination?.total || displayKeywords.length;
+  const totalPages = Math.ceil(sortedKeywords.length / PAGE_SIZE);
+  const paginatedKeywords = sortedKeywords.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const showingStart = sortedKeywords.length > 0 ? (currentPage - 1) * PAGE_SIZE + 1 : 0;
+  const showingEnd = Math.min(currentPage * PAGE_SIZE, sortedKeywords.length);
 
   const getCompetitionColor = (competition: string) => {
-    switch (competition.toLowerCase()) {
+    switch (competition?.toLowerCase()) {
       case 'low':
       case 'very low':
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
@@ -117,7 +222,7 @@ export function ContentProductionKeywords() {
   };
 
   const getIntentColor = (intent: string) => {
-    switch (intent.toLowerCase()) {
+    switch (intent?.toLowerCase()) {
       case 'high':
         return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
       case 'medium':
@@ -144,7 +249,7 @@ export function ContentProductionKeywords() {
     }
   };
 
-  if (isLoading) {
+  if (statsLoading || initialLoading) {
     return <ContentKeywordsSkeleton />;
   }
 
@@ -156,12 +261,14 @@ export function ContentProductionKeywords() {
         <p className="text-gray-600 dark:text-gray-400">SEO keyword strategy and targeting framework</p>
       </div>
 
-      {/* Stats Overview */}
+      {/* Stats Overview - from cached /stats endpoint */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
             <CardDescription className="text-gray-600 dark:text-gray-400">Total Keywords</CardDescription>
-            <CardTitle className="text-3xl text-gray-900 dark:text-white">{keywords.length.toLocaleString()}</CardTitle>
+            <CardTitle className="text-3xl text-gray-900 dark:text-white">
+              {(stats?.totalKeywords || 0).toLocaleString()}
+            </CardTitle>
           </CardHeader>
         </Card>
 
@@ -169,7 +276,7 @@ export function ContentProductionKeywords() {
           <CardHeader className="pb-3">
             <CardDescription className="text-gray-600 dark:text-gray-400">Total Monthly Searches</CardDescription>
             <CardTitle className="text-3xl text-gray-900 dark:text-white">
-              {totalSearchVolume.toLocaleString()}
+              {(stats?.totalVolume || 0).toLocaleString()}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -177,7 +284,9 @@ export function ContentProductionKeywords() {
         <Card>
           <CardHeader className="pb-3">
             <CardDescription className="text-gray-600 dark:text-gray-400">Tier 1 Keywords</CardDescription>
-            <CardTitle className="text-3xl text-orange-600 dark:text-orange-400">{tierStats[1].toLocaleString()}</CardTitle>
+            <CardTitle className="text-3xl text-orange-600 dark:text-orange-400">
+              {(stats?.tier1Count || 0).toLocaleString()}
+            </CardTitle>
           </CardHeader>
         </Card>
 
@@ -185,7 +294,7 @@ export function ContentProductionKeywords() {
           <CardHeader className="pb-3">
             <CardDescription className="text-gray-600 dark:text-gray-400">High Intent</CardDescription>
             <CardTitle className="text-3xl text-purple-600 dark:text-purple-400">
-              {(intentStats['high'] || 0).toLocaleString()}
+              {(stats?.highIntentCount || 0).toLocaleString()}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -213,7 +322,7 @@ export function ContentProductionKeywords() {
               />
             </div>
 
-            {/* Market Filter */}
+            {/* Market Filter - counts from stats */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Market</label>
               <div className="flex gap-2">
@@ -224,7 +333,7 @@ export function ContentProductionKeywords() {
                   className={selectedMarket === null ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-market-all"
                 >
-                  All ({keywords.length.toLocaleString()})
+                  All ({(stats?.totalKeywords || 0).toLocaleString()})
                 </Button>
                 <Button
                   variant="outline"
@@ -233,7 +342,7 @@ export function ContentProductionKeywords() {
                   className={selectedMarket === 'fr' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-market-fr"
                 >
-                  🇫🇷 France ({(marketStats['fr'] || 0).toLocaleString()})
+                  🇫🇷 France ({(stats?.byMarket?.fr || 0).toLocaleString()})
                 </Button>
                 <Button
                   variant="outline"
@@ -242,12 +351,12 @@ export function ContentProductionKeywords() {
                   className={selectedMarket === 'en' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-market-en"
                 >
-                  🇬🇧 English ({(marketStats['en'] || 0).toLocaleString()})
+                  🇬🇧 English ({(stats?.byMarket?.en || 0).toLocaleString()})
                 </Button>
               </div>
             </div>
 
-            {/* Tier Filter */}
+            {/* Tier Filter - counts from stats */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Tier</label>
               <div className="flex gap-2">
@@ -258,7 +367,7 @@ export function ContentProductionKeywords() {
                   className={selectedTier === null ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-tier-all"
                 >
-                  All ({keywords.length.toLocaleString()})
+                  All ({(stats?.totalKeywords || 0).toLocaleString()})
                 </Button>
                 <Button
                   variant="outline"
@@ -267,7 +376,7 @@ export function ContentProductionKeywords() {
                   className={selectedTier === 1 ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-tier-1"
                 >
-                  Tier 1 ({tierStats[1].toLocaleString()})
+                  Tier 1 ({(stats?.byTier?.['1'] || 0).toLocaleString()})
                 </Button>
                 <Button
                   variant="outline"
@@ -276,7 +385,7 @@ export function ContentProductionKeywords() {
                   className={selectedTier === 2 ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-tier-2"
                 >
-                  Tier 2 ({tierStats[2].toLocaleString()})
+                  Tier 2 ({(stats?.byTier?.['2'] || 0).toLocaleString()})
                 </Button>
                 <Button
                   variant="outline"
@@ -285,12 +394,12 @@ export function ContentProductionKeywords() {
                   className={selectedTier === 3 ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-tier-3"
                 >
-                  Tier 3 ({tierStats[3].toLocaleString()})
+                  Tier 3 ({(stats?.byTier?.['3'] || 0).toLocaleString()})
                 </Button>
               </div>
             </div>
 
-            {/* Intent Filter */}
+            {/* Intent Filter - counts from stats */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Search Intent</label>
               <div className="flex gap-2">
@@ -310,7 +419,7 @@ export function ContentProductionKeywords() {
                   className={selectedIntent === 'high' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-intent-high"
                 >
-                  High ({(intentStats['high'] || 0).toLocaleString()})
+                  High ({(stats?.byIntent?.high || 0).toLocaleString()})
                 </Button>
                 <Button
                   variant="outline"
@@ -319,7 +428,7 @@ export function ContentProductionKeywords() {
                   className={selectedIntent === 'medium' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-intent-medium"
                 >
-                  Medium ({(intentStats['medium'] || 0).toLocaleString()})
+                  Medium ({(stats?.byIntent?.medium || 0).toLocaleString()})
                 </Button>
                 <Button
                   variant="outline"
@@ -328,7 +437,7 @@ export function ContentProductionKeywords() {
                   className={selectedIntent === 'low' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-intent-low"
                 >
-                  Low ({(intentStats['low'] || 0).toLocaleString()})
+                  Low ({(stats?.byIntent?.low || 0).toLocaleString()})
                 </Button>
               </div>
             </div>
@@ -343,7 +452,13 @@ export function ContentProductionKeywords() {
             <div>
               <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
                 <Target className="h-5 w-5" />
-                Keywords ({filteredKeywords.length.toLocaleString()})
+                Keywords ({totalFromServer.toLocaleString()})
+                {isBackgroundLoading && (
+                  <span className="flex items-center gap-1 text-sm font-normal text-gray-500">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading... {backgroundProgress}%
+                  </span>
+                )}
               </CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400 mt-1">
                 SEO keywords organized by tier and search intent
@@ -445,7 +560,7 @@ export function ContentProductionKeywords() {
                 </tr>
               </thead>
               <tbody>
-                {filteredKeywords.map((keyword) => (
+                {paginatedKeywords.map((keyword) => (
                   <tr
                     key={keyword.id}
                     className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
@@ -530,12 +645,44 @@ export function ContentProductionKeywords() {
               </tbody>
             </table>
 
-            {filteredKeywords.length === 0 && (
+            {paginatedKeywords.length === 0 && (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                 No keywords match your filters
               </div>
             )}
           </div>
+
+          {/* Pagination Controls */}
+          {sortedKeywords.length > PAGE_SIZE && (
+            <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Showing {showingStart.toLocaleString()}-{showingEnd.toLocaleString()} of {sortedKeywords.length.toLocaleString()}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                <span className="text-sm text-gray-600 dark:text-gray-400 px-2">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
