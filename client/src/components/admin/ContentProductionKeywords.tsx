@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, TrendingUp, Target, ArrowUpDown, ArrowUp, ArrowDown, Tag, Plus, Pencil, Trash2, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, TrendingUp, Target, ArrowUpDown, ArrowUp, ArrowDown, Tag, Plus, Pencil, Trash2, Loader2, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { ContentKeywordsSkeleton } from '@/admin/skeletons/ContentKeywordsSkeleton';
 import { KeywordFormModal } from './KeywordFormModal';
 import { KeywordDeleteDialog } from './KeywordDeleteDialog';
@@ -61,6 +61,40 @@ type SortDirection = 'asc' | 'desc';
 const PAGE_SIZE = 100;
 const BACKGROUND_CHUNK_SIZE = 500;
 
+interface QuickFilterPreset {
+  label: string;
+  filters: {
+    market?: string[];
+    tier?: string[];
+    intent?: string[];
+    competition?: string[];
+    volume?: string[];
+  };
+}
+
+const QUICK_FILTERS: Record<string, QuickFilterPreset> = {
+  quickWins: {
+    label: 'Quick Wins',
+    filters: { tier: ['1', '2'], competition: ['low'], intent: ['high'] },
+  },
+  trafficDrivers: {
+    label: 'Traffic Drivers',
+    filters: { tier: ['2'], volume: ['mega', 'high'] },
+  },
+  moneyKeywords: {
+    label: 'Money Keywords',
+    filters: { tier: ['1', '2'], intent: ['high'] },
+  },
+  francePriority: {
+    label: 'France Priority',
+    filters: { market: ['fr'], tier: ['1', '2'] },
+  },
+  blogIdeas: {
+    label: 'Blog Ideas',
+    filters: { tier: ['1', '2'], intent: ['medium'], competition: ['low', 'medium'] },
+  },
+};
+
 export function ContentProductionKeywords() {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -85,6 +119,9 @@ export function ContentProductionKeywords() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingKeyword, setEditingKeyword] = useState<ContentKeyword | null>(null);
   const [deletingKeyword, setDeletingKeyword] = useState<ContentKeyword | null>(null);
+
+  // Quick filter preset state
+  const [activePreset, setActivePreset] = useState<string | null>(null);
 
   // Debounce search input
   useEffect(() => {
@@ -355,6 +392,49 @@ export function ContentProductionKeywords() {
     window.location.href = `${window.location.pathname}?${params.toString()}`;
   };
 
+  // All values helpers for resetting
+  const allMarketValues = useMemo(() => new Set(marketOptions.map(o => o.value)), [marketOptions]);
+  const allTierValues = useMemo(() => new Set(tierOptions.map(o => o.value)), [tierOptions]);
+  const allIntentValues = useMemo(() => new Set(intentOptions.map(o => o.value)), [intentOptions]);
+  const allCompetitionValues = useMemo(() => new Set(competitionOptions.map(o => o.value)), [competitionOptions]);
+  const allVolumeValues = useMemo(() => new Set(volumeOptions.map(o => o.value)), [volumeOptions]);
+  const allClusterValues = useMemo(() => new Set(clusterOptions.map(o => o.value)), [clusterOptions]);
+
+  const applyPreset = (key: string) => {
+    if (activePreset === key) {
+      clearFilters();
+      return;
+    }
+    const preset = QUICK_FILTERS[key];
+    if (!preset) return;
+    const f = preset.filters;
+    setSelectedMarkets(f.market ? new Set(f.market) : new Set(allMarketValues));
+    setSelectedTiers(f.tier ? new Set(f.tier) : new Set(allTierValues));
+    setSelectedIntents(f.intent ? new Set(f.intent) : new Set(allIntentValues));
+    setSelectedCompetitions(f.competition ? new Set(f.competition) : new Set(allCompetitionValues));
+    setSelectedVolumes(f.volume ? new Set(f.volume) : new Set(allVolumeValues));
+    setSelectedClusters(new Set(allClusterValues));
+    setSearchQuery('');
+    setActivePreset(key);
+  };
+
+  const clearFilters = () => {
+    setSelectedMarkets(new Set(allMarketValues));
+    setSelectedTiers(new Set(allTierValues));
+    setSelectedIntents(new Set(allIntentValues));
+    setSelectedCompetitions(new Set(allCompetitionValues));
+    setSelectedVolumes(new Set(allVolumeValues));
+    setSelectedClusters(new Set(allClusterValues));
+    setSearchQuery('');
+    setActivePreset(null);
+  };
+
+  // Wrap filter onChange to clear active preset when user manually changes
+  const withPresetClear = <T,>(setter: (v: T) => void) => (v: T) => {
+    setActivePreset(null);
+    setter(v);
+  };
+
   if (statsLoading || initialLoading) {
     return <ContentKeywordsSkeleton />;
   }
@@ -436,6 +516,30 @@ export function ContentProductionKeywords() {
           </div>
         </CardHeader>
         <CardContent>
+          {/* Quick filter presets */}
+          <div className="flex flex-wrap items-center gap-1.5 mb-3">
+            {Object.entries(QUICK_FILTERS).map(([key, preset]) => (
+              <button
+                key={key}
+                onClick={() => applyPreset(key)}
+                className={`px-3 py-1 text-xs font-medium rounded-full border transition-colors ${
+                  activePreset === key
+                    ? 'bg-[#D67C4A] text-white border-[#D67C4A]'
+                    : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-[#D67C4A] hover:text-[#D67C4A]'
+                }`}
+              >
+                {preset.label}
+              </button>
+            ))}
+            <button
+              onClick={clearFilters}
+              className="px-2 py-1 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-full border border-gray-200 dark:border-gray-700 hover:border-gray-300"
+              title="Clear all filters"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -444,12 +548,12 @@ export function ContentProductionKeywords() {
                   <th className="p-2 text-left">
                     <div className="flex items-center gap-1">
                       <div className="relative flex-1">
-                        <Search className="absolute left-2 top-2 h-3.5 w-3.5 text-gray-400" />
+                        <Search className="absolute left-2.5 top-[9px] h-3.5 w-3.5 text-gray-400" />
                         <Input
                           placeholder="Search..."
                           value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-7 h-8 text-sm bg-white dark:bg-gray-800"
+                          onChange={(e) => { setActivePreset(null); setSearchQuery(e.target.value); }}
+                          className="pl-8 h-9 text-sm bg-white dark:bg-gray-800"
                           data-testid="input-keyword-search"
                         />
                       </div>
@@ -457,7 +561,7 @@ export function ContentProductionKeywords() {
                         label="Cluster"
                         options={clusterOptions}
                         selected={selectedClusters}
-                        onChange={setSelectedClusters}
+                        onChange={withPresetClear(setSelectedClusters)}
                         showSearch
                       />
                     </div>
@@ -467,7 +571,7 @@ export function ContentProductionKeywords() {
                       label="Market"
                       options={marketOptions}
                       selected={selectedMarkets}
-                      onChange={setSelectedMarkets}
+                      onChange={withPresetClear(setSelectedMarkets)}
                     />
                   </th>
                   <th className="p-2">
@@ -475,7 +579,7 @@ export function ContentProductionKeywords() {
                       label="Tier"
                       options={tierOptions}
                       selected={selectedTiers}
-                      onChange={setSelectedTiers}
+                      onChange={withPresetClear(setSelectedTiers)}
                     />
                   </th>
                   <th className="p-2 text-right">
@@ -483,7 +587,7 @@ export function ContentProductionKeywords() {
                       label="Searches"
                       options={volumeOptions}
                       selected={selectedVolumes}
-                      onChange={setSelectedVolumes}
+                      onChange={withPresetClear(setSelectedVolumes)}
                     />
                   </th>
                   <th className="p-2">
@@ -491,7 +595,7 @@ export function ContentProductionKeywords() {
                       label="Comp."
                       options={competitionOptions}
                       selected={selectedCompetitions}
-                      onChange={setSelectedCompetitions}
+                      onChange={withPresetClear(setSelectedCompetitions)}
                     />
                   </th>
                   <th className="p-2">
@@ -499,7 +603,7 @@ export function ContentProductionKeywords() {
                       label="Intent"
                       options={intentOptions}
                       selected={selectedIntents}
-                      onChange={setSelectedIntents}
+                      onChange={withPresetClear(setSelectedIntents)}
                     />
                   </th>
                   <th className="p-2" />
