@@ -2,7 +2,7 @@
 
 ## Current Status
 
-**Last updated:** February 5, 2026
+**Last updated:** February 6, 2026
 **Staging:** https://memopyk.memopyk.com (auto-deploys on push to `staging` branch)
 **Production:** https://memopyk.com (auto-deploys on push to `main` branch)
 
@@ -37,6 +37,15 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-06: Keywords CRUD — KeywordFormModal + KeywordDeleteDialog, New/Edit/Delete buttons, API endpoints (POST/PATCH/DELETE)
+- 2026-02-06: French keyword import — 2,605 keywords imported from GKP CSV with tier (1-3) and intent classification, 805 Tier 4 skipped
+- 2026-02-05: Topic form UX polish — Competition/Search Intent as dropdowns, ✨ AI indicators on 7 fields, collapsible SEO Research + Images sections
+- 2026-02-05: Topic form audit — removed slug from form, added helper text to 12 fields, wired content_angle/description/search_intent into AI prompts
+- 2026-02-05: Topics expanded UX — orange left accent border, gray background, grouped action buttons (Edit/Delete/Create Post), consistent bold labels, primary keyword pill
+- 2026-02-05: Topics CRUD (create/edit/delete) + TopicFormModal, TopicDeleteDialog components
+- 2026-02-05: Pill consistency — getCategoryShortLabel() for compact category pills (Photo, Video, Family, Digital, Crafts, Seasonal)
+- 2026-02-05: DELETE endpoint changed from blocking to unlinking posts (sets source_topic_id = null)
+- 2026-02-05: apiRequest parameter order audit — fixed reversed args in TopicDeleteDialog.tsx + 5 calls in SeoManagement.tsx
 - 2026-02-05: Blog Hub tabs merged with workflow — numbered circles (①-⑤), arrow separators, subtitles, full-width grid matching SEO pattern
 - 2026-02-05: Blog Hub tab order changed to workflow order: Topics → Keywords → Planner → Posts → Image Bank (Planner remains default)
 - 2026-02-05: Removed separate workflow bar — tabs ARE the workflow now
@@ -55,4 +64,4 @@ READ THESE FIRST:
 
 - 67 client TS errors (non-blocking, admin analytics components)
 - Mapbox GL JS migration planned for Partner Directory map
-- Blog Hub help content (help_screens for /admin?tab=blog) needs updating after tab reorder + workflow merge
+- Blog Hub help content updated Feb 5 (workflow diagram removed, clean numbered list, Topic vs Post explanation added)

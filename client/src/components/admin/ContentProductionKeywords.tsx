@@ -4,8 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, TrendingUp, Target, Filter, ArrowUpDown, ArrowUp, ArrowDown, FileText } from 'lucide-react';
+import { Search, TrendingUp, Target, Filter, ArrowUpDown, ArrowUp, ArrowDown, FileText, Plus, Pencil, Trash2 } from 'lucide-react';
 import { ContentKeywordsSkeleton } from '@/admin/skeletons/ContentKeywordsSkeleton';
+import { KeywordFormModal } from './KeywordFormModal';
+import { KeywordDeleteDialog } from './KeywordDeleteDialog';
 
 interface ContentKeyword {
   id: string;
@@ -31,6 +33,11 @@ export function ContentProductionKeywords() {
   const [selectedIntent, setSelectedIntent] = useState<string | null>(null);
   const [sortColumn, setSortColumn] = useState<SortColumn>('monthly_searches');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+
+  // CRUD modal state
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingKeyword, setEditingKeyword] = useState<ContentKeyword | null>(null);
+  const [deletingKeyword, setDeletingKeyword] = useState<ContentKeyword | null>(null);
 
   const { data: keywords = [], isLoading } = useQuery<ContentKeyword[]>({
     queryKey: ['/api/admin/content/keywords'],
@@ -289,13 +296,25 @@ export function ContentProductionKeywords() {
       {/* Keywords Table */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
-            <Target className="h-5 w-5" />
-            Keywords ({filteredKeywords.length})
-          </CardTitle>
-          <CardDescription className="text-gray-600 dark:text-gray-400">
-            SEO keywords organized by tier and search intent
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                <Target className="h-5 w-5" />
+                Keywords ({filteredKeywords.length})
+              </CardTitle>
+              <CardDescription className="text-gray-600 dark:text-gray-400 mt-1">
+                SEO keywords organized by tier and search intent
+              </CardDescription>
+            </div>
+            <Button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="bg-[#D67C4A] hover:bg-[#C56B3A] text-white"
+              data-testid="button-new-keyword"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              New Keyword
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -415,7 +434,27 @@ export function ContentProductionKeywords() {
                       </Badge>
                     </td>
                     <td className="p-3">
-                      <div className="flex justify-center">
+                      <div className="flex justify-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setEditingKeyword(keyword)}
+                          className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                          title="Edit keyword"
+                          data-testid={`button-edit-keyword-${keyword.id}`}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDeletingKeyword(keyword)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                          title="Delete keyword"
+                          data-testid={`button-delete-keyword-${keyword.id}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -431,8 +470,7 @@ export function ContentProductionKeywords() {
                           title={`View topics using "${keyword.keyword}"`}
                           data-testid={`button-view-topics-${keyword.id}`}
                         >
-                          <FileText className="h-4 w-4 mr-1" />
-                          View Topics
+                          <FileText className="h-4 w-4" />
                         </Button>
                       </div>
                     </td>
@@ -449,6 +487,25 @@ export function ContentProductionKeywords() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Keyword Create/Edit Modal */}
+      <KeywordFormModal
+        isOpen={isCreateModalOpen || editingKeyword !== null}
+        onClose={() => {
+          setIsCreateModalOpen(false);
+          setEditingKeyword(null);
+        }}
+        keyword={editingKeyword}
+      />
+
+      {/* Keyword Delete Dialog */}
+      {deletingKeyword && (
+        <KeywordDeleteDialog
+          isOpen={true}
+          onClose={() => setDeletingKeyword(null)}
+          keyword={deletingKeyword}
+        />
+      )}
     </div>
   );
 }

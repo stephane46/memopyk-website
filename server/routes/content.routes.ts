@@ -80,6 +80,20 @@ const assignmentSchema = z.object({
 
 const assignmentUpdateSchema = assignmentSchema.partial();
 
+const keywordSchema = z.object({
+  keyword: z.string().min(1).max(500),
+  monthly_searches: z.number().int().nonnegative().nullable().optional(),
+  competition: z.string().max(50).nullable().optional(),
+  difficulty_score: z.number().int().min(0).max(100).nullable().optional(),
+  intent: z.string().max(50).nullable().optional(),
+  tier: z.number().int().min(1).max(4).nullable().optional(),
+  seasonal: z.boolean().optional(),
+  seasonal_months: z.array(z.string()).nullable().optional(),
+  notes: z.string().max(2000).nullable().optional(),
+});
+
+const keywordUpdateSchema = keywordSchema.partial();
+
 // ============================================
 // KEYWORDS
 // ============================================
@@ -105,6 +119,108 @@ router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('Error fetching keywords:', error);
     res.status(500).json({ error: 'Failed to fetch keywords' });
+  }
+});
+
+/**
+ * GET /keywords/:id
+ * Get single keyword by ID
+ */
+router.get('/keywords/:id', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const sb = getSupabase();
+    const { data, error } = await sb
+      .from('content_keywords')
+      .select('*')
+      .eq('id', req.params.id)
+      .single();
+
+    if (error) throw error;
+    if (!data) return res.status(404).json({ error: 'Keyword not found' });
+
+    res.json(data);
+  } catch (error: any) {
+    console.error('Error fetching keyword:', error);
+    res.status(500).json({ error: 'Failed to fetch keyword' });
+  }
+});
+
+/**
+ * POST /keywords
+ * Create new keyword
+ */
+router.post('/keywords', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const parsed = keywordSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors
+      });
+    }
+
+    const sb = getSupabase();
+    const { data, error } = await sb
+      .from('content_keywords')
+      .insert(parsed.data)
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.json(data);
+  } catch (error: any) {
+    console.error('Error creating keyword:', error);
+    res.status(500).json({ error: 'Failed to create keyword' });
+  }
+});
+
+/**
+ * PATCH /keywords/:id
+ * Update keyword
+ */
+router.patch('/keywords/:id', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const parsed = keywordUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors
+      });
+    }
+
+    const sb = getSupabase();
+    const { data, error } = await sb
+      .from('content_keywords')
+      .update({ ...parsed.data, updated_at: new Date().toISOString() })
+      .eq('id', req.params.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.json(data);
+  } catch (error: any) {
+    console.error('Error updating keyword:', error);
+    res.status(500).json({ error: 'Failed to update keyword' });
+  }
+});
+
+/**
+ * DELETE /keywords/:id
+ * Delete keyword
+ */
+router.delete('/keywords/:id', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const sb = getSupabase();
+    const { error } = await sb
+      .from('content_keywords')
+      .delete()
+      .eq('id', req.params.id);
+
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (error: any) {
+    console.error('Error deleting keyword:', error);
+    res.status(500).json({ error: 'Failed to delete keyword' });
   }
 });
 
