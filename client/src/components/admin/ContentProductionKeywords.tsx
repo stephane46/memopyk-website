@@ -39,6 +39,7 @@ interface KeywordsStats {
   byTier: Record<string, number>;
   byIntent: Record<string, number>;
   byCluster: Record<string, number>;
+  byCompetition: Record<string, number>;
   byVolume: Record<string, number>;
 }
 
@@ -66,6 +67,7 @@ export function ContentProductionKeywords() {
   const [selectedMarkets, setSelectedMarkets] = useState<Set<string>>(new Set(['fr', 'en']));
   const [selectedTiers, setSelectedTiers] = useState<Set<string>>(new Set(['1', '2', '3']));
   const [selectedIntents, setSelectedIntents] = useState<Set<string>>(new Set(['high', 'medium', 'low']));
+  const [selectedCompetitions, setSelectedCompetitions] = useState<Set<string>>(new Set(['low', 'medium', 'high']));
   const [selectedVolumes, setSelectedVolumes] = useState<Set<string>>(new Set(['mega', 'high', 'medium', 'low', 'minimal']));
   const [selectedClusters, setSelectedClusters] = useState<Set<string>>(new Set());
   const [clustersInitialized, setClustersInitialized] = useState(false);
@@ -144,6 +146,15 @@ export function ContentProductionKeywords() {
     ];
   }, [stats?.byVolume]);
 
+  const competitionOptions: FilterOption[] = useMemo(() => {
+    if (!stats?.byCompetition) return [];
+    return [
+      { value: 'low', label: 'Low', count: stats.byCompetition.low || 0 },
+      { value: 'medium', label: 'Medium', count: stats.byCompetition.medium || 0 },
+      { value: 'high', label: 'High', count: stats.byCompetition.high || 0 },
+    ];
+  }, [stats?.byCompetition]);
+
   const clusterOptions: FilterOption[] = useMemo(() => {
     if (!stats?.byCluster) return [];
     return Object.entries(stats.byCluster)
@@ -159,6 +170,7 @@ export function ContentProductionKeywords() {
   const allMarkets = marketOptions.length > 0 && selectedMarkets.size === marketOptions.length;
   const allTiers = tierOptions.length > 0 && selectedTiers.size === tierOptions.length;
   const allIntents = intentOptions.length > 0 && selectedIntents.size === intentOptions.length;
+  const allCompetitions = competitionOptions.length > 0 && selectedCompetitions.size === competitionOptions.length;
   const allVolumes = volumeOptions.length > 0 && selectedVolumes.size === volumeOptions.length;
   const allClusters = clusterOptions.length > 0 && selectedClusters.size === clusterOptions.length;
 
@@ -171,22 +183,24 @@ export function ContentProductionKeywords() {
     if (!allMarkets && selectedMarkets.size > 0) params.set('market', [...selectedMarkets].join(','));
     if (!allTiers && selectedTiers.size > 0) params.set('tier', [...selectedTiers].join(','));
     if (!allIntents && selectedIntents.size > 0) params.set('intent', [...selectedIntents].join(','));
+    if (!allCompetitions && selectedCompetitions.size > 0) params.set('competition', [...selectedCompetitions].join(','));
     if (!allVolumes && selectedVolumes.size > 0) params.set('volume_range', [...selectedVolumes].join(','));
     if (!allClusters && selectedClusters.size > 0) params.set('cluster', [...selectedClusters].join(','));
     if (debouncedSearch) params.set('search', debouncedSearch);
     return params.toString();
-  }, [selectedMarkets, selectedTiers, selectedIntents, selectedVolumes, selectedClusters, allMarkets, allTiers, allIntents, allVolumes, allClusters, debouncedSearch]);
+  }, [selectedMarkets, selectedTiers, selectedIntents, selectedCompetitions, selectedVolumes, selectedClusters, allMarkets, allTiers, allIntents, allCompetitions, allVolumes, allClusters, debouncedSearch]);
 
   // Serialize filter sets for dependency tracking
   const marketKey = [...selectedMarkets].sort().join(',');
   const tierKey = [...selectedTiers].sort().join(',');
   const intentKey = [...selectedIntents].sort().join(',');
+  const competitionKey = [...selectedCompetitions].sort().join(',');
   const volumeKey = [...selectedVolumes].sort().join(',');
   const clusterKey = [...selectedClusters].sort().join(',');
 
   // Fetch initial page of keywords
   const { data: initialData, isLoading: initialLoading, refetch } = useQuery<PaginatedResponse>({
-    queryKey: ['/api/admin/content/keywords', marketKey, tierKey, intentKey, volumeKey, clusterKey, debouncedSearch, currentPage],
+    queryKey: ['/api/admin/content/keywords', marketKey, tierKey, intentKey, competitionKey, volumeKey, clusterKey, debouncedSearch, currentPage],
     queryFn: async () => {
       const params = buildQueryParams(currentPage, PAGE_SIZE);
       const res = await adminFetch(`/api/admin/content/keywords?${params}`);
@@ -248,7 +262,7 @@ export function ContentProductionKeywords() {
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [marketKey, tierKey, intentKey, volumeKey, clusterKey]);
+  }, [marketKey, tierKey, intentKey, competitionKey, volumeKey, clusterKey]);
 
   const handleSort = (column: SortColumn) => {
     if (sortColumn === column) {
@@ -472,7 +486,14 @@ export function ContentProductionKeywords() {
                       onChange={setSelectedVolumes}
                     />
                   </th>
-                  <th className="p-2" />
+                  <th className="p-2">
+                    <MultiSelectFilter
+                      label="Comp."
+                      options={competitionOptions}
+                      selected={selectedCompetitions}
+                      onChange={setSelectedCompetitions}
+                    />
+                  </th>
                   <th className="p-2">
                     <MultiSelectFilter
                       label="Intent"

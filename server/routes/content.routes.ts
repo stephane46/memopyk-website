@@ -124,7 +124,7 @@ router.get('/keywords/stats', requireAdmin, async (req: Request, res: Response) 
     // Fetch all keywords for aggregation (more efficient than multiple COUNT queries)
     const { data: keywords, error } = await sb
       .from('content_keywords')
-      .select('tier, intent, market, monthly_searches, cluster');
+      .select('tier, intent, market, monthly_searches, cluster, competition');
 
     if (error) throw error;
 
@@ -138,6 +138,7 @@ router.get('/keywords/stats', requireAdmin, async (req: Request, res: Response) 
       byTier: {} as Record<string, number>,
       byIntent: {} as Record<string, number>,
       byCluster: {} as Record<string, number>,
+      byCompetition: {} as Record<string, number>,
       byVolume: { mega: 0, high: 0, medium: 0, low: 0, minimal: 0 } as Record<string, number>,
     };
 
@@ -166,6 +167,10 @@ router.get('/keywords/stats', requireAdmin, async (req: Request, res: Response) 
       const market = k.market || 'fr';
       stats.byMarket[market] = (stats.byMarket[market] || 0) + 1;
 
+      // Competition counts
+      const comp = (k.competition || 'unknown').toLowerCase();
+      stats.byCompetition[comp] = (stats.byCompetition[comp] || 0) + 1;
+
       // Cluster counts
       if (k.cluster) {
         stats.byCluster[k.cluster] = (stats.byCluster[k.cluster] || 0) + 1;
@@ -188,7 +193,7 @@ router.get('/keywords/stats', requireAdmin, async (req: Request, res: Response) 
  */
 router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const { tier, intent, market, cluster, search, volume_range, page, limit, offset } = req.query;
+    const { tier, intent, market, cluster, competition, search, volume_range, page, limit, offset } = req.query;
     const sb = getSupabase();
 
     // Parse pagination params
@@ -246,6 +251,16 @@ router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
       } else {
         countQuery = countQuery.in('cluster', clusters);
         dataQuery = dataQuery.in('cluster', clusters);
+      }
+    }
+    if (competition) {
+      const comps = (competition as string).split(',').map(c => c.trim().toLowerCase());
+      if (comps.length === 1) {
+        countQuery = countQuery.ilike('competition', comps[0]);
+        dataQuery = dataQuery.ilike('competition', comps[0]);
+      } else {
+        countQuery = countQuery.in('competition', comps);
+        dataQuery = dataQuery.in('competition', comps);
       }
     }
     if (volume_range) {
