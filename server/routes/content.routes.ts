@@ -99,7 +99,7 @@ const keywordSchema = z.object({
   market: z.enum(['fr', 'en']).optional().default('fr'),
   seasonal: z.boolean().optional(),
   seasonal_months: z.array(z.string()).nullable().optional(),
-  notes: z.string().max(2000).nullable().optional(),
+  cluster: z.string().max(200).nullable().optional(),
 });
 
 const keywordUpdateSchema = keywordSchema.partial();

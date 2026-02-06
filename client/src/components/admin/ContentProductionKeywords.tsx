@@ -22,7 +22,7 @@ interface ContentKeyword {
   difficulty_score?: number;
   seasonal?: boolean;
   seasonal_months?: string[];
-  notes?: string;
+  cluster?: string;
   created_at: string;
   updated_at: string;
 }
@@ -571,14 +571,14 @@ export function ContentProductionKeywords() {
                       <div className="flex items-center gap-2">
                         <TrendingUp className="h-4 w-4 text-gray-400" />
                         <span className="font-medium text-gray-900 dark:text-white">{keyword.keyword}</span>
-                        {keyword.notes && (
+                        {keyword.cluster && (
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <StickyNote className="h-4 w-4 text-amber-500 cursor-help flex-shrink-0" />
                               </TooltipTrigger>
                               <TooltipContent side="right" className="max-w-xs">
-                                <p className="text-sm">{keyword.notes}</p>
+                                <p className="text-sm font-medium">Cluster: {keyword.cluster}</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>

@@ -42,7 +42,7 @@ const newContent = `<h3>Keywords</h3>
 <ul>
   <li><strong>Searches/mo</strong> — Monthly search volume</li>
   <li><strong>Seasonal</strong> — Keywords that spike at certain times of year</li>
-  <li><strong>Notes</strong> — Shows 📝 icon in table when present (hover to view)</li>
+  <li><strong>Cluster</strong> — Content category grouping (e.g., gift_retirement, vhs_legacy). Shows 📝 icon in table when present (hover to view)</li>
 </ul>
 
 <h4>Actions</h4>

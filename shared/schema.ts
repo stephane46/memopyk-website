@@ -807,7 +807,7 @@ export const contentKeywords = pgTable("content_keywords", {
   market: text("market").default("fr").notNull(), // 'fr' | 'en'
   seasonal: boolean("seasonal").default(false),
   seasonalMonths: text("seasonal_months").array(),
-  notes: text("notes"),
+  cluster: text("cluster"), // Content grouping (e.g., gift_retirement, vhs_legacy)
 
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow()

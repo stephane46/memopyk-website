@@ -20,7 +20,7 @@ interface ContentKeyword {
   market: string;
   seasonal?: boolean;
   seasonal_months?: string[];
-  notes?: string;
+  cluster?: string;
   created_at: string;
   updated_at: string;
 }
@@ -49,7 +49,7 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
   const [market, setMarket] = useState('fr');
   const [seasonal, setSeasonal] = useState(false);
   const [seasonalMonths, setSeasonalMonths] = useState<string[]>([]);
-  const [notes, setNotes] = useState('');
+  const [cluster, setCluster] = useState('');
 
   const isEditMode = !!keyword;
 
@@ -64,7 +64,7 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
       setMarket(keyword.market || 'fr');
       setSeasonal(keyword.seasonal || false);
       setSeasonalMonths(keyword.seasonal_months || []);
-      setNotes(keyword.notes || '');
+      setCluster(keyword.cluster || '');
     } else {
       // Reset form for create mode
       setKeywordText('');
@@ -75,7 +75,7 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
       setMarket('fr');
       setSeasonal(false);
       setSeasonalMonths([]);
-      setNotes('');
+      setCluster('');
     }
   }, [keyword, isOpen]);
 
@@ -98,7 +98,7 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
         market: market || 'fr',
         seasonal,
         seasonal_months: seasonal && seasonalMonths.length > 0 ? seasonalMonths : null,
-        notes: notes.trim() || null,
+        cluster: cluster.trim() || null,
       };
 
       if (isEditMode && keyword) {
@@ -289,15 +289,15 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
             )}
 
             <div>
-              <Label className="text-gray-900 dark:text-white">Notes</Label>
-              <Textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Any additional notes about this keyword..."
-                className="text-gray-900 dark:text-white h-20"
-                data-testid="textarea-notes"
+              <Label className="text-gray-900 dark:text-white">Cluster</Label>
+              <Input
+                value={cluster}
+                onChange={(e) => setCluster(e.target.value)}
+                placeholder="e.g., gift_retirement, vhs_legacy, direct_service"
+                className="text-gray-900 dark:text-white"
+                data-testid="input-cluster"
               />
-              <p className="text-xs text-gray-500 mt-0.5">EN keywords show cluster info here (e.g., gift_anniversary)</p>
+              <p className="text-xs text-gray-500 mt-0.5">Content category grouping for related keywords</p>
             </div>
           </div>
         </div>
