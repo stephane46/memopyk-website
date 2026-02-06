@@ -161,7 +161,7 @@ export function ContentProductionKeywords() {
         <Card>
           <CardHeader className="pb-3">
             <CardDescription className="text-gray-600 dark:text-gray-400">Total Keywords</CardDescription>
-            <CardTitle className="text-3xl text-gray-900 dark:text-white">{keywords.length}</CardTitle>
+            <CardTitle className="text-3xl text-gray-900 dark:text-white">{keywords.length.toLocaleString()}</CardTitle>
           </CardHeader>
         </Card>
 
@@ -177,7 +177,7 @@ export function ContentProductionKeywords() {
         <Card>
           <CardHeader className="pb-3">
             <CardDescription className="text-gray-600 dark:text-gray-400">Tier 1 Keywords</CardDescription>
-            <CardTitle className="text-3xl text-orange-600 dark:text-orange-400">{tierStats[1]}</CardTitle>
+            <CardTitle className="text-3xl text-orange-600 dark:text-orange-400">{tierStats[1].toLocaleString()}</CardTitle>
           </CardHeader>
         </Card>
 
@@ -185,7 +185,7 @@ export function ContentProductionKeywords() {
           <CardHeader className="pb-3">
             <CardDescription className="text-gray-600 dark:text-gray-400">High Intent</CardDescription>
             <CardTitle className="text-3xl text-purple-600 dark:text-purple-400">
-              {intentStats['high'] || 0}
+              {(intentStats['high'] || 0).toLocaleString()}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -224,7 +224,7 @@ export function ContentProductionKeywords() {
                   className={selectedMarket === null ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-market-all"
                 >
-                  All ({keywords.length})
+                  All ({keywords.length.toLocaleString()})
                 </Button>
                 <Button
                   variant="outline"
@@ -233,7 +233,7 @@ export function ContentProductionKeywords() {
                   className={selectedMarket === 'fr' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-market-fr"
                 >
-                  🇫🇷 France ({marketStats['fr'] || 0})
+                  🇫🇷 France ({(marketStats['fr'] || 0).toLocaleString()})
                 </Button>
                 <Button
                   variant="outline"
@@ -242,7 +242,7 @@ export function ContentProductionKeywords() {
                   className={selectedMarket === 'en' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-market-en"
                 >
-                  🇬🇧 English ({marketStats['en'] || 0})
+                  🇬🇧 English ({(marketStats['en'] || 0).toLocaleString()})
                 </Button>
               </div>
             </div>
@@ -258,7 +258,7 @@ export function ContentProductionKeywords() {
                   className={selectedTier === null ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-tier-all"
                 >
-                  All ({keywords.length})
+                  All ({keywords.length.toLocaleString()})
                 </Button>
                 <Button
                   variant="outline"
@@ -267,7 +267,7 @@ export function ContentProductionKeywords() {
                   className={selectedTier === 1 ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-tier-1"
                 >
-                  Tier 1 ({tierStats[1]})
+                  Tier 1 ({tierStats[1].toLocaleString()})
                 </Button>
                 <Button
                   variant="outline"
@@ -276,7 +276,7 @@ export function ContentProductionKeywords() {
                   className={selectedTier === 2 ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-tier-2"
                 >
-                  Tier 2 ({tierStats[2]})
+                  Tier 2 ({tierStats[2].toLocaleString()})
                 </Button>
                 <Button
                   variant="outline"
@@ -285,7 +285,7 @@ export function ContentProductionKeywords() {
                   className={selectedTier === 3 ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-tier-3"
                 >
-                  Tier 3 ({tierStats[3]})
+                  Tier 3 ({tierStats[3].toLocaleString()})
                 </Button>
               </div>
             </div>
@@ -310,7 +310,7 @@ export function ContentProductionKeywords() {
                   className={selectedIntent === 'high' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-intent-high"
                 >
-                  High ({intentStats['high'] || 0})
+                  High ({(intentStats['high'] || 0).toLocaleString()})
                 </Button>
                 <Button
                   variant="outline"
@@ -319,7 +319,7 @@ export function ContentProductionKeywords() {
                   className={selectedIntent === 'medium' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-intent-medium"
                 >
-                  Medium ({intentStats['medium'] || 0})
+                  Medium ({(intentStats['medium'] || 0).toLocaleString()})
                 </Button>
                 <Button
                   variant="outline"
@@ -328,7 +328,7 @@ export function ContentProductionKeywords() {
                   className={selectedIntent === 'low' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                   data-testid="button-intent-low"
                 >
-                  Low ({intentStats['low'] || 0})
+                  Low ({(intentStats['low'] || 0).toLocaleString()})
                 </Button>
               </div>
             </div>
@@ -343,7 +343,7 @@ export function ContentProductionKeywords() {
             <div>
               <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
                 <Target className="h-5 w-5" />
-                Keywords ({filteredKeywords.length})
+                Keywords ({filteredKeywords.length.toLocaleString()})
               </CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400 mt-1">
                 SEO keywords organized by tier and search intent
