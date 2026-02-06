@@ -124,7 +124,7 @@ router.get('/keywords/stats', requireAdmin, async (req: Request, res: Response) 
     // Fetch all keywords for aggregation (more efficient than multiple COUNT queries)
     const { data: keywords, error } = await sb
       .from('content_keywords')
-      .select('tier, intent, market, monthly_searches');
+      .select('tier, intent, market, monthly_searches, cluster');
 
     if (error) throw error;
 
@@ -137,6 +137,7 @@ router.get('/keywords/stats', requireAdmin, async (req: Request, res: Response) 
       byMarket: {} as Record<string, number>,
       byTier: {} as Record<string, number>,
       byIntent: {} as Record<string, number>,
+      byCluster: {} as Record<string, number>,
     };
 
     for (const k of keywords || []) {
@@ -155,6 +156,11 @@ router.get('/keywords/stats', requireAdmin, async (req: Request, res: Response) 
       // Market counts
       const market = k.market || 'fr';
       stats.byMarket[market] = (stats.byMarket[market] || 0) + 1;
+
+      // Cluster counts
+      if (k.cluster) {
+        stats.byCluster[k.cluster] = (stats.byCluster[k.cluster] || 0) + 1;
+      }
     }
 
     // Cache the result
@@ -173,7 +179,7 @@ router.get('/keywords/stats', requireAdmin, async (req: Request, res: Response) 
  */
 router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const { tier, intent, market, search, page, limit, offset } = req.query;
+    const { tier, intent, market, cluster, search, page, limit, offset } = req.query;
     const sb = getSupabase();
 
     // Parse pagination params
@@ -204,6 +210,10 @@ router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
       const searchPattern = `%${search}%`;
       countQuery = countQuery.ilike('keyword', searchPattern);
       dataQuery = dataQuery.ilike('keyword', searchPattern);
+    }
+    if (cluster) {
+      countQuery = countQuery.eq('cluster', cluster as string);
+      dataQuery = dataQuery.eq('cluster', cluster as string);
     }
 
     // Execute count query

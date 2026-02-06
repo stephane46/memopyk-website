@@ -4,8 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, TrendingUp, Target, Filter, ArrowUpDown, ArrowUp, ArrowDown, FileText, Plus, Pencil, Trash2, Loader2, ChevronLeft, ChevronRight, StickyNote } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Search, TrendingUp, Target, Filter, ArrowUpDown, ArrowUp, ArrowDown, FileText, Plus, Pencil, Trash2, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ContentKeywordsSkeleton } from '@/admin/skeletons/ContentKeywordsSkeleton';
 import { KeywordFormModal } from './KeywordFormModal';
 import { KeywordDeleteDialog } from './KeywordDeleteDialog';
@@ -36,6 +36,7 @@ interface KeywordsStats {
   byMarket: Record<string, number>;
   byTier: Record<string, number>;
   byIntent: Record<string, number>;
+  byCluster: Record<string, number>;
 }
 
 interface PaginatedResponse {
@@ -62,6 +63,7 @@ export function ContentProductionKeywords() {
   const [selectedTier, setSelectedTier] = useState<number | null>(null);
   const [selectedIntent, setSelectedIntent] = useState<string | null>(null);
   const [selectedMarket, setSelectedMarket] = useState<string | null>(null);
+  const [selectedCluster, setSelectedCluster] = useState<string | null>(null);
   const [sortColumn, setSortColumn] = useState<SortColumn>('monthly_searches');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [currentPage, setCurrentPage] = useState(1);
@@ -100,13 +102,14 @@ export function ContentProductionKeywords() {
     if (selectedTier !== null) params.set('tier', String(selectedTier));
     if (selectedIntent !== null) params.set('intent', selectedIntent);
     if (selectedMarket !== null) params.set('market', selectedMarket);
+    if (selectedCluster !== null) params.set('cluster', selectedCluster);
     if (debouncedSearch) params.set('search', debouncedSearch);
     return params.toString();
-  }, [selectedTier, selectedIntent, selectedMarket, debouncedSearch]);
+  }, [selectedTier, selectedIntent, selectedMarket, selectedCluster, debouncedSearch]);
 
   // Fetch initial page of keywords
   const { data: initialData, isLoading: initialLoading, refetch } = useQuery<PaginatedResponse>({
-    queryKey: ['/api/admin/content/keywords', selectedTier, selectedIntent, selectedMarket, debouncedSearch, currentPage],
+    queryKey: ['/api/admin/content/keywords', selectedTier, selectedIntent, selectedMarket, selectedCluster, debouncedSearch, currentPage],
     queryFn: async () => {
       const params = buildQueryParams(currentPage, PAGE_SIZE);
       const res = await adminFetch(`/api/admin/content/keywords?${params}`);
@@ -167,7 +170,7 @@ export function ContentProductionKeywords() {
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedTier, selectedIntent, selectedMarket]);
+  }, [selectedTier, selectedIntent, selectedMarket, selectedCluster]);
 
   const handleSort = (column: SortColumn) => {
     if (sortColumn === column) {
@@ -206,20 +209,6 @@ export function ContentProductionKeywords() {
   const paginatedKeywords = sortedKeywords.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
   const showingStart = loadedCount > 0 ? (currentPage - 1) * PAGE_SIZE + 1 : 0;
   const showingEnd = Math.min(currentPage * PAGE_SIZE, loadedCount);
-
-  const getCompetitionColor = (competition: string) => {
-    switch (competition?.toLowerCase()) {
-      case 'low':
-      case 'very low':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'high':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-    }
-  };
 
   // Intent colors: High intent (ready to buy) = green, Medium = blue, Low = gray
   const getIntentColor = (intent: string) => {
@@ -443,6 +432,32 @@ export function ContentProductionKeywords() {
                 </Button>
               </div>
             </div>
+
+            {/* Cluster Filter - dropdown */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Cluster</label>
+              <Select
+                value={selectedCluster || 'all'}
+                onValueChange={(value) => setSelectedCluster(value === 'all' ? null : value)}
+              >
+                <SelectTrigger
+                  className={selectedCluster ? 'border-[#D67C4A] bg-orange-50 dark:bg-orange-950' : ''}
+                  data-testid="select-cluster"
+                >
+                  <SelectValue placeholder="All Clusters" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Clusters</SelectItem>
+                  {stats?.byCluster && Object.entries(stats.byCluster)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([cluster, count]) => (
+                      <SelectItem key={cluster} value={cluster}>
+                        {formatCluster(cluster)} ({count.toLocaleString()})
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -572,20 +587,6 @@ export function ContentProductionKeywords() {
                       <div className="flex items-center gap-2">
                         <TrendingUp className="h-4 w-4 text-gray-400" />
                         <span className="font-medium text-gray-900 dark:text-white">{keyword.keyword}</span>
-                        {keyword.cluster && (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Badge variant="custom" className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 text-xs cursor-help">
-                                  {formatCluster(keyword.cluster)}
-                                </Badge>
-                              </TooltipTrigger>
-                              <TooltipContent side="right" className="max-w-xs">
-                                <p className="text-sm">Cluster: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">{keyword.cluster}</code></p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        )}
                       </div>
                     </td>
                     <td className="p-3 text-center">
@@ -605,10 +606,8 @@ export function ContentProductionKeywords() {
                     <td className="p-3 text-right text-gray-900 dark:text-white">
                       {keyword.monthly_searches?.toLocaleString() || 'N/A'}
                     </td>
-                    <td className="p-3">
-                      <Badge variant="custom" className={getCompetitionColor(keyword.competition)}>
-                        {keyword.competition}
-                      </Badge>
+                    <td className="p-3 text-gray-700 dark:text-gray-300">
+                      {keyword.competition || '—'}
                     </td>
                     <td className="p-3">
                       <Badge variant="custom" className={getIntentColor(keyword.intent)}>
