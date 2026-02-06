@@ -31,9 +31,9 @@ const newContent = `<h3>Keywords</h3>
       <li>LOW = Just researching</li>
     </ul>
   </li>
-  <li><strong>Seasonal</strong> — Keywords that spike at certain times (in Additional Options)</li>
+  <li><strong>Seasonal</strong> — Keywords that spike at certain times of year</li>
   <li><strong>Peak Months</strong> — Which months keyword peaks (shown when Seasonal is on)</li>
-  <li><strong>Notes</strong> — Freeform notes (in Additional Options; EN keywords include cluster)</li>
+  <li><strong>Notes</strong> — Freeform notes; EN keywords show cluster info (e.g., gift_anniversary). Keywords with notes show a 📝 icon in the table</li>
 </ul>
 
 <h4>Actions</h4>

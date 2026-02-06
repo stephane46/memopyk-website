@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, TrendingUp, Target, Filter, ArrowUpDown, ArrowUp, ArrowDown, FileText, Plus, Pencil, Trash2, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, TrendingUp, Target, Filter, ArrowUpDown, ArrowUp, ArrowDown, FileText, Plus, Pencil, Trash2, Loader2, ChevronLeft, ChevronRight, StickyNote } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ContentKeywordsSkeleton } from '@/admin/skeletons/ContentKeywordsSkeleton';
 import { KeywordFormModal } from './KeywordFormModal';
 import { KeywordDeleteDialog } from './KeywordDeleteDialog';
@@ -568,6 +569,18 @@ export function ContentProductionKeywords() {
                       <div className="flex items-center gap-2">
                         <TrendingUp className="h-4 w-4 text-gray-400" />
                         <span className="font-medium text-gray-900 dark:text-white">{keyword.keyword}</span>
+                        {keyword.notes && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <StickyNote className="h-4 w-4 text-amber-500 cursor-help flex-shrink-0" />
+                              </TooltipTrigger>
+                              <TooltipContent side="right" className="max-w-xs">
+                                <p className="text-sm">{keyword.notes}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
                       </div>
                     </td>
                     <td className="p-3 text-center">

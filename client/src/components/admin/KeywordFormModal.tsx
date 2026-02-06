@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
+import { Loader2, Save, TrendingUp } from 'lucide-react';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 
 interface ContentKeyword {
@@ -18,7 +18,6 @@ interface ContentKeyword {
   intent: string;
   tier: number;
   market: string;
-  difficulty_score?: number;
   seasonal?: boolean;
   seasonal_months?: string[];
   notes?: string;
@@ -40,7 +39,6 @@ const MONTHS = [
 export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showOptionalFields, setShowOptionalFields] = useState(false);
 
   // Form fields
   const [keywordText, setKeywordText] = useState('');
@@ -49,7 +47,6 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
   const [intent, setIntent] = useState('');
   const [tier, setTier] = useState('');
   const [market, setMarket] = useState('fr');
-  const [difficultyScore, setDifficultyScore] = useState('');
   const [seasonal, setSeasonal] = useState(false);
   const [seasonalMonths, setSeasonalMonths] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
@@ -65,7 +62,6 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
       setIntent(keyword.intent || '');
       setTier(keyword.tier?.toString() || '');
       setMarket(keyword.market || 'fr');
-      setDifficultyScore(keyword.difficulty_score?.toString() || '');
       setSeasonal(keyword.seasonal || false);
       setSeasonalMonths(keyword.seasonal_months || []);
       setNotes(keyword.notes || '');
@@ -77,7 +73,6 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
       setIntent('medium');
       setTier('3');
       setMarket('fr');
-      setDifficultyScore('');
       setSeasonal(false);
       setSeasonalMonths([]);
       setNotes('');
@@ -101,7 +96,6 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
         intent: intent || 'medium',
         tier: tier ? parseInt(tier) : 3,
         market: market || 'fr',
-        difficulty_score: difficultyScore ? parseInt(difficultyScore) : null,
         seasonal,
         seasonal_months: seasonal && seasonalMonths.length > 0 ? seasonalMonths : null,
         notes: notes.trim() || null,
@@ -254,82 +248,57 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
             </div>
           </div>
 
-          {/* Optional Fields (Collapsible) */}
+          {/* Seasonal & Notes */}
           <div className="space-y-4">
-            <button
-              type="button"
-              onClick={() => setShowOptionalFields(!showOptionalFields)}
-              className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white border-b pb-2 w-full"
-            >
-              Additional Options
-              {showOptionalFields ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-            </button>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b pb-2">Additional Info</h3>
 
-            {showOptionalFields && (
-              <div className="space-y-4">
-                <div>
-                  <Label className="text-gray-900 dark:text-white">Difficulty Score (0-100)</Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={difficultyScore}
-                    onChange={(e) => setDifficultyScore(e.target.value)}
-                    placeholder="e.g., 45"
-                    className="text-gray-900 dark:text-white"
-                    data-testid="input-difficulty"
-                  />
-                  <p className="text-xs text-gray-500 mt-0.5">SEO difficulty score (0 = easy, 100 = hard)</p>
-                </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-gray-900 dark:text-white">Seasonal Keyword</Label>
+                <p className="text-xs text-gray-500">Does this keyword peak at certain times of year?</p>
+              </div>
+              <Switch
+                checked={seasonal}
+                onCheckedChange={setSeasonal}
+                data-testid="switch-seasonal"
+              />
+            </div>
 
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-gray-900 dark:text-white">Seasonal Keyword</Label>
-                    <p className="text-xs text-gray-500">Does this keyword peak at certain times of year?</p>
-                  </div>
-                  <Switch
-                    checked={seasonal}
-                    onCheckedChange={setSeasonal}
-                    data-testid="switch-seasonal"
-                  />
-                </div>
-
-                {seasonal && (
-                  <div>
-                    <Label className="text-gray-900 dark:text-white">Peak Months</Label>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {MONTHS.map(month => (
-                        <Button
-                          key={month}
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => toggleSeasonalMonth(month)}
-                          className={seasonalMonths.includes(month)
-                            ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C56B3A] hover:text-white'
-                            : ''
-                          }
-                          data-testid={`button-month-${month.toLowerCase()}`}
-                        >
-                          {month.slice(0, 3)}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div>
-                  <Label className="text-gray-900 dark:text-white">Notes</Label>
-                  <Textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Any additional notes about this keyword..."
-                    className="text-gray-900 dark:text-white h-20"
-                    data-testid="textarea-notes"
-                  />
+            {seasonal && (
+              <div>
+                <Label className="text-gray-900 dark:text-white">Peak Months</Label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {MONTHS.map(month => (
+                    <Button
+                      key={month}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => toggleSeasonalMonth(month)}
+                      className={seasonalMonths.includes(month)
+                        ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C56B3A] hover:text-white'
+                        : ''
+                      }
+                      data-testid={`button-month-${month.toLowerCase()}`}
+                    >
+                      {month.slice(0, 3)}
+                    </Button>
+                  ))}
                 </div>
               </div>
             )}
+
+            <div>
+              <Label className="text-gray-900 dark:text-white">Notes</Label>
+              <Textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Any additional notes about this keyword..."
+                className="text-gray-900 dark:text-white h-20"
+                data-testid="textarea-notes"
+              />
+              <p className="text-xs text-gray-500 mt-0.5">EN keywords show cluster info here (e.g., gift_anniversary)</p>
+            </div>
           </div>
         </div>
 
