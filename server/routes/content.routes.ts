@@ -193,18 +193,36 @@ router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
     let countQuery = sb.from('content_keywords').select('*', { count: 'exact', head: true });
     let dataQuery = sb.from('content_keywords').select('*');
 
-    // Apply filters to both queries
+    // Apply filters to both queries (supports comma-separated multi-values)
     if (tier) {
-      countQuery = countQuery.eq('tier', parseInt(tier as string));
-      dataQuery = dataQuery.eq('tier', parseInt(tier as string));
+      const tiers = (tier as string).split(',').map(t => parseInt(t.trim()));
+      if (tiers.length === 1) {
+        countQuery = countQuery.eq('tier', tiers[0]);
+        dataQuery = dataQuery.eq('tier', tiers[0]);
+      } else {
+        countQuery = countQuery.in('tier', tiers);
+        dataQuery = dataQuery.in('tier', tiers);
+      }
     }
     if (intent) {
-      countQuery = countQuery.ilike('intent', intent as string);
-      dataQuery = dataQuery.ilike('intent', intent as string);
+      const intents = (intent as string).split(',').map(i => i.trim().toLowerCase());
+      if (intents.length === 1) {
+        countQuery = countQuery.ilike('intent', intents[0]);
+        dataQuery = dataQuery.ilike('intent', intents[0]);
+      } else {
+        countQuery = countQuery.in('intent', intents);
+        dataQuery = dataQuery.in('intent', intents);
+      }
     }
     if (market) {
-      countQuery = countQuery.eq('market', market as string);
-      dataQuery = dataQuery.eq('market', market as string);
+      const markets = (market as string).split(',').map(m => m.trim());
+      if (markets.length === 1) {
+        countQuery = countQuery.eq('market', markets[0]);
+        dataQuery = dataQuery.eq('market', markets[0]);
+      } else {
+        countQuery = countQuery.in('market', markets);
+        dataQuery = dataQuery.in('market', markets);
+      }
     }
     if (search) {
       const searchPattern = `%${search}%`;
@@ -212,8 +230,14 @@ router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
       dataQuery = dataQuery.ilike('keyword', searchPattern);
     }
     if (cluster) {
-      countQuery = countQuery.eq('cluster', cluster as string);
-      dataQuery = dataQuery.eq('cluster', cluster as string);
+      const clusters = (cluster as string).split(',').map(c => c.trim());
+      if (clusters.length === 1) {
+        countQuery = countQuery.eq('cluster', clusters[0]);
+        dataQuery = dataQuery.eq('cluster', clusters[0]);
+      } else {
+        countQuery = countQuery.in('cluster', clusters);
+        dataQuery = dataQuery.in('cluster', clusters);
+      }
     }
 
     // Execute count query

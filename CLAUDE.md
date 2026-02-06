@@ -17,7 +17,7 @@
 | Partner Directory | ✅ Working (Mapbox GL JS upgrade planned) |
 | Auto-deploy | ✅ Enabled (push → GitHub webhook → Coolify) |
 | Help System | ✅ Complete (9 screens + 2 flows, visual badges, localStorage persistence) |
-| Blog Hub | ✅ Workflow tabs with numbered steps (①②③④⑤) |
+| Blog Hub | ✅ Workflow tabs + Keywords (12,501 FR+EN) |
 | **Production** | ✅ **LIVE on Coolify** (Replit replaced) |
 
 ## Quick Commands
@@ -37,8 +37,22 @@ READ THESE FIRST:
 
 ## Recent Work
 
-- 2026-02-06: Keywords CRUD — KeywordFormModal + KeywordDeleteDialog, New/Edit/Delete buttons, API endpoints (POST/PATCH/DELETE)
-- 2026-02-06: French keyword import — 2,605 keywords imported from GKP CSV with tier (1-3) and intent classification, 805 Tier 4 skipped
+- 2026-02-06: Excel-style multi-select filters — All keyword filters (Market, Tier, Intent, Cluster) now use checkbox dropdowns with Select All, search, OK/Cancel
+- 2026-02-06: Cluster refinement — 4,079 keywords reclassified (split gift_anniversary, vhs_legacy; triaged "other" cluster)
+- 2026-02-06: FR clusters imported — 2,605 FR keywords classified into clusters
+- 2026-02-06: Cluster field — Renamed `notes` → `cluster`, formatted display (gift_retirement → "Gift Retirement")
+- 2026-02-06: Keywords badge colors — Semantic color scheme (Tier: green/blue/yellow, Competition: green/yellow/red, Intent: green/blue/gray)
+- 2026-02-06: Keywords notes indicator — 📝 icon in table for keywords with notes, tooltip shows content
+- 2026-02-06: Keywords form simplified — Removed unused Difficulty Score field, flattened Additional Options section
+- 2026-02-06: Keywords pagination — 100/page + background loading (500 chunks) + /stats endpoint (cached)
+- 2026-02-06: Keywords auth fix — Switched to adminFetch() for proper Authorization headers
+- 2026-02-06: Market label fix — Changed 🇬🇧 GB to 🇺🇸 US for English market
+- 2026-02-06: Number formatting — All keyword counts/volumes display with comma separators
+- 2026-02-06: English keyword import — 9,896 EN keywords imported (Tier 1: 385, Tier 2: 5,072, Tier 3: 4,439)
+- 2026-02-06: Market field added — `market` column (fr/en) with composite unique constraint (keyword, market)
+- 2026-02-06: Marketing docs consolidated — Master file `KEYWORD_RESEARCH_COMPLETE.md` + `INTENT_CLASSIFICATION_RULESETS.md`
+- 2026-02-06: Keywords CRUD — KeywordFormModal + KeywordDeleteDialog, New/Edit/Delete buttons, API endpoints
+- 2026-02-06: French keyword import — 2,605 keywords imported from GKP CSV with tier/intent classification
 - 2026-02-05: Topic form UX polish — Competition/Search Intent as dropdowns, ✨ AI indicators on 7 fields, collapsible SEO Research + Images sections
 - 2026-02-05: Topic form audit — removed slug from form, added helper text to 12 fields, wired content_angle/description/search_intent into AI prompts
 - 2026-02-05: Topics expanded UX — orange left accent border, gray background, grouped action buttons (Edit/Delete/Create Post), consistent bold labels, primary keyword pill

@@ -1,14 +1,14 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, TrendingUp, Target, Filter, ArrowUpDown, ArrowUp, ArrowDown, FileText, Plus, Pencil, Trash2, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ContentKeywordsSkeleton } from '@/admin/skeletons/ContentKeywordsSkeleton';
 import { KeywordFormModal } from './KeywordFormModal';
 import { KeywordDeleteDialog } from './KeywordDeleteDialog';
+import { MultiSelectFilter, FilterOption } from './MultiSelectFilter';
 import { adminFetch } from '@/lib/queryClient';
 import { formatCluster } from '@/lib/utils';
 
@@ -60,10 +60,11 @@ const BACKGROUND_CHUNK_SIZE = 500;
 export function ContentProductionKeywords() {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [selectedTier, setSelectedTier] = useState<number | null>(null);
-  const [selectedIntent, setSelectedIntent] = useState<string | null>(null);
-  const [selectedMarket, setSelectedMarket] = useState<string | null>(null);
-  const [selectedCluster, setSelectedCluster] = useState<string | null>(null);
+  const [selectedMarkets, setSelectedMarkets] = useState<Set<string>>(new Set(['fr', 'en']));
+  const [selectedTiers, setSelectedTiers] = useState<Set<string>>(new Set(['1', '2', '3']));
+  const [selectedIntents, setSelectedIntents] = useState<Set<string>>(new Set(['high', 'medium', 'low']));
+  const [selectedClusters, setSelectedClusters] = useState<Set<string>>(new Set());
+  const [clustersInitialized, setClustersInitialized] = useState(false);
   const [sortColumn, setSortColumn] = useState<SortColumn>('monthly_searches');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [currentPage, setCurrentPage] = useState(1);
@@ -93,29 +94,88 @@ export function ContentProductionKeywords() {
     queryKey: ['/api/admin/content/keywords/stats'],
   });
 
+  // Initialize cluster selection from stats (all selected by default)
+  useEffect(() => {
+    if (stats?.byCluster && !clustersInitialized) {
+      setSelectedClusters(new Set(Object.keys(stats.byCluster)));
+      setClustersInitialized(true);
+    }
+  }, [stats, clustersInitialized]);
+
+  // Build filter options from stats
+  const marketOptions: FilterOption[] = useMemo(() => {
+    if (!stats?.byMarket) return [];
+    return [
+      { value: 'fr', label: '🇫🇷 France', count: stats.byMarket.fr || 0 },
+      { value: 'en', label: '🇺🇸 English', count: stats.byMarket.en || 0 },
+    ];
+  }, [stats?.byMarket]);
+
+  const tierOptions: FilterOption[] = useMemo(() => {
+    if (!stats?.byTier) return [];
+    return [
+      { value: '1', label: 'Tier 1', count: stats.byTier['1'] || 0 },
+      { value: '2', label: 'Tier 2', count: stats.byTier['2'] || 0 },
+      { value: '3', label: 'Tier 3', count: stats.byTier['3'] || 0 },
+    ];
+  }, [stats?.byTier]);
+
+  const intentOptions: FilterOption[] = useMemo(() => {
+    if (!stats?.byIntent) return [];
+    return [
+      { value: 'high', label: 'High', count: stats.byIntent.high || 0 },
+      { value: 'medium', label: 'Medium', count: stats.byIntent.medium || 0 },
+      { value: 'low', label: 'Low', count: stats.byIntent.low || 0 },
+    ];
+  }, [stats?.byIntent]);
+
+  const clusterOptions: FilterOption[] = useMemo(() => {
+    if (!stats?.byCluster) return [];
+    return Object.entries(stats.byCluster)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([cluster, count]) => ({
+        value: cluster,
+        label: formatCluster(cluster),
+        count,
+      }));
+  }, [stats?.byCluster]);
+
+  // Detect whether a filter is "all selected" (no filtering needed)
+  const allMarkets = marketOptions.length > 0 && selectedMarkets.size === marketOptions.length;
+  const allTiers = tierOptions.length > 0 && selectedTiers.size === tierOptions.length;
+  const allIntents = intentOptions.length > 0 && selectedIntents.size === intentOptions.length;
+  const allClusters = clusterOptions.length > 0 && selectedClusters.size === clusterOptions.length;
+
   // Build query params for paginated fetch
   const buildQueryParams = useCallback((page: number, limit: number, offset?: number) => {
     const params = new URLSearchParams();
     params.set('page', String(page));
     params.set('limit', String(limit));
     if (offset !== undefined) params.set('offset', String(offset));
-    if (selectedTier !== null) params.set('tier', String(selectedTier));
-    if (selectedIntent !== null) params.set('intent', selectedIntent);
-    if (selectedMarket !== null) params.set('market', selectedMarket);
-    if (selectedCluster !== null) params.set('cluster', selectedCluster);
+    if (!allMarkets && selectedMarkets.size > 0) params.set('market', [...selectedMarkets].join(','));
+    if (!allTiers && selectedTiers.size > 0) params.set('tier', [...selectedTiers].join(','));
+    if (!allIntents && selectedIntents.size > 0) params.set('intent', [...selectedIntents].join(','));
+    if (!allClusters && selectedClusters.size > 0) params.set('cluster', [...selectedClusters].join(','));
     if (debouncedSearch) params.set('search', debouncedSearch);
     return params.toString();
-  }, [selectedTier, selectedIntent, selectedMarket, selectedCluster, debouncedSearch]);
+  }, [selectedMarkets, selectedTiers, selectedIntents, selectedClusters, allMarkets, allTiers, allIntents, allClusters, debouncedSearch]);
+
+  // Serialize filter sets for dependency tracking
+  const marketKey = [...selectedMarkets].sort().join(',');
+  const tierKey = [...selectedTiers].sort().join(',');
+  const intentKey = [...selectedIntents].sort().join(',');
+  const clusterKey = [...selectedClusters].sort().join(',');
 
   // Fetch initial page of keywords
   const { data: initialData, isLoading: initialLoading, refetch } = useQuery<PaginatedResponse>({
-    queryKey: ['/api/admin/content/keywords', selectedTier, selectedIntent, selectedMarket, selectedCluster, debouncedSearch, currentPage],
+    queryKey: ['/api/admin/content/keywords', marketKey, tierKey, intentKey, clusterKey, debouncedSearch, currentPage],
     queryFn: async () => {
       const params = buildQueryParams(currentPage, PAGE_SIZE);
       const res = await adminFetch(`/api/admin/content/keywords?${params}`);
       if (!res.ok) throw new Error('Failed to fetch keywords');
       return res.json();
     },
+    enabled: clustersInitialized,
   });
 
   // Background loading function
@@ -170,7 +230,7 @@ export function ContentProductionKeywords() {
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedTier, selectedIntent, selectedMarket, selectedCluster]);
+  }, [marketKey, tierKey, intentKey, clusterKey]);
 
   const handleSort = (column: SortColumn) => {
     if (sortColumn === column) {
@@ -293,170 +353,43 @@ export function ContentProductionKeywords() {
 
       {/* Filters */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
-            <Filter className="h-5 w-5" />
-            Filters
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+        <CardContent className="pt-4 pb-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <Filter className="h-4 w-4 text-gray-500 shrink-0" />
+            <MultiSelectFilter
+              label="Market"
+              options={marketOptions}
+              selected={selectedMarkets}
+              onChange={setSelectedMarkets}
+            />
+            <MultiSelectFilter
+              label="Tier"
+              options={tierOptions}
+              selected={selectedTiers}
+              onChange={setSelectedTiers}
+            />
+            <MultiSelectFilter
+              label="Intent"
+              options={intentOptions}
+              selected={selectedIntents}
+              onChange={setSelectedIntents}
+            />
+            <MultiSelectFilter
+              label="Cluster"
+              options={clusterOptions}
+              selected={selectedClusters}
+              onChange={setSelectedClusters}
+              showSearch
+            />
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search keywords..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="pl-10 h-9 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 data-testid="input-keyword-search"
               />
-            </div>
-
-            {/* Market Filter - counts from stats */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Market</label>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedMarket(null)}
-                  className={selectedMarket === null ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
-                  data-testid="button-market-all"
-                >
-                  All ({(stats?.totalKeywords || 0).toLocaleString()})
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedMarket('fr')}
-                  className={selectedMarket === 'fr' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
-                  data-testid="button-market-fr"
-                >
-                  🇫🇷 France ({(stats?.byMarket?.fr || 0).toLocaleString()})
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedMarket('en')}
-                  className={selectedMarket === 'en' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
-                  data-testid="button-market-en"
-                >
-                  🇺🇸 English ({(stats?.byMarket?.en || 0).toLocaleString()})
-                </Button>
-              </div>
-            </div>
-
-            {/* Tier Filter - counts from stats */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Tier</label>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedTier(null)}
-                  className={selectedTier === null ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
-                  data-testid="button-tier-all"
-                >
-                  All ({(stats?.totalKeywords || 0).toLocaleString()})
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedTier(1)}
-                  className={selectedTier === 1 ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
-                  data-testid="button-tier-1"
-                >
-                  Tier 1 ({(stats?.byTier?.['1'] || 0).toLocaleString()})
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedTier(2)}
-                  className={selectedTier === 2 ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
-                  data-testid="button-tier-2"
-                >
-                  Tier 2 ({(stats?.byTier?.['2'] || 0).toLocaleString()})
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedTier(3)}
-                  className={selectedTier === 3 ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
-                  data-testid="button-tier-3"
-                >
-                  Tier 3 ({(stats?.byTier?.['3'] || 0).toLocaleString()})
-                </Button>
-              </div>
-            </div>
-
-            {/* Intent Filter - counts from stats */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Search Intent</label>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedIntent(null)}
-                  className={selectedIntent === null ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
-                  data-testid="button-intent-all"
-                >
-                  All
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedIntent('high')}
-                  className={selectedIntent === 'high' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
-                  data-testid="button-intent-high"
-                >
-                  High ({(stats?.byIntent?.high || 0).toLocaleString()})
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedIntent('medium')}
-                  className={selectedIntent === 'medium' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
-                  data-testid="button-intent-medium"
-                >
-                  Medium ({(stats?.byIntent?.medium || 0).toLocaleString()})
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedIntent('low')}
-                  className={selectedIntent === 'low' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
-                  data-testid="button-intent-low"
-                >
-                  Low ({(stats?.byIntent?.low || 0).toLocaleString()})
-                </Button>
-              </div>
-            </div>
-
-            {/* Cluster Filter - dropdown */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Cluster</label>
-              <Select
-                value={selectedCluster || 'all'}
-                onValueChange={(value) => setSelectedCluster(value === 'all' ? null : value)}
-              >
-                <SelectTrigger
-                  className={selectedCluster ? 'border-[#D67C4A] bg-orange-50 dark:bg-orange-950' : ''}
-                  data-testid="select-cluster"
-                >
-                  <SelectValue placeholder="All Clusters" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Clusters</SelectItem>
-                  {stats?.byCluster && Object.entries(stats.byCluster)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([cluster, count]) => (
-                      <SelectItem key={cluster} value={cluster}>
-                        {formatCluster(cluster)} ({count.toLocaleString()})
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
             </div>
           </div>
         </CardContent>
