@@ -48,6 +48,7 @@ const topicSchema = z.object({
   slug: z.string().min(1).max(200),
   category: z.string().min(1).max(100),
   type: z.string().min(1).max(50),
+  market: z.enum(['fr', 'en']).optional().default('fr'),
   target_word_count: z.number().int().positive().optional(),
   primary_keyword: z.string().min(1).max(200),
   secondary_keywords: z.array(z.string()).optional(),
@@ -355,7 +356,7 @@ router.delete('/keywords/:id', requireAdmin, async (req: Request, res: Response)
  */
 router.get('/topics', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const { category, priority, status } = req.query;
+    const { category, priority, status, market } = req.query;
     const sb = getSupabase();
 
     let query = sb.from('content_topics').select('*');
@@ -363,6 +364,7 @@ router.get('/topics', requireAdmin, async (req: Request, res: Response) => {
     if (category) query = query.eq('category', category as string);
     if (priority) query = query.eq('priority', parseInt(priority as string));
     if (status) query = query.eq('status', status as string);
+    if (market) query = query.eq('market', market as string);
 
     const { data: topics, error } = await query.order('priority', { ascending: false });
 

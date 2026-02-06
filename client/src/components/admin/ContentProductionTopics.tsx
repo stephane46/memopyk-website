@@ -25,6 +25,7 @@ interface ContentTopic {
   slug: string;
   category: string;
   type: string;
+  market: string;
   target_word_count: number;
   primary_keyword: string;
   secondary_keywords: string[];
@@ -83,6 +84,7 @@ export function ContentProductionTopics() {
   const [selectedPriority, setSelectedPriority] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
+  const [selectedMarket, setSelectedMarket] = useState<string>('all');
   const [selectedTopicForPost, setSelectedTopicForPost] = useState<ContentTopic | null>(null);
   const [highlightedTopicId, setHighlightedTopicId] = useState<string | null>(null);
 
@@ -153,8 +155,9 @@ export function ContentProductionTopics() {
     const matchesPriority = selectedPriority === 'all' || topic.priority.toString() === selectedPriority;
     const matchesStatus = selectedStatus === 'all' || topic.status === selectedStatus;
     const matchesType = selectedType === 'all' || topic.type === selectedType;
-    
-    return matchesSearch && matchesCategory && matchesPriority && matchesStatus && matchesType;
+    const matchesMarket = selectedMarket === 'all' || topic.market === selectedMarket;
+
+    return matchesSearch && matchesCategory && matchesPriority && matchesStatus && matchesType && matchesMarket;
   });
 
   const totalTopics = topics.length;
@@ -240,6 +243,7 @@ export function ContentProductionTopics() {
     setSelectedPriority('all');
     setSelectedStatus('all');
     setSelectedType('all');
+    setSelectedMarket('all');
     setSearchQuery('');
   };
 
@@ -257,6 +261,7 @@ export function ContentProductionTopics() {
     selectedPriority !== 'all',
     selectedStatus !== 'all',
     selectedType !== 'all',
+    selectedMarket !== 'all',
     searchQuery !== '',
   ].filter(Boolean).length;
 
@@ -368,7 +373,7 @@ export function ContentProductionTopics() {
             {/* Type Filter */}
             <div>
               <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger 
+                <SelectTrigger
                   data-testid="select-type"
                   className={selectedType !== 'all' ? 'border-[#D67C4A] bg-orange-50 dark:bg-orange-950' : ''}
                 >
@@ -381,6 +386,40 @@ export function ContentProductionTopics() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+
+          {/* Market Filter */}
+          <div className="mt-4">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Market</label>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedMarket('all')}
+                className={selectedMarket === 'all' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
+                data-testid="button-market-all"
+              >
+                All
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedMarket('fr')}
+                className={selectedMarket === 'fr' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
+                data-testid="button-market-fr"
+              >
+                🇫🇷 France
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedMarket('en')}
+                className={selectedMarket === 'en' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
+                data-testid="button-market-en"
+              >
+                🇺🇸 English
+              </Button>
             </div>
           </div>
         </CardContent>
@@ -466,6 +505,9 @@ export function ContentProductionTopics() {
                             {topic.post_count} Post{topic.post_count !== 1 ? 's' : ''}
                           </Badge>
                         )}
+                        <span title={topic.market === 'fr' ? 'France' : 'English'}>
+                          {topic.market === 'fr' ? '🇫🇷' : '🇺🇸'}
+                        </span>
                         <Badge variant="custom" className={getCategoryColor(topic.category)}>
                           {getCategoryShortLabel(topic.category)}
                         </Badge>
