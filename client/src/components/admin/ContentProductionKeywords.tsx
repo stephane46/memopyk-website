@@ -8,6 +8,7 @@ import { Search, TrendingUp, Target, Filter, ArrowUpDown, ArrowUp, ArrowDown, Fi
 import { ContentKeywordsSkeleton } from '@/admin/skeletons/ContentKeywordsSkeleton';
 import { KeywordFormModal } from './KeywordFormModal';
 import { KeywordDeleteDialog } from './KeywordDeleteDialog';
+import { adminFetch } from '@/lib/queryClient';
 
 interface ContentKeyword {
   id: string;
@@ -106,9 +107,7 @@ export function ContentProductionKeywords() {
     queryKey: ['/api/admin/content/keywords', selectedTier, selectedIntent, selectedMarket, debouncedSearch, currentPage],
     queryFn: async () => {
       const params = buildQueryParams(currentPage, PAGE_SIZE);
-      const res = await fetch(`/api/admin/content/keywords?${params}`, {
-        credentials: 'include',
-      });
+      const res = await adminFetch(`/api/admin/content/keywords?${params}`);
       if (!res.ok) throw new Error('Failed to fetch keywords');
       return res.json();
     },
@@ -134,9 +133,7 @@ export function ContentProductionKeywords() {
     while (offset < total && backgroundLoadingRef.current) {
       try {
         const params = buildQueryParams(1, BACKGROUND_CHUNK_SIZE, offset);
-        const res = await fetch(`/api/admin/content/keywords?${params}`, {
-          credentials: 'include',
-        });
+        const res = await adminFetch(`/api/admin/content/keywords?${params}`);
         if (!res.ok) break;
 
         const data: PaginatedResponse = await res.json();
