@@ -9,49 +9,55 @@ const supabase = createClient(
 );
 
 const newContent = `<h3>Keywords</h3>
-<p>SEO keyword strategy and targeting framework for your blog content. Keywords from both French and English markets are tracked here.</p>
+<p>SEO keywords for blog content. Track French (🇫🇷) and English (🇺🇸) markets separately.</p>
 
-<h4>Keyword Fields</h4>
+<h4>Badge Colors</h4>
+<p>Colors indicate priority: <span style="color: #16a34a; font-weight: bold;">GREEN = good</span>, <span style="color: #2563eb; font-weight: bold;">BLUE = neutral</span>, <span style="color: #ca8a04; font-weight: bold;">YELLOW = caution</span>, <span style="color: #dc2626; font-weight: bold;">RED = bad</span>, <span style="color: #6b7280; font-weight: bold;">GRAY = low priority</span></p>
 <ul>
-  <li><strong>Keyword</strong> — The exact search term people type into Google</li>
-  <li><strong>Market</strong> — 🇫🇷 France or 🇬🇧 English target audience</li>
-  <li><strong>Tier</strong> — Relevance to MEMOPYK services:
+  <li><strong>Tier</strong> — How relevant to MEMOPYK:
     <ul>
-      <li>Tier 1 = Direct service match (highest priority)</li>
-      <li>Tier 2 = High relevance (good blog topics)</li>
-      <li>Tier 3 = Secondary relevance</li>
+      <li><span style="color: #16a34a;">Tier 1</span> = Direct service match (best!)</li>
+      <li><span style="color: #2563eb;">Tier 2</span> = High relevance</li>
+      <li><span style="color: #ca8a04;">Tier 3</span> = Secondary</li>
+      <li><span style="color: #6b7280;">Tier 4</span> = Low relevance</li>
     </ul>
   </li>
-  <li><strong>Searches/mo</strong> — Monthly search volume from Google Keyword Planner</li>
-  <li><strong>Competition</strong> — Advertiser competition level (High/Medium/Low)</li>
-  <li><strong>Intent</strong> — How likely to convert:
+  <li><strong>Competition</strong> — How hard to rank:
     <ul>
-      <li>HIGH = Ready to buy or hire</li>
-      <li>MEDIUM = Comparing options</li>
-      <li>LOW = Just researching</li>
+      <li><span style="color: #16a34a;">Low</span> = Easy to rank (good!)</li>
+      <li><span style="color: #ca8a04;">Medium</span> = Moderate effort</li>
+      <li><span style="color: #dc2626;">High</span> = Hard to rank (tough!)</li>
     </ul>
   </li>
+  <li><strong>Intent</strong> — Conversion likelihood:
+    <ul>
+      <li><span style="color: #16a34a;">High</span> = Ready to buy (best!)</li>
+      <li><span style="color: #2563eb;">Medium</span> = Comparing options</li>
+      <li><span style="color: #6b7280;">Low</span> = Just researching</li>
+    </ul>
+  </li>
+</ul>
+
+<h4>Other Fields</h4>
+<ul>
+  <li><strong>Searches/mo</strong> — Monthly search volume</li>
   <li><strong>Seasonal</strong> — Keywords that spike at certain times of year</li>
-  <li><strong>Peak Months</strong> — Which months keyword peaks (shown when Seasonal is on)</li>
-  <li><strong>Notes</strong> — Freeform notes; EN keywords show cluster info (e.g., gift_anniversary). Keywords with notes show a 📝 icon in the table</li>
+  <li><strong>Notes</strong> — Shows 📝 icon in table when present (hover to view)</li>
 </ul>
 
 <h4>Actions</h4>
 <ul>
-  <li><span class="help-action help-add">➕ New Keyword</span> — Add a keyword manually</li>
-  <li><span class="help-action help-edit">✏️ Edit</span> — Modify keyword details</li>
-  <li><span class="help-action help-delete">🗑️ Delete</span> — Remove keyword (with confirmation)</li>
-  <li><span class="help-action help-link">📄 View Topics</span> — See which topics target this keyword</li>
+  <li><span class="help-action help-add">➕ New Keyword</span> — Add keyword manually</li>
+  <li><span class="help-action help-edit">✏️ Edit</span> — Modify details</li>
+  <li><span class="help-action help-delete">🗑️ Delete</span> — Remove (with confirmation)</li>
+  <li><span class="help-action help-link">📄 View Topics</span> — See topics using this keyword</li>
 </ul>
 
-<h4>Tips</h4>
+<h4>Best Strategy</h4>
 <ul>
-  <li>Focus on <strong>Tier 1 + High Intent</strong> keywords first — these convert best</li>
-  <li>Use the <strong>Market filter</strong> to plan French vs English content separately</li>
+  <li>Prioritize: <strong>Tier 1 + High Intent + Low Competition</strong> = best ROI</li>
+  <li>High-volume (5K+) keywords are good for awareness content</li>
   <li>Each blog post should target <strong>1 primary keyword</strong></li>
-  <li>Check how keywords are used in the <span class="help-action help-tab">Topics</span> tab</li>
-  <li>High-volume keywords (5K+ searches/mo) are great for awareness content</li>
-  <li>Medium competition + Tier 1 = best ROI for new blog posts</li>
 </ul>`;
 
 async function updateHelp() {
