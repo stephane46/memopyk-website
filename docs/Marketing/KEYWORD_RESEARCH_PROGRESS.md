@@ -1,9 +1,9 @@
-# MEMOPYK French Keyword Research — Progress Tracker
+# MEMOPYK Keyword Research — Progress Tracker
 
 **Started:** February 5, 2026
 **Last Updated:** February 6, 2026
-**Status:** ✅ IMPORT COMPLETE — 2,605 keywords in Supabase
-**Goal:** French keywords for MEMOPYK blog content strategy (France market)
+**Status:** ✅ IMPORT COMPLETE — 12,501 keywords in Supabase (FR + EN)
+**Goal:** Multi-language keywords for MEMOPYK blog content strategy
 
 ---
 
@@ -312,17 +312,70 @@ These aren't aggressive sales pitches. They're honest comparisons that help frus
 ---
 
 ## Database Status
-- `content_keywords` table: **2,605 keywords** (imported Feb 6, 2026)
+
+### Combined Totals (February 6, 2026)
+- `content_keywords` table: **12,501 keywords**
+  - 🇫🇷 French: 2,605 keywords
+  - 🇬🇧 English: 9,896 keywords
+
+### French Market (FR)
+- Source: `docs/data/Keyword_Stats_merged.csv` (ISO-8859-1)
+- Import script: `scripts/import-keywords.ts`
+- Distribution:
   - Tier 1: 51 (Direct Service)
   - Tier 2: 1,597 (High Relevance)
   - Tier 3: 957 (Secondary)
-  - Total monthly volume: 1,677,350/mo
+- Total monthly volume: 1,677,350/mo
+
+### English Market (EN)
+- Source: `docs/Marketing/EN_keywords_merged_classified.csv`
+- Import script: `scripts/import-keywords-en.ts`
+- Distribution:
+  - Tier 1: 385 (Direct Service)
+  - Tier 2: 5,072 (High Relevance)
+  - Tier 3: 4,439 (Secondary)
+- Total monthly volume: Very high (500K+ per top keyword)
+- **Notes:** English keywords include `cluster` field stored in notes column
+
+### Database Schema
+- Composite unique constraint: `(keyword, market)` — allows same keyword in different markets
 - `content_topics` table: 102 topics (need to reference verified keywords)
-- Import script: `scripts/import-keywords.ts` (uses iconv-lite for ISO-8859-1)
 
 ---
 
-## Google Keyword Planner Settings Used
+## English Keywords Analysis (February 6, 2026)
+
+### Top English Tier 1 Keywords (Direct Service)
+| Keyword | Volume | Intent | Cluster |
+|---------|--------|--------|---------|
+| slideshow with music | 5,000/mo | Medium | direct_service |
+| slideshow maker with music | 5,000/mo | Medium | direct_service |
+| best app for making video from photos | 500/mo | Low | direct_service |
+| best app to create video from photos | 500/mo | Low | direct_service |
+| add music to google photo slideshow | 500/mo | Medium | direct_service |
+
+### Top English Tier 2 Keywords (High Relevance)
+| Keyword | Volume | Intent | Cluster |
+|---------|--------|--------|---------|
+| personalized photo products | 500,000/mo | High | gift_personalized |
+| 1 year anniversary gift | 50,000/mo | Medium | gift_anniversary |
+| 10 year anniversary gift | 50,000/mo | Medium | gift_anniversary |
+| 20 year anniversary gift | 50,000/mo | Medium | gift_anniversary |
+| retirement gift ideas | 50,000/mo | Medium | gift_retirement |
+
+### English Keyword Clusters
+- **gift_anniversary**: Anniversary-related gifts (massive volume)
+- **gift_retirement**: Retirement gift ideas (mirrors FR "cadeau retraite" goldmine)
+- **gift_personalized**: Personalized photo/video gifts
+- **direct_service**: Slideshow/video creation queries
+- **physical_products**: Moved to Tier 3 (mugs, blankets, etc.)
+
+### Key Insight: Anniversary Market
+The English market shows **massive volume for anniversary gifts** — multiple keywords at 50,000/mo. Combined with retirement and personalized gift clusters, this represents significant content opportunity for international expansion.
+
+---
+
+## Google Keyword Planner Settings Used (French)
 - **Location:** France
 - **Language:** French
 - **Date range:** January 2025 – December 2025

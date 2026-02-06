@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, varchar, decimal, numeric, jsonb, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, varchar, decimal, numeric, jsonb, uuid, unique } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -797,20 +797,23 @@ export type InsertContentTopic = z.infer<typeof insertContentTopicSchema>;
 export const contentKeywords = pgTable("content_keywords", {
   id: uuid("id").primaryKey().defaultRandom(),
 
-  keyword: text("keyword").notNull().unique(),
+  keyword: text("keyword").notNull(),
   monthlySearches: integer("monthly_searches"),
   competition: text("competition"),
   difficultyScore: integer("difficulty_score"),
   intent: text("intent"),
   tier: integer("tier"),
-  market: text("market").default("fr"), // 'fr' | 'en'
+  market: text("market").default("fr").notNull(), // 'fr' | 'en'
   seasonal: boolean("seasonal").default(false),
   seasonalMonths: text("seasonal_months").array(),
   notes: text("notes"),
 
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow()
-});
+}, (table) => ({
+  // Composite unique: same keyword can exist in different markets
+  keywordMarketUnique: unique().on(table.keyword, table.market),
+}));
 
 export const insertContentKeywordSchema = createInsertSchema(contentKeywords).omit({
   id: true,
