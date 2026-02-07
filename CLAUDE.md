@@ -37,6 +37,9 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-06: Quick Filter presets — 5 one-click buttons (Quick Wins, Traffic Drivers, Money Keywords, France Priority, Blog Ideas) + help updated
+- 2026-02-06: Competition filter added — Was missing from filter bar
+- 2026-02-06: Search box height fixed — Now matches filter dropdowns
 - 2026-02-06: Keywords Topics/Posts counts — Clickable counts navigate to filtered Topics/Posts tabs
 - 2026-02-06: Keywords cluster formatting — Distinctive display (not plain text), filter alignment with columns
 - 2026-02-06: Keywords Competition colors — Restored colored text (green/amber/red)

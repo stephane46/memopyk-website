@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Search, FileText, BookOpen, Filter, ChevronDown, Sparkles, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Search, FileText, BookOpen, Filter, ChevronDown, ChevronRight, FolderOpen, Sparkles, Plus, Pencil, Trash2 } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -49,6 +49,30 @@ interface ContentTopic {
   post_count?: number; // Number of actual blog posts linked to this topic
 }
 
+const formatRole = (role: string): string => {
+  if (role === 'pillar') return 'Main Guide';
+  if (role === 'spoke') return 'Supporting Article';
+  return role || 'Unassigned';
+};
+
+const formatCluster = (cluster: string | null): string => {
+  if (!cluster) return 'Other';
+  return cluster
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+const getRoleBadgeColor = (role: string): string => {
+  return role === 'pillar'
+    ? 'bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-900 dark:text-amber-200 dark:border-amber-700'
+    : 'bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600';
+};
+
+const getRoleIcon = (role: string): string => {
+  return role === 'pillar' ? '\u{1F4C4}' : '\u21B3'; // 📄 and ↳
+};
+
 const CATEGORIES = [
   'PHOTO ORGANIZATION & PRESERVATION',
   'VIDEO MEMORY & LEGACY',
@@ -88,6 +112,8 @@ export function ContentProductionTopics() {
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedMarket, setSelectedMarket] = useState<string>('all');
+  const [selectedRole, setSelectedRole] = useState<string>('all');
+  const [selectedCluster, setSelectedCluster] = useState<string>('all');
   const [selectedTopicForPost, setSelectedTopicForPost] = useState<ContentTopic | null>(null);
   const [highlightedTopicId, setHighlightedTopicId] = useState<string | null>(null);
 
@@ -97,6 +123,7 @@ export function ContentProductionTopics() {
   const [deletingTopic, setDeletingTopic] = useState<ContentTopic | null>(null);
 
   const topicRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
   const { data: topics = [], isLoading } = useQuery<ContentTopic[]>({
     queryKey: ['/api/admin/content/topics'],
@@ -159,12 +186,50 @@ export function ContentProductionTopics() {
     const matchesStatus = selectedStatus === 'all' || topic.status === selectedStatus;
     const matchesType = selectedType === 'all' || topic.type === selectedType;
     const matchesMarket = selectedMarket === 'all' || topic.market === selectedMarket;
+    const matchesRole = selectedRole === 'all' || topic.role === selectedRole;
+    const matchesCluster = selectedCluster === 'all' || (topic.cluster || 'other') === selectedCluster;
 
-    return matchesSearch && matchesCategory && matchesPriority && matchesStatus && matchesType && matchesMarket;
+    return matchesSearch && matchesCategory && matchesPriority && matchesStatus && matchesType && matchesMarket && matchesRole && matchesCluster;
   });
 
+  // Unique clusters from all topics for the filter dropdown
+  const uniqueClusters = useMemo(() => {
+    const clusters = new Set<string>();
+    topics.forEach(t => clusters.add(t.cluster || 'other'));
+    return Array.from(clusters).sort();
+  }, [topics]);
+
+  // Group filtered topics by cluster, sorted by total search volume descending
+  const groupedTopics = useMemo(() => {
+    const groups: Record<string, ContentTopic[]> = {};
+    filteredTopics.forEach(topic => {
+      const key = topic.cluster || 'other';
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(topic);
+    });
+
+    // Within each group: pillars first, then spokes alphabetically
+    Object.values(groups).forEach(group => {
+      group.sort((a, b) => {
+        if (a.role === 'pillar' && b.role !== 'pillar') return -1;
+        if (a.role !== 'pillar' && b.role === 'pillar') return 1;
+        return a.title.localeCompare(b.title);
+      });
+    });
+
+    // Sort groups by total search volume descending, "other" always last
+    return Object.entries(groups).sort(([keyA, topicsA], [keyB, topicsB]) => {
+      if (keyA === 'other') return 1;
+      if (keyB === 'other') return -1;
+      const volA = topicsA.reduce((sum, t) => sum + (t.search_volume || 0), 0);
+      const volB = topicsB.reduce((sum, t) => sum + (t.search_volume || 0), 0);
+      return volB - volA;
+    });
+  }, [filteredTopics]);
+
   const totalTopics = topics.length;
-  const highPriorityCount = topics.filter(t => t.priority >= 4).length;
+  const mainGuideCount = topics.filter(t => t.role === 'pillar').length;
+  const supportingArticleCount = topics.filter(t => t.role === 'spoke').length;
 
   const getCategoryColor = (category: string) => {
     const categoryMap: Record<string, string> = {
@@ -247,6 +312,8 @@ export function ContentProductionTopics() {
     setSelectedStatus('all');
     setSelectedType('all');
     setSelectedMarket('all');
+    setSelectedRole('all');
+    setSelectedCluster('all');
     setSearchQuery('');
   };
 
@@ -265,6 +332,8 @@ export function ContentProductionTopics() {
     selectedStatus !== 'all',
     selectedType !== 'all',
     selectedMarket !== 'all',
+    selectedRole !== 'all',
+    selectedCluster !== 'all',
     searchQuery !== '',
   ].filter(Boolean).length;
 
@@ -275,7 +344,7 @@ export function ContentProductionTopics() {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Topics</CardTitle>
@@ -286,18 +355,26 @@ export function ContentProductionTopics() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Filtered Results</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Main Guides</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{filteredTopics.length}</div>
+            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">{mainGuideCount}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">High Priority</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Supporting Articles</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{highPriorityCount}</div>
+            <div className="text-2xl font-bold text-slate-600 dark:text-slate-400">{supportingArticleCount}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Filtered Results</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{filteredTopics.length}</div>
           </CardContent>
         </Card>
       </div>
@@ -320,7 +397,7 @@ export function ContentProductionTopics() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Search */}
             <div className="lg:col-span-2">
               <div className="relative">
@@ -335,10 +412,47 @@ export function ContentProductionTopics() {
               </div>
             </div>
 
+            {/* Role Filter */}
+            <div>
+              <Select value={selectedRole} onValueChange={setSelectedRole}>
+                <SelectTrigger
+                  data-testid="select-role"
+                  className={selectedRole !== 'all' ? 'border-[#D67C4A] bg-orange-50 dark:bg-orange-950' : ''}
+                >
+                  <SelectValue placeholder="Article Role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Roles</SelectItem>
+                  <SelectItem value="pillar">Main Guide</SelectItem>
+                  <SelectItem value="spoke">Supporting Article</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Topic Group Filter */}
+            <div>
+              <Select value={selectedCluster} onValueChange={setSelectedCluster}>
+                <SelectTrigger
+                  data-testid="select-cluster"
+                  className={selectedCluster !== 'all' ? 'border-[#D67C4A] bg-orange-50 dark:bg-orange-950' : ''}
+                >
+                  <SelectValue placeholder="Topic Group" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Topic Groups</SelectItem>
+                  {uniqueClusters.map(cluster => (
+                    <SelectItem key={cluster} value={cluster}>{formatCluster(cluster)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
             {/* Category Filter */}
             <div>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger 
+                <SelectTrigger
                   data-testid="select-category"
                   className={selectedCategory !== 'all' ? 'border-[#D67C4A] bg-orange-50 dark:bg-orange-950' : ''}
                 >
@@ -356,7 +470,7 @@ export function ContentProductionTopics() {
             {/* Status Filter */}
             <div>
               <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger 
+                <SelectTrigger
                   data-testid="select-status"
                   className={selectedStatus !== 'all' ? 'border-[#D67C4A] bg-orange-50 dark:bg-orange-950' : ''}
                 >
@@ -387,6 +501,26 @@ export function ContentProductionTopics() {
                   {TYPES.map(type => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Priority Filter */}
+            <div>
+              <Select value={selectedPriority} onValueChange={setSelectedPriority}>
+                <SelectTrigger
+                  data-testid="select-priority"
+                  className={selectedPriority !== 'all' ? 'border-[#D67C4A] bg-orange-50 dark:bg-orange-950' : ''}
+                >
+                  <SelectValue placeholder="Priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Priorities</SelectItem>
+                  <SelectItem value="5">P5 (Highest)</SelectItem>
+                  <SelectItem value="4">P4</SelectItem>
+                  <SelectItem value="3">P3</SelectItem>
+                  <SelectItem value="2">P2</SelectItem>
+                  <SelectItem value="1">P1 (Lowest)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -438,7 +572,7 @@ export function ContentProductionTopics() {
                 Topics ({filteredTopics.length})
               </CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400 mt-1">
-                Click on any topic to see full details
+                Grouped by topic group. Click any topic to see full details.
               </CardDescription>
             </div>
             <Button
@@ -457,245 +591,303 @@ export function ContentProductionTopics() {
               No topics match your filters
             </div>
           ) : (
-            <Accordion type="single" collapsible className="w-full">
-              {filteredTopics.map((topic) => (
-                <div
-                  key={topic.id}
-                  ref={(el) => { topicRefs.current[topic.id] = el; }}
-                  className={highlightedTopicId === topic.id ? 'ring-2 ring-[#D67C4A] bg-orange-50 rounded-lg p-2 transition-all duration-500' : ''}
-                >
-                  <AccordionItem value={topic.id} data-testid={`topic-${topic.id}`} className="border-none">
-                    <AccordionTrigger className="hover:no-underline">
-                    <div className="flex items-center justify-between w-full pr-4">
-                      <div className="flex-1 text-left">
-                        <div className="font-medium text-gray-900 dark:text-white">{topic.title}</div>
-                        <div className="flex flex-wrap gap-1.5 mt-2">
-                          <Badge 
-                            variant="custom" 
-                            className="bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 text-xs font-normal"
-                            data-testid={`keyword-primary-${topic.id}`}
-                          >
-                            {topic.primary_keyword}
+            <div className="space-y-4">
+              {groupedTopics.map(([cluster, clusterTopics]) => {
+                const isOpen = openGroups[cluster] !== false; // default open
+                const pillarCount = clusterTopics.filter(t => t.role === 'pillar').length;
+                const spokeCount = clusterTopics.filter(t => t.role === 'spoke').length;
+                const totalVolume = clusterTopics.reduce((sum, t) => sum + (t.search_volume || 0), 0);
+
+                return (
+                  <Collapsible
+                    key={cluster}
+                    open={isOpen}
+                    onOpenChange={(open) => setOpenGroups(prev => ({ ...prev, [cluster]: open }))}
+                  >
+                    <CollapsibleTrigger className="w-full">
+                      <div className="flex items-center justify-between w-full px-4 py-3 bg-gray-200/80 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer border border-gray-300/50 dark:border-gray-600">
+                        <div className="flex items-center gap-3">
+                          {isOpen ? (
+                            <ChevronDown className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+                          )}
+                          <FolderOpen className="h-4 w-4 text-[#D67C4A]" />
+                          <span className="font-semibold text-gray-900 dark:text-white text-sm">
+                            {formatCluster(cluster)}
+                          </span>
+                          <Badge variant="custom" className="bg-white/80 text-gray-700 dark:bg-gray-600 dark:text-gray-200 border border-gray-300 dark:border-gray-500">
+                            {clusterTopics.length} article{clusterTopics.length !== 1 ? 's' : ''}
                           </Badge>
-                          {topic.secondary_keywords && topic.secondary_keywords.slice(0, 3).map((kw, idx) => (
-                            <Badge 
-                              key={idx}
-                              variant="custom" 
-                              className="bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 text-xs font-normal"
-                              data-testid={`keyword-secondary-${topic.id}-${idx}`}
-                            >
-                              {kw}
-                            </Badge>
-                          ))}
+                        </div>
+                        <div className="flex items-center gap-4 text-xs text-gray-600 dark:text-gray-300">
+                          {totalVolume > 0 && (
+                            <span>{totalVolume.toLocaleString()} searches/mo</span>
+                          )}
+                          <span>{pillarCount} Main Guide{pillarCount !== 1 ? 's' : ''}</span>
+                          <span className="text-gray-400">|</span>
+                          <span>{spokeCount} Supporting</span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        {topic.times_generated > 0 && (
-                          <Badge 
-                            variant="custom" 
-                            className="bg-[#D67C4A] text-white"
-                            data-testid={`badge-generated-${topic.id}`}
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <Accordion type="single" collapsible className="w-full">
+                        {clusterTopics.map((topic) => (
+                          <div
+                            key={topic.id}
+                            ref={(el) => { topicRefs.current[topic.id] = el; }}
+                            className={`${topic.role === 'spoke' ? 'ml-8' : ''} ${highlightedTopicId === topic.id ? 'ring-2 ring-[#D67C4A] bg-orange-50 rounded-lg p-2 transition-all duration-500' : ''}`}
                           >
-                            Generated {topic.times_generated}x
-                          </Badge>
-                        )}
-                        {topic.post_count !== undefined && topic.post_count > 0 && (
-                          <Badge 
-                            variant="custom" 
-                            className="bg-blue-600 text-white"
-                            data-testid={`badge-posts-${topic.id}`}
-                          >
-                            {topic.post_count} Post{topic.post_count !== 1 ? 's' : ''}
-                          </Badge>
-                        )}
-                        <span title={topic.market === 'fr' ? 'France' : 'English'}>
-                          {topic.market === 'fr' ? '🇫🇷' : '🇺🇸'}
-                        </span>
-                        <Badge variant="custom" className={getCategoryColor(topic.category)}>
-                          {getCategoryShortLabel(topic.category)}
-                        </Badge>
-                        <Badge variant="custom" className={getPriorityBadgeColor(topic.priority)}>
-                          P{topic.priority}
-                        </Badge>
-                        <Badge variant="custom" className={getStatusColor(topic.status)}>
-                          {formatStatusLabel(topic.status)}
-                        </Badge>
-                        <Badge variant="custom" className="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
-                          {topic.target_word_count}w
-                        </Badge>
-                      </div>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <div className="mt-2 p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 border-l-4 border-l-[#D67C4A] rounded-lg space-y-4">
-                      {/* SEO Info */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">SEO Data</h4>
-                          <div className="space-y-2 text-sm">
-                            <div className="flex items-center gap-2">
-                              <span className="font-semibold text-gray-600 dark:text-gray-400">Primary Keyword:</span>
-                              <Badge variant="custom" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                                {topic.primary_keyword}
-                              </Badge>
-                            </div>
-                            {topic.search_volume && (
-                              <div>
-                                <span className="font-semibold text-gray-600 dark:text-gray-400">Search Volume:</span>
-                                <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.search_volume.toLocaleString()}</span>
-                              </div>
-                            )}
-                            {topic.competition && (
-                              <div>
-                                <span className="font-semibold text-gray-600 dark:text-gray-400">Competition:</span>
-                                <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.competition}</span>
-                              </div>
-                            )}
-                            <div>
-                              <span className="font-semibold text-gray-600 dark:text-gray-400">Search Intent:</span>
-                              <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.search_intent}</span>
-                            </div>
+                            <AccordionItem value={topic.id} data-testid={`topic-${topic.id}`} className="border-none">
+                              <AccordionTrigger className="hover:no-underline">
+                                <div className="flex items-center justify-between w-full pr-4">
+                                  <div className="flex-1 text-left">
+                                    <div className="font-medium text-gray-900 dark:text-white">{topic.title}</div>
+                                    <div className="flex flex-wrap gap-1.5 mt-2">
+                                      <Badge
+                                        variant="custom"
+                                        className="bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 text-xs font-normal"
+                                        data-testid={`keyword-primary-${topic.id}`}
+                                      >
+                                        {topic.primary_keyword}
+                                      </Badge>
+                                      {topic.secondary_keywords && topic.secondary_keywords.slice(0, 3).map((kw, idx) => (
+                                        <Badge
+                                          key={idx}
+                                          variant="custom"
+                                          className="bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 text-xs font-normal"
+                                          data-testid={`keyword-secondary-${topic.id}-${idx}`}
+                                        >
+                                          {kw}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-2 flex-shrink-0">
+                                    <Badge variant="custom" className={getRoleBadgeColor(topic.role)}>
+                                      <span className="mr-1">{getRoleIcon(topic.role)}</span>
+                                      {formatRole(topic.role)}
+                                    </Badge>
+                                    {topic.times_generated > 0 && (
+                                      <Badge
+                                        variant="custom"
+                                        className="bg-[#D67C4A] text-white"
+                                        data-testid={`badge-generated-${topic.id}`}
+                                      >
+                                        Generated {topic.times_generated}x
+                                      </Badge>
+                                    )}
+                                    {topic.post_count !== undefined && topic.post_count > 0 && (
+                                      <Badge
+                                        variant="custom"
+                                        className="bg-blue-600 text-white"
+                                        data-testid={`badge-posts-${topic.id}`}
+                                      >
+                                        {topic.post_count} Post{topic.post_count !== 1 ? 's' : ''}
+                                      </Badge>
+                                    )}
+                                    <span title={topic.market === 'fr' ? 'France' : 'English'}>
+                                      {topic.market === 'fr' ? '🇫🇷' : '🇺🇸'}
+                                    </span>
+                                    <Badge variant="custom" className={getCategoryColor(topic.category)}>
+                                      {getCategoryShortLabel(topic.category)}
+                                    </Badge>
+                                    <Badge variant="custom" className={getPriorityBadgeColor(topic.priority)}>
+                                      P{topic.priority}
+                                    </Badge>
+                                    <Badge variant="custom" className={getStatusColor(topic.status)}>
+                                      {formatStatusLabel(topic.status)}
+                                    </Badge>
+                                    <Badge variant="custom" className="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                                      {topic.target_word_count}w
+                                    </Badge>
+                                  </div>
+                                </div>
+                              </AccordionTrigger>
+                              <AccordionContent>
+                                <div className="mt-2 p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 border-l-4 border-l-[#D67C4A] rounded-lg space-y-4">
+                                  {/* SEO Info */}
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">SEO Data</h4>
+                                      <div className="space-y-2 text-sm">
+                                        <div className="flex items-center gap-2">
+                                          <span className="font-semibold text-gray-600 dark:text-gray-400">Primary Keyword:</span>
+                                          <Badge variant="custom" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                                            {topic.primary_keyword}
+                                          </Badge>
+                                        </div>
+                                        {topic.search_volume && (
+                                          <div>
+                                            <span className="font-semibold text-gray-600 dark:text-gray-400">Search Volume:</span>
+                                            <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.search_volume.toLocaleString()}</span>
+                                          </div>
+                                        )}
+                                        {topic.competition && (
+                                          <div>
+                                            <span className="font-semibold text-gray-600 dark:text-gray-400">Competition:</span>
+                                            <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.competition}</span>
+                                          </div>
+                                        )}
+                                        <div>
+                                          <span className="font-semibold text-gray-600 dark:text-gray-400">Search Intent:</span>
+                                          <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.search_intent}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <div>
+                                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Content Type</h4>
+                                      <div className="space-y-2 text-sm">
+                                        <div>
+                                          <span className="font-semibold text-gray-600 dark:text-gray-400">Article Role:</span>
+                                          <span className="ml-2">
+                                            <Badge variant="custom" className={getRoleBadgeColor(topic.role)}>
+                                              <span className="mr-1">{getRoleIcon(topic.role)}</span>
+                                              {formatRole(topic.role)}
+                                            </Badge>
+                                          </span>
+                                        </div>
+                                        <div>
+                                          <span className="font-semibold text-gray-600 dark:text-gray-400">Type:</span>
+                                          <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.type}</span>
+                                        </div>
+                                        <div>
+                                          <span className="font-semibold text-gray-600 dark:text-gray-400">Category:</span>
+                                          <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.category}</span>
+                                        </div>
+                                        <div>
+                                          <span className="font-semibold text-gray-600 dark:text-gray-400">Target Words:</span>
+                                          <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.target_word_count}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Secondary Keywords */}
+                                  {topic.secondary_keywords && topic.secondary_keywords.length > 0 && (
+                                    <div>
+                                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Secondary Keywords</h4>
+                                      <div className="flex flex-wrap gap-2">
+                                        {topic.secondary_keywords.map((kw, idx) => (
+                                          <Badge key={idx} variant="custom" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                                            {kw}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Content Guidance */}
+                                  <div>
+                                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Content Angle</h4>
+                                    <p className="text-sm text-gray-700 dark:text-gray-300">{topic.content_angle}</p>
+                                  </div>
+
+                                  <div>
+                                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Description</h4>
+                                    <p className="text-sm text-gray-700 dark:text-gray-300">{topic.description}</p>
+                                  </div>
+
+                                  {/* Image Concepts */}
+                                  {topic.hero_image_concept && (
+                                    <div>
+                                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Hero Image Concept</h4>
+                                      <p className="text-sm text-gray-700 dark:text-gray-300">{topic.hero_image_concept}</p>
+                                    </div>
+                                  )}
+
+                                  {topic.body_image_concepts && topic.body_image_concepts.length > 0 && (
+                                    <div>
+                                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Body Image Concepts</h4>
+                                      <ul className="list-disc list-inside text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                                        {topic.body_image_concepts.map((concept, idx) => (
+                                          <li key={idx}>{concept}</li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+
+                                  {/* MEMOPYK Links */}
+                                  {topic.memopyk_link_opportunities && (
+                                    <div>
+                                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">MEMOPYK Link Opportunities</h4>
+                                      <p className="text-sm text-gray-700 dark:text-gray-300">{topic.memopyk_link_opportunities}</p>
+                                    </div>
+                                  )}
+
+                                  {/* Generation Stats */}
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-gray-200 dark:border-gray-700">
+                                    <div>
+                                      <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Times Generated:</span>
+                                      <span className="ml-2 text-sm font-medium text-gray-900 dark:text-white">{topic.times_generated}</span>
+                                    </div>
+                                    {topic.last_generated_at && (
+                                      <div>
+                                        <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Last Generated:</span>
+                                        <span className="ml-2 text-sm font-medium text-gray-900 dark:text-white">
+                                          {new Date(topic.last_generated_at).toLocaleDateString()}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* Actions - all primary actions grouped on the left */}
+                                  <div className="flex items-center gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                                    <div className="flex gap-2">
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setEditingTopic(topic)}
+                                        data-testid={`button-edit-topic-${topic.id}`}
+                                      >
+                                        <Pencil className="h-4 w-4 mr-1" />
+                                        Edit
+                                      </Button>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setDeletingTopic(topic)}
+                                        className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                                        data-testid={`button-delete-topic-${topic.id}`}
+                                      >
+                                        <Trash2 className="h-4 w-4 mr-1" />
+                                        Delete
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        onClick={() => setSelectedTopicForPost(topic)}
+                                        className="bg-[#D67C4A] hover:bg-[#C56B3A] text-white"
+                                        data-testid={`button-create-post-${topic.id}`}
+                                      >
+                                        <Sparkles className="h-4 w-4 mr-1" />
+                                        Create Post from Topic
+                                      </Button>
+                                    </div>
+                                    {topic.times_generated > 0 && (
+                                      <Button
+                                        onClick={() => navigateToPosts(topic.id)}
+                                        variant="outline"
+                                        size="sm"
+                                        className="ml-auto border-[#D67C4A] text-[#D67C4A] hover:bg-[#D67C4A] hover:bg-opacity-10"
+                                        data-testid={`button-view-posts-${topic.id}`}
+                                      >
+                                        <BookOpen className="h-4 w-4 mr-1" />
+                                        View Posts ({topic.post_count || 0})
+                                      </Button>
+                                    )}
+                                  </div>
+                                </div>
+                              </AccordionContent>
+                            </AccordionItem>
                           </div>
-                        </div>
-                        
-                        <div>
-                          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Content Type</h4>
-                          <div className="space-y-2 text-sm">
-                            <div>
-                              <span className="font-semibold text-gray-600 dark:text-gray-400">Type:</span>
-                              <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.type}</span>
-                            </div>
-                            <div>
-                              <span className="font-semibold text-gray-600 dark:text-gray-400">Category:</span>
-                              <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.category}</span>
-                            </div>
-                            <div>
-                              <span className="font-semibold text-gray-600 dark:text-gray-400">Target Words:</span>
-                              <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.target_word_count}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Secondary Keywords */}
-                      {topic.secondary_keywords && topic.secondary_keywords.length > 0 && (
-                        <div>
-                          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Secondary Keywords</h4>
-                          <div className="flex flex-wrap gap-2">
-                            {topic.secondary_keywords.map((kw, idx) => (
-                              <Badge key={idx} variant="custom" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                                {kw}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Content Guidance */}
-                      <div>
-                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Content Angle</h4>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">{topic.content_angle}</p>
-                      </div>
-
-                      <div>
-                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Description</h4>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">{topic.description}</p>
-                      </div>
-
-                      {/* Image Concepts */}
-                      {topic.hero_image_concept && (
-                        <div>
-                          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Hero Image Concept</h4>
-                          <p className="text-sm text-gray-700 dark:text-gray-300">{topic.hero_image_concept}</p>
-                        </div>
-                      )}
-
-                      {topic.body_image_concepts && topic.body_image_concepts.length > 0 && (
-                        <div>
-                          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Body Image Concepts</h4>
-                          <ul className="list-disc list-inside text-sm text-gray-700 dark:text-gray-300 space-y-1">
-                            {topic.body_image_concepts.map((concept, idx) => (
-                              <li key={idx}>{concept}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
-                      {/* MEMOPYK Links */}
-                      {topic.memopyk_link_opportunities && (
-                        <div>
-                          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">MEMOPYK Link Opportunities</h4>
-                          <p className="text-sm text-gray-700 dark:text-gray-300">{topic.memopyk_link_opportunities}</p>
-                        </div>
-                      )}
-
-                      {/* Generation Stats */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-gray-200 dark:border-gray-700">
-                        <div>
-                          <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Times Generated:</span>
-                          <span className="ml-2 text-sm font-medium text-gray-900 dark:text-white">{topic.times_generated}</span>
-                        </div>
-                        {topic.last_generated_at && (
-                          <div>
-                            <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Last Generated:</span>
-                            <span className="ml-2 text-sm font-medium text-gray-900 dark:text-white">
-                              {new Date(topic.last_generated_at).toLocaleDateString()}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Actions - all primary actions grouped on the left */}
-                      <div className="flex items-center gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setEditingTopic(topic)}
-                            data-testid={`button-edit-topic-${topic.id}`}
-                          >
-                            <Pencil className="h-4 w-4 mr-1" />
-                            Edit
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setDeletingTopic(topic)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
-                            data-testid={`button-delete-topic-${topic.id}`}
-                          >
-                            <Trash2 className="h-4 w-4 mr-1" />
-                            Delete
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={() => setSelectedTopicForPost(topic)}
-                            className="bg-[#D67C4A] hover:bg-[#C56B3A] text-white"
-                            data-testid={`button-create-post-${topic.id}`}
-                          >
-                            <Sparkles className="h-4 w-4 mr-1" />
-                            Create Post from Topic
-                          </Button>
-                        </div>
-                        {topic.times_generated > 0 && (
-                          <Button
-                            onClick={() => navigateToPosts(topic.id)}
-                            variant="outline"
-                            size="sm"
-                            className="ml-auto border-[#D67C4A] text-[#D67C4A] hover:bg-[#D67C4A] hover:bg-opacity-10"
-                            data-testid={`button-view-posts-${topic.id}`}
-                          >
-                            <BookOpen className="h-4 w-4 mr-1" />
-                            View Posts ({topic.post_count || 0})
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </div>
-              ))}
-            </Accordion>
+                        ))}
+                      </Accordion>
+                    </CollapsibleContent>
+                  </Collapsible>
+                );
+              })}
+            </div>
           )}
         </CardContent>
       </Card>

@@ -1,0 +1,286 @@
+Loaded 1484 P1 keywords
+
+================================================================================
+P1 KEYWORD GROUPING VALIDATION REPORT
+================================================================================
+
+================================================================================
+CLUSTER: direct_service | MARKET: EN | Keywords: 372
+================================================================================
+
+🏛️ PILLAR [generic/base] — max 5,000/mo, 370 keywords
+  Canonical: "slideshow with music" (5,000/mo)
+  Top secondaries: "slideshow maker with music" (5,000), "free online slideshow maker with music and effects" (500), "facebook slideshow with music" (500), "easy way to create slideshow with music" (500), "easiest way to make a slideshow with music" (500)
+  ... and 364 more variants
+
+    📎 FOLD [generic/diy] — max 50/mo, 1 keywords
+  Canonical: "diy slideshow with music" (50/mo)
+
+    📎 FOLD [generic/personalized] — max 50/mo, 1 keywords
+  Canonical: "custom slideshow with music" (50/mo)
+
+--- SUMMARY: direct_service EN ---
+  Pillars: 1
+  Spokes: 0
+  Total topics (articles): 1
+  Folded into parents: 2 groups
+  Ignored (<50/mo): 0 groups
+  Total keyword groups: 3
+
+================================================================================
+CLUSTER: direct_service | MARKET: FR | Keywords: 151
+================================================================================
+
+  🔗 SPOKE [generic/base] — max 500/mo, 146 keywords
+  Canonical: "prix montage video" (500/mo)
+  Top secondaries: "montage video avec musique et photo" (500), "video montage pour mariage" (500), "vidéo montage mariage" (500), "anniversaire diaporama" (500), "montage photo en vidéo avec musique" (500)
+  ... and 140 more variants
+
+    📎 FOLD [generic/original] — max 50/mo, 3 keywords
+  Canonical: "montage vidéo mariage original" (50/mo)
+  Top secondaries: "diaporama original anniversaire" (50), "video montage mariage original" (50)
+
+    📎 FOLD [generic/humour] — max 50/mo, 1 keywords
+  Canonical: "diaporama humour anniversaire" (50/mo)
+
+  ⭐ SPOKE (Tier 1) [generic/personnalise] — max 0/mo, 1 keywords
+  Canonical: "film souvenir personnalisé" (0/mo)
+
+--- SUMMARY: direct_service FR ---
+  Pillars: 0
+  Spokes: 2
+  Total topics (articles): 2
+  Folded into parents: 2 groups
+  Ignored (<50/mo): 0 groups
+  Total keyword groups: 4
+
+================================================================================
+CLUSTER: gift_memorial | MARKET: EN | Keywords: 587
+================================================================================
+
+🏛️ PILLAR [generic/base] — max 50,000/mo, 328 keywords
+  Canonical: "sympathy gifts" (50,000/mo)
+  Top secondaries: "sympathy gift packages" (50,000), "sympathy gift baskets" (50,000), "sympathy presents" (50,000), "gifts to give at a funeral" (5,000), "sympathy gift ideas" (5,000)
+  ... and 322 more variants
+
+🏛️ PILLAR [pet/base] — max 50,000/mo, 25 keywords
+  Canonical: "pet memorial gift" (50,000/mo)
+  Top secondaries: "sympathy gift ideas for loss of dog" (5,000), "sympathy gift for loss of dog" (5,000), "sympathy gifts for dog death" (5,000), "condolence gifts for loss of dog" (5,000), "condolence gifts for loss of pet" (500)
+  ... and 19 more variants
+
+🏛️ PILLAR [men/base] — max 5,000/mo, 86 keywords
+  Canonical: "loss of father memorial gifts" (5,000/mo)
+  Top secondaries: "sympathy gifts for loss of father" (5,000), "memorial gifts for loss of father" (5,000), "sympathy gifts for loss of dad" (5,000), "remembrance gifts for loss of father" (5,000), "condolence gifts for loss of father" (5,000)
+  ... and 80 more variants
+
+🏛️ PILLAR [women/base] — max 5,000/mo, 59 keywords
+  Canonical: "memorial gifts for loss of mom" (5,000/mo)
+  Top secondaries: "memorial gift for loss of mother" (5,000), "remembrance gift for loss of mother" (5,000), "sympathy gifts for loss of mom" (5,000), "condolences gift for loss of mother" (5,000), "gifts for sympathy loss of mother" (5,000)
+  ... and 53 more variants
+
+🏛️ PILLAR [generic/unique] — max 5,000/mo, 21 keywords
+  Canonical: "unique memorial gifts" (5,000/mo)
+  Top secondaries: "unusual memorial gifts" (5,000), "unique bereavement gifts" (500), "unique gifts for loss of loved one" (500), "unique memorial gift ideas" (500), "unique sympathy gift" (500)
+  ... and 15 more variants
+
+  🔗 SPOKE [generic/personalized] — max 500/mo, 8 keywords
+  Canonical: "personalized sympathy gifts" (500/mo)
+  Top secondaries: "personalized necklace for someone who passed away" (500), "personalized memorial gifts for loss of son" (500), "personalized wind chimes for loss of loved one" (500), "personalized gift for loss of loved one" (50), "personalized memorial gift ideas" (50)
+  ... and 2 more variants
+
+  🔗 SPOKE [coworker/base] — max 500/mo, 3 keywords
+  Canonical: "sympathy gifts for coworker" (500/mo)
+  Top secondaries: "condolences gift for coworker" (500), "sympathy gift ideas for coworker" (50)
+
+  🔗 SPOKE [generic/diy] — max 500/mo, 23 keywords
+  Canonical: "diy memorial gifts" (500/mo)
+  Top secondaries: "grieving diy sympathy gift baskets" (500), "diy bereavement gifts" (50), "diy remembrance gifts" (50), "diy sympathy gift" (50), "diy sympathy gift basket ideas" (50)
+  ... and 17 more variants
+
+  🔗 SPOKE [men/personalized] — max 500/mo, 2 keywords
+  Canonical: "personalized memorial gifts for loss of father" (500/mo)
+  Top secondaries: "personalized sympathy gifts for loss of father" (50)
+
+  🔗 SPOKE [friend/base] — max 500/mo, 14 keywords
+  Canonical: "sympathy gifts for friend" (500/mo)
+  Top secondaries: "best remembrance gift for friend" (50), "care package ideas for a grieving friend" (50), "care package ideas for grieving friend" (50), "condolence gift for friend" (50), "friend memorial gifts" (50)
+  ... and 8 more variants
+
+  🔗 SPOKE [men/unique] — max 500/mo, 3 keywords
+  Canonical: "unique memorial gifts for loss of father" (500/mo)
+  Top secondaries: "unique sympathy gifts for loss of father" (50), "unique sympathy gifts for loss of husband" (50)
+
+  🔗 SPOKE [women/unique] — max 500/mo, 2 keywords
+  Canonical: "unique memorial gifts for loss of mother" (500/mo)
+  Top secondaries: "unique sympathy gifts for loss of mother" (50)
+
+    📎 FOLD [boss/base] — max 50/mo, 2 keywords
+  Canonical: "sympathy gift for boss" (50/mo)
+  Top secondaries: "appropriate sympathy gift for boss" (50)
+
+    📎 FOLD [generic/funny] — max 50/mo, 1 keywords
+  Canonical: "funny sympathy gifts" (50/mo)
+
+    📎 FOLD [parent/base] — max 50/mo, 5 keywords
+  Canonical: "gift basket for loss of parent" (50/mo)
+  Top secondaries: "gifts for someone grieving the loss of a parent" (50), "memorial gift ideas for loss of parents" (50), "memorial gifts for loss of both parents" (50), "memorial gifts for loss of parents" (50)
+
+    📎 FOLD [generic/budget] — max 50/mo, 2 keywords
+  Canonical: "sympathy gifts under $30" (50/mo)
+  Top secondaries: "inexpensive sympathy gift ideas" (50)
+
+    📎 FOLD [generic/luxury] — max 50/mo, 1 keywords
+  Canonical: "luxury sympathy gifts" (50/mo)
+
+    📎 FOLD [pet/unique] — max 50/mo, 1 keywords
+  Canonical: "unique dog memorial gifts" (50/mo)
+
+    📎 FOLD [friend/diy] — max 50/mo, 1 keywords
+  Canonical: "diy care package for grieving friend" (50/mo)
+
+--- SUMMARY: gift_memorial EN ---
+  Pillars: 5
+  Spokes: 7
+  Total topics (articles): 12
+  Folded into parents: 7 groups
+  Ignored (<50/mo): 0 groups
+  Total keyword groups: 19
+
+================================================================================
+CLUSTER: gift_retirement | MARKET: EN | Keywords: 62
+================================================================================
+
+🏛️ PILLAR [coworker/base] — max 5,000/mo, 29 keywords
+  Canonical: "retirement gift for coworker" (5,000/mo)
+  Top secondaries: "retirement present for coworker" (5,000), "retirement gift for colleague" (5,000), "retirement gift ideas for coworker" (500), "retirement well wishes for coworker" (500), "coworker retirement ideas" (500)
+  ... and 23 more variants
+
+  🔗 SPOKE [women/base] — max 500/mo, 9 keywords
+  Canonical: "retirement gift for coworker female" (500/mo)
+  Top secondaries: "retirement gift ideas for female coworker" (500), "retirement gifts for female coworker" (500), "retirement gift for female colleague" (50), "retirement gift ideas for coworker female" (50), "gift ideas for female coworker retirement" (50)
+  ... and 3 more variants
+
+  🔗 SPOKE [men/base] — max 500/mo, 8 keywords
+  Canonical: "retirement gifts for male coworkers" (500/mo)
+  Top secondaries: "retirement gift ideas for male coworker" (500), "retirement gift for coworker male" (50), "retirement gift for male colleague" (50), "retirement gift for male coworker" (50), "retirement gift ideas for coworker male" (50)
+  ... and 2 more variants
+
+  🔗 SPOKE [generic/base] — max 500/mo, 13 keywords
+  Canonical: "retirement gifts for employees" (500/mo)
+  Top secondaries: "retirement gift ideas for colleagues" (500), "employee retirement gift ideas" (50), "social worker retirement gifts" (50), "best retirement gifts for colleagues" (50), "thoughtful retirement gifts for coworkers" (50)
+  ... and 7 more variants
+
+    📎 FOLD [generic/diy] — max 50/mo, 1 keywords
+  Canonical: "homemade retirement gifts for coworkers" (50/mo)
+
+    📎 FOLD [generic/personalized] — max 50/mo, 1 keywords
+  Canonical: "personalized retirement gifts for coworkers" (50/mo)
+
+    📎 FOLD [generic/funny] — max 50/mo, 1 keywords
+  Canonical: "funny retirement gifts for coworkers" (50/mo)
+
+--- SUMMARY: gift_retirement EN ---
+  Pillars: 1
+  Spokes: 3
+  Total topics (articles): 4
+  Folded into parents: 3 groups
+  Ignored (<50/mo): 0 groups
+  Total keyword groups: 7
+
+================================================================================
+CLUSTER: gift_retirement | MARKET: FR | Keywords: 312
+================================================================================
+
+🏛️ PILLAR [generic/base] — max 5,000/mo, 153 keywords
+  Canonical: "cadeau retraite" (5,000/mo)
+  Top secondaries: "idee cadeau pour retraite" (5,000), "cadeau pour un départ à la retraite" (5,000), "cadeau départ à la retraite" (5,000), "cadeau pour départ en retraite" (5,000), "cadeau pour un depart en retraite" (5,000)
+  ... and 147 more variants
+
+🏛️ PILLAR [femme/base] — max 5,000/mo, 42 keywords
+  Canonical: "cadeau femme retraite" (5,000/mo)
+  Top secondaries: "cadeau pour retraité femme" (5,000), "cadeau retraite femme" (5,000), "cadeau pour la retraite femme" (5,000), "cadeau pour retraite femme" (5,000), "cadeau pour une retraite femme" (5,000)
+  ... and 36 more variants
+
+🏛️ PILLAR [homme/base] — max 5,000/mo, 50 keywords
+  Canonical: "cadeau retraite homme" (5,000/mo)
+  Top secondaries: "cadeau pour la retraite homme" (5,000), "cadeau pour retraité homme" (5,000), "cadeau homme retraite" (5,000), "cadeau pour homme retraite" (5,000), "cadeau de retraite homme" (500)
+  ... and 44 more variants
+
+  🔗 SPOKE [homme/original] — max 500/mo, 4 keywords
+  Canonical: "cadeau retraite homme original" (500/mo)
+  Top secondaries: "cadeau original retraite homme" (500), "cadeau original pour retraite homme" (500), "cadeau original départ retraite homme" (50)
+
+  🔗 SPOKE [generic/humour] — max 500/mo, 9 keywords
+  Canonical: "cadeau retraite humour" (500/mo)
+  Top secondaries: "cadeau humour retraite" (500), "cadeau drole retraite" (50), "cadeau depart retraite humour" (50), "cadeau retraite rigolo" (50), "cadeau rigolo retraite" (50)
+  ... and 3 more variants
+
+  🔗 SPOKE [femme/original] — max 500/mo, 6 keywords
+  Canonical: "cadeau retraite femme original" (500/mo)
+  Top secondaries: "cadeau original départ retraite femme" (50), "cadeau original retraite femme" (50), "cadeau original pour départ retraite femme" (50), "cadeau original pour depart retraite femme" (50), "cadeau original départ en retraite femme" (50)
+
+  🔗 SPOKE [generic/personnalise] — max 500/mo, 3 keywords
+  Canonical: "cadeau retraite personnalisé" (500/mo)
+  Top secondaries: "cadeau personnalisé retraite" (500), "cadeau personnalisé départ retraite" (50)
+
+  🔗 SPOKE [generic/original] — max 500/mo, 16 keywords
+  Canonical: "cadeau retraite original" (500/mo)
+  Top secondaries: "idée cadeau retraite original" (500), "cadeau original pour retraite" (500), "retraite cadeau original" (500), "cadeau original retraite" (500), "cadeau de retraite original" (50)
+  ... and 10 more variants
+
+  🔗 SPOKE [collegue/base] — max 500/mo, 12 keywords
+  Canonical: "cadeau de départ pour un collègue" (500/mo)
+  Top secondaries: "idée cadeau retraite collègue" (50), "cadeau départ retraite d une collègue" (50), "cadeau départ en retraite collègue" (50), "cadeau depart retraite collegue" (50), "cadeau collegue retraite" (50)
+  ... and 6 more variants
+
+    📎 FOLD [femme/personnalise] — max 50/mo, 1 keywords
+  Canonical: "cadeau personnalisé retraite femme" (50/mo)
+
+    📎 FOLD [couple/base] — max 50/mo, 9 keywords
+  Canonical: "cadeau couple retraité" (50/mo)
+  Top secondaries: "idée cadeau pour couple retraité" (50), "idee cadeau couple retraite" (50), "cadeau retraite couple" (50), "idee cadeau noel couple retraite" (50), "idee cadeau retraite couple" (50)
+  ... and 3 more variants
+
+    📎 FOLD [homme/humour] — max 50/mo, 2 keywords
+  Canonical: "cadeau humour retraite homme" (50/mo)
+  Top secondaries: "cadeau retraite homme humour" (50)
+
+    📎 FOLD [patron/base] — max 50/mo, 2 keywords
+  Canonical: "cadeau retraite patron" (50/mo)
+  Top secondaries: "cadeau depart retraite patron" (50)
+
+    📎 FOLD [parent/base] — max 50/mo, 1 keywords
+  Canonical: "cadeau retraite parents" (50/mo)
+
+    📎 FOLD [generic/fait_main] — max 50/mo, 1 keywords
+  Canonical: "cadeau retraite diy" (50/mo)
+
+    📎 FOLD [homme/personnalise] — max 50/mo, 1 keywords
+  Canonical: "cadeau personnalisé retraite homme" (50/mo)
+
+--- SUMMARY: gift_retirement FR ---
+  Pillars: 3
+  Spokes: 6
+  Total topics (articles): 9
+  Folded into parents: 7 groups
+  Ignored (<50/mo): 0 groups
+  Total keyword groups: 16
+
+
+================================================================================
+COMPARISON WITH FRAMEWORK §6 EXPECTATIONS
+================================================================================
+
+Cluster/Market                   Expected    Script Found   Match?
+----------------------------------------------------------------------
+direct_service::en                      5               3       ⚠️
+  → Expected 1P+4S, got 1P+2S
+direct_service::fr                      5               3       ⚠️
+  → Expected 1P+4S, got 0P+3S
+gift_memorial::en                       7              12       ⚠️
+  → Expected 1P+6S, got 5P+7S
+gift_memorial::fr                       2         NO DATA       ⚠️
+gift_retirement::en                     5               4       ⚠️
+  → Expected 1P+4S, got 1P+3S
+gift_retirement::fr                     7               9       ⚠️
+  → Expected 1P+6S, got 3P+6S

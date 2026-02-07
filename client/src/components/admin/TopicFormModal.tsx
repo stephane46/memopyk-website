@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -76,11 +77,27 @@ const TYPES = [
 
 const STATUSES = ['backlog', 'planned', 'in_progress', 'published'];
 
+const formatCluster = (cluster: string): string => {
+  return cluster
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+const toSnakeCase = (text: string): string => {
+  return text.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+};
+
 export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showImageFields, setShowImageFields] = useState(false);
   const [showSeoResearch, setShowSeoResearch] = useState(false);
+
+  // Fetch all topics for Parent Guide dropdown and cluster suggestions
+  const { data: allTopics = [] } = useQuery<ContentTopic[]>({
+    queryKey: ['/api/admin/content/topics'],
+  });
 
   // Form fields (slug auto-generated from title, not shown in form)
   const [title, setTitle] = useState('');
@@ -100,6 +117,27 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
   const [heroImageConcept, setHeroImageConcept] = useState('');
   const [bodyImageConcepts, setBodyImageConcepts] = useState('');
   const [memopykLinkOpportunities, setMemopykLinkOpportunities] = useState('');
+  const [role, setRole] = useState('spoke');
+  const [cluster, setCluster] = useState('');
+  const [parentTopicId, setParentTopicId] = useState('');
+
+  // Unique clusters from existing topics for suggestions
+  const existingClusters = useMemo(() => {
+    const clusters = new Set<string>();
+    allTopics.forEach(t => { if (t.cluster) clusters.add(t.cluster); });
+    return Array.from(clusters).sort();
+  }, [allTopics]);
+
+  // Pillar topics in the same cluster for the Parent Guide dropdown
+  const availablePillars = useMemo(() => {
+    const clusterSnake = toSnakeCase(cluster);
+    if (!clusterSnake) return [];
+    return allTopics.filter(t =>
+      t.role === 'pillar' &&
+      t.cluster === clusterSnake &&
+      t.id !== topic?.id
+    );
+  }, [allTopics, cluster, topic]);
 
   const isEditMode = !!topic;
 
@@ -133,6 +171,9 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
       setHeroImageConcept(topic.hero_image_concept || '');
       setBodyImageConcepts(topic.body_image_concepts?.join(', ') || '');
       setMemopykLinkOpportunities(topic.memopyk_link_opportunities || '');
+      setRole(topic.role || 'spoke');
+      setCluster(topic.cluster ? formatCluster(topic.cluster) : '');
+      setParentTopicId(topic.parent_topic_id || '');
     } else {
       // Reset form for create mode
       setTitle('');
@@ -152,6 +193,9 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
       setHeroImageConcept('');
       setBodyImageConcepts('');
       setMemopykLinkOpportunities('');
+      setRole('spoke');
+      setCluster('');
+      setParentTopicId('');
     }
   }, [topic, isOpen]);
 
@@ -203,6 +247,9 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
           ? bodyImageConcepts.split(',').map(c => c.trim()).filter(Boolean)
           : null,
         memopyk_link_opportunities: memopykLinkOpportunities.trim() || null,
+        role,
+        cluster: cluster.trim() ? toSnakeCase(cluster.trim()) : null,
+        parent_topic_id: role === 'spoke' && parentTopicId ? parentTopicId : null,
       };
 
       if (isEditMode && topic) {
@@ -347,6 +394,61 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                 />
                 <p className="text-xs text-gray-500 mt-0.5">Target length for the generated article (default: 900)</p>
               </div>
+
+              <div>
+                <Label className="text-gray-900 dark:text-white">Article Role</Label>
+                <Select value={role} onValueChange={(val) => {
+                  setRole(val);
+                  if (val === 'pillar') setParentTopicId('');
+                }}>
+                  <SelectTrigger data-testid="select-role">
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="spoke">Supporting Article</SelectItem>
+                    <SelectItem value="pillar">Main Guide</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500 mt-0.5">Main Guide = broad overview; Supporting Article = deep dive on a specific angle</p>
+              </div>
+
+              <div>
+                <Label className="text-gray-900 dark:text-white">Topic Group</Label>
+                <div className="relative">
+                  <Input
+                    value={cluster}
+                    onChange={(e) => setCluster(e.target.value)}
+                    placeholder="e.g. Gift Retirement"
+                    className="text-gray-900 dark:text-white"
+                    list="cluster-suggestions"
+                    data-testid="input-cluster"
+                  />
+                  <datalist id="cluster-suggestions">
+                    {existingClusters.map(c => (
+                      <option key={c} value={formatCluster(c)} />
+                    ))}
+                  </datalist>
+                </div>
+                <p className="text-xs text-gray-500 mt-0.5">Group related articles together (e.g. "Gift Retirement")</p>
+              </div>
+
+              {role === 'spoke' && (
+                <div>
+                  <Label className="text-gray-900 dark:text-white">Parent Guide</Label>
+                  <Select value={parentTopicId} onValueChange={setParentTopicId}>
+                    <SelectTrigger data-testid="select-parent-topic">
+                      <SelectValue placeholder="Select parent guide" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">None</SelectItem>
+                      {availablePillars.map(p => (
+                        <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-gray-500 mt-0.5">Which Main Guide does this article support?</p>
+                </div>
+              )}
             </div>
           </div>
 
