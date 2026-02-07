@@ -686,7 +686,7 @@ export function ContentProductionKeywords() {
                     </button>
                   </th>
                   <th className="text-center p-3">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Topics</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Planned Posts</span>
                   </th>
                   <th className="text-center p-3">
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Posts</span>
