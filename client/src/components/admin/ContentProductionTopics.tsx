@@ -208,12 +208,12 @@ export function ContentProductionTopics() {
       groups[key].push(topic);
     });
 
-    // Within each group: pillars first, then spokes alphabetically
+    // Within each group: pillars first, then spokes by volume descending
     Object.values(groups).forEach(group => {
       group.sort((a, b) => {
         if (a.role === 'pillar' && b.role !== 'pillar') return -1;
         if (a.role !== 'pillar' && b.role === 'pillar') return 1;
-        return a.title.localeCompare(b.title);
+        return (b.search_volume || 0) - (a.search_volume || 0);
       });
     });
 
@@ -636,9 +636,9 @@ export function ContentProductionTopics() {
                           <div
                             key={topic.id}
                             ref={(el) => { topicRefs.current[topic.id] = el; }}
-                            className={`${topic.role === 'spoke' ? 'ml-8' : ''} ${highlightedTopicId === topic.id ? 'ring-2 ring-[#D67C4A] bg-orange-50 rounded-lg p-2 transition-all duration-500' : ''}`}
+                            className={`${topic.role === 'spoke' ? 'ml-10' : ''} ${highlightedTopicId === topic.id ? 'ring-2 ring-[#D67C4A] bg-orange-50 rounded-lg p-2 transition-all duration-500' : ''}`}
                           >
-                            <AccordionItem value={topic.id} data-testid={`topic-${topic.id}`} className="border-none">
+                            <AccordionItem value={topic.id} data-testid={`topic-${topic.id}`} className="border-none border-b border-gray-100 dark:border-gray-800 mb-1">
                               <AccordionTrigger className="hover:no-underline">
                                 <div className="flex items-center justify-between w-full pr-4">
                                   <div className="flex-1 text-left">
