@@ -55,7 +55,7 @@ interface PaginatedResponse {
   };
 }
 
-type SortColumn = 'keyword' | 'tier' | 'monthly_searches' | 'competition' | 'intent';
+type SortColumn = 'keyword' | 'market' | 'tier' | 'monthly_searches' | 'competition' | 'intent';
 type SortDirection = 'asc' | 'desc';
 
 const PAGE_SIZE = 100;
@@ -308,28 +308,37 @@ export function ContentProductionKeywords() {
       setSortColumn(column);
       setSortDirection('desc');
     }
+    setCurrentPage(1);
   };
 
   // Use allKeywords if background loaded, otherwise use initial page
   const displayKeywords = allKeywords.length > 0 ? allKeywords : (initialData?.keywords || []);
 
   // Client-side sorting (server returns by monthly_searches desc)
-  const sortedKeywords = [...displayKeywords].sort((a, b) => {
-    let aValue: any = a[sortColumn];
-    let bValue: any = b[sortColumn];
+  const sortedKeywords = useMemo(() => {
+    return [...displayKeywords].sort((a, b) => {
+      let aValue: any = (a as any)[sortColumn];
+      let bValue: any = (b as any)[sortColumn];
 
-    if (aValue === null || aValue === undefined) return 1;
-    if (bValue === null || bValue === undefined) return -1;
+      if (aValue === null || aValue === undefined) return 1;
+      if (bValue === null || bValue === undefined) return -1;
 
-    if (typeof aValue === 'string') {
-      aValue = aValue.toLowerCase();
-      bValue = bValue.toLowerCase();
-    }
+      if (typeof aValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = (bValue as string).toLowerCase();
+      }
 
-    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-    return 0;
-  });
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+
+      // Secondary sort by keyword name for stability
+      const aKey = a.keyword.toLowerCase();
+      const bKey = b.keyword.toLowerCase();
+      if (aKey < bKey) return -1;
+      if (aKey > bKey) return 1;
+      return 0;
+    });
+  }, [displayKeywords, sortColumn, sortDirection]);
 
   // Pagination for display
   const totalFromServer = initialData?.pagination?.total || displayKeywords.length;
@@ -627,7 +636,18 @@ export function ContentProductionKeywords() {
                     </button>
                   </th>
                   <th className="text-center p-3">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Market</span>
+                    <button
+                      onClick={() => handleSort('market')}
+                      className="flex items-center gap-1 mx-auto text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                      data-testid="sort-market"
+                    >
+                      Market
+                      {sortColumn === 'market' ? (
+                        sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />
+                      ) : (
+                        <ArrowUpDown className="h-4 w-4 opacity-30" />
+                      )}
+                    </button>
                   </th>
                   <th className="text-left p-3">
                     <button
