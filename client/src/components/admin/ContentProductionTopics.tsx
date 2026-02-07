@@ -575,14 +575,38 @@ export function ContentProductionTopics() {
                 Grouped by topic group. Click any topic to see full details.
               </CardDescription>
             </div>
-            <Button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="bg-[#D67C4A] hover:bg-[#C56B3A] text-white"
-              data-testid="button-new-topic"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              New Topic
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const allOpen: Record<string, boolean> = {};
+                  groupedTopics.forEach(([cluster]) => { allOpen[cluster] = true; });
+                  setOpenGroups(allOpen);
+                }}
+              >
+                Expand All
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const allClosed: Record<string, boolean> = {};
+                  groupedTopics.forEach(([cluster]) => { allClosed[cluster] = false; });
+                  setOpenGroups(allClosed);
+                }}
+              >
+                Collapse All
+              </Button>
+              <Button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="bg-[#D67C4A] hover:bg-[#C56B3A] text-white"
+                data-testid="button-new-topic"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                New Topic
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
