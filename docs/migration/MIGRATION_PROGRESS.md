@@ -84,7 +84,7 @@ Merged the separate workflow bar and tab bar into a single unified navigation:
 - Mobile: reordered, no circles/arrows (too cramped)
 - Workflow bar removed — tabs ARE the workflow
 
-**TODO:** Update Blog Hub help_screens content (`/admin?tab=blog`) to reflect new tab layout
+**DONE:** Blog Hub help_screens content updated — removed ugly diagram, clean numbered list, added Topic vs Post explanation
 
 ---
 
@@ -222,7 +222,9 @@ Merged the separate workflow bar and tab bar into a single unified navigation:
 | ~~Help content: CreatePostLanding screen~~ | ✅ Done | Screen + tip added via SQL migration |
 | ~~Help flow updates (new entry point)~~ | ✅ Done | Merged 2 creation flows into 1 unified flow (7 steps) |
 | ~~Unified creation Phase 2~~ | ✅ Done | Tabs merged, AI accessible via CreatePostLanding |
-| Blog Hub help content sync | 🟡 Next | Update help_screens for /admin?tab=blog after tab reorder + workflow merge |
+| ~~Blog Hub help content sync~~ | ✅ Done | Removed diagram, clean numbered list, Topic vs Post explanation |
+| Content strategy: direct_service occasion splitter | 🟡 Next | Grouping script needs occasion/tool-based splitting for this cluster |
+| Content strategy: FR gift_memorial GKP expansion | 🟡 Next | Need deuil/hommage/condoléance keyword seeds |
 | Naive-user help flow testing | 🟡 Next | Re-test needed after help flow merge + UI changes |
 | Contenu Site help content (6 screens) | 🟡 Next | Screenshots already captured |
 | Analytics rebuild | 🟡 Next | 300+ lines of docs prepared |
@@ -230,6 +232,8 @@ Merged the separate workflow bar and tab bar into a single unified navigation:
 | Mapbox GL JS migration | 🟢 Later | Replace Leaflet for Partner Directory |
 | Image Bank rendering bug | 🟢 Later | Tab renders blank |
 | Date picker UI language | 🟢 Later | Blog Editor date picker shows French ("Choisir une date", "Définir maintenant"). Decide whether to translate to English or keep French. Help content matches French UI. |
+| Content strategy: P2 clusters (gift_personalized, vhs_legacy) | 🟢 Later | Repeat framework after P1 complete |
+| Content strategy: editorial calendar | 🟢 Later | Seasonal peaks + publication cadence |
 | Decommission Replit | 🟢 Later | After full confidence in Coolify |
 
 ---
@@ -246,6 +250,7 @@ Full ADR log: `docs/architecture/DECISIONS.md`
 | ADR-016 | AI Brand Brain + Server-Side Claude API | Feb 2026 |
 | ADR-018 | Server-Side Translation via Claude API | Feb 2026 |
 | ADR-019 | Unified Blog Post Creation Flow (CreatePostLanding) | Feb 2026 |
+| ADR-020 | Hub-and-Spoke Topic Structure (role/parent_topic_id/cluster) | Feb 2026 |
 
 ---
 
