@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, varchar, decimal, numeric, jsonb, uuid, unique } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, varchar, decimal, numeric, jsonb, uuid, unique, type AnyPgColumn } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -771,7 +771,12 @@ export const contentTopics = pgTable("content_topics", {
   priority: integer("priority").default(3),
   selectedForWeek: text("selected_for_week"),
   status: text("status").default("backlog"),
-  
+
+  // Hub-and-Spoke Structure
+  role: text("role").default("spoke"), // 'pillar' | 'spoke'
+  parentTopicId: uuid("parent_topic_id").references((): AnyPgColumn => contentTopics.id, { onDelete: 'set null' }),
+  cluster: text("cluster"), // e.g., 'gift_retirement', 'vhs_legacy' — matches content_keywords.cluster
+
   // Internal Linking
   memopykLinkOpportunities: text("memopyk_link_opportunities"),
   memopykLinksPlaced: boolean("memopyk_links_placed").default(false),

@@ -61,6 +61,9 @@ const topicSchema = z.object({
   body_image_concepts: z.array(z.string()).nullable().optional(),
   priority: z.number().int().min(1).max(5).optional(),
   status: z.string().max(50).optional(),
+  role: z.enum(['pillar', 'spoke']).optional().default('spoke'),
+  parent_topic_id: z.string().uuid().nullable().optional(),
+  cluster: z.string().max(200).nullable().optional(),
   memopyk_link_opportunities: z.string().max(1000).nullable().optional(),
 });
 

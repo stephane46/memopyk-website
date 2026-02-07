@@ -31,6 +31,9 @@ interface ContentTopic {
   last_generated_at: string | null;
   priority: number;
   status: string;
+  role: string;
+  parent_topic_id: string | null;
+  cluster: string | null;
   created_at: string;
   updated_at: string;
 }
