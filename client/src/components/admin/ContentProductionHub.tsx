@@ -101,8 +101,8 @@ export default function ContentProductionHub() {
 
   // Tab configuration with workflow step numbers and descriptions
   const tabConfig = [
-    { id: 'topics', num: 1, label: 'Planned Posts', desc: 'What to write', icon: FileText, testId: 'tab-topics' },
-    { id: 'keywords', num: 2, label: 'Keywords', desc: 'Research SEO', icon: Search, testId: 'tab-keywords' },
+    { id: 'keywords', num: 1, label: 'Keywords', desc: 'Research SEO', icon: Search, testId: 'tab-keywords' },
+    { id: 'topics', num: 2, label: 'Planned Posts', desc: 'What to write', icon: FileText, testId: 'tab-topics' },
     { id: 'planner', num: 3, label: 'Planner', desc: 'Schedule when', icon: Calendar, testId: 'tab-planner' },
     { id: 'posts', num: 4, label: 'Posts', desc: 'Write & publish', icon: BookOpen, testId: 'tab-posts' },
     { id: 'images', num: 5, label: 'Image Bank', desc: 'Store media', icon: Image, testId: 'tab-images' },
@@ -116,7 +116,7 @@ export default function ContentProductionHub() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Blog Hub</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Plan topics, research keywords, schedule content, and publish blog posts
+            Research keywords, plan content, schedule, and publish blog posts
           </p>
         </div>
       </div>
@@ -160,20 +160,20 @@ export default function ContentProductionHub() {
         {/* Mobile: Horizontal scroll - reordered to match workflow */}
         <TabsList className="md:hidden flex overflow-x-auto w-full bg-gray-100 dark:bg-gray-800 p-1 gap-1">
           <TabsTrigger
-            value="topics"
-            data-testid="tab-topics-mobile"
-            className="flex-shrink-0 data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
-          >
-            <FileText className="h-4 w-4 mr-1" />
-            Topics
-          </TabsTrigger>
-          <TabsTrigger
             value="keywords"
             data-testid="tab-keywords-mobile"
             className="flex-shrink-0 data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
           >
             <Search className="h-4 w-4 mr-1" />
             Keywords
+          </TabsTrigger>
+          <TabsTrigger
+            value="topics"
+            data-testid="tab-topics-mobile"
+            className="flex-shrink-0 data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+          >
+            <FileText className="h-4 w-4 mr-1" />
+            Planned Posts
           </TabsTrigger>
           <TabsTrigger
             value="planner"
