@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Search, FileText, BookOpen, Filter, ChevronDown, ChevronRight, FolderOpen, Sparkles, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Search, FileText, BookOpen, Filter, ChevronDown, ChevronRight, FolderOpen, List, Sparkles, Plus, Pencil, Trash2 } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -84,6 +84,13 @@ const CATEGORIES = [
 
 const STATUSES = ['backlog', 'planned', 'in_progress', 'published'];
 
+const STATUS_SORT_ORDER: Record<string, number> = {
+  'in_progress': 0,
+  'planned': 1,
+  'backlog': 2,
+  'published': 3,
+};
+
 const TYPES = [
   'Beginner/How-To Topics',
   'Storytelling Techniques',
@@ -116,6 +123,7 @@ export function ContentProductionTopics() {
   const [selectedCluster, setSelectedCluster] = useState<string>('all');
   const [selectedTopicForPost, setSelectedTopicForPost] = useState<ContentTopic | null>(null);
   const [highlightedTopicId, setHighlightedTopicId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'grouped'>('list');
 
   // CRUD modal state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -227,9 +235,20 @@ export function ContentProductionTopics() {
     });
   }, [filteredTopics]);
 
+  // Flat list sorted by status priority, then volume descending
+  const flatSortedTopics = useMemo(() => {
+    return [...filteredTopics].sort((a, b) => {
+      const statusA = STATUS_SORT_ORDER[a.status] ?? 99;
+      const statusB = STATUS_SORT_ORDER[b.status] ?? 99;
+      if (statusA !== statusB) return statusA - statusB;
+      return (b.search_volume || 0) - (a.search_volume || 0);
+    });
+  }, [filteredTopics]);
+
   const totalTopics = topics.length;
-  const mainGuideCount = topics.filter(t => t.role === 'pillar').length;
-  const supportingArticleCount = topics.filter(t => t.role === 'spoke').length;
+  const readyToWriteCount = topics.filter(t => t.status === 'backlog').length;
+  const inProgressCount = topics.filter(t => t.status === 'in_progress' || t.status === 'planned').length;
+  const publishedCount = topics.filter(t => t.status === 'published').length;
 
   const getCategoryColor = (category: string) => {
     const categoryMap: Record<string, string> = {
@@ -337,6 +356,243 @@ export function ContentProductionTopics() {
     searchQuery !== '',
   ].filter(Boolean).length;
 
+  // Reusable topic row with expandable details — used by both list and grouped views
+  const renderTopicRow = (topic: ContentTopic) => {
+    const parentTopic = topic.parent_topic_id ? topics.find(t => t.id === topic.parent_topic_id) : null;
+
+    return (
+      <AccordionItem value={topic.id} className="border-b border-gray-100 dark:border-gray-800 mb-1">
+        <AccordionTrigger className="hover:no-underline py-3 px-3" data-testid={`topic-row-${topic.id}`}>
+          <div className="flex items-center justify-between w-full mr-4">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                {topic.title}
+              </span>
+              {topic.primary_keyword && (
+                <Badge variant="custom" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 flex-shrink-0">
+                  {topic.primary_keyword}
+                </Badge>
+              )}
+              {topic.times_generated > 0 && (
+                <Badge variant="custom" className="bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300 flex-shrink-0">
+                  Generated {topic.times_generated}x
+                </Badge>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
+              <Badge variant="custom" className={getRoleBadgeColor(topic.role)}>
+                <span className="mr-0.5">{getRoleIcon(topic.role)}</span>
+                {formatRole(topic.role)}
+              </Badge>
+              <Badge variant="custom" className={getStatusColor(topic.status)}>
+                {formatStatusLabel(topic.status)}
+              </Badge>
+              <Badge variant="custom" className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                {topic.market === 'fr' ? '🇫🇷' : '🇺🇸'}
+              </Badge>
+              <Badge variant="custom" className={getCategoryColor(topic.category)}>
+                {getCategoryShortLabel(topic.category)}
+              </Badge>
+              <Badge variant="custom" className={getPriorityBadgeColor(topic.priority)}>
+                P{topic.priority}
+              </Badge>
+              <Badge variant="custom" className="bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                {topic.target_word_count} words
+              </Badge>
+            </div>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent>
+          <div className="mt-2 p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 border-l-4 border-l-[#D67C4A] rounded-lg space-y-4">
+            {/* SEO Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">SEO Data</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-gray-600 dark:text-gray-400">Primary Keyword:</span>
+                    <Badge variant="custom" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                      {topic.primary_keyword}
+                    </Badge>
+                  </div>
+                  {topic.search_volume && (
+                    <div>
+                      <span className="font-semibold text-gray-600 dark:text-gray-400">Search Volume:</span>
+                      <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.search_volume.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {topic.competition && (
+                    <div>
+                      <span className="font-semibold text-gray-600 dark:text-gray-400">Competition:</span>
+                      <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.competition}</span>
+                    </div>
+                  )}
+                  <div>
+                    <span className="font-semibold text-gray-600 dark:text-gray-400">Search Intent:</span>
+                    <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.search_intent}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Content Type</h4>
+                <div className="space-y-2 text-sm">
+                  <div>
+                    <span className="font-semibold text-gray-600 dark:text-gray-400">Article Role:</span>
+                    <span className="ml-2">
+                      <Badge variant="custom" className={getRoleBadgeColor(topic.role)}>
+                        <span className="mr-1">{getRoleIcon(topic.role)}</span>
+                        {formatRole(topic.role)}
+                      </Badge>
+                    </span>
+                  </div>
+                  {topic.cluster && (
+                    <div>
+                      <span className="font-semibold text-gray-600 dark:text-gray-400">Topic Group:</span>
+                      <span className="ml-2 font-medium text-gray-900 dark:text-white">{formatCluster(topic.cluster)}</span>
+                    </div>
+                  )}
+                  {parentTopic && (
+                    <div>
+                      <span className="font-semibold text-gray-600 dark:text-gray-400">Parent Guide:</span>
+                      <span className="ml-2 font-medium text-gray-900 dark:text-white">{parentTopic.title}</span>
+                    </div>
+                  )}
+                  <div>
+                    <span className="font-semibold text-gray-600 dark:text-gray-400">Type:</span>
+                    <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.type}</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-600 dark:text-gray-400">Category:</span>
+                    <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.category}</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-600 dark:text-gray-400">Target Words:</span>
+                    <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.target_word_count}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Secondary Keywords */}
+            {topic.secondary_keywords && topic.secondary_keywords.length > 0 && (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Secondary Keywords</h4>
+                <div className="flex flex-wrap gap-2">
+                  {topic.secondary_keywords.map((kw, idx) => (
+                    <Badge key={idx} variant="custom" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                      {kw}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Content Guidance */}
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Content Angle</h4>
+              <p className="text-sm text-gray-700 dark:text-gray-300">{topic.content_angle}</p>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Description</h4>
+              <p className="text-sm text-gray-700 dark:text-gray-300">{topic.description}</p>
+            </div>
+
+            {/* Image Concepts */}
+            {topic.hero_image_concept && (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Hero Image Concept</h4>
+                <p className="text-sm text-gray-700 dark:text-gray-300">{topic.hero_image_concept}</p>
+              </div>
+            )}
+
+            {topic.body_image_concepts && topic.body_image_concepts.length > 0 && (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Body Image Concepts</h4>
+                <ul className="list-disc list-inside text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                  {topic.body_image_concepts.map((concept, idx) => (
+                    <li key={idx}>{concept}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* MEMOPYK Links */}
+            {topic.memopyk_link_opportunities && (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">MEMOPYK Link Opportunities</h4>
+                <p className="text-sm text-gray-700 dark:text-gray-300">{topic.memopyk_link_opportunities}</p>
+              </div>
+            )}
+
+            {/* Generation Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-gray-200 dark:border-gray-700">
+              <div>
+                <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Times Generated:</span>
+                <span className="ml-2 text-sm font-medium text-gray-900 dark:text-white">{topic.times_generated}</span>
+              </div>
+              {topic.last_generated_at && (
+                <div>
+                  <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Last Generated:</span>
+                  <span className="ml-2 text-sm font-medium text-gray-900 dark:text-white">
+                    {new Date(topic.last_generated_at).toLocaleDateString()}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditingTopic(topic)}
+                  data-testid={`button-edit-topic-${topic.id}`}
+                >
+                  <Pencil className="h-4 w-4 mr-1" />
+                  Edit
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setDeletingTopic(topic)}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                  data-testid={`button-delete-topic-${topic.id}`}
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Delete
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => setSelectedTopicForPost(topic)}
+                  className="bg-[#D67C4A] hover:bg-[#C56B3A] text-white"
+                  data-testid={`button-create-post-${topic.id}`}
+                >
+                  <Sparkles className="h-4 w-4 mr-1" />
+                  Create Post
+                </Button>
+              </div>
+              {topic.times_generated > 0 && (
+                <Button
+                  onClick={() => navigateToPosts(topic.id)}
+                  variant="outline"
+                  size="sm"
+                  className="ml-auto border-[#D67C4A] text-[#D67C4A] hover:bg-[#D67C4A] hover:bg-opacity-10"
+                  data-testid={`button-view-posts-${topic.id}`}
+                >
+                  <BookOpen className="h-4 w-4 mr-1" />
+                  View Posts ({topic.post_count || 0})
+                </Button>
+              )}
+            </div>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    );
+  };
+
   if (isLoading) {
     return <ContentTopicsSkeleton />;
   }
@@ -347,7 +603,7 @@ export function ContentProductionTopics() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Topics</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Posts</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">{totalTopics}</div>
@@ -355,26 +611,26 @@ export function ContentProductionTopics() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Main Guides</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Ready to Write</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">{mainGuideCount}</div>
+            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">{readyToWriteCount}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Supporting Articles</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">In Progress</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-600 dark:text-slate-400">{supportingArticleCount}</div>
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{inProgressCount}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Filtered Results</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Published</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{filteredTopics.length}</div>
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{publishedCount}</div>
           </CardContent>
         </Card>
       </div>
@@ -403,7 +659,7 @@ export function ContentProductionTopics() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
-                  placeholder="Search topics, keywords..."
+                  placeholder="Search posts, keywords..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -562,49 +818,79 @@ export function ContentProductionTopics() {
         </CardContent>
       </Card>
 
-      {/* Topics List with Expandable Rows */}
+      {/* Planned Posts List */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
                 <FileText className="h-5 w-5" />
-                Topics ({filteredTopics.length})
+                Planned Posts ({filteredTopics.length})
               </CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400 mt-1">
-                Grouped by topic group. Click any topic to see full details.
+                Your blog post backlog. Each entry becomes one blog post.
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const allOpen: Record<string, boolean> = {};
-                  groupedTopics.forEach(([cluster]) => { allOpen[cluster] = true; });
-                  setOpenGroups(allOpen);
-                }}
-              >
-                Expand All
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const allClosed: Record<string, boolean> = {};
-                  groupedTopics.forEach(([cluster]) => { allClosed[cluster] = false; });
-                  setOpenGroups(allClosed);
-                }}
-              >
-                Collapse All
-              </Button>
+              {/* View Toggle */}
+              <div className="flex border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
+                    viewMode === 'list'
+                      ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                      : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <List className="h-3.5 w-3.5" />
+                  List
+                </button>
+                <button
+                  onClick={() => setViewMode('grouped')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors border-l border-gray-200 dark:border-gray-700 ${
+                    viewMode === 'grouped'
+                      ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                      : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <FolderOpen className="h-3.5 w-3.5" />
+                  Grouped
+                </button>
+              </div>
+              {/* Expand/Collapse (grouped view only) */}
+              {viewMode === 'grouped' && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const allOpen: Record<string, boolean> = {};
+                      groupedTopics.forEach(([cluster]) => { allOpen[cluster] = true; });
+                      setOpenGroups(allOpen);
+                    }}
+                  >
+                    Expand All
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const allClosed: Record<string, boolean> = {};
+                      groupedTopics.forEach(([cluster]) => { allClosed[cluster] = false; });
+                      setOpenGroups(allClosed);
+                    }}
+                  >
+                    Collapse All
+                  </Button>
+                </>
+              )}
               <Button
                 onClick={() => setIsCreateModalOpen(true)}
                 className="bg-[#D67C4A] hover:bg-[#C56B3A] text-white"
                 data-testid="button-new-topic"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                New Topic
+                Plan New Post
               </Button>
             </div>
           </div>
@@ -612,12 +898,13 @@ export function ContentProductionTopics() {
         <CardContent>
           {filteredTopics.length === 0 ? (
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-              No topics match your filters
+              No planned posts match your filters
             </div>
-          ) : (
+          ) : viewMode === 'grouped' ? (
+            /* ===== GROUPED VIEW ===== */
             <div className="space-y-4">
               {groupedTopics.map(([cluster, clusterTopics]) => {
-                const isOpen = openGroups[cluster] !== false; // default open
+                const isOpen = openGroups[cluster] !== false;
                 const pillarCount = clusterTopics.filter(t => t.role === 'pillar').length;
                 const spokeCount = clusterTopics.filter(t => t.role === 'spoke').length;
                 const totalVolume = clusterTopics.reduce((sum, t) => sum + (t.search_volume || 0), 0);
@@ -641,7 +928,7 @@ export function ContentProductionTopics() {
                             {formatCluster(cluster)}
                           </span>
                           <Badge variant="custom" className="bg-white/80 text-gray-700 dark:bg-gray-600 dark:text-gray-200 border border-gray-300 dark:border-gray-500">
-                            {clusterTopics.length} article{clusterTopics.length !== 1 ? 's' : ''}
+                            {clusterTopics.length} post{clusterTopics.length !== 1 ? 's' : ''}
                           </Badge>
                         </div>
                         <div className="flex items-center gap-4 text-xs text-gray-600 dark:text-gray-300">
@@ -662,248 +949,7 @@ export function ContentProductionTopics() {
                             ref={(el) => { topicRefs.current[topic.id] = el; }}
                             className={`${topic.role === 'spoke' ? 'ml-10' : ''} ${highlightedTopicId === topic.id ? 'ring-2 ring-[#D67C4A] bg-orange-50 rounded-lg p-2 transition-all duration-500' : ''}`}
                           >
-                            <AccordionItem value={topic.id} data-testid={`topic-${topic.id}`} className="border-none border-b border-gray-100 dark:border-gray-800 mb-1">
-                              <AccordionTrigger className="hover:no-underline">
-                                <div className="flex items-center justify-between w-full pr-4">
-                                  <div className="flex-1 text-left">
-                                    <div className="font-medium text-gray-900 dark:text-white">{topic.title}</div>
-                                    <div className="flex flex-wrap gap-1.5 mt-2">
-                                      <Badge
-                                        variant="custom"
-                                        className="bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 text-xs font-normal"
-                                        data-testid={`keyword-primary-${topic.id}`}
-                                      >
-                                        {topic.primary_keyword}
-                                      </Badge>
-                                      {topic.secondary_keywords && topic.secondary_keywords.slice(0, 3).map((kw, idx) => (
-                                        <Badge
-                                          key={idx}
-                                          variant="custom"
-                                          className="bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 text-xs font-normal"
-                                          data-testid={`keyword-secondary-${topic.id}-${idx}`}
-                                        >
-                                          {kw}
-                                        </Badge>
-                                      ))}
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center gap-2 flex-shrink-0">
-                                    <Badge variant="custom" className={getRoleBadgeColor(topic.role)}>
-                                      <span className="mr-1">{getRoleIcon(topic.role)}</span>
-                                      {formatRole(topic.role)}
-                                    </Badge>
-                                    {topic.times_generated > 0 && (
-                                      <Badge
-                                        variant="custom"
-                                        className="bg-[#D67C4A] text-white"
-                                        data-testid={`badge-generated-${topic.id}`}
-                                      >
-                                        Generated {topic.times_generated}x
-                                      </Badge>
-                                    )}
-                                    {topic.post_count !== undefined && topic.post_count > 0 && (
-                                      <Badge
-                                        variant="custom"
-                                        className="bg-blue-600 text-white"
-                                        data-testid={`badge-posts-${topic.id}`}
-                                      >
-                                        {topic.post_count} Post{topic.post_count !== 1 ? 's' : ''}
-                                      </Badge>
-                                    )}
-                                    <span title={topic.market === 'fr' ? 'France' : 'English'}>
-                                      {topic.market === 'fr' ? '🇫🇷' : '🇺🇸'}
-                                    </span>
-                                    <Badge variant="custom" className={getCategoryColor(topic.category)}>
-                                      {getCategoryShortLabel(topic.category)}
-                                    </Badge>
-                                    <Badge variant="custom" className={getPriorityBadgeColor(topic.priority)}>
-                                      P{topic.priority}
-                                    </Badge>
-                                    <Badge variant="custom" className={getStatusColor(topic.status)}>
-                                      {formatStatusLabel(topic.status)}
-                                    </Badge>
-                                    <Badge variant="custom" className="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
-                                      {topic.target_word_count}w
-                                    </Badge>
-                                  </div>
-                                </div>
-                              </AccordionTrigger>
-                              <AccordionContent>
-                                <div className="mt-2 p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 border-l-4 border-l-[#D67C4A] rounded-lg space-y-4">
-                                  {/* SEO Info */}
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">SEO Data</h4>
-                                      <div className="space-y-2 text-sm">
-                                        <div className="flex items-center gap-2">
-                                          <span className="font-semibold text-gray-600 dark:text-gray-400">Primary Keyword:</span>
-                                          <Badge variant="custom" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                                            {topic.primary_keyword}
-                                          </Badge>
-                                        </div>
-                                        {topic.search_volume && (
-                                          <div>
-                                            <span className="font-semibold text-gray-600 dark:text-gray-400">Search Volume:</span>
-                                            <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.search_volume.toLocaleString()}</span>
-                                          </div>
-                                        )}
-                                        {topic.competition && (
-                                          <div>
-                                            <span className="font-semibold text-gray-600 dark:text-gray-400">Competition:</span>
-                                            <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.competition}</span>
-                                          </div>
-                                        )}
-                                        <div>
-                                          <span className="font-semibold text-gray-600 dark:text-gray-400">Search Intent:</span>
-                                          <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.search_intent}</span>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div>
-                                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Content Type</h4>
-                                      <div className="space-y-2 text-sm">
-                                        <div>
-                                          <span className="font-semibold text-gray-600 dark:text-gray-400">Article Role:</span>
-                                          <span className="ml-2">
-                                            <Badge variant="custom" className={getRoleBadgeColor(topic.role)}>
-                                              <span className="mr-1">{getRoleIcon(topic.role)}</span>
-                                              {formatRole(topic.role)}
-                                            </Badge>
-                                          </span>
-                                        </div>
-                                        <div>
-                                          <span className="font-semibold text-gray-600 dark:text-gray-400">Type:</span>
-                                          <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.type}</span>
-                                        </div>
-                                        <div>
-                                          <span className="font-semibold text-gray-600 dark:text-gray-400">Category:</span>
-                                          <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.category}</span>
-                                        </div>
-                                        <div>
-                                          <span className="font-semibold text-gray-600 dark:text-gray-400">Target Words:</span>
-                                          <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.target_word_count}</span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  {/* Secondary Keywords */}
-                                  {topic.secondary_keywords && topic.secondary_keywords.length > 0 && (
-                                    <div>
-                                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Secondary Keywords</h4>
-                                      <div className="flex flex-wrap gap-2">
-                                        {topic.secondary_keywords.map((kw, idx) => (
-                                          <Badge key={idx} variant="custom" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                                            {kw}
-                                          </Badge>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {/* Content Guidance */}
-                                  <div>
-                                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Content Angle</h4>
-                                    <p className="text-sm text-gray-700 dark:text-gray-300">{topic.content_angle}</p>
-                                  </div>
-
-                                  <div>
-                                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Description</h4>
-                                    <p className="text-sm text-gray-700 dark:text-gray-300">{topic.description}</p>
-                                  </div>
-
-                                  {/* Image Concepts */}
-                                  {topic.hero_image_concept && (
-                                    <div>
-                                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Hero Image Concept</h4>
-                                      <p className="text-sm text-gray-700 dark:text-gray-300">{topic.hero_image_concept}</p>
-                                    </div>
-                                  )}
-
-                                  {topic.body_image_concepts && topic.body_image_concepts.length > 0 && (
-                                    <div>
-                                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Body Image Concepts</h4>
-                                      <ul className="list-disc list-inside text-sm text-gray-700 dark:text-gray-300 space-y-1">
-                                        {topic.body_image_concepts.map((concept, idx) => (
-                                          <li key={idx}>{concept}</li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  )}
-
-                                  {/* MEMOPYK Links */}
-                                  {topic.memopyk_link_opportunities && (
-                                    <div>
-                                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">MEMOPYK Link Opportunities</h4>
-                                      <p className="text-sm text-gray-700 dark:text-gray-300">{topic.memopyk_link_opportunities}</p>
-                                    </div>
-                                  )}
-
-                                  {/* Generation Stats */}
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-gray-200 dark:border-gray-700">
-                                    <div>
-                                      <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Times Generated:</span>
-                                      <span className="ml-2 text-sm font-medium text-gray-900 dark:text-white">{topic.times_generated}</span>
-                                    </div>
-                                    {topic.last_generated_at && (
-                                      <div>
-                                        <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Last Generated:</span>
-                                        <span className="ml-2 text-sm font-medium text-gray-900 dark:text-white">
-                                          {new Date(topic.last_generated_at).toLocaleDateString()}
-                                        </span>
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  {/* Actions - all primary actions grouped on the left */}
-                                  <div className="flex items-center gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                                    <div className="flex gap-2">
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => setEditingTopic(topic)}
-                                        data-testid={`button-edit-topic-${topic.id}`}
-                                      >
-                                        <Pencil className="h-4 w-4 mr-1" />
-                                        Edit
-                                      </Button>
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => setDeletingTopic(topic)}
-                                        className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
-                                        data-testid={`button-delete-topic-${topic.id}`}
-                                      >
-                                        <Trash2 className="h-4 w-4 mr-1" />
-                                        Delete
-                                      </Button>
-                                      <Button
-                                        size="sm"
-                                        onClick={() => setSelectedTopicForPost(topic)}
-                                        className="bg-[#D67C4A] hover:bg-[#C56B3A] text-white"
-                                        data-testid={`button-create-post-${topic.id}`}
-                                      >
-                                        <Sparkles className="h-4 w-4 mr-1" />
-                                        Create Post from Topic
-                                      </Button>
-                                    </div>
-                                    {topic.times_generated > 0 && (
-                                      <Button
-                                        onClick={() => navigateToPosts(topic.id)}
-                                        variant="outline"
-                                        size="sm"
-                                        className="ml-auto border-[#D67C4A] text-[#D67C4A] hover:bg-[#D67C4A] hover:bg-opacity-10"
-                                        data-testid={`button-view-posts-${topic.id}`}
-                                      >
-                                        <BookOpen className="h-4 w-4 mr-1" />
-                                        View Posts ({topic.post_count || 0})
-                                      </Button>
-                                    )}
-                                  </div>
-                                </div>
-                              </AccordionContent>
-                            </AccordionItem>
+                            {renderTopicRow(topic)}
                           </div>
                         ))}
                       </Accordion>
@@ -912,6 +958,19 @@ export function ContentProductionTopics() {
                 );
               })}
             </div>
+          ) : (
+            /* ===== LIST VIEW ===== */
+            <Accordion type="single" collapsible className="w-full">
+              {flatSortedTopics.map((topic) => (
+                <div
+                  key={topic.id}
+                  ref={(el) => { topicRefs.current[topic.id] = el; }}
+                  className={highlightedTopicId === topic.id ? 'ring-2 ring-[#D67C4A] bg-orange-50 rounded-lg p-2 transition-all duration-500' : ''}
+                >
+                  {renderTopicRow(topic)}
+                </div>
+              ))}
+            </Accordion>
           )}
         </CardContent>
       </Card>

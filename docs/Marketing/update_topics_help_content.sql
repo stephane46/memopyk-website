@@ -1,28 +1,27 @@
--- Update help content for Topics tab with plain-language terminology
+-- Update help content for Planned Posts tab (formerly "Topics")
 -- Run this in Supabase SQL Editor
 
 UPDATE help_screens
-SET html_content = '<h3>Topics</h3>
-<p>Pre-researched blog topics with SEO data, content guidance, and image concepts. Topics are the foundation for AI-generated blog posts.</p>
+SET html_content = '<h3>Planned Posts</h3>
+<p>Your blog post backlog. Each entry here becomes one published blog post. Plan what to write, then use "Create Post" to generate it with AI.</p>
+
+<h4>Two views</h4>
+<ul>
+  <li><strong>List view</strong> (default) — A flat list sorted by status (In Progress first, then Planned, Backlog, Published), then by search volume.</li>
+  <li><strong>Grouped view</strong> — Posts organized by Topic Group with collapsible sections. Main Guides appear first, Supporting Articles are indented below.</li>
+</ul>
+<p>Switch between views using the <strong>List / Grouped</strong> toggle in the header.</p>
 
 <h4>What are Topic Groups?</h4>
 <p>A <strong>Topic Group</strong> is a collection of related articles about the same theme. For example, the "Gift Retirement" group contains all articles about retirement gift ideas. Grouping articles this way helps search engines understand your site structure and boosts rankings.</p>
 
 <h4>Main Guide vs Supporting Article</h4>
 <ul>
-  <li><strong>Main Guide</strong> — A broad, comprehensive article that covers the entire topic (e.g. "Retirement Gift Ideas: The Complete Guide"). This is the anchor of the group.</li>
+  <li><strong>Main Guide</strong> — A broad, comprehensive article that covers the entire topic (e.g. "Retirement Gift Ideas"). This is the anchor of the group.</li>
   <li><strong>Supporting Article</strong> — A focused article that dives deep into one specific angle (e.g. "Best Retirement Gifts for Women"). Supporting articles link back to their Main Guide.</li>
 </ul>
 
-<h4>How the list is organized</h4>
-<ul>
-  <li>Topics are <strong>grouped by Topic Group</strong> with collapsible sections</li>
-  <li>Within each group, <strong>Main Guides appear first</strong>, followed by Supporting Articles</li>
-  <li>Supporting Articles are <strong>indented</strong> to show the hierarchy visually</li>
-  <li>Groups are sorted by total search volume (highest first)</li>
-</ul>
-
-<h4>Topic Fields</h4>
+<h4>Post Fields</h4>
 <ul>
   <li><strong>Title</strong> — The blog post title (becomes the H1)</li>
   <li><strong>Article Role</strong> — Main Guide or Supporting Article</li>
@@ -43,7 +42,7 @@ SET html_content = '<h3>Topics</h3>
 <ul>
   <li><strong>Search</strong> — Search by title or keywords</li>
   <li><strong>Article Role</strong> — Show only Main Guides or Supporting Articles</li>
-  <li><strong>Topic Group</strong> — Show only topics from a specific group</li>
+  <li><strong>Topic Group</strong> — Show only posts from a specific group</li>
   <li><strong>Market</strong> — Filter by France or English</li>
   <li><strong>Category</strong> — Filter by content category</li>
   <li><strong>Status</strong> — Filter by workflow status</li>
@@ -51,23 +50,30 @@ SET html_content = '<h3>Topics</h3>
   <li><strong>Priority</strong> — Filter by priority level</li>
 </ul>
 
+<h4>Stats Cards</h4>
+<ul>
+  <li><strong>Total Posts</strong> — All planned posts in your backlog</li>
+  <li><strong>Ready to Write</strong> — Posts with "Backlog" status, waiting to be written</li>
+  <li><strong>In Progress</strong> — Posts that are "Planned" or "In Progress"</li>
+  <li><strong>Published</strong> — Posts that have been published</li>
+</ul>
+
 <h4>Actions</h4>
 <ul>
-  <li><span class="help-action help-add">New Topic</span> — Create a topic manually</li>
-  <li><span class="help-action help-edit">Edit</span> — Modify topic details</li>
-  <li><span class="help-action help-delete">Delete</span> — Remove topic (unlinks any posts)</li>
-  <li><span class="help-action help-primary">Create Post from Topic</span> — Generate a blog post using AI</li>
-  <li><span class="help-action help-link">View Posts</span> — See posts created from this topic</li>
+  <li><span class="help-action help-add">Plan New Post</span> — Add a new post to your backlog</li>
+  <li><span class="help-action help-edit">Edit</span> — Modify post details</li>
+  <li><span class="help-action help-delete">Delete</span> — Remove post (unlinks any published posts)</li>
+  <li><span class="help-action help-primary">Create Post</span> — Generate a blog post using AI</li>
+  <li><span class="help-action help-link">View Posts</span> — See published posts created from this plan</li>
 </ul>
 
 <h4>Tips</h4>
 <ul>
+  <li>The <strong>List view</strong> shows your most actionable posts first (In Progress and Planned at the top)</li>
+  <li>Switch to <strong>Grouped view</strong> to see how your posts relate to each other within Topic Groups</li>
   <li>Start by creating a <strong>Main Guide</strong> for each Topic Group, then add Supporting Articles around it</li>
-  <li>Use the <strong>Article Role filter</strong> to quickly see all your Main Guides at a glance</li>
-  <li>Use the <strong>Topic Group filter</strong> to focus on one group at a time</li>
-  <li>Click any topic row to expand and see full details</li>
-  <li>Collapse topic groups you are not working on to keep the list manageable</li>
-  <li>Topics with "Generated Nx" badge have been used to create posts</li>
+  <li>Click any row to expand and see full details including SEO data and content guidance</li>
+  <li>Posts with a "Generated Nx" badge have already been used to create published posts</li>
 </ul>',
     updated_at = NOW()
 WHERE id = '573ad402-f9d3-43df-a3c6-ddc09c0562a0';

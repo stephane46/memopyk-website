@@ -101,7 +101,7 @@ export default function ContentProductionHub() {
 
   // Tab configuration with workflow step numbers and descriptions
   const tabConfig = [
-    { id: 'topics', num: 1, label: 'Topics', desc: 'Create ideas', icon: FileText, testId: 'tab-topics' },
+    { id: 'topics', num: 1, label: 'Planned Posts', desc: 'What to write', icon: FileText, testId: 'tab-topics' },
     { id: 'keywords', num: 2, label: 'Keywords', desc: 'Research SEO', icon: Search, testId: 'tab-keywords' },
     { id: 'planner', num: 3, label: 'Planner', desc: 'Schedule when', icon: Calendar, testId: 'tab-planner' },
     { id: 'posts', num: 4, label: 'Posts', desc: 'Write & publish', icon: BookOpen, testId: 'tab-posts' },
