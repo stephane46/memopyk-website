@@ -2,7 +2,7 @@
 
 ## Current Status
 
-**Last updated:** February 6, 2026
+**Last updated:** February 9, 2026
 **Staging:** https://memopyk.memopyk.com (auto-deploys on push to `staging` branch)
 **Production:** https://memopyk.com (auto-deploys on push to `main` branch)
 
@@ -37,6 +37,10 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-09: Phase 5d Remaining Issues — React.lazy code splitting (AdminPage), GalleryManagementNew split (2599→606 lines + 5 sub-components), SEO rollback UI removed, hero video upload endpoint added, in-memory blog cache (5-min TTL, 6 public endpoints)
+- 2026-02-09: Phase 5c Extract HeroManagement + CacheManagementSection from AdminPage
+- 2026-02-09: Phase 5b Remove duplicate component sets
+- 2026-02-09: Phase 5a Quick Wins Batch (5 issues)
 - 2026-02-09: Phase 4 Fetch Pattern Standardization — 11 files touched, 1,195 lines removed, rogue localStorage auth eliminated, 4 unauthenticated admin components fixed, mixed patterns standardized, 2 more dead files deleted
 - 2026-02-09: Phase 3 Database Indexes — 9 indexes added via Supabase (keywords: intent/market/cluster/volume; topics: keyword+market; assignments: topic_id/date; posts: status+published_at partial, language+status)
 - 2026-02-09: Phase 2 Dead Code Removal — 48 files deleted, ~12,000 lines removed (46 dead components, 2 orphaned route files, deployment tab removed, system health endpoint fixed)
@@ -92,6 +96,6 @@ READ THESE FIRST:
 
 ## Known Issues
 
-- 67 client TS errors (non-blocking, admin analytics components)
+- 36 client TS errors (non-blocking, pre-existing in admin analytics components)
 - Mapbox GL JS migration planned for Partner Directory map
 - Blog Hub help content updated Feb 5 (workflow diagram removed, clean numbered list, Topic vs Post explanation added)
