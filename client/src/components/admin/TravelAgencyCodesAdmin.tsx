@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest, adminFetch } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -10,11 +11,6 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, Search, RefreshCw, Building2 } from 'lucide-react';
-
-const getAdminToken = () => {
-  return localStorage.getItem('memopyk-admin-token') || 
-         sessionStorage.getItem('memopyk-admin-token') || '';
-};
 
 interface AgencyCode {
   id: number;
@@ -60,11 +56,7 @@ export default function TravelAgencyCodesAdmin() {
   const { data: agencyCodes = [], isLoading, refetch } = useQuery<AgencyCode[]>({
     queryKey: ['/api/travel-agency-codes'],
     queryFn: async () => {
-      const token = getAdminToken();
-      const res = await fetch('/api/travel-agency-codes', {
-        headers: { 'Authorization': `Bearer ${token}` },
-        credentials: 'include'
-      });
+      const res = await adminFetch('/api/travel-agency-codes');
       if (!res.ok) throw new Error('Failed to fetch agency codes');
       return res.json();
     }
@@ -72,20 +64,7 @@ export default function TravelAgencyCodesAdmin() {
 
   const createMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      const token = getAdminToken();
-      const res = await fetch('/api/travel-agency-codes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        credentials: 'include',
-        body: JSON.stringify(data)
-      });
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || 'Failed to create agency code');
-      }
+      const res = await apiRequest('/api/travel-agency-codes', 'POST', data);
       return res.json();
     },
     onSuccess: () => {
@@ -101,17 +80,7 @@ export default function TravelAgencyCodesAdmin() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: FormData }) => {
-      const token = getAdminToken();
-      const res = await fetch(`/api/travel-agency-codes/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        credentials: 'include',
-        body: JSON.stringify(data)
-      });
-      if (!res.ok) throw new Error('Failed to update agency code');
+      const res = await apiRequest(`/api/travel-agency-codes/${id}`, 'PATCH', data);
       return res.json();
     },
     onSuccess: () => {
@@ -127,13 +96,7 @@ export default function TravelAgencyCodesAdmin() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const token = getAdminToken();
-      const res = await fetch(`/api/travel-agency-codes/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` },
-        credentials: 'include'
-      });
-      if (!res.ok) throw new Error('Failed to delete agency code');
+      const res = await apiRequest(`/api/travel-agency-codes/${id}`, 'DELETE');
       return res.json();
     },
     onSuccess: () => {

@@ -25,6 +25,7 @@ import {
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { apiRequest, adminFetch } from '@/lib/queryClient';
 
 interface WhyMemopykCard {
   id: string;
@@ -74,7 +75,7 @@ export function WhyMemopykManagement() {
   const loadCards = async () => {
     try {
       console.log('🔄 Loading Why MEMOPYK cards...');
-      const response = await fetch('/api/why-memopyk-cards');
+      const response = await adminFetch('/api/why-memopyk-cards');
       const data = await response.json();
       if (response.ok) {
         setCards(data.sort((a: WhyMemopykCard, b: WhyMemopykCard) => a.orderIndex - b.orderIndex));
@@ -114,34 +115,22 @@ export function WhyMemopykManagement() {
 
       console.log('💾 Saving card:', method, url, formData);
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      await apiRequest(url, method, formData);
+
+      toast({
+        title: "Success",
+        description: editingCard ? "Card updated successfully" : "Card created successfully",
       });
 
-      const data = await response.json();
-      
-      if (response.ok) {
-        toast({
-          title: "Success",
-          description: editingCard ? "Card updated successfully" : "Card created successfully",
-        });
-        
-        // Clear form and reload data
-        setEditingCard(null);
-        setIsCreating(false);
-        setFormData({});
-        await loadCards(); // Ensure we reload to see the changes
-        
-        // 🚨 CRITICAL: Trigger event for public site cache refresh
-        window.dispatchEvent(new CustomEvent('why-memopyk-updated'));
-        console.log('📡 why-memopyk-updated event dispatched for cache refresh');
-      } else {
-        throw new Error(data.error || 'Failed to save card');
-      }
+      // Clear form and reload data
+      setEditingCard(null);
+      setIsCreating(false);
+      setFormData({});
+      await loadCards(); // Ensure we reload to see the changes
+
+      // 🚨 CRITICAL: Trigger event for public site cache refresh
+      window.dispatchEvent(new CustomEvent('why-memopyk-updated'));
+      console.log('📡 why-memopyk-updated event dispatched for cache refresh');
     } catch (error) {
       console.error('❌ Error saving card:', error);
       toast({
@@ -157,23 +146,17 @@ export function WhyMemopykManagement() {
     
     try {
       console.log('🗑️ Deleting card:', id);
-      const response = await fetch(`/api/why-memopyk-cards/${id}`, {
-        method: 'DELETE',
-      });
+      await apiRequest(`/api/why-memopyk-cards/${id}`, 'DELETE');
 
-      if (response.ok) {
-        toast({
-          title: "Success",
-          description: "Card deleted successfully",
-        });
-        await loadCards(); // Reload to reflect changes
-        
-        // 🚨 CRITICAL: Trigger event for public site cache refresh
-        window.dispatchEvent(new CustomEvent('why-memopyk-updated'));
-        console.log('📡 why-memopyk-updated event dispatched for cache refresh');
-      } else {
-        throw new Error('Failed to delete card');
-      }
+      toast({
+        title: "Success",
+        description: "Card deleted successfully",
+      });
+      await loadCards(); // Reload to reflect changes
+
+      // 🚨 CRITICAL: Trigger event for public site cache refresh
+      window.dispatchEvent(new CustomEvent('why-memopyk-updated'));
+      console.log('📡 why-memopyk-updated event dispatched for cache refresh');
     } catch (error) {
       console.error('❌ Error deleting card:', error);
       toast({
@@ -199,18 +182,10 @@ export function WhyMemopykManagement() {
       const targetCard = cards[newIndex];
       
       // Update current card
-      await fetch(`/api/why-memopyk-cards/${currentCard.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderIndex: targetCard.orderIndex }),
-      });
-      
+      await apiRequest(`/api/why-memopyk-cards/${currentCard.id}`, 'PATCH', { orderIndex: targetCard.orderIndex });
+
       // Update target card
-      await fetch(`/api/why-memopyk-cards/${targetCard.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderIndex: currentCard.orderIndex }),
-      });
+      await apiRequest(`/api/why-memopyk-cards/${targetCard.id}`, 'PATCH', { orderIndex: currentCard.orderIndex });
       
       await loadCards(); // Reload to reflect changes
       

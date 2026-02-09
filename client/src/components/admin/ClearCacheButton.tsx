@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
+import { adminFetch } from '@/lib/queryClient';
 
 interface ClearCacheButtonProps {
   className?: string;
@@ -16,8 +17,8 @@ export function ClearCacheButton({ className, onCacheCleared }: ClearCacheButton
     setMessage(null);
     
     try {
-      const response = await fetch("/api/ga4/cache", { 
-        method: "DELETE" 
+      const response = await adminFetch("/api/ga4/cache", {
+        method: "DELETE"
       });
       
       const data = await response.json();

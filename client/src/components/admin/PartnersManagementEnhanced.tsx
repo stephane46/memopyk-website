@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Download, Map, Search, ChevronLeft, ChevronRight, Pencil, Trash2, MapPin, Save, X, Building2, Package, Eye, Camera, Film, Video, Plus, ArrowUpDown, ArrowUp, ArrowDown, ExternalLink, Upload } from 'lucide-react';
-import { queryClient, adminFetch } from '@/lib/queryClient';
+import { queryClient, apiRequest, adminFetch } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { PHOTO_FORMATS, FILM_FORMATS, VIDEO_CASSETTES, DELIVERY } from '@/../../shared/partnerFormats';
 
@@ -153,12 +153,7 @@ export default function PartnersManagementEnhanced() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<Partner> }) => {
-      const response = await fetch(`/api/partners/${id}/update`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      if (!response.ok) throw new Error('Update failed');
+      const response = await apiRequest(`/api/partners/${id}/update`, 'PATCH', data);
       return response.json();
     },
     onSuccess: () => {
@@ -174,12 +169,7 @@ export default function PartnersManagementEnhanced() {
 
   const createMutation = useMutation({
     mutationFn: async (data: Partial<Partner>) => {
-      const response = await fetch('/api/partners/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      if (!response.ok) throw new Error('Create failed');
+      const response = await apiRequest('/api/partners/create', 'POST', data);
       return response.json();
     },
     onSuccess: () => {
@@ -195,8 +185,7 @@ export default function PartnersManagementEnhanced() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await fetch(`/api/partners/${id}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Delete failed');
+      const response = await apiRequest(`/api/partners/${id}`, 'DELETE');
       return response.json();
     },
     onSuccess: () => {
@@ -210,12 +199,7 @@ export default function PartnersManagementEnhanced() {
 
   const quickUpdateMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: number, updates: Partial<Partner> }) => {
-      const res = await fetch(`/api/partners/${id}/update`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates)
-      });
-      if (!res.ok) throw new Error('Failed to update');
+      const res = await apiRequest(`/api/partners/${id}/update`, 'PATCH', updates);
       return res.json();
     },
     onSuccess: () => {
@@ -240,15 +224,7 @@ export default function PartnersManagementEnhanced() {
 
   const importTsvMutation = useMutation({
     mutationFn: async (tsvText: string) => {
-      const response = await fetch('/api/partners/import-tsv', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tsvText })
-      });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Import failed');
-      }
+      const response = await apiRequest('/api/partners/import-tsv', 'POST', { tsvText });
       return response.json();
     },
     onSuccess: (data) => {

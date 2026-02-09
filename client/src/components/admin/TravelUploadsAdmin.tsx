@@ -1,11 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
-
-const getAdminToken = () => {
-  return localStorage.getItem('memopyk-admin-token') || 
-         sessionStorage.getItem('memopyk-admin-token') || '';
-};
+import { apiRequest, adminFetch } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -68,13 +63,7 @@ export default function TravelUploadsAdmin() {
   const { data: submissions = [], isLoading, refetch } = useQuery<Submission[]>({
     queryKey: ['/api/travel-upload/submissions'],
     queryFn: async () => {
-      const token = getAdminToken();
-      const res = await fetch('/api/travel-upload/submissions', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        credentials: 'include',
-      });
+      const res = await adminFetch('/api/travel-upload/submissions');
       if (!res.ok) throw new Error('Failed to fetch submissions');
       return res.json();
     },
@@ -139,13 +128,7 @@ export default function TravelUploadsAdmin() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const token = getAdminToken();
-      const response = await fetch(`/api/travel-upload/submissions/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` },
-        credentials: 'include',
-      });
-      if (!response.ok) throw new Error('Failed to delete submission');
+      const response = await apiRequest(`/api/travel-upload/submissions/${id}`, 'DELETE');
       return response.json();
     },
     onSuccess: (data) => {
@@ -168,13 +151,7 @@ export default function TravelUploadsAdmin() {
 
   const resendEmailMutation = useMutation({
     mutationFn: async (id: number) => {
-      const token = getAdminToken();
-      const response = await fetch(`/api/travel-upload/submissions/${id}/resend-email`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        credentials: 'include',
-      });
-      if (!response.ok) throw new Error('Failed to resend email');
+      const response = await apiRequest(`/api/travel-upload/submissions/${id}/resend-email`, 'POST');
       return response.json();
     },
     onSuccess: () => {
@@ -198,17 +175,7 @@ export default function TravelUploadsAdmin() {
     setLoadingStats(true);
     try {
       const ids = submissions.map(s => s.id);
-      const token = getAdminToken();
-      const response = await fetch('/api/travel-upload/bulk-folder-stats', {
-        method: 'POST',
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ submissionIds: ids }),
-      });
-      if (!response.ok) throw new Error('Failed to load folder stats');
+      const response = await apiRequest('/api/travel-upload/bulk-folder-stats', 'POST', { submissionIds: ids });
       const stats = await response.json();
       setFolderStats(stats);
     } catch (error) {

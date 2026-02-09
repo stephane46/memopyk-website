@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Upload, Loader2, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { createTinyMCEConfig } from './tinymce/config';
+import { createTinyMCEConfig, getAdminToken } from './tinymce/config';
 
 import 'tinymce/tinymce';
 import 'tinymce/icons/default';

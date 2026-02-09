@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Upload, AlertCircle, CheckCircle } from 'lucide-react';
+import { adminFetch } from '@/lib/queryClient';
 
 interface DirectUploadProps {
   onUploadComplete: (result: { url: string; filename: string; static_image_url?: string | null; auto_crop_settings?: any | null }) => void;
@@ -85,7 +86,7 @@ export default function DirectUpload({
       // Step 1: Generate signed upload URL
       setUploadState(prev => ({ ...prev, status: 'generating', progress: 20 }));
       
-      const signedUrlResponse = await fetch('/api/upload/generate-signed-url', {
+      const signedUrlResponse = await adminFetch('/api/upload/generate-signed-url', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -146,7 +147,7 @@ export default function DirectUpload({
         formData.append('bucket', bucket);
         formData.append('filename', filename);
         
-        const serverUploadResponse = await fetch('/api/upload/server-side-upload', {
+        const serverUploadResponse = await adminFetch('/api/upload/server-side-upload', {
           method: 'POST',
           body: formData
         });
@@ -165,7 +166,7 @@ export default function DirectUpload({
       // Step 3: Complete the upload (for caching and database updates)
       setUploadState(prev => ({ ...prev, status: 'completing', progress: 90 }));
 
-      const completeResponse = await fetch('/api/upload/complete-direct-upload', {
+      const completeResponse = await adminFetch('/api/upload/complete-direct-upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

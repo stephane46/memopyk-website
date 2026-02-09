@@ -3,12 +3,12 @@
  * Prevents configuration drift and ensures consistent behavior
  */
 
-import { adminFetch } from '@/lib/queryClient';
+import { adminFetch, getAdminAuthHeaders } from '@/lib/queryClient';
 
-// Helper to get admin authentication token (kept for backward compatibility)
-export const getAdminToken = () => {
-  return localStorage.getItem('memopyk-admin-token') ||
-         sessionStorage.getItem('memopyk-admin-token') || '';
+// Helper to check admin authentication (uses canonical VITE_ADMIN_SECRET)
+export const getAdminToken = (): string => {
+  const headers = getAdminAuthHeaders();
+  return (headers as Record<string, string>)['Authorization']?.replace('Bearer ', '') || '';
 };
 
 // Common content CSS for image sizing and alignment
