@@ -1,25 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { BarChart3, Video, Play, HardDrive, Users, MessageSquare, FileText, LogOut, ChevronRight, Upload, Search, Zap, Layers, UserCheck, Settings, PenTool, Brain, Handshake } from 'lucide-react';
-import { AnalyticsNewDashboard } from '@/admin/analyticsNew/AnalyticsNewDashboard';
-import GalleryManagementNew from '@/components/admin/GalleryManagementNew';
-import SeoManagement from '@/components/admin/SeoManagement';
-import FAQManagementWorking from '@/components/admin/FAQManagementWorking';
-import { LegalDocumentManagement } from '@/components/admin/LegalDocumentManagement';
-import { CtaManagement } from '@/components/admin/CtaManagement';
-import { WhyMemopykManagement } from '@/components/admin/WhyMemopykManagement';
-import PartnersManagementEnhanced from '@/components/admin/PartnersManagementEnhanced';
-import CacheManagementPage from '@/pages/CacheManagementPage';
-import ContentProductionHub from '@/components/admin/ContentProductionHub';
-import TravelUploadsAdmin from '@/components/admin/TravelUploadsAdmin';
-import TravelAgencyCodesAdmin from '@/components/admin/TravelAgencyCodesAdmin';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { HelpButton } from '@/components/admin/HelpButton';
 import { HelpDrawer } from '@/components/admin/HelpDrawer';
 import { HelpProvider, useHelp } from '@/contexts/HelpContext';
-import { AIContextManager } from '@/admin/AIContextManager';
-import { CreatePostLanding } from '@/admin/CreatePostLanding';
-import HeroManagement from '@/components/admin/HeroManagement';
-import CacheManagementSection from '@/components/admin/CacheManagementSection';
+
+// Lazy-loaded admin sections (default exports)
+const GalleryManagementNew = React.lazy(() => import('@/components/admin/GalleryManagementNew'));
+const FAQManagementWorking = React.lazy(() => import('@/components/admin/FAQManagementWorking'));
+const SeoManagement = React.lazy(() => import('@/components/admin/SeoManagement'));
+const PartnersManagementEnhanced = React.lazy(() => import('@/components/admin/PartnersManagementEnhanced'));
+const CacheManagementPage = React.lazy(() => import('@/pages/CacheManagementPage'));
+const ContentProductionHub = React.lazy(() => import('@/components/admin/ContentProductionHub'));
+const TravelUploadsAdmin = React.lazy(() => import('@/components/admin/TravelUploadsAdmin'));
+const TravelAgencyCodesAdmin = React.lazy(() => import('@/components/admin/TravelAgencyCodesAdmin'));
+const HeroManagement = React.lazy(() => import('@/components/admin/HeroManagement'));
+const CacheManagementSection = React.lazy(() => import('@/components/admin/CacheManagementSection'));
+
+// Lazy-loaded admin sections (named exports)
+const AnalyticsNewDashboard = React.lazy(() => import('@/admin/analyticsNew/AnalyticsNewDashboard').then(m => ({ default: m.AnalyticsNewDashboard })));
+const LegalDocumentManagement = React.lazy(() => import('@/components/admin/LegalDocumentManagement').then(m => ({ default: m.LegalDocumentManagement })));
+const CtaManagement = React.lazy(() => import('@/components/admin/CtaManagement').then(m => ({ default: m.CtaManagement })));
+const WhyMemopykManagement = React.lazy(() => import('@/components/admin/WhyMemopykManagement').then(m => ({ default: m.WhyMemopykManagement })));
+const AIContextManager = React.lazy(() => import('@/admin/AIContextManager').then(m => ({ default: m.AIContextManager })));
+const CreatePostLanding = React.lazy(() => import('@/admin/CreatePostLanding').then(m => ({ default: m.CreatePostLanding })));
+
+function AdminSectionLoader() {
+  return (
+    <div className="flex flex-col items-center justify-center py-20">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mb-4" />
+      <p className="text-sm text-gray-500">Chargement...</p>
+    </div>
+  );
+}
 
 function AdminPageContent() {
   const { isHelpOpen, closeHelp, currentRoute } = useHelp();
@@ -346,115 +359,117 @@ function AdminPageContent() {
       {/* Main Content with left margin for sidebar + right margin for help drawer */}
       <div className={`ml-64 overflow-visible transition-all duration-300 ${isHelpOpen ? 'mr-80' : ''}`}>
         <div className="p-8 overflow-visible">
+          <Suspense fallback={<AdminSectionLoader />}>
 
-          {/* Hero Management */}
-          {activeSection === 'hero-management' && (
-            <HeroManagement />
-          )}
+            {/* Hero Management */}
+            {activeSection === 'hero-management' && (
+              <HeroManagement />
+            )}
 
-          {/* Travel Agencies Admin (Uploads + Agency Codes) */}
-          {activeSection === 'travel-agencies' && (
-            <Tabs defaultValue="uploads" className="w-full">
-              <TabsList className="mb-4">
-                <TabsTrigger value="uploads">Uploads</TabsTrigger>
-                <TabsTrigger value="agency-codes">Agency Codes</TabsTrigger>
-              </TabsList>
+            {/* Travel Agencies Admin (Uploads + Agency Codes) */}
+            {activeSection === 'travel-agencies' && (
+              <Tabs defaultValue="uploads" className="w-full">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="uploads">Uploads</TabsTrigger>
+                  <TabsTrigger value="agency-codes">Agency Codes</TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="uploads">
-                <TravelUploadsAdmin />
-              </TabsContent>
+                <TabsContent value="uploads">
+                  <TravelUploadsAdmin />
+                </TabsContent>
 
-              <TabsContent value="agency-codes">
-                <TravelAgencyCodesAdmin />
-              </TabsContent>
-            </Tabs>
-          )}
+                <TabsContent value="agency-codes">
+                  <TravelAgencyCodesAdmin />
+                </TabsContent>
+              </Tabs>
+            )}
 
-          {/* Analytics New Dashboard */}
-          {activeSection === 'analytics-new' && (
-            <AnalyticsNewDashboard />
-          )}
+            {/* Analytics New Dashboard */}
+            {activeSection === 'analytics-new' && (
+              <AnalyticsNewDashboard />
+            )}
 
-          {/* Gallery */}
-          {activeSection === 'gallery' && (
-            <div className="space-y-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Galerie</h2>
-                <p className="text-gray-600 dark:text-gray-700">Gestion des éléments de galerie portfolio - Interface améliorée</p>
+            {/* Gallery */}
+            {activeSection === 'gallery' && (
+              <div className="space-y-6">
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Galerie</h2>
+                  <p className="text-gray-600 dark:text-gray-700">Gestion des éléments de galerie portfolio - Interface améliorée</p>
+                </div>
+                <GalleryManagementNew key="gallery-v1.0.88" />
               </div>
-              <GalleryManagementNew key="gallery-v1.0.88" />
-            </div>
-          )}
+            )}
 
-          {/* Cache Management */}
-          {activeSection === 'cache' && (
-            <CacheManagementSection />
-          )}
+            {/* Cache Management */}
+            {activeSection === 'cache' && (
+              <CacheManagementSection />
+            )}
 
-          {/* SEO Management */}
-          {activeSection === 'seo' && (
-            <div className="space-y-6">
-              <SeoManagement />
-            </div>
-          )}
+            {/* SEO Management */}
+            {activeSection === 'seo' && (
+              <div className="space-y-6">
+                <SeoManagement />
+              </div>
+            )}
 
-          {/* Blog Posts - Unified Content Production Hub */}
-          {activeSection === 'blog' && (
-            <ContentProductionHub />
-          )}
+            {/* Blog Posts - Unified Content Production Hub */}
+            {activeSection === 'blog' && (
+              <ContentProductionHub />
+            )}
 
-          {/* Create New Post Landing - Choice screen for manual vs AI creation */}
-          {activeSection === 'new-post' && (
-            <CreatePostLanding />
-          )}
+            {/* Create New Post Landing - Choice screen for manual vs AI creation */}
+            {activeSection === 'new-post' && (
+              <CreatePostLanding />
+            )}
 
-          {/* FAQ */}
-          {activeSection === 'faq' && (
-            <div className="space-y-6">
-              <FAQManagementWorking />
-            </div>
-          )}
+            {/* FAQ */}
+            {activeSection === 'faq' && (
+              <div className="space-y-6">
+                <FAQManagementWorking />
+              </div>
+            )}
 
-          {/* Partners Management */}
-          {activeSection === 'partners' && (
-            <PartnersManagementEnhanced />
-          )}
+            {/* Partners Management */}
+            {activeSection === 'partners' && (
+              <PartnersManagementEnhanced />
+            )}
 
-          {/* CTA Management */}
-          {activeSection === 'cta' && (
-            <div className="space-y-6">
-              <CtaManagement />
-            </div>
-          )}
+            {/* CTA Management */}
+            {activeSection === 'cta' && (
+              <div className="space-y-6">
+                <CtaManagement />
+              </div>
+            )}
 
-          {/* Why MEMOPYK Cards */}
-          {activeSection === 'why-memopyk' && (
-            <div className="space-y-6">
-              <WhyMemopykManagement />
-            </div>
-          )}
+            {/* Why MEMOPYK Cards */}
+            {activeSection === 'why-memopyk' && (
+              <div className="space-y-6">
+                <WhyMemopykManagement />
+              </div>
+            )}
 
-          {/* Legal Documents */}
-          {activeSection === 'legal-docs' && (
-            <div className="space-y-6">
-              <LegalDocumentManagement />
-            </div>
-          )}
+            {/* Legal Documents */}
+            {activeSection === 'legal-docs' && (
+              <div className="space-y-6">
+                <LegalDocumentManagement />
+              </div>
+            )}
 
-          {/* GA4 Cache Management */}
-          {activeSection === 'cache-management' && (
-            <div className="space-y-6">
-              <CacheManagementPage />
-            </div>
-          )}
+            {/* GA4 Cache Management */}
+            {activeSection === 'cache-management' && (
+              <div className="space-y-6">
+                <CacheManagementPage />
+              </div>
+            )}
 
-          {/* AI Context (Brand Brain) */}
-          {activeSection === 'ai-context' && (
-            <div className="space-y-6">
-              <AIContextManager />
-            </div>
-          )}
+            {/* AI Context (Brand Brain) */}
+            {activeSection === 'ai-context' && (
+              <div className="space-y-6">
+                <AIContextManager />
+              </div>
+            )}
 
+          </Suspense>
         </div>
       </div>
 

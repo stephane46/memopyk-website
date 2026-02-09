@@ -18,8 +18,9 @@ import BlogPostPage from './pages/BlogPostPage';
 import SearchResultsPage from './pages/SearchResultsPage';
 import PartnerIntakeFR from './pages/PartnerIntakeFR';
 import PartnerIntakeEN from './pages/PartnerIntakeEN';
-import PartnerDirectoryFR from './pages/PartnerDirectoryFR';
-import PartnerDirectoryEN from './pages/PartnerDirectoryEN';
+import React, { Suspense } from 'react';
+const PartnerDirectoryFR = React.lazy(() => import('./pages/PartnerDirectoryFR'));
+const PartnerDirectoryEN = React.lazy(() => import('./pages/PartnerDirectoryEN'));
 import TravelUploadPortalPage from './pages/TravelUploadPortalPage';
 import { queryClient } from './lib/queryClient';
 import { Toaster } from '@/components/ui/toaster';
@@ -105,7 +106,9 @@ function AnalyticsRouter() {
           <Route path="/fr-FR/annuaire-pro">
             {() => (
               <MapErrorBoundary>
-                <PartnerDirectoryFR />
+                <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500" /></div>}>
+                  <PartnerDirectoryFR />
+                </Suspense>
               </MapErrorBoundary>
             )}
           </Route>
@@ -114,7 +117,9 @@ function AnalyticsRouter() {
           <Route path="/en-US/directory-pro">
             {() => (
               <MapErrorBoundary>
-                <PartnerDirectoryEN />
+                <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500" /></div>}>
+                  <PartnerDirectoryEN />
+                </Suspense>
               </MapErrorBoundary>
             )}
           </Route>
