@@ -72,7 +72,7 @@ export default function SystemTestDashboard() {
 
   // Fetch system health data
   const { data: healthData, refetch: refetchHealth } = useQuery({
-    queryKey: ['/api/system/health'],
+    queryKey: ['/api/health'],
     refetchInterval: realTimeMonitoring ? 5000 : 30000,
   });
 

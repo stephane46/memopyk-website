@@ -26,9 +26,7 @@ import seoRoutes from "./routes/seo.routes";
 import blogRoutes from "./routes/blog.routes";
 import blogTagsRoutes from "./routes/blog-tags.routes";
 import blogAdminRoutes from "./routes/blog-admin.routes";
-import blogImagesRoutes from "./routes/blog-images.routes";
 import mediaRoutes from "./routes/media.routes";
-import analyticsLegacyRoutes from "./routes/analytics-legacy.routes";
 import travelUploadRoutes from "./routes/travel-upload.routes";
 import helpRoutes from "./routes/help.routes";
 import aiContextRoutes from "./routes/ai-context.routes";
@@ -57,10 +55,6 @@ export async function registerRoutes(app: Express): Promise<void> {
   // Analytics routes (GA4 MP proxy, realtime, basic events)
   app.use("/api", analyticsRoutes);         // /api/ga4/*, /api/event, /api/conversions
 
-  // Analytics legacy routes (STUB — 58 endpoints returning empty data)
-  // Mounted at /api/analytics so frontend calls like /api/analytics/dashboard work
-  app.use("/api/analytics", analyticsLegacyRoutes);
-
   // Newsletter routes
   app.use("/api/newsletter", newsletterRoutes); // /api/newsletter/subscribe
 
@@ -80,7 +74,6 @@ export async function registerRoutes(app: Express): Promise<void> {
   app.use("/api", blogRoutes);              // /api/blog/* (public routes)
   app.use("/api", blogTagsRoutes);          // /api/blog-tags, /api/admin/blog/tags, /api/admin/blog/posts/:id/tags
   app.use("/api", blogAdminRoutes);         // /api/admin/blog/posts, /api/admin/blog/create-from-ai
-  app.use("/api", blogImagesRoutes);        // /api/admin/blog/images
 
   // Media routes (paths already include /api prefix)
   app.use(mediaRoutes);                     // /api/upload/*, /api/video-cache/*, /api/video-proxy, etc.
@@ -97,7 +90,7 @@ export async function registerRoutes(app: Express): Promise<void> {
   // Image Bank routes
   app.use("/api", imageBankRoutes);         // /api/image-bank, /api/image-labels
 
-  console.log("✅ All 23 route modules registered: health, hero, gallery, faq, contact, cta, legal, analytics, analytics-legacy(stub), newsletter, partners, admin, content, seo, blog, blog-tags, blog-admin, blog-images, media, travel-upload, help, ai-context, image-bank");
+  console.log("✅ All 21 route modules registered: health, hero, gallery, faq, contact, cta, legal, analytics, newsletter, partners, admin, content, seo, blog, blog-tags, blog-admin, media, travel-upload, help, ai-context, image-bank");
   console.log("✅ All routes migrated ✅");
 }
 
