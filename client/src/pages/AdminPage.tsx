@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ArrowUp, ArrowDown, Play, RefreshCw, BarChart3, Video, HardDrive, Users, MessageSquare, FileText, LogOut, TestTube, X, Type, Save, ChevronUp, ChevronDown, ChevronRight, Trash2, Eye, EyeOff, Upload, FileVideo, Database, Check, Zap, Search, Clock, TrendingUp, Globe, Sparkles, Layers, UserCheck, LayoutDashboard, Handshake, Scale, Settings, PenTool, Brain } from 'lucide-react';
+import { ArrowUp, ArrowDown, Play, RefreshCw, BarChart3, Video, HardDrive, Users, MessageSquare, FileText, LogOut, X, Type, Save, ChevronUp, ChevronDown, ChevronRight, Trash2, Eye, EyeOff, Upload, FileVideo, Database, Check, Zap, Search, Clock, TrendingUp, Globe, Sparkles, Layers, UserCheck, LayoutDashboard, Handshake, Scale, Settings, PenTool, Brain } from 'lucide-react';
 import { AnalyticsNewDashboard } from '@/admin/analyticsNew/AnalyticsNewDashboard';
 import { formatFrenchDateTime } from '@/utils/date-format';
 import { useToast } from '@/hooks/use-toast';
@@ -24,9 +24,6 @@ import { WhyMemopykManagement } from '@/components/admin/WhyMemopykManagement';
 import PartnersManagementEnhanced from '@/components/admin/PartnersManagementEnhanced';
 import CacheManagementPage from '@/pages/CacheManagementPage';
 import VideoCacheStatus from '@/components/admin/VideoCacheStatus';
-import SystemTestDashboard from '@/components/admin/SystemTestDashboard';
-import PerformanceTestDashboard from '@/components/admin/PerformanceTestDashboard';
-
 import { BlogManagement } from '@/admin/BlogManagement';
 import CryptoJS from 'crypto-js';
 import ContentProductionHub from '@/components/admin/ContentProductionHub';
@@ -106,28 +103,6 @@ function AdminPageContent() {
   const [newTextData, setNewTextData] = useState({ title_mobile_fr: '', title_mobile_en: '', title_desktop_fr: '', title_desktop_en: '', font_size_desktop: 60, font_size_tablet: 45, font_size_mobile: 32 });
   const [currentPreviewLanguage, setCurrentPreviewLanguage] = useState<'fr' | 'en'>('fr');
   const [isBulletproofCacheRunning, setIsBulletproofCacheRunning] = useState(false);
-  const [isDevMode, setIsDevMode] = useState(false);
-
-  // Check GA dev mode on component mount and listen for storage changes
-  useEffect(() => {
-    const checkDevMode = () => {
-      setIsDevMode(localStorage.getItem('ga_dev') === '1');
-    };
-    
-    // Initial check
-    checkDevMode();
-    
-    // Listen for localStorage changes
-    window.addEventListener('storage', checkDevMode);
-    
-    // Check periodically in case bookmarklet was used on the same page
-    const interval = setInterval(checkDevMode, 1000);
-    
-    return () => {
-      window.removeEventListener('storage', checkDevMode);
-      clearInterval(interval);
-    };
-  }, []);
 
   // Auto-scroll to top when admin page loads or refreshes
   React.useEffect(() => {
@@ -325,7 +300,6 @@ function AdminPageContent() {
       children: [
         { id: 'ai-context', label: 'AI Context', icon: Brain },
         { id: 'cache', label: 'Cache', icon: HardDrive },
-        { id: 'tests', label: 'Tests', icon: TestTube },
       ]
     },
   ];
@@ -1710,82 +1684,6 @@ function AdminPageContent() {
             </div>
           )}
 
-
-          {/* Tests */}
-          {activeSection === 'tests' && (
-            <div className="space-y-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Tests & Performance</h2>
-                <p className="text-gray-600 dark:text-gray-700">Tests système, performance et validation</p>
-              </div>
-              
-              {/* GA4 Developer Mode - Clean & Elegant */}
-              <Card className="bg-gradient-to-r from-blue-50 to-orange-50 border border-orange-200">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                        🧪
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-gray-900">MEMOPYK Test</h3>
-                        <p className="text-gray-600">GA4 debug mode for testing video analytics safely</p>
-                      </div>
-                    </div>
-                    <div className={`px-4 py-2 rounded-lg font-bold text-sm ${
-                      isDevMode ? 'bg-orange-200 text-orange-800' : 'bg-green-200 text-green-800'
-                    }`}>
-                      {isDevMode ? '🧪 MODE TEST' : '✅ MODE NORMAL'}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col items-center space-y-4">
-                    <a
-                      href="javascript:(function(){try{var k='ga_dev',b='ga-test-banner',on=localStorage.getItem(k)==='1';if(on){localStorage.removeItem(k);var e=document.getElementById(b);if(e)e.remove();if(typeof window.gtag==='function'){window.gtag('event','debug_toggle',{debug_mode:false,source:'bookmarklet'});}}else{localStorage.setItem(k,'1');var el=document.getElementById(b);if(!el){el=document.createElement('div');el.id=b;el.textContent='🧪 MEMOPYK TEST MODE';el.style.cssText='position:fixed;bottom:12px;right:12px;background:#ff9800;color:#fff;padding:8px 12px;font:600 13px/1.2 system-ui,Segoe UI,Roboto,Arial;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.2);z-index:2147483647;';if(document.body){document.body.appendChild(el);}else{console.error('document.body not available');}}else{el.style.display='block';}if(typeof window.gtag==='function'){window.gtag('event','debug_toggle',{debug_mode:true,source:'bookmarklet'});}}console.log('MEMOPYK Test bookmarklet executed successfully');}catch(err){console.error('Toggle failed:',err);}})();"
-                      title="Toggle MEMOPYK Test Mode"
-                      className="inline-flex items-center gap-2 px-8 py-4 bg-white text-gray-800 border-2 border-orange-400 rounded-xl hover:bg-gray-50 transition-all duration-200 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
-                      draggable={true}
-                    >
-                      🧪 MEMOPYK Test
-                    </a>
-
-                    <div className="text-center space-y-3">
-                      <p className="text-sm text-gray-700">
-                        <strong>Setup:</strong> Show bookmarks (Ctrl+Shift+B) • Drag button to bookmarks
-                      </p>
-                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                        <p className="text-sm text-amber-800 font-semibold">⚠️ Critical: Enable test mode BEFORE visiting site</p>
-                        <p className="text-xs text-amber-700 mt-1">
-                          Method 1: Visit site with ?ga_dev=1 parameter<br/>
-                          Method 2: Click bookmarklet from external site, then navigate to MEMOPYK
-                        </p>
-                      </div>
-                      <p className="text-xs text-green-700 font-medium">
-                        Compatible: Chrome, Edge, Firefox, Safari
-                      </p>
-                    </div>
-                  </div>
-
-                  {isDevMode && (
-                    <div className="mt-4 p-4 bg-orange-100 border border-orange-300 rounded-lg space-y-2">
-                      <p className="text-sm text-orange-800 font-bold text-center">
-                        🧪 MEMOPYK TEST MODE ACTIVE
-                      </p>
-                      <p className="text-xs text-orange-700 text-center">
-                        All analytics marked debug_mode=true • Video events show 📹 GA4 Video prefix
-                      </p>
-                      <p className="text-xs text-orange-600 text-center">
-                        Check GA4 → Realtime → Debug View for test events
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-              
-              <PerformanceTestDashboard />
-              <SystemTestDashboard />
-            </div>
-          )}
 
           {/* GA4 Cache Management */}
           {activeSection === 'cache-management' && (

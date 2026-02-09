@@ -12,12 +12,10 @@
  * - DELETE /:id                 - Delete gallery item
  * - PATCH  /:id/reorder         - Reorder single item
  * - PATCH  /:id1/swap/:id2      - Swap two items
- * - POST   /upload-video        - Upload gallery video
- * - POST   /upload-image        - Upload gallery image with auto-thumbnail
  * - POST   /upload-static-image - Upload cropped 300x200 thumbnail
  */
 
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router, Request, Response } from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
@@ -26,13 +24,11 @@ import { requireAdmin } from '../middleware/auth.middleware';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-import sharp from 'sharp';
 import { createClient } from '@supabase/supabase-js';
 
 const router = Router();
 
 import { storage } from '../services/storage.service';
-import { videoCache } from '../services/media/video-cache.service';
 
 function createCacheHitHeaders(source: string): Record<string, string> {
   return { 'X-Delivery': 'cache-hit', 'X-Upstream': source, 'X-Storage': 'local' };
@@ -65,39 +61,6 @@ try {
 } catch (error) {
   console.error('Failed to create uploads directory:', error);
 }
-
-// Configure disk storage for videos
-const videoStorage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
-  filename: (req, file, cb) => {
-    const originalName = file.originalname;
-    console.log(`📁 GALLERY VIDEO UPLOAD - Using original filename: ${originalName}`);
-    cb(null, originalName);
-  }
-});
-
-// Configure multer for video uploads
-const uploadVideo = multer({
-  storage: videoStorage,
-  limits: { fileSize: 5000 * 1024 * 1024 }, // 5000MB
-  fileFilter: (req, file, cb) => {
-    console.log(`📁 ENHANCED FILE DETECTION - File: ${file.originalname}, MIME: ${file.mimetype}`);
-    
-    const isVideoMimeType = file.mimetype.startsWith('video/');
-    const videoExtensions = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.m4v', '.3gp', '.flv', '.wmv'];
-    const hasVideoExtension = videoExtensions.some(ext => 
-      file.originalname.toLowerCase().endsWith(ext)
-    );
-    
-    if (isVideoMimeType || hasVideoExtension) {
-      console.log(`✅ VIDEO FILE ACCEPTED: ${file.originalname}`);
-      cb(null, true);
-    } else {
-      console.log(`❌ FILE REJECTED - NOT A VIDEO: ${file.originalname}`);
-      cb(new Error('Only video files are allowed'));
-    }
-  }
-});
 
 // Configure disk storage for images
 const imageStorage = multer.diskStorage({
@@ -133,76 +96,6 @@ function clearGalleryCache() {
   console.log('🗑️ Gallery cache cleared');
 }
 
-/**
- * Helper: Auto-generate thumbnail for uploaded images
- */
-async function generateAutoThumbnail(
-  imageBuffer: Buffer,
-  bucket: string = 'memopyk-videos'
-): Promise<{ staticImageUrl: string | null; autoCropSettings: any }> {
-  let staticImageUrl: string | null = null;
-  let autoCropSettings: any = null;
-  
-  try {
-    // Get image metadata
-    const metadata = await sharp(imageBuffer).metadata();
-    const originalAspectRatio = metadata.width! / metadata.height!;
-    const targetAspectRatio = 300 / 200; // 1.5 (3:2 ratio)
-    const aspectRatioTolerance = 0.01;
-    
-    const needsCropping = Math.abs(originalAspectRatio - targetAspectRatio) > aspectRatioTolerance;
-    
-    // Web-optimized thumbnail dimensions
-    const thumbnailWidth = 800;
-    const thumbnailHeight = 533;
-    
-    console.log(`🎯 Auto-thumbnail: ${metadata.width}x${metadata.height} → ${thumbnailWidth}x${thumbnailHeight}`);
-    
-    // Create thumbnail
-    const thumbnailBuffer = await sharp(imageBuffer)
-      .resize(thumbnailWidth, thumbnailHeight, {
-        fit: needsCropping ? 'cover' : 'fill',
-        position: 'center'
-      })
-      .flatten({ background: { r: 255, g: 255, b: 255 } })
-      .jpeg({ quality: 70, progressive: true, mozjpeg: true })
-      .toBuffer();
-    
-    // Upload thumbnail
-    const staticFilename = `static_auto_${Date.now()}.jpg`;
-    const { error: staticUploadError } = await supabase.storage
-      .from(bucket)
-      .upload(staticFilename, thumbnailBuffer, {
-        contentType: 'image/jpeg',
-        cacheControl: '300',
-        upsert: true
-      });
-
-    if (!staticUploadError) {
-      staticImageUrl = `https://supabase.memopyk.org/storage/v1/object/public/${bucket}/${staticFilename}`;
-      
-      if (needsCropping) {
-        autoCropSettings = {
-          method: 'sharp-auto-thumbnail',
-          type: 'automatic',
-          fit: 'cover',
-          position: 'center',
-          dimensions: { width: thumbnailWidth, height: thumbnailHeight },
-          aspectRatio: { original: originalAspectRatio, target: targetAspectRatio },
-          cropped: true,
-          timestamp: new Date().toISOString()
-        };
-        console.log(`✅ Auto-cropped thumbnail: ${staticImageUrl}`);
-      } else {
-        console.log(`✅ Auto-resized thumbnail (no cropping): ${staticImageUrl}`);
-      }
-    }
-  } catch (error) {
-    console.error('❌ Auto-thumbnail error:', error);
-  }
-  
-  return { staticImageUrl, autoCropSettings };
-}
 
 /**
  * GET / - List all gallery items (with caching)
@@ -380,135 +273,6 @@ router.patch('/:id1/swap/:id2', requireAdmin, async (req: Request, res: Response
   } catch (error: any) {
     console.error('Gallery swap error:', error);
     res.status(500).json({ error: `Failed to swap gallery items: ${error.message}` });
-  }
-});
-
-/**
- * POST /upload-video - Upload gallery video (legacy, <10MB files)
- */
-router.post('/upload-video', requireAdmin, (req: Request, res: Response, next: NextFunction) => {
-  uploadVideo.single('video')(req, res, (err: any) => {
-    if (err) {
-      console.error('Multer error:', err);
-      if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(413).json({ error: 'File too large. Maximum size is 5000MB', code: 'FILE_TOO_LARGE' });
-      }
-      if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-        return res.status(400).json({ error: "Unexpected file field. Use 'video' field", code: 'INVALID_FIELD' });
-      }
-      return res.status(400).json({ error: err.message || 'Upload failed', code: 'UPLOAD_ERROR' });
-    }
-    next();
-  });
-}, async (req: Request, res: Response) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No video file provided' });
-    }
-
-    const originalName = req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const filename = `gallery_${originalName}`;
-
-    console.log(`📤 Uploading gallery video: ${filename} (${(req.file.size / 1024 / 1024).toFixed(2)}MB)`);
-
-    // Clear existing cache
-    videoCache.removeVideo(filename);
-
-    // Upload to Supabase
-    const fileBuffer = fs.readFileSync(req.file.path);
-    const { error: uploadError } = await supabase.storage
-      .from('memopyk-videos')
-      .upload(filename, fileBuffer, {
-        contentType: req.file.mimetype,
-        cacheControl: '3600',
-        upsert: true
-      });
-
-    if (uploadError) {
-      console.error('Supabase upload error:', uploadError);
-      return res.status(500).json({ error: `Upload failed: ${uploadError.message}` });
-    }
-
-    const videoUrl = `https://supabase.memopyk.org/storage/v1/object/public/memopyk-videos/${filename}`;
-    
-    // Auto-cache video
-    try {
-      console.log(`🎬 Auto-caching uploaded video: ${filename}`);
-      await videoCache.downloadAndCacheVideo(filename, videoUrl);
-      console.log(`✅ Video cached: ${filename}`);
-    } catch (cacheError) {
-      console.error(`⚠️ Failed to cache video ${filename}:`, cacheError);
-    }
-    
-    // Cleanup temp file
-    try {
-      fs.unlinkSync(req.file.path);
-    } catch (e) {
-      console.warn('Failed to cleanup temp file');
-    }
-
-    res.json({ success: true, url: videoUrl, filename });
-  } catch (error) {
-    console.error('Gallery video upload error:', error);
-    if (req.file?.path) {
-      try { fs.unlinkSync(req.file.path); } catch (e) {}
-    }
-    res.status(500).json({ error: 'Failed to upload gallery video' });
-  }
-});
-
-/**
- * POST /upload-image - Upload gallery image with auto-thumbnail
- */
-router.post('/upload-image', requireAdmin, uploadImage.single('image'), async (req: Request, res: Response) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No image file provided' });
-    }
-
-    const filename = req.file.originalname;
-    console.log(`📤 Uploading gallery image: ${filename} (${(req.file.size / 1024 / 1024).toFixed(2)}MB)`);
-
-    // Upload to Supabase
-    const fileBuffer = fs.readFileSync(req.file.path);
-    const { error: uploadError } = await supabase.storage
-      .from('memopyk-videos')
-      .upload(filename, fileBuffer, {
-        contentType: req.file.mimetype,
-        cacheControl: '3600',
-        upsert: true
-      });
-
-    if (uploadError) {
-      console.error('Supabase upload error:', uploadError);
-      return res.status(500).json({ error: `Upload failed: ${uploadError.message}` });
-    }
-
-    const imageUrl = `https://supabase.memopyk.org/storage/v1/object/public/memopyk-videos/${filename}`;
-    
-    // Auto-generate thumbnail
-    const { staticImageUrl, autoCropSettings } = await generateAutoThumbnail(fileBuffer);
-    
-    // Cleanup temp file
-    try {
-      fs.unlinkSync(req.file.path);
-    } catch (e) {
-      console.warn('Failed to cleanup temp file');
-    }
-    
-    res.json({ 
-      success: true, 
-      url: imageUrl,
-      filename,
-      static_image_url: staticImageUrl,
-      auto_crop_settings: autoCropSettings
-    });
-  } catch (error) {
-    console.error('Gallery image upload error:', error);
-    if (req.file?.path) {
-      try { fs.unlinkSync(req.file.path); } catch (e) {}
-    }
-    res.status(500).json({ error: 'Failed to upload gallery image' });
   }
 });
 

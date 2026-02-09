@@ -89,27 +89,6 @@ router.patch('/cta/:id', requireAdmin, async (req: Request, res: Response) => {
   }
 });
 
-/**
- * DELETE /api/cta/:id
- * Delete CTA setting
- */
-router.delete('/cta/:id', requireAdmin, async (req: Request, res: Response) => {
-  try {
-    const ctaId = req.params.id;
-    
-    const deleted = await storage.deleteCtaSettings(ctaId);
-    
-    if (!deleted) {
-      return res.status(404).json({ error: "CTA setting not found" });
-    }
-    
-    res.json({ success: true });
-  } catch (error) {
-    console.error('Delete CTA error:', error);
-    res.status(500).json({ error: "Failed to delete CTA setting" });
-  }
-});
-
 // =============================================================================
 // Why MEMOPYK Cards Endpoints
 // =============================================================================

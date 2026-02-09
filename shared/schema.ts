@@ -245,44 +245,6 @@ export const seoAuditLogs = pgTable("seo_audit_logs", {
   createdAt: timestamp("created_at").defaultNow()
 });
 
-// SEO image metadata table - manage alt text and SEO for images
-export const seoImageMeta = pgTable("seo_image_meta", {
-  id: serial("id").primaryKey(),
-  imageUrl: text("image_url").notNull(),
-  altTextEn: text("alt_text_en"),
-  altTextFr: text("alt_text_fr"),
-  titleEn: text("title_en"), // Image title attribute
-  titleFr: text("title_fr"), // Image title attribute
-  caption: text("caption"), // Image caption
-  isLazyLoaded: boolean("is_lazy_loaded").default(true),
-  compressionLevel: integer("compression_level").default(80), // 1-100
-  width: integer("width"),
-  height: integer("height"),
-  fileSize: integer("file_size"), // In bytes
-  format: text("format"), // jpg, png, webp, etc.
-  seoFriendlyName: text("seo_friendly_name"), // SEO-optimized filename
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
-});
-
-// SEO global settings table - robots.txt, sitemap configuration
-export const seoGlobalSettings = pgTable("seo_global_settings", {
-  id: serial("id").primaryKey(),
-  robotsTxt: text("robots_txt"), // Content of robots.txt file
-  sitemapEnabled: boolean("sitemap_enabled").default(true),
-  sitemapFrequency: text("sitemap_frequency").default("daily"), // How often to regenerate sitemap
-  defaultMetaTitle: text("default_meta_title"), // Fallback meta title
-  defaultMetaDescription: text("default_meta_description"), // Fallback meta description
-  defaultOgImage: text("default_og_image"), // Default Open Graph image
-  googleAnalyticsId: text("google_analytics_id"), // GA tracking ID
-  googleSearchConsoleCode: text("google_search_console_code"), // GSC verification code
-  bingWebmasterCode: text("bing_webmaster_code"), // Bing verification code
-  facebookPixelId: text("facebook_pixel_id"), // Facebook Pixel ID
-  isMaintenanceMode: boolean("is_maintenance_mode").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
-});
-
 // Analytics session tracking table - updated to match Supabase VPS schema
 export const analyticsSessions = pgTable("analytics_sessions", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -374,46 +336,6 @@ export const performanceMetrics = pgTable("performance_metrics", {
   isTestData: boolean("is_test_data").default(false) // Flag to distinguish test data from real data
 });
 
-// User engagement heatmap data table
-export const engagementHeatmap = pgTable("engagement_heatmap", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  sessionId: text("session_id").notNull(),
-  pageUrl: text("page_url").notNull(),
-  elementId: text("element_id"), // CSS selector or element ID
-  eventType: text("event_type").notNull(), // 'click', 'hover', 'scroll', 'focus'
-  xPosition: integer("x_position"),
-  yPosition: integer("y_position"),
-  viewportWidth: integer("viewport_width"),
-  viewportHeight: integer("viewport_height"),
-  timestamp: timestamp("timestamp").defaultNow(),
-  duration: integer("duration"), // for hover/focus events
-  isTestData: boolean("is_test_data").default(false) // Flag to distinguish test data from real data
-});
-
-// Conversion funnel tracking table
-export const conversionFunnel = pgTable("conversion_funnel", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  sessionId: text("session_id").notNull(),
-  funnelStep: text("funnel_step").notNull(), // 'visit_home', 'view_gallery', 'view_video', 'contact_form', 'form_submit'
-  stepOrder: integer("step_order").notNull(),
-  completedAt: timestamp("completed_at").defaultNow(),
-  metadata: jsonb("metadata") // Additional context like video_id, form_fields, etc.
-});
-
-// Deployment history table
-export const deploymentHistory = pgTable("deployment_history", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  type: text("type").notNull(),
-  status: text("status").notNull(),
-  startTime: timestamp("start_time").defaultNow(),
-  endTime: timestamp("end_time"),
-  duration: integer("duration"),
-  logs: text("logs"),
-  host: text("host"),
-  domain: text("domain"),
-  createdAt: timestamp("created_at").defaultNow()
-});
-
 // Country names lookup table for localization
 export const countryNames = pgTable("country_names", {
   iso3: varchar("iso3", { length: 3 }).primaryKey(),
@@ -446,9 +368,6 @@ export const insertCtaSettingsSchema = createInsertSchema(ctaSettings).omit({ cr
 export const insertSeoSettingsSchema = createInsertSchema(seoSettings).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertSeoRedirectSchema = createInsertSchema(seoRedirects).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertSeoAuditLogSchema = createInsertSchema(seoAuditLogs).omit({ id: true, createdAt: true });
-export const insertSeoImageMetaSchema = createInsertSchema(seoImageMeta).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertSeoGlobalSettingsSchema = createInsertSchema(seoGlobalSettings).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertDeploymentHistorySchema = createInsertSchema(deploymentHistory).omit({ id: true, createdAt: true });
 export const insertCountryNamesSchema = createInsertSchema(countryNames).omit({ createdAt: true, updatedAt: true });
 export const insertWhyMemopykCardsSchema = createInsertSchema(whyMemopykCards).omit({ createdAt: true, updatedAt: true });
 export const insertAnalyticsExclusionSchema = createInsertSchema(analyticsExclusions).omit({ id: true, createdAt: true, appliesFrom: true });
@@ -456,8 +375,6 @@ export const insertAnalyticsSessionSchema = createInsertSchema(analyticsSessions
 export const insertAnalyticsViewSchema = createInsertSchema(analyticsViews).omit({ id: true, createdAt: true });
 export const insertRealtimeVisitorSchema = createInsertSchema(realtimeVisitors).omit({ id: true, createdAt: true, lastSeen: true });
 export const insertPerformanceMetricSchema = createInsertSchema(performanceMetrics).omit({ id: true, createdAt: true });
-export const insertEngagementHeatmapSchema = createInsertSchema(engagementHeatmap).omit({ id: true, timestamp: true });
-export const insertConversionFunnelSchema = createInsertSchema(conversionFunnel).omit({ id: true, completedAt: true });
 
 // Select types for all tables
 export type HeroVideo = typeof heroVideos.$inferSelect;
@@ -471,16 +388,11 @@ export type CtaSettings = typeof ctaSettings.$inferSelect;
 export type SeoSettings = typeof seoSettings.$inferSelect;
 export type SeoRedirect = typeof seoRedirects.$inferSelect;
 export type SeoAuditLog = typeof seoAuditLogs.$inferSelect;
-export type SeoImageMeta = typeof seoImageMeta.$inferSelect;
-export type SeoGlobalSettings = typeof seoGlobalSettings.$inferSelect;
-export type DeploymentHistory = typeof deploymentHistory.$inferSelect;
 export type CountryNames = typeof countryNames.$inferSelect;
 export type AnalyticsSession = typeof analyticsSessions.$inferSelect;
 export type AnalyticsView = typeof analyticsViews.$inferSelect;
 export type RealtimeVisitor = typeof realtimeVisitors.$inferSelect;
 export type PerformanceMetric = typeof performanceMetrics.$inferSelect;
-export type EngagementHeatmap = typeof engagementHeatmap.$inferSelect;
-export type ConversionFunnel = typeof conversionFunnel.$inferSelect;
 export type WhyMemopykCards = typeof whyMemopykCards.$inferSelect;
 export type AnalyticsExclusion = typeof analyticsExclusions.$inferSelect;
 
@@ -626,28 +538,6 @@ export const insertBlogGallerySchema = createInsertSchema(blogGalleries).omit({
 
 export type BlogGallery = typeof blogGalleries.$inferSelect;
 export type InsertBlogGallery = z.infer<typeof insertBlogGallerySchema>;
-
-// Blog post views table (Analytics)
-export const blogPostViews = pgTable("blog_post_views", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  postSlug: text("post_slug").notNull(),
-  postTitle: text("post_title"),
-  sessionId: text("session_id"),
-  ipAddress: text("ip_address"),
-  userAgent: text("user_agent"),
-  referrer: text("referrer"),
-  language: text("language"),
-  timeOnPage: integer("time_on_page"),
-  createdAt: timestamp("created_at").defaultNow()
-});
-
-export const insertBlogPostViewSchema = createInsertSchema(blogPostViews).omit({
-  id: true,
-  createdAt: true
-});
-
-export type BlogPostView = typeof blogPostViews.$inferSelect;
-export type InsertBlogPostView = z.infer<typeof insertBlogPostViewSchema>;
 
 // Image Bank table - centralized image library for blog posts
 export const imageBank = pgTable("image_bank", {
@@ -881,62 +771,7 @@ export const insertContentDailyAssignmentSchema = createInsertSchema(contentDail
 export type ContentDailyAssignment = typeof contentDailyAssignments.$inferSelect;
 export type InsertContentDailyAssignment = z.infer<typeof insertContentDailyAssignmentSchema>;
 
-// Content image bank table - tracks external images and usage
-export const contentImageBank = pgTable("content_image_bank", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  
-  filename: text("filename").notNull(),
-  source: text("source"),
-  photographer: text("photographer"),
-  sourceUrl: text("source_url"),
-  altText: text("alt_text"),
-  license: text("license").default("Free"),
-  
-  orientation: text("orientation"),
-  width: integer("width"),
-  height: integer("height"),
-  fileSizeKb: integer("file_size_kb"),
-  
-  usedInPosts: text("used_in_posts").array(), // Array of post IDs
-  usedCount: integer("used_count").default(0),
-  lastUsedAt: timestamp("last_used_at"),
-  
-  tags: text("tags").array(),
-  suitableForCategories: text("suitable_for_categories").array(),
-  
-  createdAt: timestamp("created_at").defaultNow()
-});
 
-export const insertContentImageBankSchema = createInsertSchema(contentImageBank).omit({
-  id: true,
-  createdAt: true
-});
-
-export type ContentImageBank = typeof contentImageBank.$inferSelect;
-export type InsertContentImageBank = z.infer<typeof insertContentImageBankSchema>;
-
-// Content prompt templates table - stores AI generation prompt templates
-export const contentPromptTemplates = pgTable("content_prompt_templates", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  
-  name: text("name").notNull().unique(),
-  templateText: text("template_text").notNull(),
-  variables: text("variables").array(), // Array of {{VARIABLE}} names
-  version: integer("version").default(1),
-  isActive: boolean("is_active").default(true),
-  
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
-});
-
-export const insertContentPromptTemplateSchema = createInsertSchema(contentPromptTemplates).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true
-});
-
-export type ContentPromptTemplate = typeof contentPromptTemplates.$inferSelect;
-export type InsertContentPromptTemplate = z.infer<typeof insertContentPromptTemplateSchema>;
 
 // Insert types for all tables
 export type InsertHeroVideo = z.infer<typeof insertHeroVideoSchema>;
@@ -950,16 +785,11 @@ export type InsertCtaSettings = z.infer<typeof insertCtaSettingsSchema>;
 export type InsertSeoSettings = z.infer<typeof insertSeoSettingsSchema>;
 export type InsertSeoRedirect = z.infer<typeof insertSeoRedirectSchema>;
 export type InsertSeoAuditLog = z.infer<typeof insertSeoAuditLogSchema>;
-export type InsertSeoImageMeta = z.infer<typeof insertSeoImageMetaSchema>;
-export type InsertSeoGlobalSettings = z.infer<typeof insertSeoGlobalSettingsSchema>;
-export type InsertDeploymentHistory = z.infer<typeof insertDeploymentHistorySchema>;
 export type InsertCountryNames = z.infer<typeof insertCountryNamesSchema>;
 export type InsertAnalyticsSession = z.infer<typeof insertAnalyticsSessionSchema>;
 export type InsertAnalyticsView = z.infer<typeof insertAnalyticsViewSchema>;
 export type InsertRealtimeVisitor = z.infer<typeof insertRealtimeVisitorSchema>;
 export type InsertPerformanceMetric = z.infer<typeof insertPerformanceMetricSchema>;
-export type InsertEngagementHeatmap = z.infer<typeof insertEngagementHeatmapSchema>;
-export type InsertConversionFunnel = z.infer<typeof insertConversionFunnelSchema>;
 export type InsertWhyMemopykCards = z.infer<typeof insertWhyMemopykCardsSchema>;
 export type InsertAnalyticsExclusion = z.infer<typeof insertAnalyticsExclusionSchema>;
 
