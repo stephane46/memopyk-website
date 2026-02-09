@@ -15,7 +15,6 @@
  * - POST /admin/seo - Save admin SEO settings with validation
  * - GET /admin/seo/preview - Preview SEO head HTML
  * - GET /admin/seo/history - Get SEO version history
- * - POST /admin/seo/rollback - Rollback to previous version
  * - POST /admin/seo/publish - Publish SEO settings
  */
 
@@ -256,41 +255,6 @@ router.get("/admin/seo/history", requireAdmin, async (req: AdminRequest, res: Re
   }
 });
 
-/**
- * POST /admin/seo/rollback
- * Rollback to a previous version
- * Body: { lang, version }
- */
-router.post("/admin/seo/rollback", requireAdmin, async (req: AdminRequest, res: Response) => {
-  try {
-    const { lang, version } = req.body;
-    
-    if (!lang || !['fr-FR', 'en-US'].includes(lang)) {
-      return res.status(400).json({ error: 'Invalid or missing lang parameter. Use fr-FR or en-US' });
-    }
-
-    if (!version || typeof version !== 'number') {
-      return res.status(400).json({ error: 'Invalid or missing version number' });
-    }
-
-    const { seoService } = await import("../services/seo.service");
-    await seoService.rollbackToVersion(lang, version, req.adminUser || 'admin');
-    
-    res.json({ 
-      success: true, 
-      message: `Rolled back to version ${version}`,
-      lang,
-      version,
-      rolledBackBy: req.adminUser
-    });
-    
-  } catch (error: any) {
-    console.error("Error rolling back SEO settings:", error);
-    res.status(500).json({ 
-      error: error.message || 'Failed to rollback SEO settings' 
-    });
-  }
-});
 
 /**
  * POST /admin/seo/publish

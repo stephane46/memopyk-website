@@ -2,7 +2,7 @@
  * SEO Service
  *
  * Provides SEO settings management, head preview generation,
- * history tracking, and version rollback.
+ * history tracking, and head preview generation.
  *
  * Stub implementation — flesh out as the SEO admin panel is built.
  */
@@ -45,15 +45,6 @@ async function getSeoHistory(_lang?: Lang) {
   return db.select().from(schema.seoAuditLogs);
 }
 
-async function rollbackToVersion(
-  _lang: Lang,
-  _version: number,
-  _adminUser?: string,
-) {
-  // Placeholder — implement audit-log-based rollback
-  return { ok: false, error: "rollback not implemented yet" };
-}
-
 async function createBackup(
   data: unknown,
   adminUser?: string,
@@ -71,7 +62,6 @@ export const seoService = {
   saveSeoSettings,
   generateHeadPreview,
   getSeoHistory,
-  rollbackToVersion,
   createBackup,
 };
 

@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
-import { AlertCircle, Eye, Save, History, RotateCcw, Globe } from 'lucide-react';
+import { AlertCircle, Eye, Save, History, Globe } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 
 // Form validation schema
@@ -1054,19 +1054,6 @@ const SeoManagement: React.FC = () => {
                       Reason: {entry.changeReason}
                     </p>
                   )}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="mt-2"
-                    onClick={() => {
-                      // Implement rollback functionality
-                      console.log('Rollback to version', entry.version);
-                    }}
-                    data-testid={`button-rollback-${entry.version}`}
-                  >
-                    <RotateCcw className="w-4 h-4 mr-2" />
-                    Rollback to this version
-                  </Button>
                 </div>
               ))
             )}
