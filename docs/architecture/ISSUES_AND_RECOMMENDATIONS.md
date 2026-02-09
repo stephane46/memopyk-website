@@ -100,7 +100,7 @@ The MEMOPYK codebase is **functional and production-ready** for its current scop
 | **How** | Add `requireAdmin` to all admin-facing endpoints |
 | **Effort** | S (15 min) |
 
-### H2. Deployment Management tab is dead code
+### H2. Deployment Management tab is dead code ✅ FIXED
 
 | | |
 |---|---|
@@ -110,7 +110,7 @@ The MEMOPYK codebase is **functional and production-ready** for its current scop
 | **How** | Remove tab from admin menu; delete component file |
 | **Effort** | S (15 min) |
 
-### H3. System Tests tab is broken
+### H3. System Tests tab is broken ⚠️ PARTIAL FIX
 
 | | |
 |---|---|
@@ -130,7 +130,7 @@ The MEMOPYK codebase is **functional and production-ready** for its current scop
 | **How** | Migrate to Supabase Auth with per-user credentials, session tokens, and MFA |
 | **Effort** | L |
 
-### H5. 26 dead admin components (~7,500 lines)
+### H5. 26 dead admin components (~7,500 lines) ✅ FIXED
 
 | | |
 |---|---|
@@ -140,7 +140,7 @@ The MEMOPYK codebase is **functional and production-ready** for its current scop
 | **How** | Delete all 26 files; verify with `git grep` that no dynamic imports reference them |
 | **Effort** | M (30 min — verify + delete + test) |
 
-### H6. 13 dead UI components
+### H6. 13 dead UI components ✅ FIXED
 
 | | |
 |---|---|
