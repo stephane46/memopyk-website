@@ -174,8 +174,7 @@ export function ImageBankManager() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await adminFetch(`/api/image-bank/${id}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Failed to delete image');
+      const response = await apiRequest(`/api/image-bank/${id}`, 'DELETE');
       return response.json();
     },
     onSuccess: () => {
@@ -197,12 +196,7 @@ export function ImageBankManager() {
   // Update mutation
   const updateMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<ImageBankItem> }) => {
-      const response = await adminFetch(`/api/image-bank/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
-      if (!response.ok) throw new Error('Failed to update image');
+      const response = await apiRequest(`/api/image-bank/${id}`, 'PATCH', updates);
       return response.json();
     },
     onSuccess: () => {
@@ -979,11 +973,7 @@ function LabelManagementModal({ open, onOpenChange }: { open: boolean; onOpenCha
   // Delete label mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await adminFetch(`/api/image-labels/${id}`, { method: 'DELETE' });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete label');
-      }
+      const response = await apiRequest(`/api/image-labels/${id}`, 'DELETE');
       return response.json();
     },
     onSuccess: () => {
