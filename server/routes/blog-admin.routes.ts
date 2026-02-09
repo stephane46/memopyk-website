@@ -24,7 +24,7 @@
 import { Router, Request, Response } from 'express';
 import { DateTime } from 'luxon';
 import { requireAdmin } from '../middleware/auth.middleware';
-import { getSupabase } from './blog-shared';
+import { getSupabase, blogCacheClear } from './blog-shared';
 import {
   translateContent,
   fetchAIContext,
@@ -33,6 +33,14 @@ import {
 } from './translation-service';
 
 const router = Router();
+
+// Clear public blog cache on any admin mutation
+router.use((req, _res, next) => {
+  if (req.method !== 'GET') {
+    blogCacheClear();
+  }
+  next();
+});
 
 // ============================================================================
 // ADMIN BLOG ROUTES

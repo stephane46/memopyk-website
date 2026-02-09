@@ -17,7 +17,7 @@
 
 import { Router, Request, Response } from 'express';
 import { requireAdmin } from '../middleware/auth.middleware';
-import { getSupabase } from './blog-shared';
+import { getSupabase, blogCacheGet, blogCacheSet, blogCacheClear } from './blog-shared';
 
 const router = Router();
 
@@ -31,6 +31,10 @@ const router = Router();
  */
 router.get('/blog-tags', async (req: Request, res: Response) => {
   try {
+    const cacheKey = 'blog-tags';
+    const cached = blogCacheGet(cacheKey);
+    if (cached) return res.json(cached);
+
     const supabase = getSupabase();
 
     const { data: tags, error } = await supabase
@@ -69,8 +73,9 @@ router.get('/blog-tags', async (req: Request, res: Response) => {
     }))
     .sort((a: any, b: any) => b.usageCount - a.usageCount);
 
-    console.log(`✅ Fetched ${transformedData.length} tags with real usage counts`);
-    res.json({ data: transformedData });
+    const result = { data: transformedData };
+    blogCacheSet(cacheKey, result);
+    res.json(result);
   } catch (error) {
     console.error('Error fetching tags:', error);
     res.status(500).json({ error: (error as Error).message });
@@ -139,6 +144,7 @@ router.post('/admin/blog/tags', requireAdmin, async (req: Request, res: Response
 
     if (error) throw error;
 
+    blogCacheClear();
     console.log(`✅ Tag created: ${name}`);
 
     res.json({
@@ -181,6 +187,8 @@ router.put('/admin/blog/tags/:id', requireAdmin, async (req: Request, res: Respo
 
     if (error) throw error;
 
+    blogCacheClear();
+
     res.json({
       success: true,
       data: tag
@@ -208,6 +216,7 @@ router.delete('/admin/blog/tags/:id', requireAdmin, async (req: Request, res: Re
 
     if (error) throw error;
 
+    blogCacheClear();
     console.log(`✅ Tag deleted: ${id}`);
 
     res.json({
@@ -278,6 +287,7 @@ router.post('/admin/blog/posts/:id/tags', requireAdmin, async (req: Request, res
       }
     }
 
+    blogCacheClear();
     console.log(`✅ Post ${id} tags updated: ${tagIds?.length || 0} tags`);
 
     res.json({

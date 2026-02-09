@@ -14,7 +14,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { getSupabase, setNoCacheHeaders } from './blog-shared';
+import { getSupabase, blogCacheGet, blogCacheSet } from './blog-shared';
 
 const router = Router();
 
@@ -35,7 +35,9 @@ router.get('/blog/posts', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Invalid or missing language parameter. Must be en-US or fr-FR' });
     }
 
-    console.log(`🔍 Fetching blog posts for ${language}`);
+    const cacheKey = `posts:${language}:${limit}:${offset}`;
+    const cached = blogCacheGet(cacheKey);
+    if (cached) return res.json(cached);
 
     const supabase = getSupabase();
 
@@ -64,17 +66,16 @@ router.get('/blog/posts', async (req: Request, res: Response) => {
       excerpt: post.description
     }));
 
-    console.log(`✅ Blog posts fetched: ${transformedPosts.length} posts`);
-
-    setNoCacheHeaders(res);
-
-    res.json({
+    const result = {
       success: true,
       data: transformedPosts,
       total: count || 0,
       limit: parseInt(limit as string),
       offset: parseInt(offset as string)
-    });
+    };
+
+    blogCacheSet(cacheKey, result);
+    res.json(result);
   } catch (error) {
     console.error('❌ Error fetching blog posts:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch blog posts' });
@@ -93,7 +94,9 @@ router.get('/blog/featured', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Invalid or missing language parameter. Must be en-US or fr-FR' });
     }
 
-    console.log(`🔍 Fetching featured blog posts for ${language}`);
+    const cacheKey = `featured:${language}:${limit}`;
+    const cached = blogCacheGet(cacheKey);
+    if (cached) return res.json(cached);
 
     const supabase = getSupabase();
 
@@ -121,14 +124,13 @@ router.get('/blog/featured', async (req: Request, res: Response) => {
       image: post.hero_url ? { url: post.hero_url } : null
     }));
 
-    console.log(`✅ Featured blog posts fetched: ${transformedPosts.length} posts`);
-
-    setNoCacheHeaders(res);
-
-    res.json({
+    const result = {
       success: true,
       data: transformedPosts
-    });
+    };
+
+    blogCacheSet(cacheKey, result);
+    res.json(result);
   } catch (error) {
     console.error('❌ Error fetching featured blog posts:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch featured posts' });
@@ -261,6 +263,10 @@ router.get('/blog/posts/:slug/gallery', async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
 
+    const cacheKey = `gallery:${slug}`;
+    const cached = blogCacheGet(cacheKey);
+    if (cached) return res.json(cached);
+
     const supabase = getSupabase();
 
     // Get post by slug to get the post_id
@@ -288,7 +294,9 @@ router.get('/blog/posts/:slug/gallery', async (req: Request, res: Response) => {
 
     // If no images, return empty
     if (!images || images.length === 0) {
-      return res.json({ success: true, data: [], total: 0 });
+      const empty = { success: true, data: [], total: 0 };
+      blogCacheSet(cacheKey, empty);
+      return res.json(empty);
     }
 
     // Transform flat images to Gallery format expected by frontend
@@ -313,11 +321,14 @@ router.get('/blog/posts/:slug/gallery', async (req: Request, res: Response) => {
       }))
     };
 
-    res.json({
+    const result = {
       success: true,
       data: [gallery],
       total: 1
-    });
+    };
+
+    blogCacheSet(cacheKey, result);
+    res.json(result);
   } catch (error) {
     console.error('Error fetching galleries:', error);
     res.status(500).json({ success: false, error: (error as Error).message });
@@ -330,6 +341,10 @@ router.get('/blog/posts/:slug/gallery', async (req: Request, res: Response) => {
  */
 router.get('/blog/tags', async (req: Request, res: Response) => {
   try {
+    const cacheKey = 'tags';
+    const cached = blogCacheGet(cacheKey);
+    if (cached) return res.json(cached);
+
     const supabase = getSupabase();
 
     // Get all tags
@@ -361,11 +376,14 @@ router.get('/blog/tags', async (req: Request, res: Response) => {
       post_count: counts[tag.id] || 0
     })) || [];
 
-    res.json({
+    const result = {
       success: true,
       data: tagsWithCounts,
       total: tagsWithCounts.length
-    });
+    };
+
+    blogCacheSet(cacheKey, result);
+    res.json(result);
   } catch (error) {
     console.error('Error fetching tags:', error);
     res.status(500).json({ success: false, error: (error as Error).message });
@@ -382,7 +400,9 @@ router.get('/blog/posts/:slug', async (req: Request, res: Response) => {
     const { slug } = req.params;
     const { language } = req.query;
 
-    console.log(`🔍 Fetching blog post: ${slug} (language: ${language})`);
+    const cacheKey = `post:${slug}:${language || 'any'}`;
+    const cached = blogCacheGet(cacheKey);
+    if (cached) return res.json(cached);
 
     const supabase = getSupabase();
 
@@ -402,7 +422,6 @@ router.get('/blog/posts/:slug', async (req: Request, res: Response) => {
     const { data: post, error } = await query;
 
     if (error || !post) {
-      console.log(`❌ Blog post not found: ${slug}`);
       return res.status(404).json({
         success: false,
         error: 'Post not found or not published'
@@ -426,7 +445,7 @@ router.get('/blog/posts/:slug', async (req: Request, res: Response) => {
       tags: tags
     };
 
-    console.log(`✅ Blog post found: ${post.title} (${tags.length} tags)`);
+    blogCacheSet(cacheKey, transformedPost);
     res.json(transformedPost);
   } catch (error) {
     console.error('❌ Error fetching blog post:', error);

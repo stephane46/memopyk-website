@@ -51,3 +51,37 @@ export function setNoCacheHeaders(res: Response) {
   res.set('Pragma', 'no-cache');
   res.set('Expires', '0');
 }
+
+// =============================================================================
+// IN-MEMORY BLOG CACHE (5-minute TTL)
+// =============================================================================
+
+const BLOG_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+interface CacheEntry {
+  data: any;
+  timestamp: number;
+}
+
+const blogCacheMap = new Map<string, CacheEntry>();
+
+/** Get a cached value if fresh, or null if stale/missing. */
+export function blogCacheGet(key: string): any | null {
+  const entry = blogCacheMap.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.timestamp > BLOG_CACHE_TTL) {
+    blogCacheMap.delete(key);
+    return null;
+  }
+  return entry.data;
+}
+
+/** Store a value in the blog cache. */
+export function blogCacheSet(key: string, data: any): void {
+  blogCacheMap.set(key, { data, timestamp: Date.now() });
+}
+
+/** Clear all entries in the blog cache (call on admin mutations). */
+export function blogCacheClear(): void {
+  blogCacheMap.clear();
+}
