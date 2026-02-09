@@ -14,7 +14,9 @@ The MEMOPYK codebase is **functional and production-ready** for its current scop
 
 ## Critical — Fix Now
 
-### C1. Missing auth on Legal Documents routes
+> **✅ All 7 critical issues resolved** — commit 744d320 (2026-02-09)
+
+### C1. Missing auth on Legal Documents routes ✅ FIXED
 
 | | |
 |---|---|
@@ -24,7 +26,7 @@ The MEMOPYK codebase is **functional and production-ready** for its current scop
 | **How** | Add `requireAdmin` middleware to POST, PATCH, DELETE handlers |
 | **Effort** | S (10 min) |
 
-### C2. Missing auth on Contact routes
+### C2. Missing auth on Contact routes ✅ FIXED
 
 | | |
 |---|---|
@@ -34,7 +36,7 @@ The MEMOPYK codebase is **functional and production-ready** for its current scop
 | **How** | Add `requireAdmin` to GET `/contacts`, PATCH `/contacts/:id`, DELETE `/contacts/:id` |
 | **Effort** | S (10 min) |
 
-### C3. Missing auth on Partner admin routes
+### C3. Missing auth on Partner admin routes ✅ FIXED
 
 | | |
 |---|---|
@@ -44,7 +46,7 @@ The MEMOPYK codebase is **functional and production-ready** for its current scop
 | **How** | Add `requireAdmin` to all mutating partner endpoints |
 | **Effort** | S (10 min) |
 
-### C4. Missing auth on SEO mutation routes
+### C4. Missing auth on SEO mutation routes ✅ FIXED
 
 | | |
 |---|---|
@@ -54,7 +56,7 @@ The MEMOPYK codebase is **functional and production-ready** for its current scop
 | **How** | Add `requireAdmin` to POST `/seo` and PATCH `/seo/:id` |
 | **Effort** | S (10 min) |
 
-### C5. Hardcoded admin token in SeoManagement
+### C5. Hardcoded admin token in SeoManagement ✅ FIXED
 
 | | |
 |---|---|
@@ -64,7 +66,7 @@ The MEMOPYK codebase is **functional and production-ready** for its current scop
 | **How** | Replace with `adminFetch()` or `getAdminAuthHeaders()` from `queryClient.ts` |
 | **Effort** | S (15 min) |
 
-### C6. Legal Documents field name mismatch
+### C6. Legal Documents field name mismatch ✅ FIXED
 
 | | |
 |---|---|
@@ -74,7 +76,7 @@ The MEMOPYK codebase is **functional and production-ready** for its current scop
 | **How** | Align field names (either fix client to send snake_case or fix server to accept camelCase) |
 | **Effort** | S (20 min) |
 
-### C7. AI Context internal endpoint exposed without auth
+### C7. AI Context internal endpoint exposed without auth ✅ FIXED
 
 | | |
 |---|---|
@@ -88,7 +90,7 @@ The MEMOPYK codebase is **functional and production-ready** for its current scop
 
 ## High — Fix Soon
 
-### H1. Travel Uploads admin routes missing auth
+### H1. Travel Uploads admin routes missing auth ✅ FIXED
 
 | | |
 |---|---|

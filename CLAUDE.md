@@ -37,6 +37,9 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-09: Phase 1 Security Hardening — requireAdmin added to 5 route files (legal, contact, partners, seo, travel-upload), SEO hardcoded token removed, Legal field mismatch fixed, AI Context internal endpoint locked to localhost
+- 2026-02-09: Architecture audit — 4 docs (ADMIN_SECTIONS, FRONTEND_COMPONENTS, CONTENT_PIPELINE, ISSUES_AND_RECOMMENDATIONS) in docs/architecture/
+
 - 2026-02-06: Quick Filter presets — 5 one-click buttons (Quick Wins, Traffic Drivers, Money Keywords, France Priority, Blog Ideas) + help updated
 - 2026-02-06: Competition filter added — Was missing from filter bar
 - 2026-02-06: Search box height fixed — Now matches filter dropdowns
