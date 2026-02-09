@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest, adminFetch } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -76,7 +76,7 @@ export default function HeroManagement() {
     formData.append('video', file);
 
     try {
-      const response = await fetch('/api/hero-videos/upload', {
+      const response = await adminFetch('/api/hero-videos/upload', {
         method: 'POST',
         body: formData
       });

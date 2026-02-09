@@ -6,6 +6,7 @@
  * 
  * Routes:
  * - GET    /              - List all hero videos
+ * - POST   /upload        - Upload hero video to Supabase storage
  * - POST   /              - Create new hero video
  * - PATCH  /:id           - Update hero video
  * - PATCH  /:id/reorder   - Update video order
@@ -21,7 +22,37 @@
  */
 
 import { Router, Request, Response } from 'express';
+import multer from 'multer';
+import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from '../middleware/auth.middleware';
+
+// Multer memory storage for video uploads (buffer sent directly to Supabase)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 500 * 1024 * 1024 }, // 500MB
+  fileFilter: (_req, file, cb) => {
+    const isVideo = file.mimetype.startsWith('video/');
+    const videoExts = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.m4v'];
+    const hasExt = videoExts.some(ext => file.originalname.toLowerCase().endsWith(ext));
+    if (isVideo || hasExt) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only video files are allowed'));
+    }
+  }
+});
+
+// Lazy Supabase client
+let _supabase: any = null;
+function getSupabase() {
+  if (!_supabase) {
+    _supabase = createClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_KEY!
+    );
+  }
+  return _supabase;
+}
 
 const router = Router();
 
@@ -63,6 +94,41 @@ router.get('/', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Get hero videos error:', error);
     res.status(500).json({ error: 'Failed to get hero videos' });
+  }
+});
+
+/**
+ * POST /upload - Upload hero video to Supabase storage
+ * Accepts multipart form with 'video' field
+ * Returns { filename } for the frontend to store
+ */
+router.post('/upload', requireAdmin, upload.single('video'), async (req: Request, res: Response) => {
+  try {
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({ error: 'No video file provided' });
+    }
+
+    const filename = file.originalname;
+    const supabase = getSupabase();
+
+    const { error } = await supabase.storage
+      .from('memopyk-videos')
+      .upload(filename, file.buffer, {
+        contentType: file.mimetype,
+        upsert: true
+      });
+
+    if (error) {
+      console.error('Hero video upload to Supabase failed:', error);
+      return res.status(500).json({ error: `Upload failed: ${error.message}` });
+    }
+
+    console.log(`Hero video uploaded: ${filename}`);
+    res.json({ filename });
+  } catch (error) {
+    console.error('Hero video upload error:', error);
+    res.status(500).json({ error: 'Failed to upload hero video' });
   }
 });
 
