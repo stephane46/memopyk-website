@@ -9,6 +9,7 @@ import * as XLSX from 'xlsx';
 import { Resend } from 'resend';
 import { generateSlug } from '@shared/utils/slugify';
 import * as partnersService from '../services/partners.service';
+import { requireAdmin } from '../middleware/auth.middleware';
 
 const router = Router();
 
@@ -265,7 +266,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // Download Excel export
-router.get('/download', async (req: Request, res: Response) => {
+router.get('/download', requireAdmin, async (req: Request, res: Response) => {
   try {
     const partners = await partnersService.getPartners({});
 
@@ -312,7 +313,7 @@ router.get('/download', async (req: Request, res: Response) => {
 });
 
 // Import from TSV
-router.post('/import-tsv', async (req: Request, res: Response) => {
+router.post('/import-tsv', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { tsvText } = req.body;
     
@@ -383,7 +384,7 @@ router.post('/import-tsv', async (req: Request, res: Response) => {
 });
 
 // Create new partner
-router.post('/create', async (req: Request, res: Response) => {
+router.post('/create', requireAdmin, async (req: Request, res: Response) => {
   try {
     const partnerData = req.body;
     
@@ -424,7 +425,7 @@ router.post('/create', async (req: Request, res: Response) => {
 });
 
 // Update partner
-router.patch('/:id/update', async (req: Request, res: Response) => {
+router.patch('/:id/update', requireAdmin, async (req: Request, res: Response) => {
   try {
     const partnerId = parseInt(req.params.id);
     const updates = req.body;
@@ -451,7 +452,7 @@ router.patch('/:id/update', async (req: Request, res: Response) => {
 });
 
 // Delete partner
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const partnerId = parseInt(req.params.id);
 

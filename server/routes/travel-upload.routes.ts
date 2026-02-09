@@ -25,6 +25,7 @@
 import { Router, Request, Response } from 'express';
 import * as travelService from '../services/travel.service';
 import { emailService } from '../services/email.service';
+import { requireAdmin } from '../middleware/auth.middleware';
 
 const router = Router();
 
@@ -621,7 +622,7 @@ router.post('/api/travel-upload/submit', async (req, res) => {
   });
 
   // Test Nextcloud connection (admin debug endpoint)
-  router.get('/api/travel-upload/test-connection', async (req, res) => {
+  router.get('/api/travel-upload/test-connection', requireAdmin, async (req, res) => {
     try {
       const NC_BASE = process.env.NC_BASE;
       const NC_USER = process.env.NC_USER;
@@ -668,11 +669,9 @@ router.post('/api/travel-upload/submit', async (req, res) => {
   });
 
   // ==================== TRAVEL UPLOAD ADMIN ENDPOINTS ====================
-  // TODO: Add proper authentication middleware (currently matches blog admin pattern - no auth)
-  // These endpoints should be protected with requireAdmin once ADMIN_SECRET is configured
 
   // Get all travel upload submissions (for admin use) - uses hybrid storage
-  router.get('/api/travel-upload/submissions', async (req, res) => {
+  router.get('/api/travel-upload/submissions', requireAdmin, async (req, res) => {
     try {
       console.log('🔍 [Travel] GET /api/travel-upload/submissions - Starting request');
       const { agencyCode, startDate, endDate, search } = req.query;
@@ -697,7 +696,7 @@ router.post('/api/travel-upload/submit', async (req, res) => {
   });
 
   // Delete a travel upload submission (from database only, NOT Nextcloud)
-  router.delete('/api/travel-upload/submissions/:id', async (req, res) => {
+  router.delete('/api/travel-upload/submissions/:id', requireAdmin, async (req, res) => {
     try {
       const submissionId = parseInt(req.params.id);
       
@@ -726,7 +725,7 @@ router.post('/api/travel-upload/submit', async (req, res) => {
   });
 
   // Resend confirmation email
-  router.post('/api/travel-upload/submissions/:id/resend-email', async (req, res) => {
+  router.post('/api/travel-upload/submissions/:id/resend-email', requireAdmin, async (req, res) => {
     try {
       const submissionId = parseInt(req.params.id);
       
@@ -966,7 +965,7 @@ router.post('/api/travel-upload/submit', async (req, res) => {
   });
 
   // Get Nextcloud folder statistics for a submission
-  router.get('/api/travel-upload/submissions/:id/folder-stats', async (req, res) => {
+  router.get('/api/travel-upload/submissions/:id/folder-stats', requireAdmin, async (req, res) => {
     try {
       const submissionId = parseInt(req.params.id);
       
@@ -1074,7 +1073,7 @@ router.post('/api/travel-upload/submit', async (req, res) => {
   });
 
   // Bulk get folder stats for multiple submissions
-  router.post('/api/travel-upload/bulk-folder-stats', async (req, res) => {
+  router.post('/api/travel-upload/bulk-folder-stats', requireAdmin, async (req, res) => {
     try {
       const { submissionIds } = req.body;
       
@@ -1177,10 +1176,9 @@ router.post('/api/travel-upload/submit', async (req, res) => {
   });
 
   // ==================== TRAVEL AGENCY CODES ADMIN ENDPOINTS ====================
-  // TODO: Add proper authentication middleware (currently matches blog admin pattern - no auth)
 
   // Get all agency codes
-  router.get('/api/travel-agency-codes', async (req, res) => {
+  router.get('/api/travel-agency-codes', requireAdmin, async (req, res) => {
     try {
       console.log('🔍 [Travel] GET /api/travel-agency-codes - Starting request');
       const { isActive, search } = req.query;
@@ -1216,7 +1214,7 @@ router.post('/api/travel-upload/submit', async (req, res) => {
   });
 
   // Get single agency code
-  router.get('/api/travel-agency-codes/:id', async (req, res) => {
+  router.get('/api/travel-agency-codes/:id', requireAdmin, async (req, res) => {
     try {
       const codeId = parseInt(req.params.id);
       if (isNaN(codeId)) {
@@ -1236,7 +1234,7 @@ router.post('/api/travel-upload/submit', async (req, res) => {
   });
 
   // Create agency code
-  router.post('/api/travel-agency-codes', async (req, res) => {
+  router.post('/api/travel-agency-codes', requireAdmin, async (req, res) => {
     try {
       const { agencyName, agencyCode, contactEmail, contactPhone, notes, isActive } = req.body;
       
@@ -1267,7 +1265,7 @@ router.post('/api/travel-upload/submit', async (req, res) => {
   });
 
   // Update agency code
-  router.patch('/api/travel-agency-codes/:id', async (req, res) => {
+  router.patch('/api/travel-agency-codes/:id', requireAdmin, async (req, res) => {
     try {
       const codeId = parseInt(req.params.id);
       if (isNaN(codeId)) {
@@ -1293,7 +1291,7 @@ router.post('/api/travel-upload/submit', async (req, res) => {
   });
 
   // Delete agency code
-  router.delete('/api/travel-agency-codes/:id', async (req, res) => {
+  router.delete('/api/travel-agency-codes/:id', requireAdmin, async (req, res) => {
     try {
       const codeId = parseInt(req.params.id);
       if (isNaN(codeId)) {

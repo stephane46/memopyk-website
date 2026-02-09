@@ -50,7 +50,7 @@ router.get("/seo", async (req: Request, res: Response) => {
  * POST /seo
  * Create new SEO settings
  */
-router.post("/seo", async (req: Request, res: Response) => {
+router.post("/seo", requireAdmin, async (req: Request, res: Response) => {
   try {
     const seoData = req.body;
     const newSeo = await storage.createSeoSettings(seoData);
@@ -65,7 +65,7 @@ router.post("/seo", async (req: Request, res: Response) => {
  * PATCH /seo/:id
  * Update existing SEO settings
  */
-router.patch("/seo/:id", async (req: Request, res: Response) => {
+router.patch("/seo/:id", requireAdmin, async (req: Request, res: Response) => {
   try {
     const seoId = req.params.id;
     const updates = req.body;

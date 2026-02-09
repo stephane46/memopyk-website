@@ -11,6 +11,7 @@
 
 import { Router, Request, Response } from 'express';
 import { storage } from '../services/storage.service';
+import { requireAdmin } from '../middleware/auth.middleware';
 
 const router = Router();
 
@@ -61,11 +62,11 @@ router.get('/legal/:type', async (req: Request, res: Response) => {
  * POST /api/legal
  * Create new legal document (admin only)
  */
-router.post('/legal', async (req: Request, res: Response) => {
+router.post('/legal', requireAdmin, async (req: Request, res: Response) => {
   try {
     const document = req.body;
-    
-    if (!document.type || !document.title_en || !document.title_fr || !document.content_en || !document.content_fr) {
+
+    if (!document.type || !document.titleEn || !document.titleFr || !document.contentEn || !document.contentFr) {
       return res.status(400).json({ 
         error: "Type, title, and content in both languages are required" 
       });
@@ -83,7 +84,7 @@ router.post('/legal', async (req: Request, res: Response) => {
  * PATCH /api/legal/:id
  * Update legal document (admin only)
  */
-router.patch('/legal/:id', async (req: Request, res: Response) => {
+router.patch('/legal/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const docId = req.params.id;
     const updates = req.body;
@@ -100,7 +101,7 @@ router.patch('/legal/:id', async (req: Request, res: Response) => {
  * DELETE /api/legal/:id
  * Delete legal document (admin only)
  */
-router.delete('/legal/:id', async (req: Request, res: Response) => {
+router.delete('/legal/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const docId = req.params.id;
     const deletedDocument = await storage.deleteLegalDocument(docId);

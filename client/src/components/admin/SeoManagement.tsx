@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { AlertCircle, Eye, Save, History, RotateCcw, Globe } from 'lucide-react';
+import { apiRequest } from '@/lib/queryClient';
 
 // Form validation schema
 const seoFormSchema = z.object({
@@ -111,20 +112,6 @@ const SeoManagement: React.FC = () => {
       'twitter.image': '',
     },
   });
-
-  // API helper with auth token
-  const apiRequest = async (url: string, options: RequestInit = {}) => {
-    const token = 'admin-token-temp'; // In production, get from auth context
-    
-    return fetch(url, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-        ...options.headers,
-      },
-    });
-  };
 
   // Load SEO data for current language
   const loadSeoData = async () => {

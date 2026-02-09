@@ -131,6 +131,13 @@ router.put('/admin/ai-context/:key', requireAdmin, async (req: Request, res: Res
  * No auth required - internal server-to-server endpoint
  */
 router.get('/internal/ai-context/full', async (req: Request, res: Response) => {
+  // Only allow internal requests (from localhost / same server)
+  const remoteAddr = req.ip || req.socket.remoteAddress || '';
+  const isLocalhost = remoteAddr === '127.0.0.1' || remoteAddr === '::1' || remoteAddr === '::ffff:127.0.0.1';
+  if (!isLocalhost) {
+    return res.status(403).json({ error: 'Internal endpoint - localhost only' });
+  }
+
   try {
     const supabase = getSupabase();
 

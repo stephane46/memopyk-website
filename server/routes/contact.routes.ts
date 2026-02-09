@@ -12,6 +12,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { storage } from '../services/storage.service';
+import { requireAdmin } from '../middleware/auth.middleware';
 
 const router = Router();
 
@@ -77,7 +78,7 @@ router.post('/contacts', async (req: Request, res: Response) => {
  * GET /api/contacts
  * Get all contact submissions (admin)
  */
-router.get('/contacts', async (req: Request, res: Response) => {
+router.get('/contacts', requireAdmin, async (req: Request, res: Response) => {
   try {
     const contacts = await storage.getContacts();
     res.json(contacts);
@@ -91,7 +92,7 @@ router.get('/contacts', async (req: Request, res: Response) => {
  * PATCH /api/contacts/:id
  * Update contact status (admin)
  */
-router.patch('/contacts/:id', async (req: Request, res: Response) => {
+router.patch('/contacts/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const contactId = req.params.id;
     const { status } = req.body;
@@ -116,7 +117,7 @@ router.patch('/contacts/:id', async (req: Request, res: Response) => {
  * DELETE /api/contacts/:id
  * Delete contact (admin)
  */
-router.delete('/contacts/:id', async (req: Request, res: Response) => {
+router.delete('/contacts/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const contactId = req.params.id;
     const deletedContact = await storage.deleteContact(contactId);
