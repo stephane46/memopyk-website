@@ -204,7 +204,7 @@ The MEMOPYK codebase is **functional and production-ready** for its current scop
 | **How** | Split into: GalleryUpload, GalleryGrid, GalleryModal, GalleryVideoPlayer |
 | **Effort** | L |
 
-### M4. Missing database indexes
+### M4. Missing database indexes ✅ FIXED
 
 | | |
 |---|---|
@@ -237,7 +237,7 @@ CREATE INDEX idx_assignments_topic ON content_daily_assignments(topic_id);
 CREATE INDEX idx_assignments_date ON content_daily_assignments(date);
 ```
 
-### M5. Three competing fetch patterns
+### M5. Three competing fetch patterns ✅ FIXED
 
 | | |
 |---|---|
@@ -329,7 +329,7 @@ CREATE INDEX idx_assignments_date ON content_daily_assignments(date);
 | **How** | `npm uninstall embla-carousel-react` |
 | **Effort** | S |
 
-### L5. Partners inconsistent fetch usage
+### L5. Partners inconsistent fetch usage ✅ FIXED
 
 | | |
 |---|---|
@@ -339,7 +339,7 @@ CREATE INDEX idx_assignments_date ON content_daily_assignments(date);
 | **How** | Replace all raw `fetch` calls with `adminFetch` |
 | **Effort** | S |
 
-### L6. WhyMemopyk uses raw fetch
+### L6. WhyMemopyk uses raw fetch ✅ FIXED
 
 | | |
 |---|---|

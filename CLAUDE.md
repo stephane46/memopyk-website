@@ -37,6 +37,8 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-09: Phase 4 Fetch Pattern Standardization — 11 files touched, 1,195 lines removed, rogue localStorage auth eliminated, 4 unauthenticated admin components fixed, mixed patterns standardized, 2 more dead files deleted
+- 2026-02-09: Phase 3 Database Indexes — 9 indexes added via Supabase (keywords: intent/market/cluster/volume; topics: keyword+market; assignments: topic_id/date; posts: status+published_at partial, language+status)
 - 2026-02-09: Phase 2 Dead Code Removal — 48 files deleted, ~12,000 lines removed (46 dead components, 2 orphaned route files, deployment tab removed, system health endpoint fixed)
 - 2026-02-09: Phase 1 Security Hardening — requireAdmin added to 5 route files (legal, contact, partners, seo, travel-upload), SEO hardcoded token removed, Legal field mismatch fixed, AI Context internal endpoint locked to localhost
 - 2026-02-09: Architecture audit — 4 docs (ADMIN_SECTIONS, FRONTEND_COMPONENTS, CONTENT_PIPELINE, ISSUES_AND_RECOMMENDATIONS) in docs/architecture/
