@@ -42,7 +42,30 @@ export async function addExclusion(ip: string, reason?: string): Promise<IpExclu
 }
 
 /**
- * Update the reason/label for an existing IP exclusion
+ * Update an existing IP exclusion by ID
+ * Supports updating label, active, and ip_cidr fields
+ */
+export async function updateExclusionById(
+  id: string,
+  data: { label?: string; active?: boolean; ipCidr?: string }
+): Promise<IpExclusion | null> {
+  const updates: Record<string, any> = {};
+  if (data.label !== undefined) updates.label = data.label;
+  if (data.active !== undefined) updates.active = data.active;
+  if (data.ipCidr !== undefined) updates.ipCidr = data.ipCidr;
+
+  if (Object.keys(updates).length === 0) return null;
+
+  const rows = await db
+    .update(analyticsExclusions)
+    .set(updates)
+    .where(eq(analyticsExclusions.id, id))
+    .returning();
+  return rows[0] || null;
+}
+
+/**
+ * Update the reason/label for an existing IP exclusion (legacy, by IP)
  */
 export async function updateExclusion(ip: string, reason: string): Promise<IpExclusion | null> {
   const rows = await db
@@ -118,6 +141,7 @@ export default {
   getAllExclusions,
   addExclusion,
   updateExclusion,
+  updateExclusionById,
   removeExclusion,
   isExcludedIP,
 };

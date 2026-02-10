@@ -1250,6 +1250,17 @@ router.get('/tracker/currently-watching', async (_req: Request, res: Response) =
 // ============================================================================
 
 /**
+ * GET /analytics/current-ip
+ * Returns the caller's IP address (for the Exclusions tab "Your IP" badge).
+ */
+router.get('/analytics/current-ip', (req: Request, res: Response) => {
+  const ip = extractClientIP(req.headers as Record<string, string | string[] | undefined>)
+    || req.socket.remoteAddress
+    || 'unknown';
+  res.json(ip);
+});
+
+/**
  * POST /analytics/session
  * Create or resume a visitor session.
  * Frontend stores the returned session ID in localStorage for subsequent calls.

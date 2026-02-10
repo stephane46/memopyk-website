@@ -240,7 +240,7 @@ router.post('/analytics/exclusions', requireAdmin, express.json(), async (req: R
 router.put('/analytics/exclusions/:id', requireAdmin, express.json(), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { label, active } = req.body;
+    const { label, active, ip_cidr } = req.body;
 
     // Get existing exclusion first
     const exclusions = await ipExclusionService.getAllExclusions();
@@ -250,13 +250,16 @@ router.put('/analytics/exclusions/:id', requireAdmin, express.json(), async (req
       return res.status(404).json({ error: 'IP exclusion not found' });
     }
 
-    // Update the exclusion reason/label
-    if (label) {
-      const updated = await ipExclusionService.updateExclusion(existing.ipCidr, label);
-      if (updated) {
-        console.log(`✅ IP exclusion updated: ${existing.ipCidr}`);
-        return res.json(updated);
-      }
+    // Update by ID — supports label, active, and ip_cidr fields
+    const updated = await ipExclusionService.updateExclusionById(id, {
+      label: label !== undefined ? label : undefined,
+      active: active !== undefined ? active : undefined,
+      ipCidr: ip_cidr !== undefined ? ip_cidr : undefined,
+    });
+
+    if (updated) {
+      console.log(`✅ IP exclusion updated: ${existing.ipCidr} (active=${updated.active})`);
+      return res.json(updated);
     }
 
     res.json(existing);
