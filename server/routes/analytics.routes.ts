@@ -15,6 +15,8 @@ import { analyticsSessions, analyticsExclusions } from '@shared/schema';
 import { gte, lte, eq, and, sql, desc, notInArray, isNull, or } from 'drizzle-orm';
 import videoAnalyticsService from '../services/analytics/video-analytics.service';
 import realtimeService from '../services/analytics/realtime.service';
+import eventRecorder, { extractClientIP } from '../services/analytics/event-recorder.service';
+import { getOrCreateSession, updateSession, updateSessionDuration } from '../services/analytics/session.service';
 import {
   qSessions,
   qTotalUsers,
@@ -1239,6 +1241,184 @@ router.get('/tracker/currently-watching', async (_req: Request, res: Response) =
       sessions: [],
       timestamp: new Date().toISOString(),
     });
+  }
+});
+
+// ============================================================================
+// Session Recording Endpoints (/api/analytics/*)
+// Frontend tracker (useVideoAnalytics.ts) depends on these
+// ============================================================================
+
+/**
+ * POST /analytics/session
+ * Create or resume a visitor session.
+ * Frontend stores the returned session ID in localStorage for subsequent calls.
+ */
+router.post('/analytics/session', async (req: Request, res: Response) => {
+  try {
+    const { language, page_url, referrer } = req.body;
+    const ipAddress = extractClientIP(req.headers as Record<string, string | string[] | undefined>)
+      || (req.socket.remoteAddress ?? 'unknown');
+    const userAgent = req.headers['user-agent'] || '';
+
+    const result = await getOrCreateSession(ipAddress, userAgent, referrer, language);
+
+    if (!result) {
+      return res.json({ success: true, filtered: 'ip_excluded' });
+    }
+
+    console.log(`📊 [Session] ${result.isNew ? 'Created' : 'Resumed'}: ${result.sessionId}`);
+
+    // Frontend expects { session: { id, session_id } }
+    res.json({
+      success: true,
+      session: { id: result.sessionId, session_id: result.sessionId },
+      isNew: result.isNew,
+    });
+  } catch (error) {
+    console.error('❌ [Session] Error:', error);
+    res.status(500).json({ success: false, error: 'Failed to create session' });
+  }
+});
+
+/**
+ * POST /analytics/session-update
+ * Update session duration (called periodically + on page hide/unload)
+ */
+router.post('/analytics/session-update', async (req: Request, res: Response) => {
+  try {
+    const { sessionId, duration } = req.body;
+
+    if (!sessionId) {
+      return res.json({ success: true, filtered: 'no_session' });
+    }
+
+    await updateSession(sessionId, {
+      lastSeenAt: new Date(),
+      sessionDuration: typeof duration === 'number' ? duration : 0,
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('❌ [Session Update] Error:', error);
+    res.status(500).json({ success: false, error: 'Failed to update session' });
+  }
+});
+
+/**
+ * POST /analytics/session-page-view
+ * Record a SPA page navigation within an existing session
+ */
+router.post('/analytics/session-page-view', async (req: Request, res: Response) => {
+  try {
+    const { sessionId, pageUrl } = req.body;
+    const ipAddress = extractClientIP(req.headers as Record<string, string | string[] | undefined>)
+      || (req.socket.remoteAddress ?? 'unknown');
+    const userAgent = req.headers['user-agent'] || '';
+
+    if (!sessionId) {
+      return res.json({ success: true, filtered: 'no_session' });
+    }
+
+    const result = await eventRecorder.recordPageView({
+      sessionId,
+      pageUrl: pageUrl || '/',
+      ipAddress,
+      userAgent,
+    });
+
+    res.json({ success: true, recorded: result.success });
+  } catch (error) {
+    console.error('❌ [Page View] Error:', error);
+    res.status(500).json({ success: false, error: 'Failed to record page view' });
+  }
+});
+
+/**
+ * POST /analytics/video-view
+ * Record a video view event, linked to existing session if available
+ */
+router.post('/analytics/video-view', async (req: Request, res: Response) => {
+  try {
+    const { video_id, duration_watched, completed, session_id } = req.body;
+    const ipAddress = extractClientIP(req.headers as Record<string, string | string[] | undefined>)
+      || (req.socket.remoteAddress ?? 'unknown');
+    const userAgent = req.headers['user-agent'] || '';
+
+    const action = completed ? 'complete' : (duration_watched ? 'progress' : 'play');
+
+    const result = await eventRecorder.recordVideoEvent({
+      sessionId: session_id,
+      videoId: video_id,
+      action,
+      watchTime: duration_watched,
+      ipAddress,
+      userAgent,
+    });
+
+    res.json({ success: true, recorded: result.success });
+  } catch (error) {
+    console.error('❌ [Video View] Error:', error);
+    res.status(500).json({ success: false, error: 'Failed to record video view' });
+  }
+});
+
+/**
+ * POST /analytics/event
+ * General event recording.
+ * Accepts BOTH event_name (new frontend) and type (legacy) fields.
+ */
+router.post('/analytics/event', async (req: Request, res: Response) => {
+  try {
+    const body = req.body;
+    // Normalize: frontend sends event_name, legacy code sends type
+    const type = body.type || body.event_name;
+    const ipAddress = extractClientIP(req.headers as Record<string, string | string[] | undefined>)
+      || (req.socket.remoteAddress ?? 'unknown');
+    const userAgent = req.headers['user-agent'] || '';
+
+    if (!type) {
+      return res.status(400).json({ success: false, error: 'event_name or type is required' });
+    }
+
+    let result;
+
+    if ((type === 'video' || body.videoId || body.video_id) && (body.videoId || body.video_id)) {
+      result = await eventRecorder.recordVideoEvent({
+        sessionId: body.sessionId || body.session_id,
+        videoId: body.videoId || body.video_id,
+        videoTitle: body.videoTitle,
+        videoType: body.videoType,
+        action: body.action || 'play',
+        progress: body.progress,
+        watchTime: body.watchTime,
+        ipAddress,
+        userAgent,
+      });
+    } else if (type === 'pageview' || body.page || body.pageUrl || body.page_path) {
+      result = await eventRecorder.recordPageView({
+        sessionId: body.sessionId || body.session_id,
+        pageUrl: body.page || body.pageUrl || body.page_path || '/',
+        pageTitle: body.pageTitle || body.page_title,
+        referrer: body.referrer,
+        language: body.language || body.user_language,
+        ipAddress,
+        userAgent,
+      });
+    } else {
+      // Generic event (button_click, scroll_engagement, etc.) — log only
+      console.log(`📊 [Analytics Event] ${type}: ${body.page_path || '/'}`);
+      return res.json({ success: true, type: 'logged' });
+    }
+
+    if (result.success) {
+      res.json({ success: true, id: result.id });
+    } else {
+      res.json({ success: true, filtered: result.reason });
+    }
+  } catch (error) {
+    console.error('❌ [Analytics Event] Error:', error);
+    res.status(500).json({ success: false, error: 'Failed to process event' });
   }
 });
 
