@@ -30,6 +30,7 @@ import ClarityRouteListener from './components/ClarityRouteListener';
 import { useEffect } from 'react';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { initGA4, trackPageView } from '@/config/ga4.config';
+import { initClarity } from '@/analytics/clarity';
 import { initTestMode } from '@/lib/analytics';
 import { initPerformanceMonitoring, trackPageLoadMetrics } from '@/utils/performance';
 import { SessionTracker } from '@/components/SessionTracker';
@@ -163,6 +164,9 @@ function App() {
       // Initialize performance monitoring (Core Web Vitals)
       initPerformanceMonitoring();
       trackPageLoadMetrics();
+
+      // Initialize Clarity for heatmaps/session recordings (public pages only)
+      initClarity();
 
       console.log('✅ GA4 Analytics initialized with enhanced geographic tracking');
     } else {
