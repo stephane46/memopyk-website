@@ -10,6 +10,7 @@ import { db } from "../../db";
 import { analyticsSessions, analyticsExclusions } from "@shared/schema";
 import { eq, and, gte, lte, desc, sql, notInArray, isNull, or } from "drizzle-orm";
 import { isExcludedIP } from "./ip-exclusion.service";
+import { lookupIP } from "./geo.service";
 
 /**
  * Get list of excluded IP addresses from analytics_exclusions table
@@ -198,6 +199,14 @@ export async function getOrCreateSession(
     const sessionId = generateSessionId();
     const nowDate = new Date();
 
+    // Non-blocking geo lookup — don't fail session creation if geo fails
+    let geoData: { countryCode: string; countryName: string; city: string | null } | null = null;
+    try {
+      geoData = lookupIP(ip);
+    } catch (e) {
+      // Silently ignore geo errors
+    }
+
     await db.insert(analyticsSessions).values({
       sessionId,
       ipAddress: ip,
@@ -205,6 +214,11 @@ export async function getOrCreateSession(
       referrer: referrer || null,
       language: language || null,
       deviceCategory: detectDeviceCategory(userAgent),
+      countryCode: geoData?.countryCode || null,
+      countryName: geoData?.countryName || null,
+      country: geoData?.countryName || null,
+      countryIso2: geoData?.countryCode || null,
+      city: geoData?.city || null,
       firstSeenAt: nowDate,
       lastSeenAt: nowDate,
       sessionDuration: 0,

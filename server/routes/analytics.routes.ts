@@ -1340,18 +1340,25 @@ router.post('/analytics/session-page-view', async (req: Request, res: Response) 
  */
 router.post('/analytics/video-view', async (req: Request, res: Response) => {
   try {
-    const { video_id, duration_watched, completed, session_id } = req.body;
+    const { video_id, duration_watched, completed, session_id, progress, completion_percentage, video_duration } = req.body;
     const ipAddress = extractClientIP(req.headers as Record<string, string | string[] | undefined>)
       || (req.socket.remoteAddress ?? 'unknown');
     const userAgent = req.headers['user-agent'] || '';
 
     const action = completed ? 'complete' : (duration_watched ? 'progress' : 'play');
 
+    // Calculate progress if not provided but video_duration is known
+    let progressValue = progress ?? completion_percentage;
+    if (progressValue == null && duration_watched && video_duration) {
+      progressValue = Math.round((duration_watched / video_duration) * 100);
+    }
+
     const result = await eventRecorder.recordVideoEvent({
       sessionId: session_id,
       videoId: video_id,
       action,
       watchTime: duration_watched,
+      progress: progressValue,
       ipAddress,
       userAgent,
     });
