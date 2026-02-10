@@ -175,8 +175,10 @@ router.get('/ga4/report', async (req: Request, res: Response) => {
   const period = String(req.query.period || req.query.preset || '30d');
   const videoId = String(req.query.videoId || '');
   const limit = parseInt(String(req.query.limit || '10'), 10);
+  const locale = String(req.query.locale || 'all');
+  const country = String(req.query.country || 'all');
 
-  console.log(`📊 [GA4 Report] type=${reportType}, period=${period}`);
+  console.log(`📊 [GA4 Report] type=${reportType}, period=${period}, locale=${locale}, country=${country}`);
 
   try {
     switch (reportType) {
@@ -998,8 +1000,10 @@ router.get('/ga4/top-videos', async (req: Request, res: Response) => {
     const endDate = String(req.query.endDate || req.query.end || '');
     const period = String(req.query.period || '30d');
     const limit = parseInt(String(req.query.limit || '10'), 10);
+    const locale = String(req.query.locale || 'all');
+    const country = String(req.query.country || 'all');
 
-    console.log(`📊 [Top Videos] Request: period=${period}, limit=${limit}`);
+    console.log(`📊 [Top Videos] Request: period=${period}, limit=${limit}, locale=${locale}, country=${country}`);
 
     const topVideos = await videoAnalyticsService.getTopVideos(
       period,
@@ -1045,8 +1049,10 @@ router.get('/ga4/videos', async (req: Request, res: Response) => {
     const startDate = String(req.query.startDate || req.query.start || '');
     const endDate = String(req.query.endDate || req.query.end || '');
     const period = String(req.query.period || '30d');
+    const locale = String(req.query.locale || 'all');
+    const country = String(req.query.country || 'all');
 
-    console.log(`📊 [Videos] Request: period=${period}`);
+    console.log(`📊 [Videos] Request: period=${period}, locale=${locale}, country=${country}`);
 
     const [videoStats, engagement] = await Promise.all([
       videoAnalyticsService.getVideoStats(period, startDate || undefined, endDate || undefined),
@@ -1078,12 +1084,14 @@ router.get('/ga4/funnel', async (req: Request, res: Response) => {
     const startDate = String(req.query.startDate || req.query.start || '');
     const endDate = String(req.query.endDate || req.query.end || '');
     const period = String(req.query.period || '30d');
+    const locale = String(req.query.locale || 'all');
+    const country = String(req.query.country || 'all');
 
     if (!videoId) {
       return res.status(400).json({ error: 'Missing videoId parameter' });
     }
 
-    console.log(`📊 [Funnel] Request: videoId=${videoId}, period=${period}`);
+    console.log(`📊 [Funnel] Request: videoId=${videoId}, period=${period}, locale=${locale}, country=${country}`);
 
     const funnel = await videoAnalyticsService.getVideoFunnel(
       videoId,
@@ -1116,8 +1124,9 @@ router.get('/ga4/geo', async (req: Request, res: Response) => {
   try {
     const startDateStr = String(req.query.startDate || req.query.start || '');
     const endDateStr = String(req.query.endDate || req.query.end || '');
+    const locale = String(req.query.locale || 'all');
 
-    console.log(`📊 [Geo] Request: startDate=${startDateStr}, endDate=${endDateStr}`);
+    console.log(`📊 [Geo] Request: startDate=${startDateStr}, endDate=${endDateStr}, locale=${locale}`);
 
     // Default to last 30 days if not provided
     const now = new Date();
@@ -1132,23 +1141,29 @@ router.get('/ga4/geo', async (req: Request, res: Response) => {
     // Get excluded IPs for filtering
     const excludedIPs = await getExcludedIPs();
 
+    // Build filter conditions
+    const conditions = [
+      gte(analyticsSessions.createdAt, startDate),
+      lte(analyticsSessions.createdAt, endDateEnd),
+      eq(analyticsSessions.isTestData, false),
+      excludedIPs.length > 0
+        ? or(
+            isNull(analyticsSessions.ipAddress),
+            notInArray(analyticsSessions.ipAddress, excludedIPs)
+          )
+        : sql`true`,
+    ];
+
+    // Apply locale filter
+    if (locale && locale !== 'all') {
+      conditions.push(eq(analyticsSessions.language, locale));
+    }
+
     // Query sessions with country data (exclude test data and excluded IPs)
     const sessions = await db
       .select()
       .from(analyticsSessions)
-      .where(
-        and(
-          gte(analyticsSessions.createdAt, startDate),
-          lte(analyticsSessions.createdAt, endDateEnd),
-          eq(analyticsSessions.isTestData, false),
-          excludedIPs.length > 0
-            ? or(
-                isNull(analyticsSessions.ipAddress),
-                notInArray(analyticsSessions.ipAddress, excludedIPs)
-              )
-            : sql`true`
-        )
-      );
+      .where(and(...conditions));
 
     // Aggregate by country
     const countryMap = new Map<string, { sessions: number; uniqueIPs: Set<string> }>();
@@ -1201,22 +1216,125 @@ router.get('/ga4/cta', async (req: Request, res: Response) => {
   try {
     const startDateStr = String(req.query.startDate || req.query.start || '');
     const endDateStr = String(req.query.endDate || req.query.end || '');
+    const locale = String(req.query.locale || 'all');
+    const country = String(req.query.country || 'all');
 
-    console.log(`📊 [CTA] Request: startDate=${startDateStr}, endDate=${endDateStr}`);
+    console.log(`📊 [CTA] Request: startDate=${startDateStr}, endDate=${endDateStr}, locale=${locale}, country=${country}`);
 
-    // Stub response - CTA tracking not yet implemented
-    // Would need a separate analytics_cta_clicks table
+    // Default to last 30 days
+    const now = new Date();
+    const defaultStart = new Date(now);
+    defaultStart.setDate(defaultStart.getDate() - 30);
+
+    const startDate = startDateStr ? parseDate(startDateStr) : defaultStart;
+    const endDate = endDateStr ? parseDate(endDateStr) : now;
+    const endDateEnd = new Date(endDate);
+    endDateEnd.setHours(23, 59, 59, 999);
+
+    // Query CTA click events from analytics_events table
+    const { Pool } = await import('pg');
+    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+    const params: any[] = [startDate, endDateEnd];
+    let idx = 3;
+
+    let localeFilter = '';
+    if (locale && locale !== 'all') {
+      localeFilter = `AND (ae.language = $${idx} OR ae.user_language = $${idx})`;
+      params.push(locale);
+      idx++;
+    }
+
+    let countryFilter = '';
+    // Country filter via session join if needed
+    if (country && country !== 'all' && country !== 'ALL') {
+      countryFilter = `AND EXISTS (SELECT 1 FROM analytics_sessions s WHERE s.session_id = ae.session_id AND s.country_code = $${idx})`;
+      params.push(country);
+      idx++;
+    }
+
+    const { rows } = await pool.query(
+      `SELECT
+         ae.cta_id,
+         ae.language,
+         ae.page_path,
+         ae.page_location,
+         ae.created_at
+       FROM analytics_events ae
+       WHERE ae.event_name = 'cta_click'
+         AND ae.created_at >= $1
+         AND ae.created_at <= $2
+         ${localeFilter}
+         ${countryFilter}
+       ORDER BY ae.created_at DESC`,
+      params
+    );
+
+    // Aggregate by CTA ID
+    const ctaMap = new Map<string, {
+      totalClicks: number;
+      frClicks: number;
+      enClicks: number;
+      sections: Record<string, number>;
+      dailyClicks: Map<string, number>;
+    }>();
+
+    for (const row of rows) {
+      const ctaId = row.cta_id || 'unknown';
+      if (!ctaMap.has(ctaId)) {
+        ctaMap.set(ctaId, { totalClicks: 0, frClicks: 0, enClicks: 0, sections: {}, dailyClicks: new Map() });
+      }
+      const cta = ctaMap.get(ctaId)!;
+      cta.totalClicks++;
+      if (row.language?.startsWith('fr')) cta.frClicks++;
+      else cta.enClicks++;
+
+      // Track by page section
+      const section = row.page_path || row.page_location || '/';
+      cta.sections[section] = (cta.sections[section] || 0) + 1;
+
+      // Track daily
+      const dateKey = new Date(row.created_at).toISOString().split('T')[0];
+      cta.dailyClicks.set(dateKey, (cta.dailyClicks.get(dateKey) || 0) + 1);
+    }
+
+    // Build response matching CtaAnalyticsData format
+    const buildCtaData = (ctaId: string) => {
+      const data = ctaMap.get(ctaId);
+      if (!data) return { totalClicks: 0, frClicks: 0, enClicks: 0, sections: {}, dailyClicks: [] };
+      return {
+        totalClicks: data.totalClicks,
+        frClicks: data.frClicks,
+        enClicks: data.enClicks,
+        sections: data.sections,
+        dailyClicks: Array.from(data.dailyClicks.entries())
+          .map(([date, clicks]) => ({ date, clicks }))
+          .sort((a, b) => a.date.localeCompare(b.date)),
+      };
+    };
+
+    const totalClicks = rows.length;
+
     res.json({
-      ctaClicks: [],
-      topCTAs: [],
-      totalClicks: 0,
+      ctaClicks: rows.slice(0, 100).map(r => ({
+        cta_id: r.cta_id,
+        language: r.language,
+        page_path: r.page_path,
+        created_at: r.created_at,
+      })),
+      topCTAs: Array.from(ctaMap.entries())
+        .map(([id, data]) => ({ ctaId: id, clicks: data.totalClicks }))
+        .sort((a, b) => b.clicks - a.clicks),
+      book_call: buildCtaData('book_call'),
+      quick_quote: buildCtaData('quick_quote'),
+      totalClicks,
       conversionRate: 0,
       byLocation: {},
       timestamp: new Date().toISOString(),
       cached: false,
-      stub: true,
-      message: 'CTA tracking not yet implemented - would require separate tracking table',
     });
+
+    await pool.end();
   } catch (error: any) {
     console.error('❌ [CTA] Error:', error);
     res.status(500).json({
@@ -1513,10 +1631,33 @@ router.post('/event', async (req: Request, res: Response) => {
       session_id: eventData.session_id || null,
     };
 
-    // TODO: Log to Supabase via analytics DB service
-    // analyticsDBService.logEvent(enrichedEventData).catch(console.error);
+    // Persist CTA click events to analytics_events table
+    if (eventData.event_name === 'cta_click' && process.env.DATABASE_URL) {
+      try {
+        const { Pool } = await import('pg');
+        const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+        await pool.query(
+          `INSERT INTO analytics_events (event_name, cta_id, page_path, page_location, language, user_agent, referrer, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
+          [
+            'cta_click',
+            eventData.cta_id || null,
+            eventData.page_path || null,
+            eventData.page_location || null,
+            eventData.language || null,
+            enrichedEventData.user_agent,
+            enrichedEventData.referrer,
+          ]
+        );
+        await pool.end();
+        console.log(`📊 [Analytics] CTA click persisted: ${eventData.cta_id}`);
+      } catch (dbErr) {
+        console.error('❌ [Analytics] Failed to persist CTA event:', dbErr);
+      }
+    } else {
+      console.log('📊 [Analytics] Event received:', enrichedEventData.event_name);
+    }
 
-    console.log('📊 [Analytics] Event received:', enrichedEventData.event_name);
     res.json({ success: true });
   } catch (err) {
     console.error('Analytics event endpoint error:', err);

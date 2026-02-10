@@ -184,21 +184,40 @@ export const trackVideoPause = (videoId: string, progressPercent: number, curren
 // GA4 Standardized CTA Click Events for BigQuery Export
 export const trackCtaClick = (ctaId: string, pagePath?: string, locale?: string) => {
   // Don't track on admin pages
-  const isAdmin = window.location.pathname.startsWith('/fr-FR/admin') || 
-                  window.location.pathname.startsWith('/en-US/admin') || 
+  const isAdmin = window.location.pathname.startsWith('/fr-FR/admin') ||
+                  window.location.pathname.startsWith('/en-US/admin') ||
                   window.location.pathname.startsWith('/admin');
   if (isAdmin) return;
-  
-  if (typeof window === 'undefined' || !window.gtag) return;
-  
-  window.gtag('event', 'cta_click', {
-    cta_id: ctaId,
-    page_path: pagePath || window.location.pathname,
-    locale: locale || 'fr-FR',
-    value: 15,
-    currency: 'EUR',
-    debug_mode: isGaDev()
-  });
+
+  const path = pagePath || window.location.pathname;
+  const lang = locale || 'fr-FR';
+
+  // GA4 tracking
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', 'cta_click', {
+      cta_id: ctaId,
+      page_path: path,
+      locale: lang,
+      value: 15,
+      currency: 'EUR',
+      debug_mode: isGaDev()
+    });
+  }
+
+  // Supabase tracking (fire-and-forget)
+  try {
+    fetch('/api/event', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event_name: 'cta_click',
+        cta_id: ctaId,
+        page_path: path,
+        page_location: window.location.href,
+        language: lang,
+      }),
+    }).catch(() => {}); // Silently ignore errors
+  } catch {}
 };
 
 // Helper functions for managing developer mode
