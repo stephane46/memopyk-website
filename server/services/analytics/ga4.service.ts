@@ -23,7 +23,18 @@ const SA_KEY = process.env.GA4_SERVICE_ACCOUNT_KEY;
 let credentials: any = undefined;
 if (SA_KEY) {
   try {
-    const parsed = JSON.parse(SA_KEY);
+    // Try base64 decode first (recommended for Coolify/Docker)
+    let jsonStr: string;
+    try {
+      jsonStr = Buffer.from(SA_KEY, 'base64').toString('utf-8');
+      // Verify it's valid JSON after base64 decode
+      JSON.parse(jsonStr);
+    } catch {
+      // Not base64, try as raw JSON
+      jsonStr = SA_KEY;
+    }
+
+    const parsed = JSON.parse(jsonStr);
     // Fix private_key newlines — Coolify/Docker env vars often escape \n as \\n
     if (parsed.private_key) {
       parsed.private_key = parsed.private_key.replace(/\\n/g, '\n');
@@ -32,6 +43,8 @@ if (SA_KEY) {
     console.log('🔑 [GA4] Credentials loaded for:', parsed.client_email);
   } catch (e) {
     console.error('❌ [GA4] Failed to parse GA4_SERVICE_ACCOUNT_KEY:', e);
+    // Log first 20 chars to debug without exposing secrets
+    console.error('❌ [GA4] Key starts with:', SA_KEY?.substring(0, 20));
   }
 }
 
