@@ -1422,6 +1422,15 @@ router.post('/analytics/event', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * POST /analytics/performance
+ * Accept Web Vitals / performance metrics from frontend.
+ * Log only for now — no persistence.
+ */
+router.post('/analytics/performance', (_req: Request, res: Response) => {
+  res.json({ success: true });
+});
+
 // ============================================================================
 // Frontend Event Logging (to Supabase)
 // ============================================================================

@@ -19,8 +19,24 @@ const PROPERTY_ID = process.env.GA4_PROPERTY_ID || "501023254";
 export const PROPERTY = `properties/${PROPERTY_ID}`;
 
 const SA_KEY = process.env.GA4_SERVICE_ACCOUNT_KEY;
+
+let credentials: any = undefined;
+if (SA_KEY) {
+  try {
+    const parsed = JSON.parse(SA_KEY);
+    // Fix private_key newlines — Coolify/Docker env vars often escape \n as \\n
+    if (parsed.private_key) {
+      parsed.private_key = parsed.private_key.replace(/\\n/g, '\n');
+    }
+    credentials = parsed;
+    console.log('🔑 [GA4] Credentials loaded for:', parsed.client_email);
+  } catch (e) {
+    console.error('❌ [GA4] Failed to parse GA4_SERVICE_ACCOUNT_KEY:', e);
+  }
+}
+
 export const client = new BetaAnalyticsDataClient(
-  SA_KEY ? { credentials: JSON.parse(SA_KEY) } : {},
+  credentials ? { credentials } : {},
 );
 
 // ---------------------------------------------------------------------------
