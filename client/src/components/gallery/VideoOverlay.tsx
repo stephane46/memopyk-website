@@ -572,6 +572,24 @@ export default function VideoOverlay({
     };
   }, []); // NO DEPENDENCIES - run once only
 
+  // Track final video progress on unmount (handles navigation away)
+  useEffect(() => {
+    return () => {
+      const video = videoRef.current;
+      if (!video || !VIDEO_ANALYTICS_ENABLED) return;
+
+      const ct = video.currentTime;
+      const dur = video.duration;
+
+      if (ct > 0 && isFinite(dur) && dur > 0) {
+        const watchedDuration = Math.round(ct);
+        const completionRate = Math.round((ct / dur) * 100);
+        const isCompleted = completionRate >= 90;
+        trackVideoView(videoId, watchedDuration, isCompleted, Math.round(dur));
+      }
+    };
+  }, [videoId, trackVideoView]);
+
   // Keyboard event handler setup - separate effect to avoid dependencies
   useEffect(() => {
     const overlayElement = overlayRef.current;
