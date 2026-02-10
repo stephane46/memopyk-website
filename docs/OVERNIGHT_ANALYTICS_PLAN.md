@@ -66,3 +66,39 @@
 - Postgres MCP is read-only — used Supabase REST API for help screen inserts
 - HelpButton.tsx only reads `tab` search param (not `an_tab`) — all analytics subtabs map to one help route `/admin?tab=analytics-new`. Created one comprehensive analytics help screen covering all 10 subtabs.
 - Video analytics service layer doesn't accept locale/country params — filter pass-through deferred to future refactor
+
+---
+
+## Follow-up Fixes — Feb 11, 2026
+
+### Fix 1: Video filter pass-through — DONE
+- [x] Added `locale?` and `country?` params to getVideoStats, getTopVideos, getVideoEngagement, getVideoFunnel
+- [x] Helper `getFilteredSessionIds()` queries analyticsSessions by language/countryCode
+- [x] All 6 route handler call sites updated to pass locale/country through
+- Commit: `0738767`
+
+### Fix 2: Subtab-specific help for Analytics — DONE
+- [x] HelpButton.tsx now includes `an_tab` in route when `tab=analytics-new`
+- [x] Server-side fallback: strips `an_tab` and retries generic screen if subtab not found
+- [x] 10 new help_screens rows inserted (overview, live, video, geo, cta, blog, trends, clarity, fallback, exclusions)
+- [x] Playwright test updated with 10 analytics subtab tests
+- Commit: `4855bc4`
+
+### Fix 3: Blog analytics Drizzle rewrite — DONE
+- [x] Replaced raw pg Pool with Drizzle ORM (db import + schema tables)
+- [x] All 5 endpoints preserved: /popular, /trends, /topics, /keywords, /categories
+- [x] Uses `sql` tagged templates for regex-based slug extraction JOINs
+- [x] Same response shapes, same filtering (days, language, IP exclusion)
+- Commit: `2603fa3`
+
+### Fix 4: Clarity SDK installation — DONE
+- [x] Created client/src/analytics/clarity.ts with dynamic script injection
+- [x] Wired into App.tsx (public pages only, matching GA4 pattern)
+- [x] Added VITE_CLARITY_PROJECT_ID to .env.example
+- [x] ClarityRouteListener will now work once project ID is configured
+- Commit: `a4c2c8a`
+
+### Fix 5: Playwright help validation — PENDING
+- [ ] Wait for Coolify deploy of staging
+- [ ] Run Playwright test
+- [ ] Fix failures if any
