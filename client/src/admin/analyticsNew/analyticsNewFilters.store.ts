@@ -22,7 +22,7 @@ export interface AnalyticsNewFilters {
   videoId: string; // Video filter for funnel analysis
   
   // Data source toggle
-  dataSource: 'ga4' | 'memopyk' | 'unfiltered';
+  dataSource: 'ga4' | 'memopyk';
   
   // UI state
   isLoading: boolean;
@@ -38,7 +38,7 @@ interface AnalyticsNewFiltersStore extends AnalyticsNewFilters {
   setLanguage: (language: string) => void;
   setCountry: (country: string) => void;
   setVideoId: (videoId: string) => void;
-  setDataSource: (source: 'ga4' | 'memopyk' | 'unfiltered') => void;
+  setDataSource: (source: 'ga4' | 'memopyk') => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   reset: () => void;

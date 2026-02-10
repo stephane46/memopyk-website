@@ -10,6 +10,7 @@ import { AnalyticsNewTrends } from './AnalyticsNewTrends';
 import { AnalyticsNewGeo } from './AnalyticsNewGeo';
 import { AnalyticsNewCta } from './AnalyticsNewCta';
 import { AnalyticsNewBlog } from './AnalyticsNewBlog';
+import { AnalyticsNewFallback } from './AnalyticsNewFallback';
 import DataSourceBadge from './components/DataSourceBadge';
 import { useAnalyticsNewFilters } from './analyticsNewFilters.store';
 import { Badge } from '@/components/ui/badge';
@@ -18,27 +19,14 @@ import { useQuery } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
 import './analyticsNew.tokens.css';
 
-// Placeholder components for other tabs
-
+// Clarity placeholder (SDK not yet installed — needs project ID from clarity.microsoft.com)
 const AnalyticsNewClarity: React.FC = () => (
   <div className="analytics-new-container space-y-6">
     <h2 className="text-xl font-bold text-gray-900">Microsoft Clarity</h2>
-    <AnalyticsNewLoadingStates 
-      mode="empty" 
+    <AnalyticsNewLoadingStates
+      mode="empty"
       title="Clarity integration coming soon"
-      description="Microsoft Clarity insights and heatmaps will be accessible here"
-    />
-  </div>
-);
-
-const AnalyticsNewFallback: React.FC = () => (
-  <div className="analytics-new-container space-y-6">
-    <h2 className="text-xl font-bold text-gray-900">Diagnostics</h2>
-    <AnalyticsNewLoadingStates 
-      mode="error" 
-      title="Error handling and diagnostics"
-      description="System diagnostics and error recovery tools will be available here"
-      showRetry={true}
+      description="Microsoft Clarity insights and heatmaps will be accessible here. Create a project at clarity.microsoft.com and add the project ID to enable."
     />
   </div>
 );

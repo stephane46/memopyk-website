@@ -145,8 +145,6 @@ export const AnalyticsNewBlog: React.FC = () => {
   const getEndpoint = (baseEndpoint: string) => {
     if (dataSource === 'ga4') {
       return `/api/analytics/blog/ga4${baseEndpoint}`;
-    } else if (dataSource === 'unfiltered') {
-      return `/api/analytics/blog/unfiltered${baseEndpoint}`;
     }
     return `/api/analytics/blog${baseEndpoint}`; // memopyk default
   };
@@ -155,8 +153,7 @@ export const AnalyticsNewBlog: React.FC = () => {
     queryKey: ['/api/analytics/blog/popular', { days, blogLanguage, dataSource }],
     queryFn: async () => {
       const params = new URLSearchParams({ days: days.toString() });
-      // Unfiltered mode removes language filter
-      if (blogLanguage && dataSource !== 'unfiltered') params.append('language', blogLanguage);
+      if (blogLanguage) params.append('language', blogLanguage);
       const response = await fetch(`${getEndpoint('/popular')}?${params.toString()}`);
       if (!response.ok) throw new Error('Failed to fetch popular blog posts');
       return response.json();
@@ -167,7 +164,7 @@ export const AnalyticsNewBlog: React.FC = () => {
     queryKey: ['/api/analytics/blog/trends', { days, blogLanguage, dataSource }],
     queryFn: async () => {
       const params = new URLSearchParams({ days: days.toString() });
-      if (blogLanguage && dataSource !== 'unfiltered') params.append('language', blogLanguage);
+      if (blogLanguage) params.append('language', blogLanguage);
       const response = await fetch(`${getEndpoint('/trends')}?${params.toString()}`);
       if (!response.ok) throw new Error('Failed to fetch blog trends');
       return response.json();
@@ -178,7 +175,7 @@ export const AnalyticsNewBlog: React.FC = () => {
     queryKey: ['/api/analytics/blog/topics', { days, blogLanguage, dataSource }],
     queryFn: async () => {
       const params = new URLSearchParams({ days: days.toString() });
-      if (blogLanguage && dataSource !== 'unfiltered') params.append('language', blogLanguage);
+      if (blogLanguage) params.append('language', blogLanguage);
       const response = await fetch(`${getEndpoint('/topics')}?${params.toString()}`);
       if (!response.ok) throw new Error('Failed to fetch top topics');
       return response.json();
@@ -189,7 +186,7 @@ export const AnalyticsNewBlog: React.FC = () => {
     queryKey: ['/api/analytics/blog/keywords', { days, blogLanguage, dataSource }],
     queryFn: async () => {
       const params = new URLSearchParams({ days: days.toString() });
-      if (blogLanguage && dataSource !== 'unfiltered') params.append('language', blogLanguage);
+      if (blogLanguage) params.append('language', blogLanguage);
       const response = await fetch(`${getEndpoint('/keywords')}?${params.toString()}`);
       if (!response.ok) throw new Error('Failed to fetch top keywords');
       return response.json();
@@ -200,7 +197,7 @@ export const AnalyticsNewBlog: React.FC = () => {
     queryKey: ['/api/analytics/blog/categories', { days, blogLanguage, dataSource }],
     queryFn: async () => {
       const params = new URLSearchParams({ days: days.toString() });
-      if (blogLanguage && dataSource !== 'unfiltered') params.append('language', blogLanguage);
+      if (blogLanguage) params.append('language', blogLanguage);
       const response = await fetch(`${getEndpoint('/categories')}?${params.toString()}`);
       if (!response.ok) throw new Error('Failed to fetch category performance');
       return response.json();
@@ -235,16 +232,12 @@ export const AnalyticsNewBlog: React.FC = () => {
   const totalViews = popularPosts?.reduce((sum, post) => sum + post.view_count, 0) || 0;
 
   if (!popularPosts || popularPosts.length === 0) {
-    const emptyTitle = dataSource === 'ga4' 
-      ? 'No GA4 blog data yet' 
-      : dataSource === 'unfiltered'
-      ? 'No blog post views'
+    const emptyTitle = dataSource === 'ga4'
+      ? 'No GA4 blog data yet'
       : 'No blog post views yet';
-    
+
     const emptyDescription = dataSource === 'ga4'
       ? 'GA4 blog analytics integration is coming soon. Switch to MEMOPYK to see internal tracking data.'
-      : dataSource === 'unfiltered'
-      ? `No blog posts have been viewed in the last ${days} days (including all traffic)`
       : `No blog posts have been viewed in the last ${days} days`;
 
     return (
@@ -272,19 +265,10 @@ export const AnalyticsNewBlog: React.FC = () => {
             >
               GA4
             </Button>
-            <Button
-              variant={dataSource === 'unfiltered' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setDataSource('unfiltered')}
-              data-testid="blog-toggle-unfiltered"
-            >
-              Unfiltered
-            </Button>
           </div>
           <span className="text-xs text-gray-600">
             {dataSource === 'memopyk' && '(Internal tracking, admin IPs excluded)'}
             {dataSource === 'ga4' && '(Google Analytics 4 data)'}
-            {dataSource === 'unfiltered' && '(All traffic including admin)'}
           </span>
         </div>
 
@@ -333,19 +317,10 @@ export const AnalyticsNewBlog: React.FC = () => {
           >
             GA4
           </Button>
-          <Button
-            variant={dataSource === 'unfiltered' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setDataSource('unfiltered')}
-            data-testid="blog-toggle-unfiltered"
-          >
-            Unfiltered
-          </Button>
         </div>
         <span className="text-xs text-gray-600">
           {dataSource === 'memopyk' && '(Internal tracking, admin IPs excluded)'}
           {dataSource === 'ga4' && '(Google Analytics 4 data)'}
-          {dataSource === 'unfiltered' && '(All traffic including admin)'}
         </span>
       </div>
 
@@ -422,11 +397,10 @@ export const AnalyticsNewBlog: React.FC = () => {
               variant="outline" 
               className={
                 dataSource === 'memopyk' ? 'bg-orange-50 text-orange-700 border-orange-200' :
-                dataSource === 'ga4' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                'bg-gray-50 text-gray-700 border-gray-200'
+                'bg-blue-50 text-blue-700 border-blue-200'
               }
             >
-              {dataSource === 'memopyk' ? '🟠 MEMOPYK' : dataSource === 'ga4' ? '📊 GA4' : '🔓 Unfiltered'}
+              {dataSource === 'memopyk' ? '🟠 MEMOPYK' : '📊 GA4'}
             </Badge>
           </div>
           <p className="text-sm text-gray-600 mt-1">
@@ -684,11 +658,10 @@ export const AnalyticsNewBlog: React.FC = () => {
               variant="outline" 
               className={
                 dataSource === 'memopyk' ? 'bg-orange-50 text-orange-700 border-orange-200' :
-                dataSource === 'ga4' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                'bg-gray-50 text-gray-700 border-gray-200'
+                'bg-blue-50 text-blue-700 border-blue-200'
               }
             >
-              {dataSource === 'memopyk' ? '🟠 MEMOPYK' : dataSource === 'ga4' ? '📊 GA4' : '🔓 Unfiltered'}
+              {dataSource === 'memopyk' ? '🟠 MEMOPYK' : '📊 GA4'}
             </Badge>
           </div>
           <CardDescription className="text-sm text-gray-600 mt-1">

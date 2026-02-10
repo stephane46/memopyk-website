@@ -94,13 +94,6 @@ export const AnalyticsNewLoadingStates: React.FC<AnalyticsNewLoadingStatesProps>
         </Button>
       )}
 
-      {/* Demo State Toggles for Phase 1 */}
-      {mode === 'empty' && (
-        <div className="mt-6 p-3 bg-white rounded border border-gray-200 text-xs text-gray-600">
-          <p className="font-medium mb-1">🔧 Phase 1 Demo States</p>
-          <p>Toggle the <code>mode</code> prop to test: loading, empty, error</p>
-        </div>
-      )}
     </div>
   );
 };
