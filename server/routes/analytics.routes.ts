@@ -15,6 +15,15 @@ import { analyticsSessions, analyticsExclusions } from '@shared/schema';
 import { gte, lte, eq, and, sql, desc, notInArray, isNull, or } from 'drizzle-orm';
 import videoAnalyticsService from '../services/analytics/video-analytics.service';
 import realtimeService from '../services/analytics/realtime.service';
+import {
+  qSessions,
+  qTotalUsers,
+  qReturningUsers,
+  qPlays,
+  qWatchTimeTotal,
+  qCompletes,
+  qSessionsTrendWithComparison,
+} from '../services/analytics/ga4.service';
 
 // ============================================================================
 // IP Exclusion Helper
@@ -521,11 +530,20 @@ function formatDateToYYYYMMDD(date: Date): string {
   return `${year}${month}${day}`;
 }
 
+/** Convert any date string to GA4 YYYY-MM-DD format. */
+function toGA4Date(dateStr: string | undefined, fallback: Date): string {
+  const d = dateStr ? parseDate(dateStr) : fallback;
+  return d.toISOString().split('T')[0];
+}
+
 router.get('/ga4/trend', async (req: Request, res: Response) => {
   try {
     // Parse date parameters
     const startDateStr = String(req.query.startDate || req.query.start || '');
     const endDateStr = String(req.query.endDate || req.query.end || '');
+    const dataSource = String(req.query.dataSource || 'memopyk');
+    const locale = String(req.query.locale || 'all');
+    const country = String(req.query.country || 'all');
 
     // Default to last 30 days if not provided
     const now = new Date();
@@ -535,11 +553,36 @@ router.get('/ga4/trend', async (req: Request, res: Response) => {
     const startDate = startDateStr ? parseDate(startDateStr) : defaultStart;
     const endDate = endDateStr ? parseDate(endDateStr) : now;
 
+    // ---------------------------------------------------------------
+    // GA4 DATA SOURCE — query Google Analytics API
+    // ---------------------------------------------------------------
+    if (dataSource === 'ga4') {
+      const ga4Start = toGA4Date(startDateStr, defaultStart);
+      const ga4End = toGA4Date(endDateStr, now);
+      const localeParam = locale === 'all' ? undefined : locale;
+      const countryParam = country === 'all' ? undefined : country;
+
+      console.log(`📊 [Trends/GA4] Fetching from GA4 API: ${ga4Start} to ${ga4End} (locale=${locale}, country=${country})`);
+
+      const result = await qSessionsTrendWithComparison(ga4Start, ga4End, localeParam, countryParam);
+
+      console.log(`✅ [Trends/GA4] Returning ${result.dailyData.length} days of data`);
+
+      return res.json({
+        ...result,
+        dataSource: 'ga4',
+      });
+    }
+
+    // ---------------------------------------------------------------
+    // MEMOPYK DATA SOURCE (default) — query Supabase analytics_sessions
+    // ---------------------------------------------------------------
+
     // Add time to end date to include the full day
     const endDateEnd = new Date(endDate);
     endDateEnd.setHours(23, 59, 59, 999);
 
-    console.log(`📊 [Trends] Fetching data from ${startDate.toISOString()} to ${endDateEnd.toISOString()}`);
+    console.log(`📊 [Trends/Memopyk] Fetching data from ${startDate.toISOString()} to ${endDateEnd.toISOString()}`);
 
     // Get excluded IPs for filtering
     const excludedIPs = await getExcludedIPs();
@@ -648,11 +691,12 @@ router.get('/ga4/trend', async (req: Request, res: Response) => {
       prevPeriodTotalEngagement: prevTotalDuration,
     };
 
-    console.log(`✅ [Trends] Returning ${dailyData.length} days of data, ${totalSessions} total sessions`);
+    console.log(`✅ [Trends/Memopyk] Returning ${dailyData.length} days of data, ${totalSessions} total sessions`);
 
     res.json({
       dailyData,
       periodAggregates,
+      dataSource: 'memopyk',
     });
   } catch (error: any) {
     console.error('❌ [Trends] Error:', error);
@@ -672,6 +716,9 @@ router.get('/ga4/kpis', async (req: Request, res: Response) => {
     // Parse date parameters
     const startDateStr = String(req.query.startDate || req.query.start || '');
     const endDateStr = String(req.query.endDate || req.query.end || '');
+    const dataSource = String(req.query.dataSource || 'memopyk');
+    const locale = String(req.query.locale || 'all');
+    const country = String(req.query.country || 'all');
 
     // Default to last 30 days if not provided
     const now = new Date();
@@ -680,10 +727,90 @@ router.get('/ga4/kpis', async (req: Request, res: Response) => {
 
     const startDate = startDateStr ? parseDate(startDateStr) : defaultStart;
     const endDate = endDateStr ? parseDate(endDateStr) : now;
+
+    // Calculate percentage change
+    const calculateChange = (current: number, previous: number): number => {
+      if (previous === 0) return current > 0 ? 100 : 0;
+      return Math.round(((current - previous) / previous) * 100);
+    };
+
+    // ---------------------------------------------------------------
+    // GA4 DATA SOURCE — query Google Analytics API
+    // ---------------------------------------------------------------
+    if (dataSource === 'ga4') {
+      const ga4Start = toGA4Date(startDateStr, defaultStart);
+      const ga4End = toGA4Date(endDateStr, now);
+      const localeParam = locale === 'all' ? undefined : locale;
+      const countryParam = country === 'all' ? undefined : country;
+
+      // Previous period dates
+      const periodDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      const prevEnd = new Date(startDate);
+      prevEnd.setDate(prevEnd.getDate() - 1);
+      const prevStart = new Date(prevEnd);
+      prevStart.setDate(prevStart.getDate() - periodDays);
+      const ga4PrevStart = prevStart.toISOString().split('T')[0];
+      const ga4PrevEnd = prevEnd.toISOString().split('T')[0];
+
+      console.log(`📊 [KPIs/GA4] Fetching from GA4 API: ${ga4Start} to ${ga4End} (locale=${locale}, country=${country})`);
+
+      const [sessions, totalUsers, returningUsers, plays, watchTime, completions] = await Promise.all([
+        qSessions(ga4Start, ga4End, localeParam, countryParam),
+        qTotalUsers(ga4Start, ga4End, localeParam, countryParam),
+        qReturningUsers(ga4Start, ga4End, localeParam, countryParam),
+        qPlays(ga4Start, ga4End, localeParam, countryParam),
+        qWatchTimeTotal(ga4Start, ga4End, localeParam, countryParam),
+        qCompletes(ga4Start, ga4End, localeParam, countryParam),
+      ]);
+
+      const [prevSessionsCount, prevUsersCount, prevReturningCount] = await Promise.all([
+        qSessions(ga4PrevStart, ga4PrevEnd, localeParam, countryParam),
+        qTotalUsers(ga4PrevStart, ga4PrevEnd, localeParam, countryParam),
+        qReturningUsers(ga4PrevStart, ga4PrevEnd, localeParam, countryParam),
+      ]);
+
+      const kpis = {
+        totalViews: { value: sessions, trend: [], change: calculateChange(sessions, prevSessionsCount) },
+        uniqueVisitors: { value: totalUsers, trend: [], change: calculateChange(totalUsers, prevUsersCount) },
+        returnVisitors: { value: returningUsers, trend: [], change: calculateChange(returningUsers, prevReturningCount) },
+        sessions: { value: sessions, trend: [], change: calculateChange(sessions, prevSessionsCount) },
+        plays: { value: plays, trend: [], change: 0 },
+        avgWatch: { value: plays > 0 ? Math.round(watchTime / plays) : 0, trend: [], change: 0 },
+        completions: { value: completions, trend: [], change: 0 },
+        bounceRate: { value: 0, trend: [], change: 0 },
+      };
+
+      const previousPeriod = {
+        kpis: {
+          totalViews: { value: prevSessionsCount, trend: [] },
+          uniqueVisitors: { value: prevUsersCount, trend: [] },
+          returnVisitors: { value: prevReturningCount, trend: [] },
+          sessions: { value: prevSessionsCount, trend: [] },
+          plays: { value: 0, trend: [] },
+          avgWatch: { value: 0, trend: [] },
+          completions: { value: 0, trend: [] },
+        },
+      };
+
+      console.log(`✅ [KPIs/GA4] sessions=${sessions}, users=${totalUsers}, plays=${plays}`);
+
+      return res.json({
+        kpis,
+        previousPeriod,
+        sparklines: {},
+        timestamp: new Date().toISOString(),
+        cached: false,
+        dataSource: 'ga4',
+      });
+    }
+
+    // ---------------------------------------------------------------
+    // MEMOPYK DATA SOURCE (default) — query Supabase analytics_sessions
+    // ---------------------------------------------------------------
     const endDateEnd = new Date(endDate);
     endDateEnd.setHours(23, 59, 59, 999);
 
-    console.log(`📊 [KPIs] Fetching data from ${startDate.toISOString()} to ${endDateEnd.toISOString()}`);
+    console.log(`📊 [KPIs/Memopyk] Fetching data from ${startDate.toISOString()} to ${endDateEnd.toISOString()}`);
 
     // Get excluded IPs for filtering
     const excludedIPs = await getExcludedIPs();
@@ -740,12 +867,6 @@ router.get('/ga4/kpis', async (req: Request, res: Response) => {
     const prevUniqueVisitors = new Set(prevSessions.map(s => s.ipAddress).filter(Boolean)).size;
     const prevReturnVisitors = prevSessions.filter(s => s.isReturning).length;
 
-    // Calculate percentage change
-    const calculateChange = (current: number, previous: number): number => {
-      if (previous === 0) return current > 0 ? 100 : 0;
-      return Math.round(((current - previous) / previous) * 100);
-    };
-
     const kpis = {
       totalViews: { value: totalViews, trend: [], change: calculateChange(totalViews, prevTotalViews) },
       uniqueVisitors: { value: uniqueVisitors, trend: [], change: calculateChange(uniqueVisitors, prevUniqueVisitors) },
@@ -769,7 +890,7 @@ router.get('/ga4/kpis', async (req: Request, res: Response) => {
       },
     };
 
-    console.log(`✅ [KPIs] Returning: ${totalViews} views, ${uniqueVisitors} unique visitors`);
+    console.log(`✅ [KPIs/Memopyk] Returning: ${totalViews} views, ${uniqueVisitors} unique visitors`);
 
     res.json({
       kpis,
@@ -777,6 +898,7 @@ router.get('/ga4/kpis', async (req: Request, res: Response) => {
       sparklines: {},
       timestamp: new Date().toISOString(),
       cached: false,
+      dataSource: 'memopyk',
     });
   } catch (error: any) {
     console.error('❌ [KPIs] Error:', error);
