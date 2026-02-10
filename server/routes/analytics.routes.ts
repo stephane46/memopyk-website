@@ -186,7 +186,9 @@ router.get('/ga4/report', async (req: Request, res: Response) => {
         const videoStats = await videoAnalyticsService.getVideoStats(
           period,
           startDate || undefined,
-          endDate || undefined
+          endDate || undefined,
+          locale,
+          country
         );
 
         // Return in format expected by frontend (with 'videos' key)
@@ -234,7 +236,9 @@ router.get('/ga4/report', async (req: Request, res: Response) => {
           videoId,
           period,
           startDate || undefined,
-          endDate || undefined
+          endDate || undefined,
+          locale,
+          country
         );
         res.json({
           funnel,
@@ -1009,7 +1013,9 @@ router.get('/ga4/top-videos', async (req: Request, res: Response) => {
       period,
       limit,
       startDate || undefined,
-      endDate || undefined
+      endDate || undefined,
+      locale,
+      country
     );
 
     // Return in the format expected by frontend (TopVideosResponse)
@@ -1055,8 +1061,8 @@ router.get('/ga4/videos', async (req: Request, res: Response) => {
     console.log(`📊 [Videos] Request: period=${period}, locale=${locale}, country=${country}`);
 
     const [videoStats, engagement] = await Promise.all([
-      videoAnalyticsService.getVideoStats(period, startDate || undefined, endDate || undefined),
-      videoAnalyticsService.getVideoEngagement(period, startDate || undefined, endDate || undefined),
+      videoAnalyticsService.getVideoStats(period, startDate || undefined, endDate || undefined, locale, country),
+      videoAnalyticsService.getVideoEngagement(period, startDate || undefined, endDate || undefined, locale, country),
     ]);
 
     res.json({
@@ -1097,7 +1103,9 @@ router.get('/ga4/funnel', async (req: Request, res: Response) => {
       videoId,
       period,
       startDate || undefined,
-      endDate || undefined
+      endDate || undefined,
+      locale,
+      country
     );
 
     res.json({

@@ -7,7 +7,7 @@
 
 import { db } from "../../db";
 import { analyticsViews, analyticsSessions } from "@shared/schema";
-import { eq, and, gte, lte, isNotNull, sql, desc } from "drizzle-orm";
+import { eq, and, gte, lte, isNotNull, sql, desc, inArray } from "drizzle-orm";
 
 /**
  * Parse period string to date range
@@ -42,6 +42,41 @@ function parseDate(dateStr: string): Date {
     return new Date(year, month, day);
   }
   return new Date(dateStr);
+}
+
+/**
+ * Get sessionIds matching locale/country filters.
+ * Returns null if no filtering needed, empty array if no sessions match.
+ */
+async function getFilteredSessionIds(
+  startDate: Date,
+  endDate: Date,
+  locale?: string,
+  country?: string
+): Promise<string[] | null> {
+  if ((!locale || locale === 'all') && (!country || country === 'all')) {
+    return null; // no filtering needed
+  }
+
+  const conditions: any[] = [
+    gte(analyticsSessions.createdAt, startDate),
+    lte(analyticsSessions.createdAt, endDate),
+    eq(analyticsSessions.isTestData, false),
+  ];
+
+  if (locale && locale !== 'all') {
+    conditions.push(eq(analyticsSessions.language, locale));
+  }
+  if (country && country !== 'all') {
+    conditions.push(eq(analyticsSessions.countryCode, country));
+  }
+
+  const sessions = await db
+    .select({ sessionId: analyticsSessions.sessionId })
+    .from(analyticsSessions)
+    .where(and(...conditions));
+
+  return sessions.map(s => s.sessionId);
 }
 
 export interface VideoStats {
@@ -84,7 +119,9 @@ export interface VideoEngagement {
 export async function getVideoStats(
   period?: string,
   startDateStr?: string,
-  endDateStr?: string
+  endDateStr?: string,
+  locale?: string,
+  country?: string
 ): Promise<VideoStats[]> {
   try {
     let startDate: Date;
@@ -100,20 +137,31 @@ export async function getVideoStats(
       endDate = range.endDate;
     }
 
-    console.log(`📊 [Video Stats] Fetching from ${startDate.toISOString()} to ${endDate.toISOString()}`);
+    console.log(`📊 [Video Stats] Fetching from ${startDate.toISOString()} to ${endDate.toISOString()}, locale=${locale || 'all'}, country=${country || 'all'}`);
+
+    // Get filtered session IDs if locale/country specified
+    const sessionIds = await getFilteredSessionIds(startDate, endDate, locale, country);
+    if (sessionIds !== null && sessionIds.length === 0) {
+      console.log(`📊 [Video Stats] No sessions match filters — returning empty`);
+      return [];
+    }
+
+    // Build WHERE conditions
+    const conditions: any[] = [
+      isNotNull(analyticsViews.videoId),
+      gte(analyticsViews.viewTimestamp, startDate),
+      lte(analyticsViews.viewTimestamp, endDate),
+      eq(analyticsViews.isTestData, false),
+    ];
+    if (sessionIds !== null) {
+      conditions.push(inArray(analyticsViews.sessionId, sessionIds));
+    }
 
     // Query video views
     const videoViews = await db
       .select()
       .from(analyticsViews)
-      .where(
-        and(
-          isNotNull(analyticsViews.videoId),
-          gte(analyticsViews.viewTimestamp, startDate),
-          lte(analyticsViews.viewTimestamp, endDate),
-          eq(analyticsViews.isTestData, false)
-        )
-      );
+      .where(and(...conditions));
 
     console.log(`📊 [Video Stats] Found ${videoViews.length} video view records`);
 
@@ -201,9 +249,11 @@ export async function getTopVideos(
   period?: string,
   limit: number = 10,
   startDateStr?: string,
-  endDateStr?: string
+  endDateStr?: string,
+  locale?: string,
+  country?: string
 ): Promise<TopVideoRow[]> {
-  const stats = await getVideoStats(period, startDateStr, endDateStr);
+  const stats = await getVideoStats(period, startDateStr, endDateStr, locale, country);
 
   return stats.slice(0, limit).map((s) => ({
     video_id: s.videoId,
@@ -221,7 +271,9 @@ export async function getTopVideos(
 export async function getVideoEngagement(
   period?: string,
   startDateStr?: string,
-  endDateStr?: string
+  endDateStr?: string,
+  locale?: string,
+  country?: string
 ): Promise<VideoEngagement> {
   try {
     let startDate: Date;
@@ -237,30 +289,54 @@ export async function getVideoEngagement(
       endDate = range.endDate;
     }
 
+    // Build session filter conditions
+    const sessionConditions: any[] = [
+      gte(analyticsSessions.createdAt, startDate),
+      lte(analyticsSessions.createdAt, endDate),
+      eq(analyticsSessions.isTestData, false),
+    ];
+    if (locale && locale !== 'all') {
+      sessionConditions.push(eq(analyticsSessions.language, locale));
+    }
+    if (country && country !== 'all') {
+      sessionConditions.push(eq(analyticsSessions.countryCode, country));
+    }
+
+    // Get total sessions for the period (with locale/country filters)
+    const sessions = await db
+      .select()
+      .from(analyticsSessions)
+      .where(and(...sessionConditions));
+
+    // Get filtered session IDs for video views query
+    const sessionIds = sessions.map(s => s.sessionId);
+    if (sessionIds.length === 0 && (locale && locale !== 'all' || country && country !== 'all')) {
+      return {
+        totalVideoViews: 0,
+        totalWatchTimeSeconds: 0,
+        avgCompletionRate: 0,
+        viewersWhoWatchedVideos: 0,
+        totalVisitors: 0,
+        engagementPercentage: 0,
+      };
+    }
+
+    // Build view conditions
+    const viewConditions: any[] = [
+      isNotNull(analyticsViews.videoId),
+      gte(analyticsViews.viewTimestamp, startDate),
+      lte(analyticsViews.viewTimestamp, endDate),
+      eq(analyticsViews.isTestData, false),
+    ];
+    if (locale && locale !== 'all' || country && country !== 'all') {
+      viewConditions.push(inArray(analyticsViews.sessionId, sessionIds));
+    }
+
     // Get video views
     const videoViews = await db
       .select()
       .from(analyticsViews)
-      .where(
-        and(
-          isNotNull(analyticsViews.videoId),
-          gte(analyticsViews.viewTimestamp, startDate),
-          lte(analyticsViews.viewTimestamp, endDate),
-          eq(analyticsViews.isTestData, false)
-        )
-      );
-
-    // Get total sessions for the period
-    const sessions = await db
-      .select()
-      .from(analyticsSessions)
-      .where(
-        and(
-          gte(analyticsSessions.createdAt, startDate),
-          lte(analyticsSessions.createdAt, endDate),
-          eq(analyticsSessions.isTestData, false)
-        )
-      );
+      .where(and(...viewConditions));
 
     const totalVideoViews = videoViews.length;
     const totalWatchTimeSeconds = videoViews.reduce((sum, v) => sum + (v.viewDuration || 0), 0);
@@ -300,7 +376,9 @@ export async function getVideoFunnel(
   videoId: string,
   period?: string,
   startDateStr?: string,
-  endDateStr?: string
+  endDateStr?: string,
+  locale?: string,
+  country?: string
 ): Promise<Array<{ bucket: number; count: number }>> {
   try {
     let startDate: Date;
@@ -316,18 +394,28 @@ export async function getVideoFunnel(
       endDate = range.endDate;
     }
 
+    // Get filtered session IDs if locale/country specified
+    const sessionIds = await getFilteredSessionIds(startDate, endDate, locale, country);
+    if (sessionIds !== null && sessionIds.length === 0) {
+      return [10, 25, 50, 75, 90].map((bucket) => ({ bucket, count: 0 }));
+    }
+
+    // Build WHERE conditions
+    const conditions: any[] = [
+      eq(analyticsViews.videoId, videoId),
+      gte(analyticsViews.viewTimestamp, startDate),
+      lte(analyticsViews.viewTimestamp, endDate),
+      eq(analyticsViews.isTestData, false),
+    ];
+    if (sessionIds !== null) {
+      conditions.push(inArray(analyticsViews.sessionId, sessionIds));
+    }
+
     // Query video views for this video
     const videoViews = await db
       .select()
       .from(analyticsViews)
-      .where(
-        and(
-          eq(analyticsViews.videoId, videoId),
-          gte(analyticsViews.viewTimestamp, startDate),
-          lte(analyticsViews.viewTimestamp, endDate),
-          eq(analyticsViews.isTestData, false)
-        )
-      );
+      .where(and(...conditions));
 
     // Aggregate by completion percentage buckets
     const buckets = [10, 25, 50, 75, 90];
