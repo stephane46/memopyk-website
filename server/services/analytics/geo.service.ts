@@ -54,7 +54,6 @@ export interface GeoResult {
 export function lookupIP(ip: string): GeoResult | null {
   try {
     const geo = geoip.lookup(ip);
-    console.log(`🌍 [Geo] Lookup for ${ip}: ${geo ? `${geo.country}/${geo.city}` : 'null (no match)'}`);
     if (!geo || !geo.country) {
       return null;
     }

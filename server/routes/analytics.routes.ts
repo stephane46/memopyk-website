@@ -11,7 +11,7 @@ import express from 'express';
 import { randomUUID } from 'crypto';
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
 import { db } from '../db';
-import { analyticsSessions, analyticsExclusions } from '@shared/schema';
+import { analyticsSessions, analyticsExclusions, analyticsViews } from '@shared/schema';
 import { gte, lte, eq, and, sql, desc, notInArray, isNull, or } from 'drizzle-orm';
 import videoAnalyticsService from '../services/analytics/video-analytics.service';
 import realtimeService from '../services/analytics/realtime.service';
@@ -1345,6 +1345,51 @@ router.post('/analytics/video-view', async (req: Request, res: Response) => {
       || (req.socket.remoteAddress ?? 'unknown');
     const userAgent = req.headers['user-agent'] || '';
 
+    // Server-side dedup: check for existing view of same video in same session
+    if (session_id && video_id) {
+      const existingViews = await db.select()
+        .from(analyticsViews)
+        .where(and(
+          eq(analyticsViews.sessionId, session_id),
+          eq(analyticsViews.videoId, video_id)
+        ))
+        .limit(1);
+
+      if (existingViews.length > 0) {
+        const existing = existingViews[0];
+
+        // Already completed — skip entirely
+        if (existing.watchedToEnd) {
+          return res.json({ success: true, deduplicated: true });
+        }
+
+        // Existing row not completed but new event has completion/progress — update it
+        if (completed || duration_watched) {
+          let newCompletion: string | null = existing.completionPercentage;
+          if (completed) {
+            newCompletion = '100';
+          } else if (progress ?? completion_percentage) {
+            newCompletion = String(progress ?? completion_percentage);
+          } else if (duration_watched && video_duration) {
+            newCompletion = String(Math.round((duration_watched / video_duration) * 100));
+          }
+
+          await db.update(analyticsViews)
+            .set({
+              viewDuration: duration_watched ?? existing.viewDuration,
+              completionPercentage: newCompletion,
+              watchedToEnd: completed || false,
+            })
+            .where(eq(analyticsViews.viewId, existing.viewId));
+
+          return res.json({ success: true, updated: true });
+        }
+
+        // Duplicate play event — skip
+        return res.json({ success: true, deduplicated: true });
+      }
+    }
+
     const action = completed ? 'complete' : (duration_watched ? 'progress' : 'play');
 
     // Calculate progress if not provided but video_duration is known
@@ -1436,23 +1481,6 @@ router.post('/analytics/event', async (req: Request, res: Response) => {
  */
 router.post('/analytics/performance', (_req: Request, res: Response) => {
   res.json({ success: true });
-});
-
-/**
- * GET /analytics/geo-test
- * Temporary debug endpoint — test geoip-lite lookups for known IPs.
- * TODO: Remove after geo is confirmed working.
- */
-router.get('/analytics/geo-test', (req: Request, res: Response) => {
-  const { lookupIP } = require('../services/analytics/geo.service');
-  const testIPs = [
-    (req.query.ip as string) || '8.8.8.8',
-    '193.36.237.78',  // Should resolve to MY/Kuala Lumpur
-    '45.80.187.41',   // NordVPN test
-    '109.17.150.48',  // Known France IP
-  ];
-  const results = testIPs.map((ip: string) => ({ ip, result: lookupIP(ip) }));
-  res.json({ results });
 });
 
 // ============================================================================
