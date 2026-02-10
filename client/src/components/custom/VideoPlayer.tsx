@@ -71,7 +71,7 @@ export const VideoPlayer = ({
     const handleEnded = () => {
       setIsPlaying(false);
       // Track video completion
-      trackVideoView(videoId, video.duration, true);
+      trackVideoView(videoId, video.duration, true, video.duration);
     };
 
     video.addEventListener('loadstart', handleLoadStart);

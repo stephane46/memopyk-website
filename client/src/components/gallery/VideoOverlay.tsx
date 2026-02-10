@@ -308,7 +308,7 @@ export default function VideoOverlay({
     }
 
     if (VIDEO_ANALYTICS_ENABLED && trackVideoView) {
-      trackVideoView(videoId, 0, false);
+      trackVideoView(videoId, 0, false, Math.round(duration || 0));
     }
 
     startHeartbeat();
@@ -351,7 +351,7 @@ export default function VideoOverlay({
       const completionRate =
         duration > 0 ? Math.round((currentTime / duration) * 100) : 0;
       const isCompleted = completionRate >= 90;
-      trackVideoView(videoId, watchedDuration, isCompleted);
+      trackVideoView(videoId, watchedDuration, isCompleted, Math.round(duration));
     }
 
     stopHeartbeat();
@@ -487,7 +487,7 @@ export default function VideoOverlay({
           ? Math.round((actualCurrentTime / actualDuration) * 100)
           : 0;
       const isCompleted = completionRate >= 90;
-      trackVideoView(videoId, watchedDuration, isCompleted);
+      trackVideoView(videoId, watchedDuration, isCompleted, Math.round(actualDuration));
     }
 
     onClose();

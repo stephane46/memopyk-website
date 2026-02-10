@@ -90,7 +90,7 @@ export const useVideoAnalytics = () => {
   });
 
   // Helper function to track video view with duplicate prevention
-  const trackVideoViewWithDefaults = useCallback((videoId: string, durationWatched?: number, completed?: boolean) => {
+  const trackVideoViewWithDefaults = useCallback((videoId: string, durationWatched?: number, completed?: boolean, videoDuration?: number) => {
     // Skip tracking for hero videos (auto-play videos don't provide meaningful engagement data)
     if (['VideoHero1.mp4', 'VideoHero2.mp4', 'VideoHero3.mp4'].includes(videoId)) {
       return;
@@ -121,6 +121,7 @@ export const useVideoAnalytics = () => {
       video_id: videoId,
       duration_watched: durationWatched,
       completed: completed,
+      video_duration: videoDuration,
       language,
       page_url: window.location.href,
       referrer: document.referrer || undefined,
