@@ -126,6 +126,9 @@ export async function getVideoStats(
       uniqueIPs: Set<string>;
       totalWatchTime: number;
       completions: number;
+      reach25: number;
+      reach50: number;
+      reach75: number;
     }>();
 
     for (const view of videoViews) {
@@ -139,6 +142,9 @@ export async function getVideoStats(
           uniqueIPs: new Set(),
           totalWatchTime: 0,
           completions: 0,
+          reach25: 0,
+          reach50: 0,
+          reach75: 0,
         });
       }
 
@@ -147,6 +153,11 @@ export async function getVideoStats(
       if (view.ipAddress) stats.uniqueIPs.add(view.ipAddress);
       stats.totalWatchTime += view.viewDuration || 0;
       if (view.watchedToEnd) stats.completions++;
+
+      const pct = parseFloat(view.completionPercentage || '0');
+      if (pct >= 25) stats.reach25++;
+      if (pct >= 50) stats.reach50++;
+      if (pct >= 75) stats.reach75++;
     }
 
     // Convert to array with calculated metrics
@@ -167,7 +178,7 @@ export async function getVideoStats(
         // Legacy aliases
         plays: v.views,
         avgWatchSeconds: avgWatchTime,
-        reach50Pct: Math.round(completionRate * 0.7), // Estimate 50% reach
+        reach50Pct: v.views > 0 ? Math.round((v.reach50 / v.views) * 100) : 0,
         completePct: completionRate,
       };
     });

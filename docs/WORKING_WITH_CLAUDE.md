@@ -20,6 +20,7 @@ Quick reference for reporting issues and requesting changes.
 - Claude Chat MUST put Claude Code prompts in a single code block (for easy copy-paste)
 - **After admin UI changes** — Claude Chat updates help_screens content via Claude Code
 - **Claude Chat proactively suggests UX/UI improvements** — don't hesitate, propose changes
+- **Claude Chat MUST discuss ALL Claude Code findings** — when Claude Code reports audit results, caveats, suggestions, or improvement ideas, Claude Chat must raise each one with Stéphane for discussion. Never skip, summarize away, or move on without addressing them. Claude Code's observations are valuable input that deserve attention.
 
 ---
 
