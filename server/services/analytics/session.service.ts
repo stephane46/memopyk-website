@@ -204,8 +204,9 @@ export async function getOrCreateSession(
     try {
       geoData = lookupIP(ip);
     } catch (e) {
-      // Silently ignore geo errors
+      console.error(`🌍 [Geo] Error for ${ip}:`, e);
     }
+    console.log(`🌍 [Geo] Session geo data for ${ip}: ${JSON.stringify(geoData)}`);
 
     await db.insert(analyticsSessions).values({
       sessionId,

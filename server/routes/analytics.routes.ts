@@ -1438,6 +1438,23 @@ router.post('/analytics/performance', (_req: Request, res: Response) => {
   res.json({ success: true });
 });
 
+/**
+ * GET /analytics/geo-test
+ * Temporary debug endpoint — test geoip-lite lookups for known IPs.
+ * TODO: Remove after geo is confirmed working.
+ */
+router.get('/analytics/geo-test', (req: Request, res: Response) => {
+  const { lookupIP } = require('../services/analytics/geo.service');
+  const testIPs = [
+    (req.query.ip as string) || '8.8.8.8',
+    '193.36.237.78',  // Should resolve to MY/Kuala Lumpur
+    '45.80.187.41',   // NordVPN test
+    '109.17.150.48',  // Known France IP
+  ];
+  const results = testIPs.map((ip: string) => ({ ip, result: lookupIP(ip) }));
+  res.json({ results });
+});
+
 // ============================================================================
 // Frontend Event Logging (to Supabase)
 // ============================================================================
