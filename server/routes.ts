@@ -31,6 +31,7 @@ import travelUploadRoutes from "./routes/travel-upload.routes";
 import helpRoutes from "./routes/help.routes";
 import aiContextRoutes from "./routes/ai-context.routes";
 import imageBankRoutes from "./routes/image-bank.routes";
+import blogAnalyticsRoutes from "./routes/blog-analytics.routes";
 
 /**
  * Register all API routes on the Express app
@@ -90,7 +91,10 @@ export async function registerRoutes(app: Express): Promise<void> {
   // Image Bank routes
   app.use("/api", imageBankRoutes);         // /api/image-bank, /api/image-labels
 
-  console.log("✅ All 21 route modules registered: health, hero, gallery, faq, contact, cta, legal, analytics, newsletter, partners, admin, content, seo, blog, blog-tags, blog-admin, media, travel-upload, help, ai-context, image-bank");
+  // Blog Analytics routes
+  app.use("/api", blogAnalyticsRoutes);     // /api/analytics/blog/*
+
+  console.log("✅ All 22 route modules registered: health, hero, gallery, faq, contact, cta, legal, analytics, newsletter, partners, admin, content, seo, blog, blog-tags, blog-admin, media, travel-upload, help, ai-context, image-bank, blog-analytics");
   console.log("✅ All routes migrated ✅");
 }
 
