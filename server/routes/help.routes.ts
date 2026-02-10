@@ -45,11 +45,24 @@ router.get('/help/screens/:route', async (req: Request, res: Response) => {
       .where(eq(helpScreens.route, route))
       .limit(1);
 
-    if (!screen) {
-      return res.status(404).json({ error: 'Help content not found for this screen' });
+    if (screen) {
+      return res.json(screen);
     }
 
-    res.json(screen);
+    // Fallback: if route has an_tab param, try without it (e.g., analytics subtab → generic analytics)
+    if (route.includes('&an_tab=')) {
+      const baseRoute = route.replace(/&an_tab=[^&]*/, '');
+      const [fallback] = await db
+        .select()
+        .from(helpScreens)
+        .where(eq(helpScreens.route, baseRoute))
+        .limit(1);
+      if (fallback) {
+        return res.json(fallback);
+      }
+    }
+
+    return res.status(404).json({ error: 'Help content not found for this screen' });
   } catch (error) {
     console.error('Get help screen error:', error);
     res.status(500).json({ error: 'Failed to get help content' });

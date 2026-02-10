@@ -20,6 +20,11 @@ export function HelpButton({ className }: HelpButtonProps) {
     const searchParams = new URLSearchParams(window.location.search);
     const tab = searchParams.get('tab');
     if (tab) {
+      // For analytics dashboard, include subtab for granular help
+      const anTab = searchParams.get('an_tab');
+      if (tab === 'analytics-new' && anTab) {
+        return `${pathname}?tab=${tab}&an_tab=${anTab}`;
+      }
       return `${pathname}?tab=${tab}`;
     }
     return pathname;
