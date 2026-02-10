@@ -2,77 +2,55 @@
  * Blog Analytics Routes
  * Provides blog post view analytics from analytics_views + blog_posts tables.
  * 5 endpoints consumed by AnalyticsNewBlog.tsx
+ *
+ * Uses Drizzle ORM consistently with the rest of the codebase.
  */
 
 import { Router, Request, Response } from 'express';
-import { Pool } from 'pg';
+import { db } from '../db';
+import { analyticsViews, analyticsExclusions, blogPosts, contentTopics } from '@shared/schema';
+import { eq, and, gte, sql, desc } from 'drizzle-orm';
 
 const router = Router();
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 /**
- * Get excluded IPs for filtering (matches pattern from analytics.routes.ts)
+ * Get excluded IPs for filtering
  */
 async function getExcludedIPs(): Promise<string[]> {
   try {
-    const { rows } = await pool.query(
-      `SELECT ip_cidr FROM analytics_exclusions WHERE active = true`
-    );
-    return rows.map((r: any) => r.ip_cidr.replace(/\/\d+$/, ''));
+    const rows = await db
+      .select({ ipCidr: analyticsExclusions.ipCidr })
+      .from(analyticsExclusions)
+      .where(eq(analyticsExclusions.active, true));
+    return rows.map(r => r.ipCidr.replace(/\/\d+$/, ''));
   } catch {
     return [];
   }
 }
 
 /**
- * Build WHERE clause fragments for date range, language, and IP exclusion
+ * Build common WHERE conditions for blog analytics queries
  */
-function buildFilters(
-  days: number,
-  language?: string,
-  excludeIPs: string[] = [],
-  excludeTest = true
-): { where: string; params: any[] } {
-  const conditions: string[] = [];
-  const params: any[] = [];
-  let idx = 1;
+function buildConditions(days: number, language?: string, excludedIPs: string[] = []) {
+  const cutoff = new Date(Date.now() - days * 86400000);
+  const conditions: any[] = [
+    sql`${analyticsViews.pageUrl} LIKE '%/blog/%'`,
+    eq(analyticsViews.isTestData, false),
+    gte(analyticsViews.createdAt, cutoff),
+  ];
 
-  // Date range
-  conditions.push(`av.created_at >= NOW() - INTERVAL '${days} days'`);
-
-  // Language filter (analytics_views.language or joined blog_posts.language)
   if (language) {
-    conditions.push(`bp.language = $${idx}`);
-    params.push(language);
-    idx++;
+    conditions.push(eq(blogPosts.language, language));
   }
 
-  // IP exclusion
-  if (excludeIPs.length > 0) {
-    conditions.push(`(av.ip_address IS NULL OR av.ip_address NOT IN (${excludeIPs.map(() => `$${idx++}`).join(',')}))`);
-    params.push(...excludeIPs);
+  if (excludedIPs.length > 0) {
+    const ipList = sql.join(excludedIPs.map(ip => sql`${ip}`), sql`, `);
+    conditions.push(
+      sql`(${analyticsViews.ipAddress} IS NULL OR ${analyticsViews.ipAddress} NOT IN (${ipList}))`
+    );
   }
 
-  // Exclude test data
-  if (excludeTest) {
-    conditions.push(`av.is_test_data = false`);
-  }
-
-  // Blog pages only
-  conditions.push(`av.page_url LIKE '%/blog/%'`);
-
-  return {
-    where: conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '',
-    params,
-  };
-}
-
-/**
- * Extract blog post slug from a page_url like /fr-FR/blog/some-slug or /en-US/blog/some-slug
- */
-function extractSlug(pageUrl: string): string | null {
-  const match = pageUrl.match(/\/blog\/([^/?#]+)/);
-  return match ? match[1] : null;
+  return conditions;
 }
 
 /**
@@ -84,36 +62,32 @@ router.get('/analytics/blog/popular', async (req: Request, res: Response) => {
     const days = parseInt(String(req.query.days || '30'), 10);
     const language = req.query.language ? String(req.query.language) : undefined;
     const excludedIPs = await getExcludedIPs();
+    const conditions = buildConditions(days, language, excludedIPs);
 
-    const { rows } = await pool.query(
-      `SELECT
-         bp.slug as post_slug,
-         bp.title as post_title,
-         bp.language,
-         COUNT(av.id) as view_count,
-         MAX(av.created_at) as last_viewed
-       FROM analytics_views av
-       JOIN blog_posts bp ON bp.slug = SUBSTRING(av.page_url FROM '/blog/([^/?#]+)')
-       WHERE av.page_url LIKE '%/blog/%'
-         AND av.is_test_data = false
-         AND av.created_at >= NOW() - INTERVAL '${days} days'
-         ${language ? `AND bp.language = $1` : ''}
-         ${excludedIPs.length > 0
-           ? `AND (av.ip_address IS NULL OR av.ip_address NOT IN (${excludedIPs.map((_, i) => `$${(language ? 2 : 1) + i}`).join(',')}))`
-           : ''}
-       GROUP BY bp.slug, bp.title, bp.language
-       ORDER BY view_count DESC
-       LIMIT 20`,
-      [...(language ? [language] : []), ...excludedIPs]
-    );
+    const rows = await db
+      .select({
+        post_slug: blogPosts.slug,
+        post_title: blogPosts.title,
+        language: blogPosts.language,
+        view_count: sql<number>`count(${analyticsViews.id})::int`,
+        last_viewed: sql<string>`max(${analyticsViews.createdAt})`,
+      })
+      .from(analyticsViews)
+      .innerJoin(
+        blogPosts,
+        sql`${blogPosts.slug} = SUBSTRING(${analyticsViews.pageUrl} FROM '/blog/([^/?#]+)')`
+      )
+      .where(and(...conditions))
+      .groupBy(blogPosts.slug, blogPosts.title, blogPosts.language)
+      .orderBy(desc(sql`count(${analyticsViews.id})`))
+      .limit(20);
 
-    // If no views joined with posts, return empty
     res.json(rows.map(r => ({
       post_slug: r.post_slug,
       post_title: r.post_title,
       language: r.language,
-      view_count: parseInt(r.view_count, 10),
-      last_viewed: r.last_viewed?.toISOString() || new Date().toISOString(),
+      view_count: r.view_count,
+      last_viewed: r.last_viewed || new Date().toISOString(),
     })));
   } catch (error: any) {
     console.error('[Blog Analytics] /popular error:', error);
@@ -131,40 +105,40 @@ router.get('/analytics/blog/trends', async (req: Request, res: Response) => {
     const language = req.query.language ? String(req.query.language) : undefined;
     const excludedIPs = await getExcludedIPs();
 
-    const params: any[] = [];
-    let idx = 1;
+    const cutoff = new Date(Date.now() - days * 86400000);
+    const conditions: any[] = [
+      sql`${analyticsViews.pageUrl} LIKE '%/blog/%'`,
+      eq(analyticsViews.isTestData, false),
+      gte(analyticsViews.createdAt, cutoff),
+    ];
 
-    let langFilter = '';
+    // Language filter requires subquery since we don't want a full JOIN for trends
     if (language) {
-      langFilter = `AND EXISTS (SELECT 1 FROM blog_posts bp WHERE bp.slug = SUBSTRING(av.page_url FROM '/blog/([^/?#]+)') AND bp.language = $${idx})`;
-      params.push(language);
-      idx++;
+      conditions.push(
+        sql`EXISTS (SELECT 1 FROM blog_posts bp WHERE bp.slug = SUBSTRING(${analyticsViews.pageUrl} FROM '/blog/([^/?#]+)') AND bp.language = ${language})`
+      );
     }
 
-    let ipFilter = '';
     if (excludedIPs.length > 0) {
-      ipFilter = `AND (av.ip_address IS NULL OR av.ip_address NOT IN (${excludedIPs.map(() => `$${idx++}`).join(',')}))`;
-      params.push(...excludedIPs);
+      const ipList = sql.join(excludedIPs.map(ip => sql`${ip}`), sql`, `);
+      conditions.push(
+        sql`(${analyticsViews.ipAddress} IS NULL OR ${analyticsViews.ipAddress} NOT IN (${ipList}))`
+      );
     }
 
-    const { rows } = await pool.query(
-      `SELECT
-         DATE(av.created_at) as date,
-         COUNT(av.id) as views
-       FROM analytics_views av
-       WHERE av.page_url LIKE '%/blog/%'
-         AND av.is_test_data = false
-         AND av.created_at >= NOW() - INTERVAL '${days} days'
-         ${langFilter}
-         ${ipFilter}
-       GROUP BY DATE(av.created_at)
-       ORDER BY date ASC`,
-      params
-    );
+    const rows = await db
+      .select({
+        date: sql<string>`DATE(${analyticsViews.createdAt})`,
+        views: sql<number>`count(${analyticsViews.id})::int`,
+      })
+      .from(analyticsViews)
+      .where(and(...conditions))
+      .groupBy(sql`DATE(${analyticsViews.createdAt})`)
+      .orderBy(sql`DATE(${analyticsViews.createdAt})`);
 
     res.json(rows.map(r => ({
-      date: r.date?.toISOString().split('T')[0] || '',
-      views: parseInt(r.views, 10),
+      date: String(r.date).split('T')[0],
+      views: r.views,
     })));
   } catch (error: any) {
     console.error('[Blog Analytics] /trends error:', error);
@@ -182,49 +156,49 @@ router.get('/analytics/blog/topics', async (req: Request, res: Response) => {
     const language = req.query.language ? String(req.query.language) : undefined;
     const excludedIPs = await getExcludedIPs();
 
-    const params: any[] = [];
-    let idx = 1;
+    const cutoff = new Date(Date.now() - days * 86400000);
+    const conditions: any[] = [
+      sql`${analyticsViews.pageUrl} LIKE '%/blog/%'`,
+      eq(analyticsViews.isTestData, false),
+      gte(analyticsViews.createdAt, cutoff),
+    ];
 
-    let langFilter = '';
     if (language) {
-      langFilter = `AND bp.language = $${idx}`;
-      params.push(language);
-      idx++;
+      conditions.push(eq(blogPosts.language, language));
     }
 
-    let ipFilter = '';
     if (excludedIPs.length > 0) {
-      ipFilter = `AND (av.ip_address IS NULL OR av.ip_address NOT IN (${excludedIPs.map(() => `$${idx++}`).join(',')}))`;
-      params.push(...excludedIPs);
+      const ipList = sql.join(excludedIPs.map(ip => sql`${ip}`), sql`, `);
+      conditions.push(
+        sql`(${analyticsViews.ipAddress} IS NULL OR ${analyticsViews.ipAddress} NOT IN (${ipList}))`
+      );
     }
 
-    const { rows } = await pool.query(
-      `SELECT
-         ct.id as topic_id,
-         ct.title as topic_title,
-         ct.category,
-         COUNT(av.id) as view_count,
-         COUNT(DISTINCT bp.id) as post_count
-       FROM content_topics ct
-       JOIN blog_posts bp ON bp.source_topic_id = ct.id
-       JOIN analytics_views av ON SUBSTRING(av.page_url FROM '/blog/([^/?#]+)') = bp.slug
-       WHERE av.page_url LIKE '%/blog/%'
-         AND av.is_test_data = false
-         AND av.created_at >= NOW() - INTERVAL '${days} days'
-         ${langFilter}
-         ${ipFilter}
-       GROUP BY ct.id, ct.title, ct.category
-       ORDER BY view_count DESC
-       LIMIT 10`,
-      params
-    );
+    const rows = await db
+      .select({
+        topic_id: contentTopics.id,
+        topic_title: contentTopics.title,
+        category: contentTopics.category,
+        view_count: sql<number>`count(${analyticsViews.id})::int`,
+        post_count: sql<number>`count(DISTINCT ${blogPosts.id})::int`,
+      })
+      .from(contentTopics)
+      .innerJoin(blogPosts, eq(blogPosts.sourceTopicId, contentTopics.id))
+      .innerJoin(
+        analyticsViews,
+        sql`SUBSTRING(${analyticsViews.pageUrl} FROM '/blog/([^/?#]+)') = ${blogPosts.slug}`
+      )
+      .where(and(...conditions))
+      .groupBy(contentTopics.id, contentTopics.title, contentTopics.category)
+      .orderBy(desc(sql`count(${analyticsViews.id})`))
+      .limit(10);
 
     res.json(rows.map(r => ({
       topic_id: r.topic_id,
       topic_title: r.topic_title,
       category: r.category || 'Uncategorized',
-      view_count: parseInt(r.view_count, 10),
-      post_count: parseInt(r.post_count, 10),
+      view_count: r.view_count,
+      post_count: r.post_count,
     })));
   } catch (error: any) {
     console.error('[Blog Analytics] /topics error:', error);
@@ -242,47 +216,45 @@ router.get('/analytics/blog/keywords', async (req: Request, res: Response) => {
     const language = req.query.language ? String(req.query.language) : undefined;
     const excludedIPs = await getExcludedIPs();
 
-    const params: any[] = [];
-    let idx = 1;
+    const cutoff = new Date(Date.now() - days * 86400000);
+    const conditions: any[] = [
+      sql`${analyticsViews.pageUrl} LIKE '%/blog/%'`,
+      eq(analyticsViews.isTestData, false),
+      gte(analyticsViews.createdAt, cutoff),
+      sql`${blogPosts.primaryKeyword} IS NOT NULL AND ${blogPosts.primaryKeyword} != ''`,
+    ];
 
-    let langFilter = '';
     if (language) {
-      langFilter = `AND bp.language = $${idx}`;
-      params.push(language);
-      idx++;
+      conditions.push(eq(blogPosts.language, language));
     }
 
-    let ipFilter = '';
     if (excludedIPs.length > 0) {
-      ipFilter = `AND (av.ip_address IS NULL OR av.ip_address NOT IN (${excludedIPs.map(() => `$${idx++}`).join(',')}))`;
-      params.push(...excludedIPs);
+      const ipList = sql.join(excludedIPs.map(ip => sql`${ip}`), sql`, `);
+      conditions.push(
+        sql`(${analyticsViews.ipAddress} IS NULL OR ${analyticsViews.ipAddress} NOT IN (${ipList}))`
+      );
     }
 
-    // Query posts that have primary_keyword set and have views
-    const { rows } = await pool.query(
-      `SELECT
-         bp.primary_keyword as keyword,
-         COUNT(av.id) as view_count,
-         COUNT(DISTINCT bp.id) as post_count
-       FROM blog_posts bp
-       JOIN analytics_views av ON SUBSTRING(av.page_url FROM '/blog/([^/?#]+)') = bp.slug
-       WHERE av.page_url LIKE '%/blog/%'
-         AND av.is_test_data = false
-         AND av.created_at >= NOW() - INTERVAL '${days} days'
-         AND bp.primary_keyword IS NOT NULL
-         AND bp.primary_keyword != ''
-         ${langFilter}
-         ${ipFilter}
-       GROUP BY bp.primary_keyword
-       ORDER BY view_count DESC
-       LIMIT 10`,
-      params
-    );
+    const rows = await db
+      .select({
+        keyword: blogPosts.primaryKeyword,
+        view_count: sql<number>`count(${analyticsViews.id})::int`,
+        post_count: sql<number>`count(DISTINCT ${blogPosts.id})::int`,
+      })
+      .from(blogPosts)
+      .innerJoin(
+        analyticsViews,
+        sql`SUBSTRING(${analyticsViews.pageUrl} FROM '/blog/([^/?#]+)') = ${blogPosts.slug}`
+      )
+      .where(and(...conditions))
+      .groupBy(blogPosts.primaryKeyword)
+      .orderBy(desc(sql`count(${analyticsViews.id})`))
+      .limit(10);
 
     res.json(rows.map(r => ({
       keyword: r.keyword,
-      view_count: parseInt(r.view_count, 10),
-      post_count: parseInt(r.post_count, 10),
+      view_count: r.view_count,
+      post_count: r.post_count,
     })));
   } catch (error: any) {
     console.error('[Blog Analytics] /keywords error:', error);
@@ -300,49 +272,47 @@ router.get('/analytics/blog/categories', async (req: Request, res: Response) => 
     const language = req.query.language ? String(req.query.language) : undefined;
     const excludedIPs = await getExcludedIPs();
 
-    const params: any[] = [];
-    let idx = 1;
+    const cutoff = new Date(Date.now() - days * 86400000);
+    const conditions: any[] = [
+      sql`${analyticsViews.pageUrl} LIKE '%/blog/%'`,
+      eq(analyticsViews.isTestData, false),
+      gte(analyticsViews.createdAt, cutoff),
+    ];
 
-    let langFilter = '';
     if (language) {
-      langFilter = `AND bp.language = $${idx}`;
-      params.push(language);
-      idx++;
+      conditions.push(eq(blogPosts.language, language));
     }
 
-    let ipFilter = '';
     if (excludedIPs.length > 0) {
-      ipFilter = `AND (av.ip_address IS NULL OR av.ip_address NOT IN (${excludedIPs.map(() => `$${idx++}`).join(',')}))`;
-      params.push(...excludedIPs);
+      const ipList = sql.join(excludedIPs.map(ip => sql`${ip}`), sql`, `);
+      conditions.push(
+        sql`(${analyticsViews.ipAddress} IS NULL OR ${analyticsViews.ipAddress} NOT IN (${ipList}))`
+      );
     }
 
-    // Get category from content_topics (joined through blog_posts.source_topic_id)
-    const { rows } = await pool.query(
-      `SELECT
-         COALESCE(ct.category, 'Uncategorized') as category,
-         COUNT(av.id) as view_count,
-         COUNT(DISTINCT bp.id) as post_count
-       FROM blog_posts bp
-       LEFT JOIN content_topics ct ON bp.source_topic_id = ct.id
-       JOIN analytics_views av ON SUBSTRING(av.page_url FROM '/blog/([^/?#]+)') = bp.slug
-       WHERE av.page_url LIKE '%/blog/%'
-         AND av.is_test_data = false
-         AND av.created_at >= NOW() - INTERVAL '${days} days'
-         ${langFilter}
-         ${ipFilter}
-       GROUP BY ct.category
-       ORDER BY view_count DESC`,
-      params
-    );
+    const rows = await db
+      .select({
+        category: sql<string>`COALESCE(${contentTopics.category}, 'Uncategorized')`,
+        view_count: sql<number>`count(${analyticsViews.id})::int`,
+        post_count: sql<number>`count(DISTINCT ${blogPosts.id})::int`,
+      })
+      .from(blogPosts)
+      .leftJoin(contentTopics, eq(blogPosts.sourceTopicId, contentTopics.id))
+      .innerJoin(
+        analyticsViews,
+        sql`SUBSTRING(${analyticsViews.pageUrl} FROM '/blog/([^/?#]+)') = ${blogPosts.slug}`
+      )
+      .where(and(...conditions))
+      .groupBy(contentTopics.category)
+      .orderBy(desc(sql`count(${analyticsViews.id})`));
 
-    // Calculate percentages
-    const totalViews = rows.reduce((sum: number, r: any) => sum + parseInt(r.view_count, 10), 0);
+    const totalViews = rows.reduce((sum, r) => sum + r.view_count, 0);
 
     res.json(rows.map(r => ({
       category: r.category,
-      view_count: parseInt(r.view_count, 10),
-      post_count: parseInt(r.post_count, 10),
-      percentage: totalViews > 0 ? Math.round((parseInt(r.view_count, 10) / totalViews) * 100) : 0,
+      view_count: r.view_count,
+      post_count: r.post_count,
+      percentage: totalViews > 0 ? Math.round((r.view_count / totalViews) * 100) : 0,
     })));
   } catch (error: any) {
     console.error('[Blog Analytics] /categories error:', error);
