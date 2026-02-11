@@ -264,8 +264,8 @@ WHERE created_at < NOW() - INTERVAL '90 days';
 | `shared/schema.ts` | Database table definitions |
 | `server/routes/analytics.routes.ts` | Analytics API routes |
 | `server/services/analytics/` | Analytics service modules |
-| `client/src/components/admin/AnalyticsDashboard.tsx` | Admin dashboard component |
-| `client/src/components/admin/GA4AnalyticsSection.tsx` | GA4 dashboard component |
+| `client/src/admin/analyticsNew/AnalyticsNewDashboard.tsx` | Admin analytics dashboard |
+| `client/src/admin/analyticsNew/AnalyticsNewOverview.tsx` | Overview tab component |
 
 ---
 

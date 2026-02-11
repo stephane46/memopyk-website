@@ -22,7 +22,7 @@
 | **Partners API** | ✅ Working | Database queries implemented |
 | **Analytics** | ✅ Functional | P1-P8 rebuild + blog analytics endpoints |
 | **Help System — Blog** | ✅ Complete | 9 screens, 2 flows, visual badges, localStorage persistence |
-| **Help System — Other** | 🔧 Not started | Partners, Contenu Site, System, Analytics, SEO |
+| **Help System — All Sections** | ✅ Complete | 31 total screens (9 blog + 12 admin sections + 10 analytics subtabs), 2 flows |
 | **Blog Status Model** | ✅ Complete | Draft / In Review / Published / Archived |
 | **E2E Tests** | ✅ Infrastructure complete | Rate limit bypass, 9 flows |
 | **DNS** | ✅ Complete | Migrated to Coolify |
@@ -53,7 +53,7 @@ Five new endpoints in `server/routes/blog-analytics.routes.ts`:
 - /api/analytics/blog/keywords
 - /api/analytics/blog/categories
 
-All support days + language params + IP exclusion. Uses raw pg Pool for complex JOINs.
+All support days + language params + IP exclusion. Uses Drizzle ORM with `sql` tagged templates for complex JOINs.
 
 ---
 
@@ -76,6 +76,5 @@ All support days + language params + IP exclusion. Uses raw pg Pool for complex 
 ## Remaining Work
 
 - Mapbox GL JS migration for Partner Directory map
-- Help system for non-blog admin sections
 - 36 client TS errors (non-blocking, pre-existing in admin analytics components)
 - Analytics dashboard strategic rebuild decision

@@ -21,13 +21,6 @@
 **Details**: Current minimal map implementation works but Mapbox GL JS would improve UX with better interactivity, clustering, and mobile support.
 **To Fix**: Dedicated Mapbox migration task.
 
-### Help System — Non-Blog Sections
-**Date Added**: 2026-02-04
-**Severity**: Medium
-**Location**: Admin panel sections: Partners, Contenu Site, System, Analytics, SEO
-**Details**: Blog help system is complete (9 screens, 2 flows). Other admin sections have no help content yet.
-**To Fix**: Create help_screens entries for each non-blog section.
-
 ### Analytics Dashboard Strategic Decision
 **Date Added**: 2026-02-11
 **Severity**: Medium
@@ -48,6 +41,7 @@
 
 | Date | Item | Solution |
 |------|------|----------|
+| Feb 11 | Help system for non-blog admin sections | 22 new help_screens added (31 total), all admin sections covered |
 | Feb 9 | 48 dead files in codebase | Deleted (Phase 2: Dead Code Removal) |
 | Feb 9 | ~12,000 lines of dead code | Removed across 46 components + 2 route files |
 | Feb 9 | 5 unprotected admin routes | requireAdmin middleware added (Phase 1: Security) |

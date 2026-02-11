@@ -42,7 +42,7 @@ memopyk-website/
 │   ├── public/         # Static assets
 │   └── src/            # Components, pages, admin
 ├── server/             # Express backend
-│   ├── routes/         # 16 route modules
+│   ├── routes/         # 22 route modules
 │   └── services/       # Business logic
 ├── shared/             # Shared code
 │   └── schema.ts       # Drizzle schema (42 tables)
@@ -118,13 +118,13 @@ memopyk-website/
 | migration/MIGRATION_PROGRESS.md | Replit → Coolify migration status |
 | migration/PERFORMANCE_COMPARISON.md | Replit vs Coolify benchmarks |
 
-### Planned (not yet created)
+### Architecture
 | Document | Description |
 |----------|-------------|
-| architecture/OVERVIEW.md | System design, data flow |
+| architecture/OVERVIEW.md | System design, data flow, folder structure |
 | architecture/DATABASE.md | 42-table schema reference |
-| architecture/API.md | All endpoints documented |
-| architecture/DECISIONS.md | Architecture Decision Records |
+| architecture/API.md | All endpoints documented (~204 endpoints) |
+| architecture/DECISIONS.md | Architecture Decision Records (11 ADRs) |
 
 ---
 
