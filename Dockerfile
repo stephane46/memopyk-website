@@ -42,6 +42,9 @@ COPY --from=builder /app/server/data ./server/data
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 expressjs && \
     chown -R expressjs:nodejs /app
+# Create cache directories with correct ownership for persistent volume
+RUN mkdir -p /app/server/cache/videos /app/server/cache/images && \
+    chown -R expressjs:nodejs /app/server/cache
 USER expressjs
 # Expose port
 EXPOSE 5000

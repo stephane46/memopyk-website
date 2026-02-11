@@ -320,7 +320,11 @@ export class VideoCache {
   }
 
   private ensureDir(dir: string): void {
-    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+    try {
+      if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+    } catch (err: any) {
+      console.warn(`⚠️ [Cache] Could not create directory ${dir}: ${err.message}`);
+    }
   }
 
   /** Evict oldest videos when count exceeds 8, keeping at most 6. */
