@@ -86,3 +86,19 @@ See docs/TECH_DEBT.md for full list. Key items:
 - Mapbox GL JS migration planned for Partner Directory
 - Help system needed for non-blog admin sections
 - Analytics dashboard rebuild decision pending
+
+## Agent Teams
+
+This project uses Claude Code Agent Teams for parallel development. If you're reading this as a teammate:
+
+**Your scope:** Follow your spawn prompt. Only modify files in your assigned directories. If you need changes outside your scope, message the team lead — don't do it yourself.
+
+**Coordination:**
+- Check the shared task list before starting work
+- Claim tasks, don't duplicate work another teammate is doing
+- Message the team lead when you finish a task or hit a blocker
+- Message other teammates directly if your work affects theirs
+
+**Before coding:** Read `.claude/rules/working-constraints.md` and any path-scoped rules that match your files. Read `docs/README.md` for the documentation index.
+
+**After coding:** Verify your changes (Rule 4), commit to `staging` branch (Rule 3), update relevant docs if architecture changed.

@@ -81,4 +81,17 @@ Before writing new code:
 
 ---
 
+## Rule 9: Agent Teams Coordination
+
+When working as a teammate in an Agent Team:
+
+1. **Stay in your lane** — Only modify files in your assigned scope. If you need changes elsewhere, message the team lead.
+2. **Claim tasks** — Check the shared task list. Claim before starting. Don't duplicate work.
+3. **Report blockers immediately** — Message the team lead, don't silently wait.
+4. **Don't broadcast** — Use direct messages to specific teammates. Broadcasting costs tokens for everyone.
+5. **Commit your own work** — Each teammate commits to `staging` with descriptive messages: `feat(your-scope): description`.
+6. **Don't run cleanup** — Only the team lead runs team cleanup. Teammates just shut down when asked.
+
+---
+
 These rules save time. The deployment rule prevents untested code in production. The diagnostic rule prevents hours of masked debugging. The verify rule prevents false success claims.

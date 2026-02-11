@@ -103,3 +103,36 @@
 - [x] Fixed 3 failures: Blog expectedTitle, Cache skip (pre-existing crash), Close drawer assertion, Posts redirect race
 - [x] Final run: 28/28 passing (Cache skipped — pre-existing page crash)
 - Commit: `b8569f4`
+
+## Cache Management Fix — Feb 11
+
+### Cache Tab Crash — DONE
+- Root cause: property name mismatch (`heroVideos.count` vs actual `videos.fileCount`)
+- Removed stub `/api/unified-cache/stats` query
+- Added optional chaining + fallback defaults throughout
+- Re-enabled Cache tab in Playwright test
+
+### Cache Full Fix — DONE
+- "All Media Cache" now dynamically queries DB for all hero + gallery videos (was hardcoded to 3)
+- Orphaned images endpoint implemented (`POST /api/cache/cleanup-orphaned-static-images`)
+- Gallery videos in UI now fetched dynamically from `/api/gallery`
+- Fixed HeroVideo interface (`url_en` → `urlEn`)
+- `.gitkeep` + `.gitignore` for cache directories
+
+### Videos cached (7 total)
+| Type | Filename |
+|------|----------|
+| Hero | VideoHero1.mp4, VideoHero2.mp4, VideoHero3.mp4 |
+| Gallery EN | PomGalleryC_EN.mp4, VitaminSeaC.mp4, safari-1.mp4 |
+| Gallery FR | PomGalleryC.mp4 (separate FR version) |
+
+### Dynamic caching
+New videos added to the database (hero_videos or gallery_items tables) automatically appear in the Cache Management UI. Clicking "All Media Cache" fetches the current list from DB, so new videos are always included. Caching is NOT automatic on upload — manual trigger via the Cache tab is required.
+
+### Coolify Persistent Volume (required)
+Without a persistent volume, cache is wiped on every deploy. Configuration:
+- **Coolify path**: Project → Application → Configuration → Persistent Storage
+- **Mount path in container**: `/app/server/cache`
+- **Host path**: leave empty (Coolify creates a Docker volume)
+- Must be configured for both staging and production applications
+- Redeploy required after adding the volume

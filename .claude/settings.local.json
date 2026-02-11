@@ -1,39 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ls:*)",
-      "Bash(cat:*)",
-      "Bash(grep:*)",
-      "Bash(find:*)",
-      "Bash(head:*)",
-      "Bash(tail:*)",
-      "Bash(wc:*)",
-      "Bash(mkdir:*)",
-      "Bash(cp:*)",
-      "Bash(mv:*)",
-      "Bash(rm:*)",
-      "Bash(touch:*)",
-      "Bash(echo:*)",
-      "Bash(pwd:*)",
-      "Bash(cd:*)",
-      "Bash(npm:*)",
-      "Bash(node:*)",
-      "Bash(npx:*)",
-      "Bash(tsc:*)",
-      "Bash(tsx:*)",
-      "Bash(git:*)",
-      "Bash(docker:*)",
-      "Bash(curl:*)",
-      "Bash(wget:*)",
-      "Read(*)",
-      "Write(*)",
       "WebSearch",
       "WebFetch(domain:memopyk.memopyk.com)",
       "mcp__postgres__query"
     ],
     "deny": []
   },
-  "disabledMcpjsonServers": [
+  "enabledMcpjsonServers": [
     "postgres"
-  ]
+  ],
+  "disabledMcpjsonServers": [],
+  "enableAllProjectMcpServers": true
 }
