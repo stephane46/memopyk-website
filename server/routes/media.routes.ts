@@ -1264,27 +1264,17 @@ function serveVideoFromCache(cachedVideo: string, req: any, res: any) {
 
 // Video proxy handler
 async function handleVideoProxy(req: any, res: any) {
-  const VERSION = "v1.0.media-routes";
+  const VERSION = "v1.1.cache-first";
   const filename = req.query.filename as string;
-
-  const isHeroVideo = ['VideoHero1.mp4', 'VideoHero2.mp4', 'VideoHero3.mp4'].includes(filename);
-  const isGalleryVideo = !isHeroVideo && filename && filename.endsWith('.mp4');
-
-  // Gallery videos bypass cache and stream from CDN
-  if (isGalleryVideo) {
-    await streamFromCDN(filename, req, res, VERSION);
-    return;
-  }
 
   if (!filename) {
     return res.status(400).json({ error: "filename parameter is required" });
   }
 
   try {
-    let cachedVideo = videoCache.getCachedVideoPath(filename);
-    const fileExists = cachedVideo ? existsSync(cachedVideo) : false;
-
-    if (cachedVideo && fileExists) {
+    // Cache-first: serve any cached video from disk (hero or gallery)
+    const cachedVideo = videoCache.getCachedVideoPath(filename);
+    if (cachedVideo && existsSync(cachedVideo)) {
       try {
         serveVideoFromCache(cachedVideo, req, res);
         return;
@@ -1293,7 +1283,7 @@ async function handleVideoProxy(req: any, res: any) {
       }
     }
 
-    // Fallback to CDN streaming
+    // CDN fallback for uncached videos
     const encodedFilename = encodeURIComponent(filename);
     const supabaseUrl = `https://supabase.memopyk.org/storage/v1/object/public/memopyk-videos/${encodedFilename}`;
 
