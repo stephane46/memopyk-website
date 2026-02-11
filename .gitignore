@@ -44,6 +44,14 @@ test-results/
 *.temp
 .cache/
 
+# Server media cache (populated at runtime, mount as Coolify volume at /app/server/cache)
+server/cache/**
+!server/cache/.gitkeep
+!server/cache/videos/
+!server/cache/videos/.gitkeep
+!server/cache/images/
+!server/cache/images/.gitkeep
+
 # Drizzle
 drizzle/meta/
 

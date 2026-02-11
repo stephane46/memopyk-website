@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
@@ -9,8 +9,17 @@ import { useToast } from '@/hooks/use-toast';
 import VideoCacheStatus from '@/components/admin/VideoCacheStatus';
 
 interface HeroVideo {
-  id: number;
-  url_en: string;
+  id: string;
+  urlEn: string;
+  urlFr: string;
+  useSameVideo: boolean;
+}
+
+interface GalleryItem {
+  id: string;
+  videoUrlEn: string | null;
+  videoUrlFr: string | null;
+  useSameVideo: boolean;
 }
 
 export default function CacheManagementSection() {
@@ -43,6 +52,41 @@ export default function CacheManagementSection() {
   const { data: heroVideos = [] } = useQuery<HeroVideo[]>({
     queryKey: ['/api/hero-videos'],
   });
+
+  // Fetch gallery items (for video filenames in VideoCacheStatus)
+  const { data: galleryItems = [] } = useQuery<GalleryItem[]>({
+    queryKey: ['/api/gallery'],
+  });
+
+  // Extract unique hero video filenames
+  const heroVideoFilenames = useMemo(() => {
+    const fns: string[] = [];
+    for (const v of heroVideos) {
+      if (v.urlEn && !fns.includes(v.urlEn)) fns.push(v.urlEn);
+      if (!v.useSameVideo && v.urlFr && v.urlFr !== v.urlEn && !fns.includes(v.urlFr)) fns.push(v.urlFr);
+    }
+    return fns;
+  }, [heroVideos]);
+
+  // Extract unique gallery video filenames from full URLs
+  const galleryVideoFilenames = useMemo(() => {
+    const fns: string[] = [];
+    const extract = (url: string) => {
+      try { return decodeURIComponent(url.split('/').pop()!); }
+      catch { return url.split('/').pop()!; }
+    };
+    for (const item of galleryItems) {
+      if (item.videoUrlEn) {
+        const fn = extract(item.videoUrlEn);
+        if (!fns.includes(fn)) fns.push(fn);
+      }
+      if (!item.useSameVideo && item.videoUrlFr && item.videoUrlFr !== item.videoUrlEn) {
+        const fn = extract(item.videoUrlFr);
+        if (!fns.includes(fn)) fns.push(fn);
+      }
+    }
+    return fns;
+  }, [galleryItems]);
 
   // Fetch detailed cache breakdown
   const { data: cacheBreakdown } = useQuery<any>({
@@ -180,7 +224,7 @@ export default function CacheManagementSection() {
             <VideoCacheStatus
               title="Hero Videos Cache Status"
               description="Critical videos for homepage carousel - preloaded for instant display"
-              videoFilenames={heroVideos.map(v => v.url_en).filter(Boolean)}
+              videoFilenames={heroVideoFilenames}
               showForceAllButton={false}
             />
           </CardContent>
@@ -198,7 +242,7 @@ export default function CacheManagementSection() {
             <VideoCacheStatus
               title="Gallery Videos Cache Status"
               description="Portfolio gallery videos - optimized for lightbox display"
-              videoFilenames={['PomGalleryC.mp4', 'VitaminSeaC.mp4', 'safari-1.mp4']}
+              videoFilenames={galleryVideoFilenames}
               showForceAllButton={false}
             />
           </CardContent>

@@ -232,31 +232,74 @@ export class VideoCache {
     return this.clearAll();
   }
 
-  /** Preload all hero videos and gallery videos (not yet implemented) */
-  async forceCacheAllMedia(): Promise<{ success: boolean; message: string; cached: number }> {
-    console.log('🎬 forceCacheAllMedia: Preloading hero videos...');
-    const heroVideos = ['VideoHero1.mp4', 'VideoHero2.mp4', 'VideoHero3.mp4'];
-    let cached = 0;
+  /** Cache all media files (hero videos, gallery videos, gallery images). */
+  async forceCacheAllMedia(options: {
+    videoFilenames: string[];
+    videoUrls?: Map<string, string>;
+    imageFilenames: string[];
+    imageUrls?: Map<string, string>;
+  }): Promise<ForceCacheAllResult> {
+    const startTime = Date.now();
+    const { videoFilenames, videoUrls, imageFilenames, imageUrls } = options;
 
-    for (const filename of heroVideos) {
+    console.log(`🎬 forceCacheAllMedia: ${videoFilenames.length} videos, ${imageFilenames.length} images`);
+
+    const videoResults: Array<{ filename: string; success: boolean; sizeMB: string }> = [];
+    const imageResults: Array<{ filename: string; success: boolean; sizeMB: string }> = [];
+
+    for (const filename of videoFilenames) {
       try {
+        const customUrl = videoUrls?.get(filename);
         if (!this.isVideoCached(filename)) {
-          await this.downloadAndCacheVideo(filename);
-          cached++;
-          console.log(`✅ Cached: ${filename}`);
+          await this.downloadAndCacheVideo(filename, customUrl);
+          console.log(`✅ Cached video: ${filename}`);
         } else {
           console.log(`⏭️ Already cached: ${filename}`);
         }
+        const p = this.videoPath(filename);
+        const size = existsSync(p) ? statSync(p).size : 0;
+        videoResults.push({ filename, success: true, sizeMB: mb(size) });
       } catch (err) {
-        console.error(`❌ Failed to cache ${filename}:`, err);
+        console.error(`❌ Failed to cache video ${filename}:`, err);
+        videoResults.push({ filename, success: false, sizeMB: "0" });
       }
     }
 
+    for (const filename of imageFilenames) {
+      try {
+        const customUrl = imageUrls?.get(filename);
+        if (!this.isImageCached(filename)) {
+          await this.downloadAndCacheImage(filename, customUrl);
+          console.log(`✅ Cached image: ${filename}`);
+        } else {
+          console.log(`⏭️ Already cached: ${filename}`);
+        }
+        const p = this.imagePath(filename);
+        const size = existsSync(p) ? statSync(p).size : 0;
+        imageResults.push({ filename, success: true, sizeMB: mb(size) });
+      } catch (err) {
+        console.error(`❌ Failed to cache image ${filename}:`, err);
+        imageResults.push({ filename, success: false, sizeMB: "0" });
+      }
+    }
+
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
     return {
-      success: true,
-      message: `Cached ${cached} hero videos`,
-      cached
+      stats: {
+        videos: { attempted: videoFilenames.length, successful: videoResults.filter(r => r.success).length },
+        images: { attempted: imageFilenames.length, successful: imageResults.filter(r => r.success).length },
+        processingTime: `${elapsed}s`,
+      },
+      verification: { videos: videoResults, images: imageResults },
     };
+  }
+
+  /** Remove cached images not referenced by any gallery item. */
+  cleanupOrphanedImages(referencedFilenames: Set<string>): { cleaned: number; orphanedFiles: string[] } {
+    const cached = this.getImageStats().files;
+    const orphaned = cached.filter(f => !referencedFilenames.has(f));
+    for (const f of orphaned) this.removeImage(f);
+    return { cleaned: orphaned.length, orphanedFiles: orphaned };
   }
 
   // ---------------------------------------------------------------------------
@@ -390,6 +433,18 @@ export interface CacheStats {
   sizeMB: string;
   files: string[];
   fileDetails: FileDetail[];
+}
+
+export interface ForceCacheAllResult {
+  stats: {
+    videos: { attempted: number; successful: number };
+    images: { attempted: number; successful: number };
+    processingTime: string;
+  };
+  verification: {
+    videos: Array<{ filename: string; success: boolean; sizeMB: string }>;
+    images: Array<{ filename: string; success: boolean; sizeMB: string }>;
+  };
 }
 
 export interface UnifiedCacheStats {

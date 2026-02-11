@@ -51,6 +51,78 @@ import { videoCache } from '../services/media/video-cache.service';
 
 const router = Router();
 
+/** Extract filename from a full Supabase URL or return as-is if already a filename. */
+function extractFilename(url: string): string {
+  if (!url.includes('/')) return url;
+  try { return decodeURIComponent(url.split('/').pop()!); }
+  catch { return url.split('/').pop()!; }
+}
+
+/** Build the media file lists from hero videos and gallery items for caching. */
+async function collectAllMediaFiles(): Promise<{
+  videoFilenames: string[];
+  videoUrls: Map<string, string>;
+  imageFilenames: string[];
+  imageUrls: Map<string, string>;
+}> {
+  const { storage } = await import('../services/storage.service');
+  const heroVideos = await storage.getHeroVideos();
+  const galleryItems = await storage.getGalleryItems();
+
+  const videoFilenames: string[] = [];
+  const videoUrls = new Map<string, string>();
+  const imageFilenames: string[] = [];
+  const imageUrls = new Map<string, string>();
+
+  // Hero videos (stored as filenames, not full URLs)
+  for (const hv of heroVideos) {
+    if (hv.urlEn && !videoFilenames.includes(hv.urlEn)) {
+      videoFilenames.push(hv.urlEn);
+    }
+    if (!hv.useSameVideo && hv.urlFr && hv.urlFr !== hv.urlEn && !videoFilenames.includes(hv.urlFr)) {
+      videoFilenames.push(hv.urlFr);
+    }
+  }
+
+  // Gallery videos (stored as full URLs)
+  for (const gi of galleryItems) {
+    if (gi.videoUrlEn) {
+      const fn = extractFilename(gi.videoUrlEn);
+      if (!videoFilenames.includes(fn)) {
+        videoFilenames.push(fn);
+        videoUrls.set(fn, gi.videoUrlEn);
+      }
+    }
+    if (!gi.useSameVideo && gi.videoUrlFr && gi.videoUrlFr !== gi.videoUrlEn) {
+      const fn = extractFilename(gi.videoUrlFr);
+      if (!videoFilenames.includes(fn)) {
+        videoFilenames.push(fn);
+        videoUrls.set(fn, gi.videoUrlFr);
+      }
+    }
+  }
+
+  // Gallery static images (thumbnails)
+  for (const gi of galleryItems) {
+    if (gi.staticImageUrlEn) {
+      const fn = extractFilename(gi.staticImageUrlEn);
+      if (!imageFilenames.includes(fn)) {
+        imageFilenames.push(fn);
+        imageUrls.set(fn, gi.staticImageUrlEn);
+      }
+    }
+    if (gi.staticImageUrlFr && gi.staticImageUrlFr !== gi.staticImageUrlEn) {
+      const fn = extractFilename(gi.staticImageUrlFr);
+      if (!imageFilenames.includes(fn)) {
+        imageFilenames.push(fn);
+        imageUrls.set(fn, gi.staticImageUrlFr);
+      }
+    }
+  }
+
+  return { videoFilenames, videoUrls, imageFilenames, imageUrls };
+}
+
 // hybridStorage is deprecated - Supabase is the single source of truth
 // This stub prevents errors if any legacy code still references it
 const hybridStorage = {
@@ -985,11 +1057,14 @@ router.post("/api/video-cache/force", async (req: Request, res: Response) => {
   }
 });
 
-// Force cache all media
+// Force cache all media (hero videos + gallery videos + gallery images from DB)
 router.post("/api/video-cache/force-all-media", async (req: Request, res: Response) => {
   try {
-    console.log('🚀 Force cache all media request received');
-    const result = await videoCache.forceCacheAllMedia();
+    console.log('🚀 Force cache all media — fetching file lists from database');
+    const media = await collectAllMediaFiles();
+    console.log(`   Videos: ${media.videoFilenames.join(', ')}`);
+    console.log(`   Images: ${media.imageFilenames.join(', ')}`);
+    const result = await videoCache.forceCacheAllMedia(media);
     res.json(result);
   } catch (error) {
     console.error('❌ Force cache all media error:', error);
@@ -997,11 +1072,12 @@ router.post("/api/video-cache/force-all-media", async (req: Request, res: Respon
   }
 });
 
-// Video Cache Force All (alternative endpoint name)
+// Video Cache Force All (alternative endpoint — same logic)
 router.post("/api/video-cache/force-all", async (req: Request, res: Response) => {
   try {
     console.log('🚀 Force cache all videos (alternative endpoint)');
-    const result = await videoCache.forceCacheAllMedia();
+    const media = await collectAllMediaFiles();
+    const result = await videoCache.forceCacheAllMedia(media);
     res.json(result);
   } catch (error) {
     console.error('❌ Force cache all error:', error);
@@ -1021,14 +1097,14 @@ router.post("/api/video-cache/clear", async (req: Request, res: Response) => {
   }
 });
 
-// Video Cache Refresh
+// Video Cache Refresh — dynamic from DB
 router.post("/api/video-cache/refresh", async (req: Request, res: Response) => {
   try {
     console.log('🔄 Refresh video cache status');
     const stats = videoCache.getCacheStats();
+    const media = await collectAllMediaFiles();
 
-    const heroVideos = ['VideoHero1.mp4', 'VideoHero2.mp4', 'VideoHero3.mp4'];
-    const heroStatus = heroVideos.map(filename => ({
+    const videoStatus = media.videoFilenames.map(filename => ({
       filename,
       cached: videoCache.isVideoCached(filename),
       loadTime: videoCache.isVideoCached(filename) ? 50 : 1500
@@ -1037,12 +1113,36 @@ router.post("/api/video-cache/refresh", async (req: Request, res: Response) => {
     res.json({
       success: true,
       stats,
-      heroVideos: heroStatus,
+      heroVideos: videoStatus,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
     console.error('❌ Cache refresh error:', error);
     res.status(500).json({ error: "Failed to refresh cache" });
+  }
+});
+
+// Cleanup orphaned static images — removes cached images not referenced by any gallery item
+router.post("/api/cache/cleanup-orphaned-static-images", async (req: Request, res: Response) => {
+  try {
+    const { storage } = await import('../services/storage.service');
+    const galleryItems = await storage.getGalleryItems();
+
+    const referenced = new Set<string>();
+    for (const gi of galleryItems) {
+      if (gi.staticImageUrlEn) referenced.add(extractFilename(gi.staticImageUrlEn));
+      if (gi.staticImageUrlFr) referenced.add(extractFilename(gi.staticImageUrlFr));
+    }
+
+    const result = videoCache.cleanupOrphanedImages(referenced);
+    res.json({
+      cleaned: result.cleaned,
+      orphanedFiles: result.orphanedFiles,
+      referencedImages: Array.from(referenced),
+    });
+  } catch (error) {
+    console.error('❌ Cleanup orphaned images error:', error);
+    res.status(500).json({ error: "Failed to cleanup orphaned images" });
   }
 });
 
