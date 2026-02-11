@@ -1,268 +1,140 @@
-# Blog Workflow Guide
+# Blog Hub Workflow Guide
 
-**Location:** Admin Panel → Blog  
-**URL:** `/admin/blog`
+**Location:** Admin Panel → Blog Hub
+**URL:** `/admin?tab=planner` (default tab)
 
 ---
 
 ## Overview
 
-The MEMOPYK blog supports bilingual content (English/French). Each post requires both language versions. Posts can be saved as drafts or published immediately.
+The Blog Hub is a 5-tab content production workflow for the MEMOPYK bilingual blog (EN/FR). Each tab represents a stage in the content pipeline:
+
+| Step | Tab | URL param | Purpose |
+|------|-----|-----------|---------|
+| 1 | **Keywords** | `?tab=keywords` | SEO keyword research and tracking |
+| 2 | **Planned Posts** | `?tab=topics` | Topic briefs with SEO data |
+| 3 | **Planner** | `?tab=planner` | Calendar scheduling |
+| 4 | **Posts** | `?tab=posts` | Writing, editing, publishing |
+| 5 | **Image Bank** | `?tab=images` | Media asset library |
+
+The Planner tab opens by default.
 
 ---
 
-## Creating a New Post
+## Tab 1: Keywords
 
-### Step 1: Access Blog Management
+Research and manage SEO keywords (12,500+ FR+EN in database).
 
-1. Login to admin panel (`/admin`)
-2. Click "Blog" in sidebar
-3. Click "New Post" button
+**Key features:**
+- Filterable table: market (FR/US), tier (1-3), intent, competition, cluster, search volume
+- Excel-style multi-select checkbox filters on all columns
+- Quick Filter presets: Quick Wins, Traffic Drivers, Money Keywords, France Priority, Blog Ideas
+- Sortable columns, paginated (100/page with background loading)
+- CRUD: add, edit, delete keywords
+- Clickable Topics/Posts counts navigate to filtered views
 
-### Step 2: Fill Basic Information
+**Data fields:** keyword, monthly searches, competition (low/medium/high), intent (high/medium/low), tier (1-3), market (fr/en), cluster (25 topic clusters).
 
-| Field | Required | Description |
-|-------|----------|-------------|
-| Title (EN) | Yes | English title (appears in URL slug) |
-| Title (FR) | Yes | French title |
-| Slug (EN) | Auto | URL path (auto-generated from title) |
-| Slug (FR) | Auto | French URL path |
-| Excerpt (EN) | Yes | Short summary for listings (150-200 chars) |
-| Excerpt (FR) | Yes | French summary |
-| Author Name | Yes | Display name |
-| Author Avatar | No | Avatar image URL |
+## Tab 2: Planned Posts (Topics)
 
-### Step 3: Write Content
+Topic briefs — the planning layer between keywords and actual posts.
 
-The editor supports rich text formatting:
+**Key features:**
+- Grouped by category (Photo, Video, Family, Digital, Crafts, Seasonal)
+- Each topic has: title, primary keyword, search volume, competition, intent, content angle, target word count
+- Role system: pillar (main guide) vs. spoke (supporting article)
+- CRUD: create, edit, delete topics
+- "Create Post" action on each topic → generates a draft linked to the topic
+- Filter by category, status, market
 
-- **Bold**, *italic*, ~~strikethrough~~
-- Headings (H2, H3, H4)
-- Bullet and numbered lists
-- Links
-- Images (see below)
-- Code blocks
-- Block quotes
+## Tab 3: Planner
 
-**Tip:** Write content in one language first, then translate.
+Calendar-based content scheduling with two view modes.
 
-### Step 4: Add Featured Image
+**Key features:**
+- 12-week scrollable calendar grid
+- **Topics view:** drag/assign topics to dates
+- **Posts view:** see published/scheduled posts on the calendar
+- Click a date to assign a topic or create a post
+- Navigate to post editor directly from calendar entries
 
-1. Click "Featured Image" section
-2. Either:
-   - Upload new image (drag & drop or click)
-   - Enter existing image URL
-3. Preview appears in card
+## Tab 4: Posts
 
-**Recommended size:** 1200x630px (OG image standard)
+Post management — list, filter, and act on all blog posts.
 
-### Step 5: Add Tags
+**Key features:**
+- Filter by status (draft/in review/published/archived) and language (EN/FR)
+- Filter by linked topic or keyword
+- One-click status changes from the list
+- One-click AI translation (EN↔FR via Claude API)
+- Tag management modal
+- "New Post" button → CreatePostLanding choice screen
 
-1. Click "Tags" section
-2. Select existing tags or create new
-3. Multiple tags allowed
+### Creating a Post
 
-**Best practices:**
-- Use 2-5 tags per post
-- Keep tags broad (e.g., "memories", "photography")
-- Create FR/EN versions of tags
+Two paths from the "New Post" button:
 
-### Step 6: Set SEO Metadata
+1. **Write from scratch** — creates a blank draft and opens the editor
+2. **Generate with AI** — opens AI Creator with prompt template, generates 800-1000 word post from topic/keywords, then opens in editor for review
 
-| Field | Purpose |
-|-------|---------|
-| Meta Title | Browser tab title (50-60 chars) |
-| Meta Description | Search result snippet (150-160 chars) |
+Posts can also be created from the Planned Posts tab ("Create Post" on a topic) or from the Planner calendar.
 
-**Tips:**
-- Include target keyword in title
-- Write compelling description (call to action)
-- Preview in search result simulator
+### Blog Editor
 
-### Step 7: Save or Publish
+Full-featured post editor with:
+- TinyMCE rich text editor (self-hosted)
+- Title, slug (auto-generated), description
+- Hero image upload (drag & drop or URL)
+- Tag selector
+- Status selector (draft → in review → published)
+- Publication date picker
+- Featured post toggle with ordering
+- Translation assistant (AI-powered EN↔FR)
+- Live preview
 
-- **Save as Draft:** Post not visible on site
-- **Publish:** Post goes live immediately
-- **Schedule:** Set future publish date (if implemented)
+### Post Statuses
 
----
+| Status | Visibility | Description |
+|--------|------------|-------------|
+| **Draft** | Admin only | Work in progress |
+| **In Review** | Admin only | Ready for review before publishing |
+| **Published** | Public | Live on site, `published_at` date set |
+| **Archived** | Hidden | Removed from public view |
 
-## Editing Existing Posts
+Status transitions: Draft → In Review → Published. Any status can be set to Archived. Publishing automatically sets the publication date.
 
-1. Go to Blog → Posts list
-2. Click post title or "Edit" button
-3. Make changes
-4. Click "Save" or "Update"
+## Tab 5: Image Bank
 
-**Note:** Changing the slug after publishing may break existing links. Create a redirect if needed.
+Centralized media library for blog images.
 
----
-
-## Managing Tags
-
-### Create New Tag
-
-1. Go to Blog → Tags
-2. Click "New Tag"
-3. Enter English and French names
-4. Enter slugs (URL-friendly)
-5. Save
-
-### Edit Tag
-
-1. Click tag name in list
-2. Update fields
-3. Save
-
-### Delete Tag
-
-1. Click delete icon
-2. Confirm deletion
-3. Posts with this tag will lose the association
+**Key features:**
+- Upload images with metadata (alt text, category, labels)
+- 7 categories matching blog topics (Photo, Video, Family, Digital, Crafts, Seasonal, General)
+- Label system for cross-cutting tags
+- Search and filter by category/label
+- Images available in TinyMCE editor via built-in image picker
 
 ---
 
-## Adding Images to Posts
+## Bilingual Content
 
-### Method 1: Upload via Editor
-
-1. Click image icon in editor toolbar
-2. Select file from computer
-3. Image uploads to `/api/admin/blog/images`
-4. Inserts into content
-
-### Method 2: External URL
-
-1. Click image icon
-2. Select "From URL" tab
-3. Paste image URL
-4. Inserts as external image
-
-### Method 3: Supabase Storage
-
-1. Upload image to Supabase Storage (memopyk-images bucket)
-2. Copy public URL
-3. Insert via URL method
-
-**Image Guidelines:**
-- Format: JPEG, PNG, WebP
-- Max size: 5MB
-- Recommended width: 800-1200px
-- Use descriptive filenames
+- Each post has a single language (en-US or fr-FR)
+- Translation creates a new linked post in the other language
+- AI translation via Claude API available from the Posts list (one-click) or from within the editor (Translation Assistant)
+- Translation drafts are prefixed with `[TRANSLATE TO ...]` until reviewed
 
 ---
 
-## Content Guidelines
+## Related Components
 
-### Writing Style
-
-- **Tone:** Warm, personal, professional
-- **Voice:** Second person ("you") when addressing reader
-- **Length:** 800-2000 words for SEO
-- **Structure:** Clear headings, short paragraphs
-
-### Bilingual Content
-
-- Write original in your stronger language
-- Translate fully (don't summarize)
-- Adapt cultural references
-- Keep URLs/technical terms consistent
-
-### SEO Best Practices
-
-1. **Keyword research:** Target 1-2 keywords per post
-2. **Title:** Include keyword near beginning
-3. **URL slug:** Short, keyword-rich
-4. **First paragraph:** Include keyword naturally
-5. **Headings:** Use H2/H3 with related terms
-6. **Images:** Add alt text with keywords
-7. **Internal links:** Link to other MEMOPYK pages
-8. **External links:** Link to authoritative sources
-
----
-
-## Publishing Checklist
-
-Before publishing, verify:
-
-- [ ] Title is compelling and includes keyword
-- [ ] Both EN and FR versions complete
-- [ ] Excerpt summarizes the post well
-- [ ] Featured image uploaded and looks good
-- [ ] Content proofread for errors
-- [ ] Links tested and working
-- [ ] Images have alt text
-- [ ] Tags selected (2-5)
-- [ ] Meta title/description set
-- [ ] Preview looks correct on mobile
-
----
-
-## Post Status
-
-| Status | Visibility | Use Case |
-|--------|------------|----------|
-| Draft | Admin only | Work in progress |
-| Published | Public | Live posts |
-| Scheduled | Admin only | Future publishing |
-
----
-
-## Troubleshooting
-
-### Images Not Uploading
-
-**Causes:**
-- File too large (>5MB)
-- Invalid format
-- Storage quota exceeded
-
-**Solutions:**
-- Compress image
-- Convert to JPEG/PNG/WebP
-- Delete old unused images
-
-### Post Not Appearing
-
-**Causes:**
-- Status is "Draft"
-- Publish date in future
-- Build cache stale
-
-**Solutions:**
-- Check status is "Published"
-- Verify publish date
-- Clear cache / redeploy
-
-### Slug Conflict
-
-**Causes:**
-- Two posts with same slug
-
-**Solutions:**
-- Change one slug to be unique
-- Add date or number suffix
-
----
-
-## Content Calendar Integration
-
-If using content planning tables (`content_topics`, `content_weekly_plans`):
-
-1. Create topic in Content Planner
-2. Assign to date in weekly plan
-3. Create post from topic
-4. Topic status updates automatically
-
-See database schema for content planning tables.
-
----
-
-## Related Documentation
-
-- [API.md](../architecture/API.md) — Blog API endpoints
-- [DATABASE.md](../architecture/DATABASE.md) — Blog tables schema
-
----
-
-*Quality content is key to SEO success. Take time to create valuable posts that help your audience.*
+| Component | File |
+|-----------|------|
+| Blog Hub shell | `client/src/components/admin/ContentProductionHub.tsx` |
+| Keywords tab | `client/src/components/admin/ContentProductionKeywords.tsx` |
+| Planned Posts tab | `client/src/components/admin/ContentProductionTopics.tsx` |
+| Planner tab | `client/src/components/admin/ContentProductionPlanner.tsx` |
+| Posts tab | `client/src/admin/BlogManagePosts.tsx` |
+| Image Bank tab | `client/src/components/admin/ImageBankManager.tsx` |
+| Post editor | `client/src/admin/BlogEditor.tsx` |
+| AI post generator | `client/src/admin/BlogAICreator.tsx` |
+| New post choice screen | `client/src/admin/CreatePostLanding.tsx` |

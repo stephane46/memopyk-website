@@ -1,358 +1,163 @@
-# System Architecture Overview
-
-**Application:** MEMOPYK Website  
-**Type:** Full-stack web application (React + Express)  
-**Architecture:** Monolithic with modular structure
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|------------|
-| Frontend | React 18 + TypeScript |
-| Build Tool | Vite |
-| Styling | Tailwind CSS |
-| UI Components | shadcn/ui (Radix primitives) |
-| State/Data | React Query (TanStack Query) |
-| Backend | Express.js (Node.js) |
-| Database | Supabase PostgreSQL (40 tables) |
-| ORM | Drizzle ORM |
-| Hosting | Coolify (Docker) on VPS |
-| Maps | Leaflet (Mapbox GL JS upgrade planned) |
-| Icons | Lucide React |
-| Testing | Playwright (e2e) |
-
-**Key URLs:**
-- Staging: https://memopyk.memopyk.com (auto-deploys from `staging` branch)
-- Production: https://memopyk.com (auto-deploys from `main` branch)
-
----
+# Architecture Overview
 
 ## High-Level Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                           INTERNET                                   │
-└─────────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                      COOLIFY (Docker Host)                          │
-│  ┌───────────────────────────────────────────────────────────────┐  │
-│  │                    MEMOPYK Container                          │  │
-│  │                                                               │  │
-│  │  ┌─────────────────┐    ┌──────────────────────────────────┐  │  │
-│  │  │   Express.js    │    │         React (Vite)             │  │  │
-│  │  │   Server        │    │         Static Files             │  │  │
-│  │  │   Port 5000     │───▶│         (dist/public/)           │  │  │
-│  │  │                 │    │                                  │  │  │
-│  │  │   /api/*        │    │   - index.html                   │  │  │
-│  │  │   routes        │    │   - assets/*.js                  │  │  │
-│  │  └────────┬────────┘    │   - assets/*.css                 │  │  │
-│  │           │             └──────────────────────────────────┘  │  │
-│  └───────────┼───────────────────────────────────────────────────┘  │
-└──────────────┼──────────────────────────────────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                      EXTERNAL SERVICES                               │
-│                                                                      │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌────────────┐  │
-│  │  Supabase   │  │   Resend    │  │  Nextcloud  │  │    GA4     │  │
-│  │  PostgreSQL │  │   Email     │  │   Files     │  │  Analytics │  │
-│  │  + Storage  │  │             │  │             │  │            │  │
-│  └─────────────┘  └─────────────┘  └─────────────┘  └────────────┘  │
-└─────────────────────────────────────────────────────────────────────┘
+                         +-------------------+
+                         |     Browser       |
+                         | (React SPA, wouter)|
+                         +--------+----------+
+                                  |
+                         HTTPS (Coolify reverse proxy)
+                                  |
+                         +--------v----------+
+                         |  Express Server   |
+                         |  (Node 20, port   |
+                         |   5000)           |
+                         +--+-----+------+--+
+                            |     |      |
+              +-------------+     |      +---------------+
+              |                   |                      |
+   +----------v---+    +----------v--------+    +--------v--------+
+   | Supabase     |    | Supabase Storage  |    | External APIs   |
+   | PostgreSQL   |    | (memopyk-videos,  |    | - Resend (email)|
+   | (42 tables,  |    |  image-bank)      |    | - Anthropic     |
+   |  Drizzle ORM)|    |                   |    |   (Claude API)  |
+   +--------------+    +-------------------+    | - GA4 Data API  |
+                                                | - Nextcloud     |
+                                                |   (file shares) |
+                                                +-----------------+
 ```
 
----
+**Staging:** https://memopyk.memopyk.com (auto-deploys from `staging` branch)
+**Production:** https://memopyk.com (auto-deploys from `main` branch)
 
-## Component Breakdown
+## Request Flow
 
-### Frontend (React)
+1. Browser sends request to Coolify reverse proxy (HTTPS).
+2. Coolify forwards to Express on port 5000 inside the Docker container.
+3. Express middleware chain: body parsing, cookie parser, CORS, request logging, API rate limiting, CSP headers.
+4. **API requests** (`/api/*`): routed through 22 modular route files registered in `server/routes.ts`. Route handlers query the database via Drizzle ORM (`server/db.ts`) using the `postgres.js` driver. Responses are JSON.
+5. **Static assets** (production): Express serves built files from `dist/public/`. Non-API, non-asset requests fall through to the SPA fallback, which serves `index.html`.
+6. **SPA routing**: The React app uses `wouter` for client-side routing. All public pages are locale-prefixed (`/fr-FR/...`, `/en-US/...`). Admin pages are behind `AdminRoute` auth guards.
 
-**Location:** `client/src/`  
-**Build Output:** `dist/public/`  
-**Framework:** React 18 + TypeScript + Vite
+## Dev vs Production
 
-| Directory | Purpose |
-|-----------|---------|
-| `components/` | Reusable UI components (shadcn/ui + custom) |
-| `pages/` | Page-level components (20 pages) |
-| `admin/` | Admin panel (analytics, content management) |
-| `hooks/` | Custom React hooks |
-| `contexts/` | React context providers (Auth, Language) |
-| `lib/` | Utilities, API client, analytics helpers |
+| Aspect | Development | Production |
+|--------|-------------|------------|
+| Client | Vite dev server on port 5173 with HMR | Pre-built static files in `dist/public/` served by Express |
+| Server | `tsx watch server/index.ts` (live reload) | `node dist/server/index.js` (esbuild bundle) |
+| API proxy | Vite proxies `/api` to `localhost:5000` | Express handles both API and static serving |
+| Start command | `npm run dev` (concurrently runs both) | `npm run start` |
+| Build | N/A | `npm run build` (Vite client build + esbuild server bundle) |
 
-**Key Features:**
-- Single Page Application (SPA)
-- Client-side routing (React Router)
-- Bilingual support (EN/FR)
-- TanStack Query for data fetching
-- Tailwind CSS for styling
+## Folder Structure
 
-### Backend (Express)
+```
+server/                 Express backend
+  index.ts              Server entry point (startup sequence, health checks, background jobs)
+  app.ts                Express app config (middleware, CSP, static serving, error handling)
+  routes.ts             Route aggregator (imports and mounts 22 route modules)
+  db.ts                 Lazy-initialized Drizzle ORM + postgres.js connection
+  routes/               22 modular route files (health, hero, gallery, blog, analytics, etc.)
+  middleware/            auth, cache, error, logger, security middleware
+  services/             Business logic (email, analytics, cache, media, partners, SEO, etc.)
+  jobs/                 Background tasks (ga4-scheduler.ts, sync.job.ts)
+  config/               Database connection testing
+  data/                 Runtime JSON backup files
 
-**Location:** `server/`  
-**Entry Point:** `server/index.ts`  
-**Framework:** Express.js + TypeScript
+client/                 React frontend (Vite)
+  src/
+    main.tsx            React entry point (createRoot, HelmetProvider)
+    App.tsx             Root component (providers, routing, analytics init)
+    pages/              Page components (HomePage, BlogIndexPage, AdminRoute, etc.)
+    components/         Reusable UI components (Layout, sections, shadcn/ui)
+    admin/              Admin dashboard components
+    contexts/           React contexts (Language, Auth)
+    hooks/              Custom hooks (use-analytics, etc.)
+    lib/                Utilities (queryClient, analytics, fetch helpers)
+    analytics/          Client-side analytics (Clarity integration)
+    config/             GA4 configuration
+    constants/          App constants
+    types/              TypeScript type definitions
+    utils/              Utility functions (performance monitoring)
+    assets/             Static assets bundled by Vite
+  public/               Static files copied to dist/public/ (favicon, flags, robots.txt, sitemap.xml)
 
-| Directory | Purpose |
-|-----------|---------|
-| `routes/` | 16 modular route files |
-| `services/` | Business logic layer |
-| `middleware/` | Auth, caching, error handling |
-| `config/` | Configuration and constants |
-| `data/` | JSON backup files |
+shared/
+  schema.ts             Drizzle ORM table definitions + Zod validation schemas (42 tables)
 
-**Key Features:**
-- RESTful API
-- Session-based authentication
-- Drizzle ORM for database
-- JSON fallback for resilience
+docs/                   Project documentation
+scripts/                One-off data scripts (keyword imports, cluster refinement, help content)
+tests/e2e/              Playwright end-to-end tests
+migrations/             Drizzle-kit generated SQL migrations
+dist/                   Build output (dist/public/ for client, dist/server/ for server)
+uploads/                Local upload staging directory
+```
 
-### Shared Code
-
-**Location:** `shared/`
+## Key Entry Points
 
 | File | Purpose |
 |------|---------|
-| `schema.ts` | Drizzle ORM schema (40 tables) |
-| `partnerFormats.ts` | Partner format definitions |
-| `partnerSchema.ts` | Partner validation schemas |
-
----
-
-## Data Flow
-
-### Public Page Request
-
-```
-Browser                Express               Database
-   │                      │                     │
-   │  GET /               │                     │
-   │─────────────────────▶│                     │
-   │                      │                     │
-   │  index.html          │                     │
-   │◀─────────────────────│                     │
-   │                      │                     │
-   │  GET /api/gallery    │                     │
-   │─────────────────────▶│                     │
-   │                      │  SELECT * FROM      │
-   │                      │  gallery_items      │
-   │                      │────────────────────▶│
-   │                      │                     │
-   │                      │  [rows]             │
-   │                      │◀────────────────────│
-   │                      │                     │
-   │  JSON response       │                     │
-   │◀─────────────────────│                     │
-```
-
-### Admin Request (Authenticated)
-
-```
-Browser                Express               Database
-   │                      │                     │
-   │  POST /api/admin/login                     │
-   │  {secret: "..."}     │                     │
-   │─────────────────────▶│                     │
-   │                      │                     │
-   │                      │  Validate secret    │
-   │                      │  Set session        │
-   │                      │                     │
-   │  Set-Cookie: session │                     │
-   │◀─────────────────────│                     │
-   │                      │                     │
-   │  PUT /api/admin/gallery/:id               │
-   │  Cookie: session     │                     │
-   │  {title: "..."}      │                     │
-   │─────────────────────▶│                     │
-   │                      │                     │
-   │                      │  Check session      │
-   │                      │  UPDATE gallery_items│
-   │                      │────────────────────▶│
-   │                      │                     │
-   │  200 OK              │                     │
-   │◀─────────────────────│                     │
-```
-
----
-
-## Database Architecture
-
-**Database:** Supabase PostgreSQL (self-hosted)  
-**ORM:** Drizzle  
-**Schema:** `shared/schema.ts` (40 tables)
-
-### Table Categories
-
-| Category | Tables | Purpose |
-|----------|--------|---------|
-| Content | `hero_videos`, `hero_text_settings`, `gallery_items` | Homepage content |
-| FAQ | `faq_sections`, `faqs` | FAQ management |
-| Blog | `blog_posts`, `tags`, `post_tags` | Blog system |
-| Partners | `partners` | Partner directory |
-| Legal | `legal_documents` | Legal pages |
-| CMS | `cta_settings`, `why_memopyk_cards` | CMS content |
-| SEO | `seo_settings`, `seo_redirects`, `seo_audit_log` | SEO management |
-| Analytics | `analytics_sessions`, `analytics_views`, `realtime_visitors` | Custom analytics |
-| Travel | `travel_agency_codes`, `travel_upload_submissions` | Travel portal |
-| Content Planning | `content_topics`, `content_keywords`, `content_weekly_plans` | Blog planning |
-
-**See [DATABASE.md](DATABASE.md) for complete schema documentation.**
-
----
-
-## API Architecture
-
-**Base URL:** `/api`  
-**Authentication:** Session-based (cookie)  
-**Format:** JSON
-
-### Route Modules (16 total)
-
-| Module | Mount Point | Auth | Purpose |
-|--------|-------------|------|---------|
-| health | `/api/health` | No | Health checks |
-| hero | `/api/hero-videos`, `/api/hero-text` | Admin | Hero section |
-| gallery | `/api/gallery` | Admin | Gallery CRUD |
-| faq | `/api/faq` | Admin | FAQ management |
-| blog | `/api/blog`, `/api/admin/blog` | Admin | Blog system |
-| contact | `/api/contact` | No | Contact form |
-| partners | `/api/partners` | Admin | Partner directory |
-| legal | `/api/legal` | No | Legal documents |
-| seo | `/api/seo` | Admin | SEO settings |
-| cta | `/api/cta`, `/api/why-memopyk-cards` | Admin | CMS content |
-| analytics | `/api/ga4`, `/api/event` | No | GA4 tracking |
-| analytics-legacy | `/api/analytics` | Admin | Custom analytics (stubbed) |
-| newsletter | `/api/newsletter` | No | Newsletter signup |
-| admin | `/api/admin` | Yes | Admin operations |
-| media | `/api/upload`, `/api/video-*` | Admin | Media uploads |
-| travel-upload | `/api/travel` | No | Travel portal |
-
-**See [API.md](API.md) for endpoint documentation.**
-
----
-
-## Authentication
-
-### Session-Based Auth
-
-1. Admin enters `ADMIN_SECRET` at login
-2. Server validates and creates session
-3. Session stored in cookie (httpOnly, secure)
-4. Subsequent requests include cookie
-5. Middleware validates session
-
-### Protected Routes
-
-Routes requiring authentication:
-- `/api/admin/*`
-- `/api/seo/*` (write operations)
-- All PUT/POST/DELETE on content routes
-
-### Public Routes
-
-Routes without authentication:
-- `/api/health`
-- `/api/gallery` (GET)
-- `/api/faq` (GET)
-- `/api/blog` (GET)
-- `/api/contact` (POST)
-- `/api/partners` (GET)
-
----
+| `server/index.ts` | Server startup: validates env vars, registers health checks, creates HTTP server, registers routes, sets up static serving, launches background jobs (GA4 scheduler, sync service) |
+| `server/app.ts` | Express app instance with middleware stack: body parsing (50mb limit), cookie-parser, CORS, request logging, API rate limiting, CSP headers, SPA fallback |
+| `server/routes.ts` | Imports and mounts all 22 route modules under `/api` prefixes |
+| `server/db.ts` | Lazy-initialized database connection via `postgres.js` driver + Drizzle ORM with full schema |
+| `client/src/main.tsx` | React entry: `createRoot` with `HelmetProvider` for SEO meta tags |
+| `client/src/App.tsx` | Root React component: `QueryClientProvider` (TanStack Query), `AuthProvider`, `LanguageProvider`, `wouter` Router, GA4/Clarity initialization |
+| `shared/schema.ts` | All 42 Drizzle table definitions (pgTable) with Zod insert schemas, shared between server and client |
+| `vite.config.ts` | Vite config: React plugin, `@` and `@shared` path aliases, builds to `dist/public/`, dev proxy for `/api` to port 5000 |
 
 ## External Integrations
 
-### Supabase
+| Service | Package / API | Used For | Server Files |
+|---------|--------------|----------|--------------|
+| **Supabase PostgreSQL** | `postgres` + `drizzle-orm` | Primary database (42 tables), all CRUD operations | `server/db.ts`, all route files |
+| **Supabase Storage** | `@supabase/supabase-js` | Video and image hosting (buckets: `memopyk-videos`, image bank) | `hero.routes.ts`, `gallery.routes.ts`, `media.routes.ts`, `image-bank.routes.ts` |
+| **Resend** | `resend` | Transactional email (contact forms, partner intake, travel upload confirmations, admin notifications) | `server/services/email.service.ts`, used by `newsletter.routes.ts`, `partners.routes.ts`, `travel-upload.routes.ts`, `contact.routes.ts` |
+| **Anthropic Claude API** | `@anthropic-ai/sdk` | AI blog content generation, post translation (FR/EN), Brand Brain context | `ai-context.routes.ts`, `translation-service.ts`, `blog-admin.routes.ts` |
+| **Google Analytics 4 Data API** | `@google-analytics/data` | Server-side analytics data retrieval for admin dashboard | `server/services/analytics/ga4.service.ts`, `analytics.routes.ts` |
+| **Google BigQuery** | `@google-cloud/bigquery` | Analytics data export and querying | `analytics.routes.ts` |
+| **Nextcloud** | WebDAV API (HTTP) | File delivery for travel upload portal (creates shared folders with upload links) | `travel-upload.routes.ts` |
+| **Microsoft Clarity** | Client-side script | Heatmaps and session recordings on public pages | `client/src/analytics/clarity.ts` |
+| **GA4 (client-side)** | gtag.js | Page views, events, conversion tracking on public pages | `client/src/config/ga4.config.ts` |
 
-- **PostgreSQL:** Primary database
-- **Storage:** CDN for videos and images
-- **Connection:** Direct via `DATABASE_URL`
+## Authentication
 
-### Resend
+Admin routes are protected by a shared secret token (`ADMIN_SECRET` env var) passed via `Authorization: Bearer <token>` header. The `requireAdmin` middleware in `server/middleware/auth.middleware.ts` validates this token. The client stores the token and sends it with admin API requests via a centralized fetch helper.
 
-- **Purpose:** Transactional emails
-- **Usage:** Contact form, travel portal confirmations
-- **Integration:** REST API
-
-### Nextcloud
-
-- **Purpose:** File sharing for travel uploads
-- **Usage:** Travel portal creates shared folders
-- **Integration:** WebDAV + OCS Share API
-
-### Google Analytics 4
-
-- **Purpose:** Web analytics
-- **Client:** gtag.js for pageviews, events
-- **Server:** Data API for dashboard queries
-
----
-
-## Caching Strategy
-
-| Content Type | Cache Duration | Strategy |
-|--------------|----------------|----------|
-| Static assets | 1 year | Vite hash-based filenames |
-| API responses | No cache | Fresh data always |
-| Gallery items | 5 min (planned) | In-memory cache |
-| Legal pages | 15 min (planned) | In-memory cache |
-
-**Note:** Complex caching was removed during migration. Simple direct database queries are used. Caching can be reintroduced if needed.
-
----
-
-## Error Handling
-
-### Frontend
-
-- TanStack Query handles API errors
-- Error boundaries for component crashes
-- User-friendly error messages
-
-### Backend
-
-- Error middleware catches exceptions
-- Structured error responses:
-  ```json
-  {
-    "error": "Not found",
-    "message": "Gallery item not found",
-    "statusCode": 404
-  }
-  ```
-- Logging for debugging (console in dev, structured in prod)
-
----
-
-## Deployment Architecture
-
-See [COOLIFY.md](../deployment/COOLIFY.md) for details.
+## Deployment Pipeline
 
 ```
-GitHub ──push──▶ Coolify ──build──▶ Docker ──deploy──▶ Container
-                    │
-                    ▼
-              Let's Encrypt
-              SSL Certificate
+Developer pushes to GitHub
+        |
+        v
+GitHub webhook triggers Coolify
+        |
+        v
+Coolify runs Docker build (2-stage Dockerfile):
+  Stage 1 (builder): npm ci, vite build (client), esbuild (server)
+  Stage 2 (runner):   npm ci --omit=dev, copy dist/, run as non-root user
+        |
+        v
+Container starts on port 5000
+  - Health check: GET /api/health (30s interval)
+  - Server timeout: 120s
+        |
+        v
+Coolify reverse proxy routes HTTPS traffic to container
 ```
 
----
+- **Staging**: push to `staging` branch deploys to `memopyk.memopyk.com`
+- **Production**: push to `main` branch deploys to `memopyk.com`
 
-## Design Decisions
+Both environments use the same Dockerfile. Environment variables (database URLs, API keys) are configured in Coolify per environment.
 
-See [DECISIONS.md](DECISIONS.md) for Architecture Decision Records (ADRs).
+## Background Services
 
-Key decisions:
-1. Monolithic vs microservices → Monolithic (simpler, sufficient scale)
-2. ORM choice → Drizzle (lightweight, good TypeScript)
-3. Removed hybrid-storage → Direct Drizzle queries (Coolify is single-server)
-4. Session vs JWT → Sessions (simpler for admin-only auth)
+Two background jobs are lazily loaded after server startup (non-blocking):
 
----
+1. **GA4 Scheduler** (`server/jobs/ga4-scheduler.ts`): Periodic Google Analytics data sync.
+2. **Universal Sync Service** (`server/jobs/sync.job.ts`): Background data synchronization tasks.
 
-*This overview is current as of January 2026. See CLAUDE.md for latest work status.*
+Both are optional and log warnings if they fail to initialize, without blocking the server.

@@ -1,84 +1,71 @@
 # Technical Debt & Deferred Work
 
-**Purpose**: Track technical improvements, skipped tests, and deferred tasks  
-**Last Updated**: 2026-02-02
+**Purpose**: Track technical improvements, skipped tests, and deferred tasks
+**Last Updated**: 2026-02-11
 
 ---
 
-## E2E Tests - Skipped / Incomplete
+## Active Items
 
-### AI Creator Tests (4 tests skipped)
-**Date Added**: 2026-02-02  
-**Reason**: UI not accessible during E2E test run  
-**Location**: `tests/e2e/admin-blog.spec.ts`  
-**Tests**:
-- AI Creator tab loads with form fields
-- "Generate Prompt" creates prompt text
-- Can paste JSON and validate
-- "Create Post" creates new draft post
+### 36 Client TypeScript Errors
+**Date Added**: 2026-02-09
+**Severity**: Low (non-blocking)
+**Location**: Admin analytics components
+**Details**: Pre-existing TS errors that don't prevent compilation or runtime. Mostly type mismatches in legacy analytics dashboard code.
+**To Fix**: Fix during analytics dashboard rebuild.
 
-**To Fix**: Investigate why AI Creator tab is not rendering in Playwright. May need:
-- Check if tab is conditionally rendered
-- Verify correct navigation path
-- Check for JavaScript errors blocking render
+### Mapbox GL JS Migration
+**Date Added**: 2026-01-30
+**Severity**: Medium
+**Location**: Partner Directory map
+**Details**: Current minimal map implementation works but Mapbox GL JS would improve UX with better interactivity, clustering, and mobile support.
+**To Fix**: Dedicated Mapbox migration task.
 
----
+### Help System — Non-Blog Sections
+**Date Added**: 2026-02-04
+**Severity**: Medium
+**Location**: Admin panel sections: Partners, Contenu Site, System, Analytics, SEO
+**Details**: Blog help system is complete (9 screens, 2 flows). Other admin sections have no help content yet.
+**To Fix**: Create help_screens entries for each non-blog section.
 
-### Post Actions Tests (3 tests skipped)
-**Date Added**: 2026-02-02  
-**Reason**: No posts available in staging database  
-**Location**: `tests/e2e/admin-blog.spec.ts`  
-**Tests**:
-- View button opens public post in new tab
-- Translate button creates duplicate in other language
-- Delete button shows confirmation, then deletes
+### Analytics Dashboard Strategic Decision
+**Date Added**: 2026-02-11
+**Severity**: Medium
+**Location**: Admin analytics section
+**Details**: 8,000+ lines of analytics code. Decision needed: fix existing code vs. clean rebuild with custom business metrics that GA4 can't provide. Blog analytics endpoints (5 new) already built Feb 11.
+**To Fix**: Strategic decision from Stéphane, then execute.
 
-**To Fix**: Either:
-1. Seed staging DB with test posts before running E2E
-2. Create a test fixture that creates a post at test start
-3. Use existing posts if available (query first)
-
----
-
-## Code Quality Issues - RESOLVED 2026-02-02
-
-### ~~BlogManagePosts.tsx (807 lines)~~ ✅ RESOLVED
-**Resolved**: 2026-02-02  
-**Solution**: Extracted TagManagementModal.tsx (258 lines). BlogManagePosts reduced to 555 lines.
+### E2E Tests — Skipped Suites
+**Date Added**: 2026-02-02
+**Severity**: Low
+**Location**: `tests/e2e/admin-blog.spec.ts`
+**Details**: AI Creator tests (4 skipped — tab not rendering in Playwright) and Post Actions tests (3 skipped — no posts in staging DB).
+**To Fix**: Investigate AI Creator rendering; seed staging DB or create test fixtures.
 
 ---
 
-### ~~Duplicate Tag Management Code~~ ✅ RESOLVED
-**Resolved**: 2026-02-02  
-**Solution**: Created `client/src/admin/hooks/useTagMutations.ts` with shared hooks (useTagsQuery, useCreateTag, useUpdateTag, useDeleteTag). Both TagManagementModal and BlogTagManagement now use shared hooks.
+## Resolved (Feb 2026)
 
----
-
-### ~~No Loading Skeletons~~ ✅ RESOLVED
-**Resolved**: 2026-02-02  
-**Solution**: Created skeleton components in `client/src/admin/skeletons/`:
-- BlogPostSkeleton.tsx - Post list loading
-- BlogEditorSkeleton.tsx - Editor loading
-Updated BlogManagePosts.tsx and BlogEditor.tsx to use skeletons.
-
----
-
-### ~~No Error Boundaries~~ ✅ RESOLVED
-**Resolved**: 2026-02-02  
-**Solution**: Created `client/src/components/ErrorBoundary.tsx`. Wrapped all blog components in BlogManagement.tsx and ContentProductionHub.tsx with error boundaries.
-
----
-
-### ~~BlogPost Type Duplicated~~ ✅ RESOLVED
-**Resolved**: 2026-02-02  
-**Solution**: Created `shared/blogTypes.ts` with shared BlogPost and BlogPostStatus types. Updated BlogManagePosts.tsx and BlogEditor.tsx to import from shared location.
+| Date | Item | Solution |
+|------|------|----------|
+| Feb 9 | 48 dead files in codebase | Deleted (Phase 2: Dead Code Removal) |
+| Feb 9 | ~12,000 lines of dead code | Removed across 46 components + 2 route files |
+| Feb 9 | 5 unprotected admin routes | requireAdmin middleware added (Phase 1: Security) |
+| Feb 9 | Hardcoded SEO token | Removed |
+| Feb 9 | Missing database indexes | 9 indexes added on keywords, topics, assignments, posts |
+| Feb 9 | Inconsistent fetch patterns | Standardized across 11 files, 1,195 lines removed |
+| Feb 9 | AdminPage monolith | React.lazy code splitting, HeroManagement + CacheManagement extracted |
+| Feb 9 | GalleryManagementNew (2,599 lines) | Split into 606-line parent + 5 sub-components |
+| Feb 2 | BlogManagePosts.tsx (807 lines) | Extracted TagManagementModal (258 lines) |
+| Feb 2 | Duplicate tag management code | Shared hooks in useTagMutations.ts |
+| Feb 2 | No loading skeletons | Skeleton components created |
+| Feb 2 | No error boundaries | ErrorBoundary.tsx wrapping all blog components |
+| Feb 2 | BlogPost type duplicated | Shared types in shared/blogTypes.ts |
 
 ---
 
 ## How to Use This File
 
-1. **Add new items** with date, reason, location, and fix approach
-2. **Update status** when work begins or completes
-3. **Review weekly** during planning to prioritize
-4. **Mark resolved** with date and solution summary (keep for reference)
-5. **Archive** old resolved items periodically to keep file manageable
+1. Add new items with date, severity, location, and fix approach
+2. Move to Resolved when complete (keep for reference)
+3. Review during planning to prioritize

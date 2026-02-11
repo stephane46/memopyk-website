@@ -1,711 +1,191 @@
-# Architecture Decision Records (ADRs)
+# Architecture Decision Records
 
-This document records significant architectural decisions made during the MEMOPYK website development and migration.
+**Project:** MEMOPYK Website
+**Maintained since:** 2026-02
 
 ---
 
-## ADR-001: Monolithic Architecture
+## ADR-001: Replit to Coolify/Docker Migration
 
-**Date:** November 2025  
 **Status:** Accepted
+**Date:** 2026-01 (initial commit Jan 28, production cutover Feb 2)
 
 ### Context
-
-MEMOPYK is a business website with admin functionality. Expected traffic is moderate (< 10k visits/month). Development is done by one person with AI assistance.
+The site was hosted on Replit, which suffered from shared infrastructure, cold starts, and variable performance. Lighthouse desktop score was 62, and API response times averaged 508ms with Gallery hitting 984ms. Replit's cost model was also less favorable for a persistent production service.
 
 ### Decision
-
-Use a monolithic architecture with a single Express server serving both API and static files.
-
-### Rationale
-
-- **Simplicity:** One codebase, one deployment, one server
-- **Sufficient scale:** Monolith handles expected load easily
-- **Development speed:** No service coordination overhead
-- **Cost:** Single container is cheaper than multiple services
+Migrate to a self-managed VPS running Coolify (open-source PaaS) with Docker containers. A multi-stage Dockerfile (node:20-alpine builder + runner) builds with esbuild for the server and Vite for the client, runs as a non-root user, and includes a wget health check.
 
 ### Consequences
-
-- All code deploys together (no independent scaling)
-- Must be careful about code organization to avoid mess
-- If traffic explodes, may need to revisit
+**Positive:** Lighthouse desktop score rose from 62 to 88 (+42%). TTFB dropped from 348ms to 121ms (2.9x). Gallery API went from 984ms to 129ms (7.6x). No cold starts. All Core Web Vitals pass Google targets.
+**Negative:** Requires VPS management and monitoring. Mobile performance remained slow on both platforms (image weight issue, not hosting).
 
 ---
 
-## ADR-002: Drizzle ORM over Prisma
+## ADR-002: Directus CMS Replaced by Custom Express + Supabase
 
-**Date:** November 2025  
 **Status:** Accepted
+**Date:** 2026-01
 
 ### Context
-
-Need an ORM for PostgreSQL database. Options considered:
-- Prisma (most popular)
-- Drizzle (newer, TypeScript-first)
-- Raw SQL with pg
+The project initially used Directus as a headless CMS layer on top of Supabase PostgreSQL. Directus added operational complexity (its own auth, API layer, admin UI) while the project already had a custom admin panel. The dual-system created confusion around which layer owned what.
 
 ### Decision
-
-Use Drizzle ORM.
-
-### Rationale
-
-- **TypeScript inference:** Better type inference than Prisma
-- **Lightweight:** Smaller bundle, faster cold starts
-- **No code generation:** Schema is just TypeScript
-- **SQL-like:** Queries feel familiar to SQL users
+Drop Directus entirely. Access Supabase PostgreSQL directly via Drizzle ORM for structured queries and via the Supabase JS client for storage operations. Build all CRUD endpoints as Express route modules. Directus credentials remain as optional in `.env.example` but are unused.
 
 ### Consequences
-
-- Smaller community than Prisma
-- Fewer tutorials/examples available
-- Some features less mature
+**Positive:** Single source of truth for data access. Fewer moving parts in production. Full control over API shape and auth. Simpler Docker deployment (no Directus container).
+**Negative:** Every new content type requires hand-written routes and admin UI components.
 
 ---
 
-## ADR-003: Supabase for Database and Storage
+## ADR-003: Drizzle ORM for Database Access
 
-**Date:** November 2025  
 **Status:** Accepted
+**Date:** 2026-01
 
 ### Context
-
-Need hosted database and file storage. Options:
-- Firebase (Google)
-- Supabase (Postgres-based)
-- PlanetScale (MySQL)
-- Self-hosted Postgres
+The project needed a TypeScript ORM for Supabase PostgreSQL. Candidates were Prisma (heavy, requires generation step), Knex (query builder only, no type safety from schema), and Drizzle (lightweight, TypeScript-first, schema-as-code).
 
 ### Decision
-
-Use Supabase (self-hosted on VPS) for database, Supabase hosted for Storage CDN.
-
-### Rationale
-
-- **PostgreSQL:** Industry standard, powerful features
-- **Self-hosting:** Full control, no vendor lock-in
-- **Storage CDN:** Handles video delivery without custom infrastructure
-- **Good DX:** Dashboard, auto-generated APIs (though we use Drizzle)
+Use Drizzle ORM (`drizzle-orm` + `drizzle-zod` + `drizzle-kit`). Schema defined in `shared/schema.ts` using `pgTable` declarations. Zod schemas auto-generated with `createInsertSchema`. Drizzle Kit provides `db:push`, `db:generate`, and `db:studio` commands.
 
 ### Consequences
-
-- Must maintain Supabase on VPS
-- Dependent on Supabase Storage for media
-- Good PostgreSQL knowledge required
+**Positive:** Type-safe queries with zero code generation step. Schema shared between server and client (via `@shared` alias). Zod integration gives free request validation. Lightweight runtime.
+**Negative:** Some complex analytics queries still use raw `pg` Pool for multi-table JOINs that are awkward in Drizzle's query builder (being migrated, see ADR-006). 42 tables in schema.ts is large but manageable.
 
 ---
 
-## ADR-004: Remove Hybrid Storage System
+## ADR-004: React + Vite + TypeScript + Wouter Frontend
 
-**Date:** January 2026  
 **Status:** Accepted
+**Date:** 2026-01
 
 ### Context
-
-The Replit codebase had a 298KB `hybrid-storage.ts` file that:
-- Synced data between Replit development and production servers
-- Maintained JSON fallback files
-- Handled complex caching logic
-
-This was necessary because Replit has separate dev/prod servers with no shared state.
+The frontend needed to serve a bilingual (FR/EN) marketing site with an admin panel. The stack was inherited from the Replit era and proven in production.
 
 ### Decision
-
-Remove hybrid-storage entirely. Use direct Drizzle queries.
-
-### Rationale
-
-- **Coolify is single-server:** No dev/prod sync needed
-- **Complexity removed:** 8,000+ lines of sync code deleted
-- **Direct queries:** Simpler, faster, easier to debug
-- **JSON files optional:** Keep for disaster recovery only
+React 18 SPA with Vite 5 bundler, TypeScript 5.8, Wouter for routing (lightweight alternative to React Router), TanStack Query for server state, Tailwind CSS + Radix UI primitives for styling, and Zustand for client state. TinyMCE 7 (self-hosted, not cloud) as the rich text editor for blog posts. Client builds to `dist/public/`, served by Express in production.
 
 ### Consequences
-
-- JSON sync jobs removed
-- Caching must be reimplemented if needed (simpler approach)
-- Legacy hybrid-storage code cannot be reused
+**Positive:** Fast dev server (Vite HMR). Wouter is 2KB vs React Router's 30KB+. TanStack Query handles caching/refetching automatically. Radix gives accessible primitives without style opinions. Self-hosted TinyMCE avoids API key dependency.
+**Negative:** SPA means no SSR -- SEO relies on `react-helmet-async` for meta tags. 36 pre-existing TS errors in analytics components (non-blocking). Bundle size addressed via React.lazy code splitting (Feb 9).
 
 ---
 
-## ADR-005: Session-Based Authentication
+## ADR-005: Monolithic Express Server with Route Modules
 
-**Date:** November 2025  
 **Status:** Accepted
+**Date:** 2026-01
 
 ### Context
-
-Need authentication for admin panel. Options:
-- JWT tokens
-- Session cookies
-- OAuth (Google, GitHub)
+The backend serves public pages, admin APIs, analytics collection, media proxying, blog CRUD, contact forms, partner directory, and more. Microservices would add deployment complexity for a single-team project.
 
 ### Decision
-
-Use session-based authentication with cookies.
-
-### Rationale
-
-- **Simple:** No token refresh logic
-- **Secure:** HttpOnly cookies prevent XSS token theft
-- **Admin-only:** No need for complex auth (no user accounts)
-- **Works with Express:** express-session is mature
+Single Express 4 server (`server/index.ts`) with 24 route modules in `server/routes/`. Each module exports a Router. Services extracted into `server/services/` for reusable logic (analytics, media caching, translation). Auth via `requireAdmin` middleware. Server bundled with esbuild to a single `dist/server/index.js`.
 
 ### Consequences
-
-- Sessions stored in memory (fine for single server)
-- If scaling horizontally, need shared session store
-- Single admin secret (no user management)
+**Positive:** Simple deployment (one container, one process). Shared database connection pool. Easy to add new route files. esbuild bundles the entire server in seconds.
+**Negative:** All routes share one process -- a crash affects everything. No independent scaling. Route count (24 files) is manageable but growing.
 
 ---
 
-## ADR-006: Bilingual Content Structure
+## ADR-006: Custom Analytics Alongside GA4
 
-**Date:** November 2025  
 **Status:** Accepted
+**Date:** 2026-01 (custom tracking); 2026-02 (GA4 integration, Microsoft Clarity added)
 
 ### Context
-
-MEMOPYK serves English and French markets. Content must be bilingual.
+GA4 provides standard web analytics but cannot track custom business metrics (video watch progress, CTA interactions, blog content performance by keyword/topic). Ad blockers also prevent GA4 from collecting data on a significant portion of visitors.
 
 ### Decision
-
-Store both languages in single records with `En`/`Fr` suffixed columns.
-
-**Example:**
-```typescript
-titleEn: text("title_en").notNull(),
-titleFr: text("title_fr").notNull(),
-```
-
-### Rationale
-
-- **Simplicity:** One row per content item
-- **Atomic updates:** Both languages update together
-- **No join overhead:** Language switching is column selection
-- **Admin UX:** Edit both languages on same form
+Run both systems in parallel. Custom analytics writes to Supabase tables (`analytics_sessions`, `analytics_views`, `analytics_exclusions`, `performance_metrics`) via first-party `/api/analytics/*` endpoints that ad blockers do not block. GA4 runs client-side for standard metrics. The admin dashboard offers a data source toggle (custom vs GA4). Microsoft Clarity added Feb 10 for session recordings and heatmaps.
 
 ### Consequences
-
-- Schema has many columns (2x for each text field)
-- Cannot add new languages without schema change
-- Translation completeness must be enforced in code
+**Positive:** 100% visitor coverage via first-party tracking. Custom video funnel, CTA tracking, and blog analytics that GA4 cannot provide. IP exclusion for internal traffic. No data loss from ad blockers.
+**Negative:** Dual system means ~8,000+ lines of analytics code. Strategic decision pending on whether to rebuild the analytics dashboard or fix existing code. Blog analytics endpoints were rewritten from raw pg Pool to Drizzle ORM (Feb 11) as part of ongoing cleanup.
 
 ---
 
-## ADR-007: Vite over Create React App
+## ADR-007: Blog Hub 5-Tab Content Pipeline
 
-**Date:** November 2025  
 **Status:** Accepted
+**Date:** 2026-02 (Keywords Feb 5-6, Topics Feb 5, Planner pre-existing, Posts unified Feb 4, Image Bank pre-existing)
 
 ### Context
-
-Need build tool for React frontend. Options:
-- Create React App (CRA)
-- Vite
-- Next.js
-- Remix
+The blog content workflow spans keyword research, topic planning, editorial calendar, post creation (manual or AI-assisted), and image management. These were originally separate admin sections with no connecting flow.
 
 ### Decision
-
-Use Vite.
-
-### Rationale
-
-- **Speed:** Much faster dev server and builds than CRA
-- **Modern:** ES modules, native TypeScript
-- **Simple:** No SSR complexity (not needed)
-- **Active:** CRA is deprecated
+Unify into a single `ContentProductionHub` component with 5 workflow tabs: Keywords, Topics, Planner, Posts, Image Bank. Each tab is a numbered step (1-5). Keywords hold 12,501 entries (FR+EN) with 25 clusters, multi-select filters, and quick filter presets. Topics link to keywords and generate posts. Posts support manual writing, AI generation (Claude API), and one-click translation. The hub uses URL params (`?tab=keywords`) for deep linking and help system integration.
 
 ### Consequences
-
-- Different config than CRA (vite.config.ts)
-- Some CRA-specific libraries may need adjustment
-- Need to handle SPA routing in production
+**Positive:** End-to-end content workflow in one screen. Keyword-to-post traceability. AI-assisted content generation with brand context. Bilingual content pipeline (FR/EN market field on keywords).
+**Negative:** ContentProductionHub orchestrates many sub-components, adding complexity. The Planner tab remains the default landing (most used), but tab order follows workflow logic.
 
 ---
 
-## ADR-008: shadcn/ui Component Library
+## ADR-008: Staging/Production Branch Workflow
 
-**Date:** November 2025  
 **Status:** Accepted
+**Date:** 2026-02 (established Feb 1)
 
 ### Context
-
-Need UI components. Options:
-- Material UI
-- Chakra UI
-- shadcn/ui (Radix primitives + Tailwind)
-- Build from scratch
+After the Coolify migration, the project needed a safe deployment workflow. Pushing directly to production risked breaking the live site.
 
 ### Decision
-
-Use shadcn/ui.
-
-### Rationale
-
-- **Ownership:** Components copied into codebase (not npm dependency)
-- **Customizable:** Easy to modify
-- **Accessible:** Built on Radix primitives
-- **Tailwind integration:** Matches our styling approach
+Two long-lived branches: `staging` deploys automatically to `memopyk.memopyk.com`, `main` deploys automatically to `memopyk.com`. All development happens on `staging`. Merges to `main` only after verification on staging. Coolify GitHub webhooks trigger auto-deploy on push to each branch. Claude Code defaults to `staging`; pushes to `main` require explicit user approval.
 
 ### Consequences
-
-- Must maintain copied components
-- Updates require manual merging
-- Some components may be over-engineered for our needs
+**Positive:** Every change is verified on staging before production. Auto-deploy means zero manual deployment steps. Clear separation of environments.
+**Negative:** Requires discipline to not push directly to `main`. No feature branches -- all work goes to `staging` linearly (acceptable for a single-developer project).
 
 ---
 
-## ADR-009: Coolify over Vercel/Railway
+## ADR-009: Bilingual Architecture (FR/EN Column Pairs)
 
-**Date:** January 2026  
 **Status:** Accepted
+**Date:** 2026-01 (present from initial commit)
 
 ### Context
-
-Migrating from Replit. Need new hosting. Options:
-- Vercel (frontend-focused)
-- Railway (simple PaaS)
-- Fly.io (edge deployment)
-- Coolify (self-hosted PaaS)
-- Raw Docker on VPS
+MEMOPYK serves French and English-speaking customers. Content must be available in both languages with the ability to manage each independently.
 
 ### Decision
-
-Use Coolify on existing VPS.
-
-### Rationale
-
-- **Existing VPS:** Already have infrastructure
-- **Cost:** No additional hosting fees
-- **Control:** Full access to server
-- **Features:** Git deploy, SSL, easy rollback
-- **Docker:** Standard container deployment
+Bilingual content uses paired columns in the database schema: `title_fr`/`title_en`, `url_fr`/`url_en`, `subtitle_fr`/`subtitle_en`, etc. (77 FR/EN column references in `shared/schema.ts`). A `LanguageContext` React context provides `language`, `setLanguage`, and `t()` for UI translations. URL routing uses `/fr/` prefix for French pages. Blog posts have a `language` field for per-post language.
 
 ### Consequences
-
-- Must maintain Coolify and VPS
-- No global edge network (single region)
-- Responsible for backups, security, updates
+**Positive:** Full bilingual support without a translation framework dependency. Database-level separation means each language can have distinct content (not just translations). Simple implementation.
+**Negative:** Column pairs double the schema width for bilingual tables. Adding a third language would require schema changes everywhere. The `t()` function uses a flat key-value map, not a full i18n library.
 
 ---
 
-## ADR-010: Stub Analytics Endpoints
+## ADR-010: Supabase Storage for Media Assets
 
-**Date:** January 2026  
-**Status:** Accepted (temporary)
-
-### Context
-
-Original codebase had 8,000+ lines of custom analytics code deeply intertwined with hybrid-storage. Options:
-- Port all analytics code (high effort, carries tech debt)
-- Stub endpoints, rebuild later (defer complexity)
-- Remove analytics entirely
-
-### Decision
-
-Stub all 58 analytics endpoints to return empty data. Rebuild analytics from scratch in a future phase.
-
-### Rationale
-
-- **Ship faster:** Unblocks production deployment
-- **Clean slate:** Rebuild without legacy patterns
-- **GA4 baseline:** Google Analytics provides basic metrics
-- **Manageable scope:** Analytics is separate concern
-
-### Consequences
-
-- Custom analytics dashboard shows no data temporarily
-- Must track analytics rebuild as priority work
-- Need to document what analytics features are needed
-
-**Update (Jan 31, 2026):** Analytics rebuild completed (P1-P8). See `docs/guides/ANALYTICS.md`.
-
----
-
-## ADR-011: Minimal Leaflet Map Implementation
-
-**Date:** January 2026  
-**Status:** Accepted (workaround)
-
-### Context
-
-Partner Directory map using Leaflet + react-leaflet crashed in Coolify production with "Maximum call stack size exceeded". Same code worked on Replit.
-
-### Decision
-
-Deploy minimal map configuration without advanced features (clustering, auto-zoom, bounds tracking). Plan migration to Mapbox GL JS.
-
-### Rationale
-
-- **Works:** Basic map with markers functions correctly
-- **Ships:** Unblocks deployment
-- **Root cause:** Leaflet class system incompatible with Vite production build
-- **Better solution:** Mapbox GL JS doesn't have this architecture
-
-### Consequences
-
-- Map lacks clustering (markers overlap at low zoom)
-- No auto-fit to markers on load
-- Future work: Migrate to Mapbox GL JS
-
-**Details:** See `/PARTNER_DIRECTORY_LEAFLET_BUG_REPORT.md`
-
----
-
-## ADR-012: Express Serves Static Files
-
-**Date:** January 2026  
 **Status:** Accepted
+**Date:** 2026-01
 
 ### Context
-
-Options for serving frontend:
-- Separate nginx container
-- CDN (Cloudflare, Vercel)
-- Express serves static files
+The site is media-heavy (hero videos, gallery videos, blog images, partner logos, image bank). Files need CDN delivery, and the storage layer must integrate with the existing Supabase PostgreSQL setup.
 
 ### Decision
-
-Express serves static files from `dist/public/`.
-
-### Rationale
-
-- **Simplicity:** Single container
-- **SPA routing:** Express handles fallback to index.html
-- **Performance:** Good enough for expected traffic
-- **No extra config:** Works out of the box
+Use Supabase Storage buckets (`memopyk-videos`, blog images, image bank) accessed via the Supabase JS client. The server handles uploads via multer, processes images with sharp, then stores in Supabase Storage. Public URLs served via Supabase CDN. A local disk cache (`server/cache/videos/`, `server/cache/images/`) added for frequently accessed media to reduce Supabase bandwidth.
 
 ### Consequences
-
-- Express handles both API and static requests
-- May want CDN in front for caching (future optimization)
-- Static file performance depends on Node.js
+**Positive:** Unified platform (database + storage + auth all Supabase). CDN delivery for media. Self-hosted Supabase means no vendor lock-in or egress fees. Local cache reduces latency for hero videos.
+**Negative:** Total page weight ~21MB (mostly images) -- the root cause of poor mobile Lighthouse scores. Image optimization (WebP, compression) is a known future improvement.
 
 ---
 
-## ADR-013: Database-Driven Help System
+## ADR-011: Claude API for AI Content Features
 
-**Date:** February 2026
 **Status:** Accepted
+**Date:** 2026-02 (Brand Brain + AI Creator Feb 4, Translation Feb 4)
 
 ### Context
-
-The admin panel needed contextual help for each section. Options:
-- Hardcoded help content in React components
-- External documentation (Notion, Confluence)
-- Database-driven help with admin editing
+Blog content creation is time-consuming. The site needed AI assistance for drafting posts, translating between FR/EN, and maintaining brand voice consistency.
 
 ### Decision
-
-Use database tables (`help_screens`, `help_flows`) to store help content, served via API endpoints, with HelpDrawer UI that pushes main content.
-
-### Rationale
-
-- **Admin-editable:** Non-developers can update help content
-- **Consistent UI:** HelpDrawer appears in-context, not a separate page
-- **Structured:** Screens have title/description/tips/resources; Flows have ordered steps
-- **Versioned:** Changes tracked in database
-- **Push layout:** Content shrinks to make room for help panel (no modal overlay)
+Integrate the Anthropic Claude API (`@anthropic-ai/sdk`) server-side for three features: AI blog post generation (BlogAICreator), one-click FR-EN translation (translation-service), and brand context management (Brand Brain / `ai_context` table). All AI calls go through the Express server to keep the API key secure.
 
 ### Consequences
-
-- Requires seeding initial help content
-- Database dependency for help display
-- Must maintain consistency between UI updates and help content
-
-**Tables:**
-- `help_screens`: Screen-specific help (title, description, tips, related_resources)
-- `help_flows`: Multi-step flows with ordered steps
-
-**Components:**
-- `HelpDrawer`: Push-style panel
-- `HelpFlowViewer`: Steps with progress dots
-- `HelpButton`: Trigger in admin header
-- `HelpContext`: Global state management
-
----
-
-## ADR-014: E2E Test Rate Limit Bypass
-
-**Date:** February 2026
-**Status:** Accepted
-
-### Context
-
-E2E tests running against staging environment hit rate limits (429 errors), causing test flakiness. Tests would retry with exponential backoff, but this:
-- Made tests slow and non-deterministic
-- Led to "post deleted" errors when rate limiting caused timing issues
-- Made it hard to distinguish real failures from rate limit failures
-
-### Decision
-
-Implement header-based bypass for E2E tests:
-- Server checks `X-E2E-Token` header against `E2E_BYPASS_TOKEN` env var
-- Playwright configured to send this header in all requests
-- Bypass only applies when token matches (production has no token set)
-
-### Rationale
-
-- **Deterministic tests:** No rate limit variability
-- **Secure:** Token required, not present in production
-- **Simple:** Single header check at top of rate limit middleware
-- **Transparent:** Bypass is explicit, not hidden
-
-### Consequences
-
-- Must set `E2E_BYPASS_TOKEN` in staging environment
-- Must configure Playwright `extraHTTPHeaders` with token
-- Tests now run faster (no retry delays)
-- Real rate limit bugs would not be caught by E2E tests
-
-**Implementation:**
-- `server/middleware/security.middleware.ts`: Bypass check
-- `playwright.config.ts`: `extraHTTPHeaders` configuration
-- `.env.e2e`: Token storage
-
----
-
-## ADR-015: 4-Status Blog Post Model
-
-**Date:** February 2026  
-**Status:** Accepted
-
-### Context
-
-Blog posts had inconsistent status options across the application. AI Creator offered Draft/Published/Archived while Blog Editor offered Draft/In Review/Published. There was no unified model.
-
-### Decision
-
-Standardize on 4 statuses everywhere: **Draft → In Review → Published → Archived**.
-
-- Draft: work in progress
-- In Review: ready for approval (can be same person or another)
-- Published: live on the website
-- Archived: retired, no longer relevant (distinct from Draft — finished but hidden)
-
-### Rationale
-
-- **Editorial workflow:** "In Review" supports an approval step before publishing
-- **Lifecycle completeness:** "Archived" captures posts that are done but shouldn't be on the site (rejected content, outdated articles)
-- **Consistency:** All entry points (Manual, AI, Editor) show the same options
-
-### Consequences
-
-- Database constraint updated to accept all 4 values
-- StatusSelector component, Posts filter, and Posts list badges all updated
-- All help content updated to reference 4 statuses with visual badges
-
----
-
-## ADR-016: AI Context System ("Brand Brain")
-
-**Date:** February 2026  
-**Status:** Accepted
-
-### Context
-
-Multiple features need Claude API integration (translation, AI post generation). Each call needs consistent brand voice, writing rules, and awareness of existing content to avoid redundancy.
-
-### Decision
-
-Create a centralized `ai_context` table in Supabase with admin-editable brand guidelines. A server-side endpoint (`/api/internal/ai-context/full`) assembles the complete context — brand guide entries plus a list of all published posts — for injection into every Claude API call.
-
-### Rationale
-
-- **Single source of truth:** Brand voice defined once, used everywhere
-- **Admin-editable:** No code deployment needed to update tone, rules, or guidelines
-- **Content-aware:** Claude sees existing posts, avoids redundancy, can cross-link
-- **Server-side:** API keys stay on the server, never exposed to client
-
-### Consequences
-
-- Requires ANTHROPIC_API_KEY environment variable
-- New admin screen under Système → AI Context
-- All AI features must fetch context before calling Claude
-- Published posts list grows over time — may need pagination or summarization eventually
-
-**Tables:** `ai_context` (key, title, content, category, sort_order)
-
-**Endpoints:**
-- Admin CRUD: `/api/admin/ai-context`
-- Internal full context: `/api/internal/ai-context/full`
-
----
-
-## ADR-017: Unified Post Creation (CreatePostLanding)
-
-**Date:** February 2026  
-**Status:** Accepted
-
-### Context
-
-Blog post creation had two separate entry points with no connection: Posts (Manual) for direct writing and Posts (AI) for AI-assisted generation. Users had to know which tab to use. The mental model was fragmented.
-
-### Decision
-
-Add a CreatePostLanding screen as a unified entry point. The "New Post" button on Posts (Manual) navigates here instead of directly creating a draft. Two cards offer the choice:
-- "Write from scratch" → creates draft, opens Blog Editor
-- "Generate with AI" → navigates to Posts (AI) tab
-
-Both paths end at the Blog Editor. The landing screen is not a tab — it's an action screen reached via the button.
-
-### Rationale
-
-- **One flow, two methods:** Creating a post is the goal, AI is a method
-- **No code duplication:** Reuses existing draft creation logic and AI Creator components
-- **Non-destructive:** Posts (Manual) and Posts (AI) tabs continue to work as before
-- **Progressive unification:** Phase 1 of 3 (landing → partial unification → true unification)
-
-### Consequences
-
-- New component: `CreatePostLanding.tsx`
-- Route: `/admin?tab=new-post` (not visible in tab bar)
-- Existing tabs unchanged — advanced users can still go directly to Posts (AI)
-- Help flows updated to reflect new entry point
-- Future phases will progressively merge AI into the Blog Editor itself
-
----
-
-## ADR-018: Server-Side Translation via Claude API
-
-**Date:** February 2026
-**Status:** Accepted
-
-### Context
-
-The Translation Assistant required users to manually copy a prompt, paste into an external AI (ChatGPT/Claude), copy the result, and paste it back. This 6-step workflow had high friction and discouraged use.
-
-### Decision
-
-Implement one-click AI translation directly from the Posts list:
-
-1. **Translation choice dialog:** Click translate icon → choice dialog appears with two options:
-   - "Translate with AI" (primary) — server-side Claude translation
-   - "Translate manually" — creates draft for manual translation
-
-2. **Server-side translation:** When AI is chosen, the server:
-   - Duplicates the post to the target language
-   - Extracts images as `[IMAGE X]` placeholders
-   - Calls Claude API with text + Brand Brain context
-   - Parses response (TITLE, SLUG, DESCRIPTION, CONTENT)
-   - Re-inserts images into translated content
-   - Updates the duplicate with translated content (removes `[TRANSLATE TO...]` prefix)
-
-3. **Graceful fallback:** If AI translation fails (no API key, API error, parsing error):
-   - Duplicate is kept with `[TRANSLATE TO...]` prefix
-   - Response includes `translationError` message
-   - User can use Translation Assistant dialog manually
-
-4. **Shared translation service:** `server/routes/translation-service.ts` provides reusable functions:
-   - `translateContent()` — Claude API call with Brand Brain context
-   - `fetchAIContext()` — loads brand/translation rules from Supabase
-   - `extractImagesFromContent()` — image placeholder extraction
-   - `reinsertImages()` — restore images after translation
-
-### Rationale
-
-- **UX improvement:** 7 clicks becomes 2 clicks (translate icon → "Translate with AI")
-- **Brand consistency:** Every translation uses the same brand voice and rules
-- **Content-aware:** Claude sees existing posts, can adapt references
-- **Secure:** API key stays server-side
-- **Fallback preserved:** Manual option available in both dialog and Translation Assistant
-- **Reusable:** Shared service for future AI features
-
-### Consequences
-
-- Requires ANTHROPIC_API_KEY on staging and production
-- Translation cost: ~$0.01-0.03 per post (2,000-3,000 tokens)
-- Dependency on Claude API availability (fallback mitigates this)
-- Model choice: claude-sonnet-4-20250514 for speed/quality balance
-- Translation Assistant dialog still useful for re-translating or manual preference
-
-**Files:**
-- `server/routes/translation-service.ts` — shared translation logic
-- `server/routes/blog-admin.routes.ts` — enhanced translate endpoint
-- `client/src/admin/BlogManagePosts.tsx` — translation choice dialog
-- `client/src/admin/TranslationAssistant.tsx` — simplified 2-step UI
-
----
-
-## ADR-019: Unified Blog Post Creation Flow
-
-**Date:** February 2026
-**Status:** Accepted
-
-### Context
-
-After implementing CreatePostLanding (ADR-017), the Blog Hub still had two visible tabs: "Posts (Manual)" and "Posts (AI)". Users had to understand which tab did what. The help system had two separate flows: "Create a blog post (Manual)" and "Create a blog post (AI-assisted)", which duplicated content and referenced the old "Posts (AI)" tab name and "ChatGPT" brand.
-
-### Decision
-
-Complete the unification:
-
-1. **Tab consolidation:** Merge "Posts (Manual)" and "Posts (AI)" into a single "Posts" tab
-   - AI Creator remains accessible as a hidden tab (for CreatePostLanding → "Generate with AI" navigation)
-   - Tab bar now shows 5 tabs: Planner, Topics, Keywords, Posts, Image Bank
-
-2. **Help flow consolidation:** Merge two creation flows into one "Create a blog post" flow with 7 steps:
-   1. Go to Blog Hub → Posts tab
-   2. Click "+ New Post"
-   3. Choose method: "Write from scratch" or "Generate with AI"
-   4. Manual path: Blog Editor opens, write content
-   5. AI path: Configure and generate, then edit in Blog Editor
-   6. Set metadata (category, tags, featured image, SEO)
-   7. Set status and save
-
-3. **Clean up references:** Remove all mentions of:
-   - "Posts (Manual)" → "Posts"
-   - "Posts (AI)" → "AI Creator" (internal tab name)
-   - "ChatGPT" → removed entirely
-
-### Rationale
-
-- **Simplified mental model:** "Posts" is where you manage posts, "New Post" is how you create
-- **Single help flow:** One flow covers both creation methods with branching at step 3
-- **No brand mentions:** UI should be tool-agnostic (AI, not ChatGPT/Claude)
-- **Backward compatible:** AI Creator tab still works for direct URL access
-
-### Consequences
-
-- Tab bar reduced from 6 to 5 visible tabs
-- Help system reduced from 3 flows to 2 (Create + Translate)
-- CreatePostLanding is now the sole entry point for post creation
-- All SQL migrations must be run to update help content in database
-
-**Files:**
-- `client/src/components/admin/ContentProductionHub.tsx` — tab consolidation
-- `migrations/merge-create-post-help-flows.sql` — help content updates
-- `migrations/update-posts-tab-help-content.sql` — "Posts (Manual)" → "Posts"
-
----
-
-## Template for New ADRs
-
-```markdown
-## ADR-XXX: [Title]
-
-**Date:** [Date]  
-**Status:** [Proposed | Accepted | Deprecated | Superseded]
-
-### Context
-
-[What is the issue that we're seeing that motivates this decision?]
-
-### Decision
-
-[What is the change that we're proposing and/or doing?]
-
-### Rationale
-
-[Why is this the best choice?]
-
-### Consequences
-
-[What are the results of the decision?]
-```
-
----
-
-*ADRs should be updated when decisions change. Mark old ADRs as Deprecated or Superseded rather than deleting them.*
+**Positive:** Significant time savings on content creation. Brand Brain provides consistent voice. Server-side integration keeps API key out of client bundle.
+**Negative:** API cost per generation/translation. AI-generated content still requires human review before publishing.
