@@ -1,0 +1,222 @@
+[
+  {
+    "tab": "keywords",
+    "name": "Keywords",
+    "pageScreenshot": "keywords-page.png",
+    "helpScreenshot": "keywords-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nKeywords (12,501)\n\nSEO keywords from Google Keyword Planner, organized for content planning.\n\nQuick Filters\n\nOne-click presets for common keyword analysis tasks:\n\n🎯 Quick Wins — Low competition + High intent keywords in Tier 1-2. Your easiest path to conversions. Start here.\n📈 Traffic Drivers — High-volume Tier 2 keywords (1,000+ searches/mo). Build authority and brand awareness.\n💰 Money Keywords — All high-intent keywords in Tier 1-2, regardless of competition. Your full conversion universe.\n🇫🇷 France Priority — French market Tier 1-2 keywords. Focus on your home market advantage.\n✍️ Blog Ideas — Medium intent, low-medium competition keywords. Perfect for content calendar planning.\n✕ Clear — Reset all filters to default.\n\nClick any preset to instantly apply its filters. The preset deactivates if you manually change any filter.\n\nFiltering\n\nUse the dropdowns above each column to filter:\n\nSearch — Type to find specific keywords\nCluster — Content category (Gift Retirement, VHS Legacy, etc.)\nMarket — 🇫🇷 France or 🇺🇸 US\nTier — Relevance to MEMOPYK service\nSearches/mo — Monthly search volume ranges\nComp. — How hard to rank (Low/Medium/High)\nIntent — Buyer readiness\n\nEach filter supports multi-select: check/uncheck individual options, use Select All to toggle all. Click OK to apply, Cancel to revert.\n\nTable Columns\nKeyword — The search term. Cluster shown inline as a 🏷️ Gift Retirement tag\nMarket — 🇫🇷 FR = France, 🇺🇸 US = United States\nTier — How relevant to MEMOPYK:\nTier 1 = Direct service match (best!)\nTier 2 = High relevance\nTier 3 = Secondary\nSearches/mo — Monthly search volume from Google\nCompetition — How hard to rank:\nLow = Easy to rank (good!)\nMedium = Moderate effort\nHigh = Hard to rank\nIntent — Conversion likelihood:\nHigh = Ready to buy (best!)\nMedium = Comparing options\nLow = Just researching\nPlanned Posts — Number of planned posts targeting this keyword. Click to view in the Planned Posts tab.\nPosts — Number of published posts using this keyword. Click to view in the Posts tab.\nActions\n✏️ Edit — Modify keyword details\n🗑️ Delete — Remove (with confirmation)\nBest Strategy\nStart with Quick Wins preset — these are your best ROI keywords\nUse Traffic Drivers for brand awareness content\nCreate planned posts targeting these keywords first\nTrack progress via the Planned Posts and Posts counts\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  },
+  {
+    "tab": "topics",
+    "name": "Planned Posts",
+    "pageScreenshot": "topics-page.png",
+    "helpScreenshot": "topics-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nPlanned Posts\n\nYour blog post backlog. Each entry here becomes one published blog post. Plan what to write, then use \"Create Post\" to generate it with AI.\n\nTwo views\nList view (default) — A flat list sorted by status (In Progress first, then Planned, Backlog, Published), then by search volume.\nGrouped view — Posts organized by Topic Group with collapsible sections. Main Guides appear first, Supporting Articles are indented below.\n\nSwitch between views using the List / Grouped toggle in the header.\n\nWhat are Topic Groups?\n\nA Topic Group is a collection of related articles about the same theme. For example, the \"Gift Retirement\" group contains all articles about retirement gift ideas. Grouping articles this way helps search engines understand your site structure and boosts rankings.\n\nMain Guide vs Supporting Article\nMain Guide — A broad, comprehensive article that covers the entire topic (e.g. \"Retirement Gift Ideas\"). This is the anchor of the group.\nSupporting Article — A focused article that dives deep into one specific angle (e.g. \"Best Retirement Gifts for Women\"). Supporting articles link back to their Main Guide.\nPost Fields\nTitle — The blog post title (becomes the H1)\nArticle Role — Main Guide or Supporting Article\nTopic Group — Which group of related articles this belongs to\nParent Guide — For Supporting Articles: which Main Guide it supports\nMarket — Target audience (France or English)\nCategory — Content category (Photo, Video, Family, Digital, Crafts, Seasonal)\nType — Content type (How-To, Storytelling, etc.)\nPriority — P1 (lowest) to P5 (highest)\nStatus — Backlog, Planned, In Progress, or Published\nPrimary Keyword — Main SEO keyword to target\nSecondary Keywords — Supporting keywords\nContent Angle — Unique perspective for the article\nDescription — What the article should cover\nFilters\nSearch — Search by title or keywords\nArticle Role — Show only Main Guides or Supporting Articles\nTopic Group — Show only posts from a specific group\nMarket — Filter by France or English\nCategory — Filter by content category\nStatus — Filter by workflow status\nType — Filter by content type\nPriority — Filter by priority level\nStats Cards\nTotal Posts — All planned posts in your backlog\nReady to Write — Posts with \"Backlog\" status, waiting to be written\nIn Progress — Posts that are \"Planned\" or \"In Progress\"\nPublished — Posts that have been published\nActions\nPlan New Post — Add a new post to your backlog\nEdit — Modify post details\nDelete — Remove post (unlinks any published posts)\nCreate Post — Generate a blog post using AI\nView Posts — See published posts created from this plan\nTips\nThe List view shows your most actionable posts first (In Progress and Planned at the top)\nSwitch to Grouped view to see how your posts relate to each other within Topic Groups\nStart by creating a Main Guide for each Topic Group, then add Supporting Articles around it\nClick any row to expand and see full details including SEO data and content guidance\nPosts with a \"Generated Nx\" badge have already been used to create published posts\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  },
+  {
+    "tab": "planner",
+    "name": "Planner",
+    "pageScreenshot": "planner-page.png",
+    "helpScreenshot": "planner-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nPlanner\n\n12-week content calendar to plan, schedule, and track your blog production.\n\nTwo Views\n\nPlanned Posts - Schedule when to write. Assign posts from your backlog to specific days.\n\nPublished Posts - See when posts go live. Published posts appear on their publish date, drafts on their assigned date.\n\nPlanned Posts View Actions\nClick + on any day to assign a planned post from your backlog\nDrag a card to reschedule it to a different day\nClick  on a Planned post to create a published post from it\nClick  to view or edit the associated post\nClick  to remove a planned post from the calendar\nPublished Posts View Actions\nDrag a post card to reschedule its publication date\nClick  to view or edit the post\nNavigation\nUse arrow buttons to move 4 weeks forward or back\nClick Today to jump to the current week\nStatus Colors\nOrange border - Planned (no published post yet)\nYellow border - Draft or In Review\nGreen border - Published\nTips\nAim for 2-3 posts per week for consistent publishing\nSchedule posts at least 1 week ahead\nUse the Planned Posts view to plan, then switch to Published Posts view to track progress\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  },
+  {
+    "tab": "posts",
+    "name": "Posts",
+    "pageScreenshot": "posts-page.png",
+    "helpScreenshot": "posts-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nPosts\n\nThis is where you manage all your blog posts - create, edit, preview, translate, and delete.\n\nTop Buttons\nNew Post (orange, top right) - Opens the creation page where you choose to write from scratch or generate with AI.\nManage Tags - Opens a dialog where you can add new tags, rename existing ones, or delete them.\nFilters\n\nUse the filter card at the top to narrow your list:\n\nStatus - Show All Posts, Draft Only, In Review Only, Published Only, or Archived Only.\nLanguage - Show All Languages, English, or French.\nTitle Keyword - Type a word to search by post title.\nThe post count on the right shows how many posts match your current filters.\n\nIf you arrived from the Planned Posts tab with a filter active, a blue banner appears. Click the X on the badge to clear it.\n\nPost Cards\n\nEach post appears as a card showing:\n\nTitle - The post name. If created from a planned post, a View source plan link appears next to it.\nDescription - A short summary (2 lines max).\nBadges below the description: language (EN/FR), status (Draft / In Review / Published date / Archived), tag badges, and Featured (purple) if marked.\nAction Icons (right side of each card)\n\nEach card has 5 controls on the right:\n\nStatus dropdown - Change status directly (Draft, In Review, Published, or Archived). No need to open the editor.\nEye icon (\"View post\") - Open the post on the public blog in a new tab.\nTranslation icon (\"Duplicate for translation\") - Create a copy for translation. All images are preserved.\nPencil icon (\"Edit post\") - Open the post in the Blog Editor.\nTrash icon (\"Delete post\", red) - Delete the post with confirmation.\nTips\nTo quickly change a post status, use the Status dropdown on the card - no need to open the editor.\nThe Translation button copies everything (title, content, images). Just replace the text.\nTo create a post from a content plan, go to the Planned Posts tab and click \"Create Post\" on any entry.\nClick New Post to choose between writing from scratch or generating with AI.\nTranslating Posts\n\nClick the 🌐 translate icon on any post to create a translation. Choose ✨ Translate with AI for one-click automatic translation, or Translate manually to use your own tools.\n\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  },
+  {
+    "tab": "images",
+    "name": "Image Bank",
+    "pageScreenshot": "images-page.png",
+    "helpScreenshot": "images-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nImage Bank\n\nCentral library for all blog images and media assets.\n\nFeatures\nUpload — Add new images to the library\nSearch — Find images by name or tag\nOrganize — Group images by category\nUse in posts — Insert images into blog articles from the Blog Editor\nBest Practices\nUse descriptive filenames for SEO\nCompress images before uploading\nAdd alt text for accessibility\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  },
+  {
+    "tab": "new-post",
+    "name": "Create a New Blog Post",
+    "pageScreenshot": "new-post-page.png",
+    "helpScreenshot": "new-post-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nCreate a New Blog Post\n\nThis is your starting point for creating new content. Choose the method that works best for you:\n\nWrite from scratch\n\nOpens the Blog Editor with a blank post. Best when you have a clear idea of what you want to write.\n\nGenerate with AI\n\nUses AI to generate a draft based on your topic and preferences. Great for overcoming writer's block or getting a head start.\n\n💡 Tip: You can always switch methods — start with AI to get a draft, then refine manually in the Blog Editor.\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  },
+  {
+    "tab": "ai-creator",
+    "name": "AI Creator",
+    "pageScreenshot": "ai-creator-page.png",
+    "helpScreenshot": "ai-creator-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nAI Creator\n\nGenerate blog posts using AI. This tool creates a structured prompt, which you copy to your AI assistant (e.g., your AI assistant, Claude). Then paste the AI response back to create a fully formatted blog post.\n\nStep 1: Configure Post\n\nFill in the following fields:\n\nTopic - Describe what the blog post should be about (required)\nLanguage - English (EN) or French (FR)\nStatus - Choose Draft, In Review, Published, or Archived\nPublished At - Schedule a future date (optional)\nSEO Keywords - Comma-separated keywords to target (optional)\n\nClick Generate AI Prompt when ready.\n\nStep 2: Copy Prompt to AI\n\nThe generated prompt appears in this panel. Click Copy to Clipboard to copy it. Then paste into your AI assistant, Claude, or your preferred AI assistant. The AI will generate a complete blog post in JSON format.\n\nStep 3: Paste AI's JSON Response\n\nPaste the AI's JSON response into the textarea. If there are formatting issues, click Auto-Fix to repair common JSON problems. Then click Validate & Edit Content to preview and edit the content.\n\nStep 4: Refine Your Content\n\nIn this step you can:\n\nEdit the Post Title\nUpload a Hero Image from your Image Bank\nAdd Tags to categorize the post\nUse the rich text editor to refine the content, add tables, or format text\n\nClick Save Blog Post to save. You'll be automatically taken to the Blog Editor for final review.\n\nTips\nBe specific with your topic for better results\nAlways review and edit AI content before publishing\nUse the SEO keywords field - it improves content targeting\nThe generated prompt includes MEMOPYK brand guidelines automatically\nStart with Draft status and review before publishing\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  },
+  {
+    "tab": "seo",
+    "name": "SEO Management",
+    "pageScreenshot": "seo-page.png",
+    "helpScreenshot": "seo-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nSEO Management\n\nConfigure meta tags, Open Graph data, and page-level SEO settings for the website.\n\nLanguage Switcher\n\nUse the French / English toggle in the top-right to edit SEO settings for each language separately.\n\nSub-Tabs\nBasic SEO - Page title, meta description, keywords, canonical URL, and a Google search result preview\nRobots - Control indexing, link following, archiving, and snippet behavior\nSocial Media - Open Graph (Facebook, LinkedIn) and Twitter Card settings\nAdvanced - JSON-LD structured data, hreflang alternate languages, and extra meta tags\nLive Preview - Preview the complete HTML head tags that will be generated\nActions\nSave SEO Settings - Save your changes (bottom of the form)\nHistory - View version history of SEO changes\nPublish - Publish current settings to the live site\nTips\nKeep titles under 70 characters and descriptions under 320 characters\nEach language version should have unique title and description\nUse the Live Preview tab to verify your tags before publishing\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  },
+  {
+    "tab": "analytics-new",
+    "name": "Analytics Dashboard",
+    "pageScreenshot": "analytics-new-page.png",
+    "helpScreenshot": "analytics-new-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nAnalytics Dashboard\n\nTrack visitor behavior, video engagement, CTA clicks, and blog performance - all from one dashboard.\n\nTab Navigation\n\nUse the horizontal tabs to switch between analytics views:\n\nOverview - KPIs at a glance: visitors, sessions, page views, bounce rate, top pages\nLive View - Real-time visitor activity on the site right now\nTrends - Traffic trends over time with daily/weekly breakdowns\nVideo - Video engagement funnel: starts, progress milestones, completions\nGeo - Visitor geography: countries, cities, language breakdown\nCTA - Call-to-action button click tracking (Book a Call, Quick Quote)\nBlog - Blog post views, popular posts, top keywords and categories\nClarity - Microsoft Clarity heatmaps and session recordings (coming soon)\nFallback - Server health, database status, cache usage\nExclusions - Manage IP addresses and date exclusions from analytics\nGlobal Filters\n\nFilters at the top apply across all tabs:\n\nDate range - Today, Yesterday, Last 7 days, Last 30 days, Last 90 days, or Custom range\nLanguage - Filter by ALL, EN, or FR visitors\nCountry - Filter by visitor country (France, US, Canada, UK, etc.)\nData Sources\n\nThe Data Source badge shows where numbers come from:\n\nMEMOPYK (orange) - Internal Supabase tracking. Admin IPs excluded. Most accurate for conversions.\nGA4 (blue) - Google Analytics 4. Broader coverage but subject to sampling and consent.\nHeader Badges\n\nThe header shows contextual information:\n\nSince: [date] - Appears when the date exclusion filter is active (configured in Exclusions)\nIPs: N - Shows how many IPs are excluded from analytics\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  },
+  {
+    "tab": "partners",
+    "name": "Partners Directory",
+    "pageScreenshot": "partners-page.png",
+    "helpScreenshot": "partners-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nPartners Directory\n\nManage the professional partners displayed in the partner directory on the website.\n\nWhat You Can Do\nReview intake submissions from the partner signup form\nApprove or reject partner applications\nEdit partner profiles — name, description, location, services\nManage map pins — partners appear on the interactive map\nPartner Statuses\nPending — New submission awaiting review\nApproved — Visible in the directory\nRejected — Not shown to visitors\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  },
+  {
+    "tab": "travel-agencies",
+    "name": "Travel Agencies",
+    "pageScreenshot": "travel-agencies-page.png",
+    "helpScreenshot": "travel-agencies-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nTravel Agency Management\n\nManage the travel agency upload portal and agency access codes.\n\nTwo Sub-Tabs\nUploads — Review and manage video/photo uploads submitted by travel agencies\nAgency Codes — Create and manage access codes that agencies use to upload content\nUpload Portal\n\nTravel agencies receive a unique code, visit the upload page, enter their code, and upload vacation videos/photos. Submissions appear here for review.\n\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  },
+  {
+    "tab": "hero-management",
+    "name": "Hero Videos",
+    "pageScreenshot": "hero-management-page.png",
+    "helpScreenshot": "hero-management-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nHero Video Management\n\nControl the hero video section at the top of the homepage.\n\nVideo Management\nUpload hero videos for the homepage banner (drag-and-drop or file picker)\nBilingual videos - set separate videos for French and English, or use the same video for both\nSet video order - use arrow buttons to control which video plays first\nToggle active state - enable/disable individual hero videos\nText Overlays\nEdit overlay text - headline displayed over the video in both languages\nResponsive sizes - separate font sizes for desktop, tablet, and mobile\nLive preview - toggle between French and English preview\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  },
+  {
+    "tab": "gallery",
+    "name": "Gallery",
+    "pageScreenshot": "gallery-page.png",
+    "helpScreenshot": "gallery-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nVideo Gallery Management\n\nManage the portfolio video gallery displayed on the website.\n\nWhat You Can Do\nAdd/edit/delete gallery video entries\nReorder videos by drag-and-drop\nSet thumbnails and captions for each video\nToggle visibility — hide videos without deleting them\nVideo Sources\n\nVideos can be hosted externally (YouTube, Vimeo) or uploaded directly. The gallery handles caching and proxy delivery automatically.\n\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  },
+  {
+    "tab": "faq",
+    "name": "FAQ",
+    "pageScreenshot": "faq-page.png",
+    "helpScreenshot": "faq-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nFAQ Management\n\nManage the Frequently Asked Questions displayed on the website.\n\nWhat You Can Do\nCreate FAQ sections — group related questions together\nAdd/edit/delete questions within each section\nReorder sections and questions by drag-and-drop\nBilingual support — FAQ content in both French and English\nTips\nKeep answers concise — visitors scan, they don't read long paragraphs\nUse questions that match how customers actually ask (good for SEO)\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  },
+  {
+    "tab": "why-memopyk",
+    "name": "Why MEMOPYK",
+    "pageScreenshot": "why-memopyk-page.png",
+    "helpScreenshot": "why-memopyk-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nWhy MEMOPYK Cards\n\nManage the \"Why MEMOPYK\" cards section on the homepage — the value propositions shown to visitors.\n\nWhat You Can Do\nEdit card content — title, description, icon\nReorder cards — change display sequence\nAdd/remove cards — adjust the number of value propositions\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  },
+  {
+    "tab": "cta",
+    "name": "CTA Buttons",
+    "pageScreenshot": "cta-page.png",
+    "helpScreenshot": "cta-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nCTA Button Management\n\nManage Call-to-Action buttons displayed across the website.\n\nWhat You Can Do\nEdit button text — labels for Book a Call, Quick Quote, etc.\nConfigure destinations — where each CTA button leads\nSet button styling — colors and visual emphasis\nTracking\n\nCTA clicks are automatically tracked in both GA4 and Supabase. View click analytics in the CTA tab of the Analytics Dashboard.\n\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  },
+  {
+    "tab": "legal-docs",
+    "name": "Legal Documents",
+    "pageScreenshot": "legal-docs-page.png",
+    "helpScreenshot": "legal-docs-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nLegal Document Management\n\nManage legal pages displayed on the website.\n\nWhat You Can Do\nEdit document content in rich text format\nBilingual support - separate French and English versions\nToggle visibility - activate or deactivate individual documents\nDocument Types\nLegal Notice (Mentions legales)\nTerms of Service (CGU)\nTerms of Sale (CGV)\nPrivacy Policy (Politique de confidentialite)\nCookie Policy (Politique des cookies)\nRefund Policy (Politique de remboursement)\nDisclaimer (Avis de non-responsabilite)\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  },
+  {
+    "tab": "ai-context",
+    "name": "AI Context",
+    "pageScreenshot": "ai-context-page.png",
+    "helpScreenshot": "ai-context-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nAI Context - Brand Brain\n\nDefine the brand personality, tone, and knowledge base that AI uses when generating blog content.\n\nWhat You See\n\nContext entries are grouped by category:\n\nBrand Guidelines - Brand voice, tone, style, and content guidelines\nTranslation Rules - Rules for how AI should handle translations\n\nEach entry shows its key, title, content, and last update timestamp.\n\nHow to Edit\nClick Edit on any entry card\nModify the content in the text area\nClick Save to apply changes\nHow It Works\n\nWhen AI generates blog content (via the Posts tab), it reads this context to match your brand voice. The more detailed your context, the better the AI output.\n\nInternal API\n\nThe full context (brand + published posts) is available at GET /api/internal/ai-context/full for integration with other tools.\n\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  },
+  {
+    "tab": "cache",
+    "name": "Cache Management",
+    "pageScreenshot": "cache-page.png",
+    "helpScreenshot": "cache-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nCache Management\n\nGestion du Cache - manage the server-side cache for all media (videos and images).\n\nStorage Overview\n\nThe orange card at the top shows cache usage, auto cleanup settings (30 days), and total media file count.\n\nVideo Sections\n\nTwo side-by-side cards showing cache status for each video type:\n\nHero Videos - Critical homepage carousel videos, preloaded for instant display\nGallery Videos - Portfolio gallery videos optimized for lightbox playback\n\nEach card shows per-file cache status with checkmarks for cached files.\n\nGlobal Cache Actions\n\nThree action buttons for managing the entire cache:\n\nAll Media Cache (purple) - Cache all media with full verification. Takes 15-45 seconds\nSmart Cleanup (blue) - Remove only expired files (older than 30 days) and orphaned files\nImages Orphelines (orange) - Remove only unused cached images not referenced by any gallery\nNote\n\nClearing the cache does not delete original files - it only removes temporary copies. Files will be re-cached on next access. Recommended after each production deployment.\n\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  },
+  {
+    "tab": "blog-edit",
+    "name": "Blog Editor",
+    "pageScreenshot": "blog-edit-page.png",
+    "helpScreenshot": "blog-edit-help.png",
+    "helpFound": true,
+    "helpTitle": "This Screen",
+    "helpText": "Help\nThis Screen\nBlog Editor\n\nThis screen lets you edit a blog post. All changes are saved only when you click Save Changes - nothing is saved automatically.\n\nTop Bar\n\nThe top-right corner has action buttons:\n\nSave Changes (orange) - Saves all fields at once: title, content, status, tags, hero image, and publication date\nPreview - Opens the published post in a new browser tab. Only available when the post status is Published\nTranslation Assistant - Appears only for translation drafts (posts with \"[TRANSLATE TO...]\" in the title). Guides you through a 3-step translation process using your AI assistant, automatically preserving images.\nFields (top to bottom)\n\nTitle - The post headline. This is what readers see first.\n\nSlug (URL) - The URL path for this post. Example: my-blog-post becomes /blog/my-blog-post. Use lowercase letters, numbers, and hyphens only.\n\nDescription (SEO) - A short summary shown in search engine results and social media previews. Keep it under 160 characters.\n\nHero Image\n\nThe main image displayed at the top of the post.\n\nClick Select Hero Image (or Change Hero Image if one is already set)\nA dialog opens with two options:\nUpload new image - Click Choose File to upload from your computer (PNG, JPG, GIF, WEBP, max 5 MB)\nSelect from existing images - Click any image thumbnail to use it\nStatus & Publication Date\n\nThese two fields appear side by side.\n\nStatus - Choose the workflow stage:\n\nDraft - Work in progress, not visible to readers\nIn Review - Ready for review before publishing\nPublished - Live and visible on the blog\nArchived - Hidden from the public blog but preserved in the system\n\nPublished At - Controls when the post appears on the blog.\n\nClick Choisir une date to open the date picker\nPick a day on the calendar, then set the time (hours : minutes)\nClick Définir maintenant to set the current date and time (French timezone)\nClick Effacer to clear the date\nTags\n\nColored labels that categorize your post. Click a tag to select it (it gets a ring highlight). Click again to deselect. The count of selected tags is shown below.\n\nIf no tags exist, create them first in the Posts tab using Manage Tags.\n\nFeatured Post\n\nAn orange section that lets you highlight this post in the featured carousel on the blog page.\n\nToggle the switch on to mark as featured\nSet Featured Order (1 = appears first in the carousel)\nToggle off to remove from the carousel\nContent\n\nThe main body of your post - a rich text editor with a full toolbar. You can format text, insert images, add links, tables, and switch to code view for direct HTML editing.\n\nLanguage\n\nShown at the bottom - displays whether this post is in English or French. The language is set when the post is created and cannot be changed here.\n\nTranslation Assistant\n\nThe Translation Assistant button only appears for posts with \"[TRANSLATE TO...]\" in the title. It provides a 3-step process:\n\nExtract - Replaces images with [IMAGE 1], [IMAGE 2] placeholders\nTranslate - Copy the prompt to your AI assistant and get the translated content\nApply - Paste the translation and images are automatically restored\nTips\nAlways click Save Changes after making edits - there is no auto-save\nWrite your Description (SEO) before publishing - it improves search visibility\nSet a hero image - posts without one look incomplete on the blog page\nUse Draft while writing, switch to Published only when ready\nHow do I...\n\nCreate a blog post\n\nStep-by-step guide to create a blog post, manually or with AI assistance\n\nTranslate a post\n\nTranslate a post to another language using AI or manual tools\n\nNeed more help? Contact support.",
+    "rating": "PASS",
+    "issues": []
+  }
+]
