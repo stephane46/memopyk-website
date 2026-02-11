@@ -26,7 +26,7 @@ paths:
 - Help content is stored in Supabase: `help_screens` table (HTML) and `help_flows` table (JSON)
 - Update help via psql through Claude Code — see docs/WORKING_WITH_CLAUDE.md Help System section
 - Run Playwright tests after help updates: `npx playwright test tests/e2e/help-flow-validation.spec.ts`
-- Current coverage: 9 screens, 2 flows (see WORKING_WITH_CLAUDE.md for full list)
+- Current coverage: 31 screens, 2 flows (see WORKING_WITH_CLAUDE.md for full list)
 
 ## Blog Admin
 - Blog Hub has 5 workflow tabs: Keywords → Topics → Planner → Posts → Image Bank
@@ -34,6 +34,6 @@ paths:
 - See docs/guides/BLOG_WORKFLOW.md for the full content pipeline
 
 ## Database
-- 42 tables in Supabase PostgreSQL, schema in shared/schema.ts (Drizzle ORM)
+- 85 app tables in Supabase PostgreSQL, 35 defined in shared/schema.ts (Drizzle ORM)
 - For writes: use psql via Claude Code (more reliable than MCP for INSERT/UPDATE/DELETE)
 - No schema changes without Stéphane's approval

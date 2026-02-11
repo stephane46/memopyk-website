@@ -21,7 +21,7 @@
    +----------v---+    +----------v--------+    +--------v--------+
    | Supabase     |    | Supabase Storage  |    | External APIs   |
    | PostgreSQL   |    | (memopyk-videos,  |    | - Resend (email)|
-   | (42 tables,  |    |  image-bank)      |    | - Anthropic     |
+   | (85 tables,  |    |  image-bank)      |    | - Anthropic     |
    |  Drizzle ORM)|    |                   |    |   (Claude API)  |
    +--------------+    +-------------------+    | - GA4 Data API  |
                                                 | - Nextcloud     |
@@ -85,7 +85,7 @@ client/                 React frontend (Vite)
   public/               Static files copied to dist/public/ (favicon, flags, robots.txt, sitemap.xml)
 
 shared/
-  schema.ts             Drizzle ORM table definitions + Zod validation schemas (42 tables)
+  schema.ts             Drizzle ORM table definitions + Zod validation schemas (35 tables)
 
 docs/                   Project documentation
 scripts/                One-off data scripts (keyword imports, cluster refinement, help content)
@@ -105,14 +105,14 @@ uploads/                Local upload staging directory
 | `server/db.ts` | Lazy-initialized database connection via `postgres.js` driver + Drizzle ORM with full schema |
 | `client/src/main.tsx` | React entry: `createRoot` with `HelmetProvider` for SEO meta tags |
 | `client/src/App.tsx` | Root React component: `QueryClientProvider` (TanStack Query), `AuthProvider`, `LanguageProvider`, `wouter` Router, GA4/Clarity initialization |
-| `shared/schema.ts` | All 42 Drizzle table definitions (pgTable) with Zod insert schemas, shared between server and client |
+| `shared/schema.ts` | All 35 Drizzle table definitions (pgTable) with Zod insert schemas, shared between server and client |
 | `vite.config.ts` | Vite config: React plugin, `@` and `@shared` path aliases, builds to `dist/public/`, dev proxy for `/api` to port 5000 |
 
 ## External Integrations
 
 | Service | Package / API | Used For | Server Files |
 |---------|--------------|----------|--------------|
-| **Supabase PostgreSQL** | `postgres` + `drizzle-orm` | Primary database (42 tables), all CRUD operations | `server/db.ts`, all route files |
+| **Supabase PostgreSQL** | `postgres` + `drizzle-orm` | Primary database (85 app tables, 35 in Drizzle schema), all CRUD operations | `server/db.ts`, all route files |
 | **Supabase Storage** | `@supabase/supabase-js` | Video and image hosting (buckets: `memopyk-videos`, image bank) | `hero.routes.ts`, `gallery.routes.ts`, `media.routes.ts`, `image-bank.routes.ts` |
 | **Resend** | `resend` | Transactional email (contact forms, partner intake, travel upload confirmations, admin notifications) | `server/services/email.service.ts`, used by `newsletter.routes.ts`, `partners.routes.ts`, `travel-upload.routes.ts`, `contact.routes.ts` |
 | **Anthropic Claude API** | `@anthropic-ai/sdk` | AI blog content generation, post translation (FR/EN), Brand Brain context | `ai-context.routes.ts`, `translation-service.ts`, `blog-admin.routes.ts` |

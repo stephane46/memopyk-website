@@ -5,7 +5,7 @@
 - **Provider**: Supabase PostgreSQL (self-hosted at `supabase.memopyk.org`)
 - **ORM**: Drizzle ORM (`drizzle-orm/postgres-js`) with `postgres` driver
 - **Schema source of truth**: `shared/schema.ts` (Drizzle table definitions)
-- **Live database**: 90 tables in the `public` schema (42 actively used by the app, the rest are legacy Payload CMS tables or PostGIS system views)
+- **Live database**: 88 tables in the `public` schema (85 app tables, excluding spatial_ref_sys, realtime_visitors, test_insert_123). 35 tables defined in Drizzle schema; the remaining 50 are DB-only (legacy Payload CMS, analytics extensions, PostGIS views)
 - **Config**: `drizzle.config.ts` points to `./shared/schema.ts`, migrations output to `./migrations/`
 - **No migration files exist** -- schema changes have been applied directly via Supabase SQL editor
 

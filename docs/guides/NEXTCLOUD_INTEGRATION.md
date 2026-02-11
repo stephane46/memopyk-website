@@ -1,5 +1,7 @@
 # Memopyk.com → Nextcloud Integration
 
+> **Note:** Historical reference document. This describes an early design phase using PHP. The current implementation uses Express.js + Supabase.
+
 ## Overview
 
 This document describes the complete integration between **memopyk.com** (web form) and **media.memopyk.com** (Nextcloud) for file uploads from travel agencies.

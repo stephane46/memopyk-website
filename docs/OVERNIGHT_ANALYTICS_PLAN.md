@@ -1,5 +1,7 @@
 # Overnight Analytics Build — Feb 10-11, 2026
 
+> **Note:** Historical planning document from January 2026. Module counts and architecture references reflect the state at time of writing.
+
 ## Status: COMPLETE
 ## Last updated: 2026-02-11 02:00
 

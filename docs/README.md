@@ -24,7 +24,7 @@ See deployment/ENVIRONMENT.md for required variables.
 | Frontend | React 18 + TypeScript + Vite |
 | UI | Tailwind CSS + shadcn/ui (Radix) |
 | Backend | Express.js + TypeScript |
-| Database | Supabase PostgreSQL (42 tables) |
+| Database | Supabase PostgreSQL (85 app tables, 35 in Drizzle schema) |
 | ORM | Drizzle |
 | Storage | Supabase Storage CDN |
 | Email | Resend |
@@ -42,10 +42,10 @@ memopyk-website/
 │   ├── public/         # Static assets
 │   └── src/            # Components, pages, admin
 ├── server/             # Express backend
-│   ├── routes/         # 22 route modules
+│   ├── routes/         # 24 route files (22 modules + 2 shared utilities)
 │   └── services/       # Business logic
 ├── shared/             # Shared code
-│   └── schema.ts       # Drizzle schema (42 tables)
+│   └── schema.ts       # Drizzle schema (35 tables)
 └── docs/               # Documentation (you are here)
 ```
 
@@ -122,7 +122,7 @@ memopyk-website/
 | Document | Description |
 |----------|-------------|
 | architecture/OVERVIEW.md | System design, data flow, folder structure |
-| architecture/DATABASE.md | 42-table schema reference |
+| architecture/DATABASE.md | 85-table schema reference (35 in Drizzle) |
 | architecture/API.md | All endpoints documented (~204 endpoints) |
 | architecture/DECISIONS.md | Architecture Decision Records (11 ADRs) |
 
@@ -139,4 +139,4 @@ memopyk-website/
 
 ---
 
-Documentation last updated: February 11, 2026
+Documentation last updated: February 12, 2026

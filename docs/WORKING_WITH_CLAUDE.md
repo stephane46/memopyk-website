@@ -109,7 +109,7 @@ git checkout main && git merge staging && git push origin main
 ## Help System
 
 The admin has a contextual help sidebar. Content stored in Supabase:
-- `help_screens` — per-screen help (HTML), 9 screens covered
+- `help_screens` — per-screen help (HTML), 31 screens covering all admin sections
 - `help_flows` — step-by-step guides (JSON), 2 flows
 
 **Components:** HelpButton.tsx, HelpDrawer.tsx, HelpFlowViewer.tsx, HelpContext.tsx, useHelp.ts
@@ -119,7 +119,42 @@ The admin has a contextual help sidebar. Content stored in Supabase:
 npx playwright test tests/e2e/help-flow-validation.spec.ts
 ```
 
-**Current screens:** blog, posts, new-post, ai-creator, blog-edit, planner, keywords, topics, images
+**31 help_screens (by route):**
+- `/admin?tab=ai-context` — AI Context (Brand Brain)
+- `/admin?tab=ai-creator` — AI Creator
+- `/admin?tab=analytics-new` — Analytics Dashboard
+- `/admin?tab=analytics-new&an_tab=blog` — Analytics — Blog
+- `/admin?tab=analytics-new&an_tab=clarity` — Analytics — Clarity
+- `/admin?tab=analytics-new&an_tab=cta` — Analytics — CTA
+- `/admin?tab=analytics-new&an_tab=exclusions` — Analytics — Exclusions
+- `/admin?tab=analytics-new&an_tab=fallback` — Analytics — Diagnostics
+- `/admin?tab=analytics-new&an_tab=geo` — Analytics — Geography
+- `/admin?tab=analytics-new&an_tab=live` — Analytics — Live
+- `/admin?tab=analytics-new&an_tab=overview` — Analytics — Overview
+- `/admin?tab=analytics-new&an_tab=trends` — Analytics — Trends
+- `/admin?tab=analytics-new&an_tab=video` — Analytics — Video
+- `/admin?tab=blog` — Blog Hub
+- `/admin?tab=blog-edit` — Blog Editor
+- `/admin?tab=cache` — Cache Management
+- `/admin?tab=cta` — CTA Buttons
+- `/admin?tab=faq` — FAQ Management
+- `/admin?tab=gallery` — Video Gallery
+- `/admin?tab=hero-management` — Hero Videos
+- `/admin?tab=images` — Image Bank
+- `/admin?tab=keywords` — Keywords
+- `/admin?tab=legal-docs` — Legal Documents
+- `/admin?tab=new-post` — New Post
+- `/admin?tab=partners` — Partners Directory
+- `/admin?tab=planner` — Planner
+- `/admin?tab=posts` — Posts
+- `/admin?tab=seo` — SEO Management
+- `/admin?tab=topics` — Planned Posts
+- `/admin?tab=travel-agencies` — Travel Agencies
+- `/admin?tab=why-memopyk` — Why MEMOPYK Cards
+
+**2 help_flows:**
+- "Create a blog post" — Step-by-step guide to create a blog post, manually or with AI assistance
+- "Translate a post" — Translate a post to another language using AI or manual tools
 
 **CSS badge classes:** `.help-btn` (orange), `.help-tab` (blue), `.help-label` (gray), `.help-status` (green)
 
@@ -141,7 +176,7 @@ See docs/help/NAIVE_USER_TEST_PROCEDURE.md for help content testing methodology.
 
 ## Database
 
-- 42 tables, Drizzle ORM, schema in `shared/schema.ts`
+- 85 app tables (35 in Drizzle schema), Drizzle ORM, schema in `shared/schema.ts`
 - For reads: Postgres MCP or psql
 - For writes: psql via Claude Code (more reliable)
 - No schema changes without Stéphane's approval

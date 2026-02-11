@@ -6,7 +6,7 @@ MEMOPYK creates professional "Films Souvenirs" (souvenir/memory films) from clie
 
 ## Current Status
 
-**Last updated:** February 11, 2026
+**Last updated:** February 12, 2026
 **Staging:** https://memopyk.memopyk.com (auto-deploys on push to `staging`)
 **Production:** https://memopyk.com (auto-deploys on push to `main`)
 
@@ -14,11 +14,11 @@ MEMOPYK creates professional "Films Souvenirs" (souvenir/memory films) from clie
 |-----------|--------|
 | Server | ✅ Express.js (port 5000) |
 | Client | ✅ React 18 + Vite |
-| Database | ✅ Supabase PostgreSQL (42 tables) |
+| Database | ✅ Supabase PostgreSQL (85 tables) |
 | Analytics | ✅ GA4 + custom Supabase (blog analytics endpoints added Feb 11) |
 | Partner Directory | ✅ Working (Mapbox GL JS upgrade planned) |
 | Auto-deploy | ✅ Push → GitHub webhook → Coolify |
-| Help System | ✅ Blog section complete (9 screens, 2 flows) |
+| Help System | ✅ 31 screens, 2 flows (all admin sections covered) |
 | Blog Hub | ✅ 5 workflow tabs, 12,501 keywords, 25 clusters |
 | Production | ✅ Live on Coolify (Replit fully replaced Feb 2) |
 
@@ -64,13 +64,14 @@ READ THESE FIRST:
 |-------|------|-----------|
 | Frontend | React 18, TypeScript, Vite, Tailwind, shadcn/ui | `client/src/` |
 | Backend | Express.js, TypeScript | `server/routes/` (22 route modules) |
-| Database | Supabase PostgreSQL, Drizzle ORM | `shared/schema.ts` (42 tables) |
+| Database | Supabase PostgreSQL, Drizzle ORM | `shared/schema.ts` (85 app tables, 35 in Drizzle schema) |
 | Deployment | Docker, Coolify | `Dockerfile`, `docker-compose.yml` |
 | Email | Resend | Contact form, notifications |
 | Storage | Supabase Storage CDN | Images, videos |
 
 ## Recent Work
 
+- 2026-02-12: Overnight Agent Teams — doc fixes (table count, help screens, flagged items), help validation, SEO service implementation, naive-user help test
 - 2026-02-11: Documentation audit — 107→33 files, 9.5MB→387KB (96% reduction). Updated README, MIGRATION_PROGRESS, TECH_DEBT, BLOG_WORKFLOW.
 - 2026-02-11: Blog analytics endpoints (5 new: popular, trends, topics, keywords, categories)
 - 2026-02-09: Architecture audit — security hardening, 48 dead files removed (~12K lines), 9 DB indexes, fetch pattern standardization, React.lazy code splitting

@@ -52,7 +52,7 @@ Use Drizzle ORM (`drizzle-orm` + `drizzle-zod` + `drizzle-kit`). Schema defined 
 
 ### Consequences
 **Positive:** Type-safe queries with zero code generation step. Schema shared between server and client (via `@shared` alias). Zod integration gives free request validation. Lightweight runtime.
-**Negative:** Some complex analytics queries still use raw `pg` Pool for multi-table JOINs that are awkward in Drizzle's query builder (being migrated, see ADR-006). 42 tables in schema.ts is large but manageable.
+**Negative:** Some complex analytics queries still use raw `pg` Pool for multi-table JOINs that are awkward in Drizzle's query builder (being migrated, see ADR-006). 35 tables in schema.ts (of 85 app tables in database) is manageable; the 50-table gap is schema drift (DB-only tables not yet in Drizzle).
 
 ---
 

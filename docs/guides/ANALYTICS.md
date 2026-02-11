@@ -1,6 +1,8 @@
 # Analytics System Guide
 
-**Last verified:** January 31, 2026
+> **Warning:** This document is pending rewrite. The analytics system was rebuilt in February 2026. Endpoint paths and details below may be outdated.
+
+**Last verified:** February 12, 2026
 **Status:** GA4 active, custom analytics functional (P1-P8 rebuild complete)
 
 ---
@@ -269,4 +271,4 @@ WHERE created_at < NOW() - INTERVAL '90 days';
 
 ---
 
-*Last updated: January 31, 2026*
+*Last updated: February 12, 2026*
