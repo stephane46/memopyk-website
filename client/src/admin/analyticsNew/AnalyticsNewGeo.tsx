@@ -17,6 +17,7 @@ import {
   RefreshCw,
   RotateCcw
 } from 'lucide-react';
+// @ts-expect-error react-simple-maps has no type declarations
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from 'react-simple-maps';
 import { scaleSequential } from 'd3-scale';
 import { interpolateBlues } from 'd3-scale-chromatic';
@@ -338,11 +339,11 @@ export const AnalyticsNewGeo: React.FC = () => {
                 <ZoomableGroup 
                   zoom={position.zoom} 
                   center={position.coordinates}
-                  onMoveEnd={(position) => setPosition(position)}
+                  onMoveEnd={(position: { coordinates: [number, number]; zoom: number }) => setPosition(position)}
                 >
                   <Geographies geography={geoUrl}>
-                    {({ geographies }) =>
-                      geographies.map(geo => {
+                    {({ geographies }: { geographies: any[] }) =>
+                      geographies.map((geo: any) => {
                         const countryName = geo.properties?.name;
                         
                         // Enhanced country name matching with common variations
@@ -406,7 +407,7 @@ export const AnalyticsNewGeo: React.FC = () => {
                               },
                               pressed: { outline: "none" }
                             }}
-                            onMouseEnter={(event) => {
+                            onMouseEnter={(event: React.MouseEvent) => {
                               if (sessions > 0 && countryData) {
                                 const engagementRate = Math.round((countryData.sessions / countryData.visitors) * 100);
                                 setTooltip({
@@ -418,7 +419,7 @@ export const AnalyticsNewGeo: React.FC = () => {
                                 // Set legend highlight based on country's intensity
                               }
                             }}
-                            onMouseMove={(event) => {
+                            onMouseMove={(event: React.MouseEvent) => {
                               if (tooltip.show) {
                                 setTooltip(prev => ({ ...prev, x: event.clientX, y: event.clientY }));
                               }

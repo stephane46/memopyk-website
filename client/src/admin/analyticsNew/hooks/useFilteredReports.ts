@@ -387,7 +387,7 @@ export function useFilteredTrends(): FilteredAnalyticsResult<TrendsResponse> {
         });
         
         // Sort data chronologically by date to prevent artifacts
-        const sortedDailyData = processedDailyData.sort((a, b) => {
+        const sortedDailyData = processedDailyData.sort((a: { date: string }, b: { date: string }) => {
           return a.date.localeCompare(b.date);
         });
         

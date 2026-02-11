@@ -27,7 +27,7 @@ export function VideoFunnel({
   
   const { data, isLoading: loading, error } = useFilteredAnalytics<VideoFunnelResponse>({
     reportType: liveView ? "realtimeVideoProgress" : "videoFunnel",
-    enabled: shouldFetch
+    enabled: !!shouldFetch
   });
 
   // Show message when no video is selected

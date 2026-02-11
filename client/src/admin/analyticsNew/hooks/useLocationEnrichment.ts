@@ -102,8 +102,9 @@ export function useEnrichmentStatus(params: EnrichmentParams, options: {
       return response.json();
     },
     enabled,
-    refetchInterval: (data) => {
+    refetchInterval: (query) => {
       // Only poll if job is running or queued
+      const data = query.state.data;
       if (data && (data.state === 'running' || data.state === 'queued')) {
         return pollInterval;
       }
