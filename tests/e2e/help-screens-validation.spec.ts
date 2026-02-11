@@ -29,8 +29,7 @@ const ADMIN_TABS = [
 
   // System children
   { tab: 'ai-context', label: 'AI Context', expectedTitle: 'AI Context' },
-  // Cache tab skipped — page crashes on staging (pre-existing React.lazy chunk load issue)
-  // { tab: 'cache', label: 'Cache', expectedTitle: 'Cache Management' },
+  { tab: 'cache', label: 'Cache', expectedTitle: 'Cache Management' },
 ];
 
 // Analytics sub-tabs (an_tab param within analytics-new)

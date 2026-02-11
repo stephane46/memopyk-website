@@ -44,12 +44,6 @@ export default function CacheManagementSection() {
     queryKey: ['/api/hero-videos'],
   });
 
-  // Fetch cache statistics
-  const { data: cacheStats } = useQuery<any>({
-    queryKey: ['/api/unified-cache/stats'],
-    refetchInterval: 5000, // Refresh every 5 seconds
-  });
-
   // Fetch detailed cache breakdown
   const { data: cacheBreakdown } = useQuery<any>({
     queryKey: ['/api/cache/breakdown'],
@@ -126,8 +120,8 @@ export default function CacheManagementSection() {
         <p className="text-gray-600 dark:text-gray-700">Gestion complète du cache pour tous les médias (Vidéos Hero, Vidéos Galerie, Images)</p>
       </div>
 
-      {/* Storage Management Overview */}
-      {cacheStats && (
+      {/* Storage Management Overview — uses /api/cache/breakdown (real data) */}
+      {cacheBreakdown && (
         <Card className="border-2 border-orange-200 bg-orange-50 mb-6">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg font-semibold flex items-center gap-2 text-orange-900">
@@ -140,33 +134,33 @@ export default function CacheManagementSection() {
               <div className="space-y-2">
                 <div className="text-sm font-medium text-gray-700">Cache Usage</div>
                 <div className="flex items-center gap-2">
-                  <Badge variant={cacheStats.total?.sizeMB > 800 ? "destructive" : cacheStats.total?.sizeMB > 500 ? "default" : "secondary"}>
-                    {cacheStats.total?.sizeMB}MB / {cacheStats.total?.limitMB}MB
+                  <Badge variant={Number(cacheBreakdown.total?.sizeMB) > 800 ? "destructive" : Number(cacheBreakdown.total?.sizeMB) > 500 ? "default" : "secondary"}>
+                    {cacheBreakdown.total?.sizeMB || 0}MB / {cacheBreakdown.total?.limitMB || 1000}MB
                   </Badge>
-                  <span className="text-sm text-gray-600">({cacheStats.total?.usagePercent || 0}%)</span>
+                  <span className="text-sm text-gray-600">({cacheBreakdown.total?.usagePercent || 0}%)</span>
                 </div>
               </div>
               <div className="space-y-2">
                 <div className="text-sm font-medium text-gray-700">Auto Cleanup</div>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="text-green-700 border-green-300 bg-green-50">
-                    {cacheStats.management?.maxCacheDays || 30} days
+                    30 days
                   </Badge>
                   <Badge variant="secondary" className="text-xs">
-                    {cacheStats.management?.autoCleanup ? 'Enabled' : 'Disabled'}
+                    Enabled
                   </Badge>
                 </div>
               </div>
               <div className="space-y-2">
                 <div className="text-sm font-medium text-gray-700">Media Files</div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline">{cacheStats.total?.fileCount || 0} files</Badge>
-                  <Badge variant="outline">{cacheStats.total?.sizeMB || 0}MB total</Badge>
+                  <Badge variant="outline">{cacheBreakdown.total?.fileCount || 0} files</Badge>
+                  <Badge variant="outline">{cacheBreakdown.total?.sizeMB || 0}MB total</Badge>
                 </div>
               </div>
             </div>
             <div className="text-xs text-gray-600 mt-2">
-              Auto cleanup removes files older than {cacheStats.management?.maxCacheDays || 30} days. Manual cleanup available below.
+              Auto cleanup removes files older than 30 days. Manual cleanup available below.
             </div>
           </CardContent>
         </Card>
@@ -311,7 +305,7 @@ export default function CacheManagementSection() {
             <div className="text-sm text-muted-foreground space-y-1">
               <div>
                 <strong>Contenu:</strong> {cacheBreakdown ?
-                  `${cacheBreakdown.heroVideos.count} Vidéos Hero + ${cacheBreakdown.galleryVideos.count} Vidéos Galerie + ${cacheBreakdown.galleryStaticImages.count} Images Statiques (≈${cacheBreakdown.total.sizeMB}MB total)` :
+                  `${cacheBreakdown.videos?.fileCount || 0} Vidéos + ${cacheBreakdown.images?.fileCount || 0} Images (≈${cacheBreakdown.total?.sizeMB || 0}MB total)` :
                   '6 vidéos + 4 images (≈290MB total)'
                 }
               </div>
