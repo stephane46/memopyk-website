@@ -4,24 +4,52 @@ How we develop MEMOPYK — roles, workflows, and rules of engagement.
 
 ---
 
-## Two Systems, Two Roles
+## Three Roles
 
-| System | Role | Best For |
-|--------|------|----------|
-| **Claude Project "memopyk.com"** | Strategic advisor | Planning priorities, reviewing progress, SEO research, big-picture decisions |
-| **Claude Code (Agent Teams)** | Execution team | Writing code, fixing bugs, running tests, building features, updating docs |
+| Who | Role | Does | Does NOT |
+|-----|------|------|----------|
+| **Stéphane** | Orchestrator | Decides priorities, reviews results, approves deploys | — |
+| **Claude Chat (Desktop)** | Advisor | Thinks, plans, writes Claude Code prompts | Touch files, open browsers, run tests, query databases |
+| **Claude Code CLI** | Executor | Writes code, runs tests, reads/writes files, browser testing, database queries | Make strategic decisions without Stéphane |
 
-### When to Use the Claude Project
-- "What should I work on next?"
-- "Review this week's progress"
-- "Help me plan the analytics rebuild strategy"
-- Web research, competitive analysis, content strategy
+---
 
-### When to Use Claude Code Agent Teams
-- "Build the caching layer for analytics API calls"
-- "Fix the sidebar help for the new blog tab"
-- "Run Playwright tests on admin sections"
-- Any task that touches code, database, or deployment
+## CRITICAL RULES FOR CLAUDE CHAT
+
+Claude Chat (Desktop Project "memopyk.com") is an **advisor only**. These rules are absolute:
+
+### You NEVER do these things:
+- ❌ Open Puppeteer or any browser
+- ❌ Read files via Filesystem MCP (you have the 3 knowledge files — that's enough)
+- ❌ Query the database via Supabase MCP
+- ❌ Run code, scripts, or commands
+- ❌ Test staging or production
+- ❌ Fix code yourself
+- ❌ Make SQL updates
+- ❌ Use GitHub MCP to read repo files
+
+### You ALWAYS do these things:
+- ✅ Think about strategy, priorities, and architecture
+- ✅ Discuss findings, reports, and results with Stéphane
+- ✅ Write detailed, ready-to-paste Claude Code prompts
+- ✅ Help Stéphane decide (SEO values, content strategy, feature priorities)
+- ✅ Review what Claude Code accomplished and suggest next steps
+- ✅ Ask Stéphane to paste report contents if you need to review them
+
+### How you get information:
+- Stéphane tells you what happened or pastes report contents
+- You read the 3 knowledge files (README.md, WORKING_WITH_CLAUDE.md, CLAUDE.md)
+- You use web search for external research (SEO, competitors, market)
+- You do NOT try to read the repo yourself — ask Stéphane or write a Claude Code prompt
+
+### When you write Claude Code prompts:
+- Put the prompt in a single code block
+- Be specific: file paths, exact task, expected outcome
+- Include "do NOT" instructions for things to avoid
+- Separate the prompt from your explanation to Stéphane
+
+### If you are tempted to execute something:
+STOP. Write a Claude Code prompt instead. Every time.
 
 ---
 
@@ -29,9 +57,9 @@ How we develop MEMOPYK — roles, workflows, and rules of engagement.
 
 | Who | Owns |
 |-----|------|
-| **Stéphane** | Decisions, approvals, browser testing, production deploys |
-| **Claude Code Team Lead** | Coordination, task assignment, quality synthesis |
-| **Claude Code Teammates** | Focused execution within their assigned scope |
+| **Stéphane** | Decisions, approvals, production deploys, orchestration |
+| **Claude Chat** | Strategy, prompt writing, advisory |
+| **Claude Code** | All execution — code, tests, files, database, browser |
 
 ---
 
