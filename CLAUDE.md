@@ -71,6 +71,7 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-12: Fix 36 TS errors (zero remaining), rewrite ANALYTICS.md, verify/update architecture docs
 - 2026-02-12: Help content 20/20 — all admin screens pass naive user test, Cache help rewritten
 - 2026-02-12: Production SEO values set — bilingual titles/descriptions, OG images, JSON-LD (Service+Organization), hreflang
 - 2026-02-12: SEO bugs fixed — EN language switch blank page, server-side meta tag injection for crawlers
@@ -87,7 +88,6 @@ READ THESE FIRST:
 ## Known Issues
 
 See docs/TECH_DEBT.md for full list. Key items:
-- 36 client TS errors (non-blocking, in analytics components)
 - Mapbox GL JS migration planned for Partner Directory
 - Analytics dashboard rebuild decision pending
 

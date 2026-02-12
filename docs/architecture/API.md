@@ -1,6 +1,6 @@
 # API Reference
 
-Complete endpoint inventory from the 22 route modules in `server/routes/`.
+Complete endpoint inventory from the 23 route modules in `server/routes/`.
 
 ## Route Module Inventory
 

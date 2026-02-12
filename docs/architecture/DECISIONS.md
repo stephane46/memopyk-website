@@ -69,7 +69,7 @@ React 18 SPA with Vite 5 bundler, TypeScript 5.8, Wouter for routing (lightweigh
 
 ### Consequences
 **Positive:** Fast dev server (Vite HMR). Wouter is 2KB vs React Router's 30KB+. TanStack Query handles caching/refetching automatically. Radix gives accessible primitives without style opinions. Self-hosted TinyMCE avoids API key dependency.
-**Negative:** SPA means no SSR -- SEO relies on `react-helmet-async` for meta tags. 36 pre-existing TS errors in analytics components (non-blocking). Bundle size addressed via React.lazy code splitting (Feb 9).
+**Negative:** SPA means no SSR -- SEO relies on `react-helmet-async` for meta tags. 36 pre-existing TS errors were fixed Feb 12 (status type, calendar icons, language codes, error casting). Bundle size addressed via React.lazy code splitting (Feb 9).
 
 ---
 
@@ -82,7 +82,7 @@ React 18 SPA with Vite 5 bundler, TypeScript 5.8, Wouter for routing (lightweigh
 The backend serves public pages, admin APIs, analytics collection, media proxying, blog CRUD, contact forms, partner directory, and more. Microservices would add deployment complexity for a single-team project.
 
 ### Decision
-Single Express 4 server (`server/index.ts`) with 22 route modules in `server/routes/` (plus 2 shared utility files: `blog-shared.ts`, `translation-service.ts`). Each route module exports a Router. Services extracted into `server/services/` for reusable logic (analytics, media caching, translation). Auth via `requireAdmin` middleware. Server bundled with esbuild to a single `dist/server/index.js`.
+Single Express 4 server (`server/index.ts`) with 23 route modules in `server/routes/` (plus 2 shared utility files: `blog-shared.ts`, `translation-service.ts`). Each route module exports a Router. Services extracted into `server/services/` for reusable logic (analytics, media caching, translation). Auth via `requireAdmin` middleware. Server bundled with esbuild to a single `dist/server/index.js`.
 
 ### Consequences
 **Positive:** Simple deployment (one container, one process). Shared database connection pool. Easy to add new route files. esbuild bundles the entire server in seconds.

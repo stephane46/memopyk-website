@@ -1,261 +1,232 @@
 # Analytics System Guide
 
-> **Warning:** This document is pending rewrite. The analytics system was rebuilt in February 2026. Endpoint paths and details below may be outdated.
-
 **Last verified:** February 12, 2026
-**Status:** GA4 active, custom analytics functional (P1-P8 rebuild complete)
+**Status:** Dual-stream analytics (Custom Supabase + GA4), Microsoft Clarity for session replay
 
 ---
 
-## Overview
+## Architecture
 
-MEMOPYK uses a **dual-stream analytics architecture**:
+MEMOPYK uses three analytics services in parallel:
 
-| Service | Purpose | Data Location | Latency |
-|---------|---------|---------------|---------|
-| **Custom Supabase** | Video tracking, admin dashboard, IP exclusion | VPS PostgreSQL | Real-time |
-| **Google Analytics 4** | Long-term trends, audience demographics, SEO | Google BigQuery | 24-48h delay |
-| **Microsoft Clarity** | Session recordings, heatmaps, rage clicks | Microsoft cloud | Real-time |
-| **OpenReplay** | Session replay, debugging | Self-hosted option | Real-time |
+| Service | Purpose | Data Store | Latency |
+|---------|---------|------------|---------|
+| **Custom Supabase** | Session tracking, video analytics, blog analytics, IP exclusion | Supabase PostgreSQL | Real-time |
+| **Google Analytics 4** | Standard web analytics, KPIs, geographic data, video events | Google BigQuery | 24-48h delay |
+| **Microsoft Clarity** | Session recordings, heatmaps, rage click detection | Microsoft cloud | Real-time |
 
-### When to Use Which
+The admin dashboard has a **data source toggle** — most tabs can switch between "memopyk" (custom) and "ga4" data sources. Custom analytics use first-party `/api/*` endpoints that bypass ad blockers.
 
-- **Custom Analytics**: Day-to-day monitoring, real-time visitors, video performance, IP exclusion accuracy
-- **GA4**: Long-term trends, audience demographics, Google Ads integration, monthly reports
-- **Clarity/OpenReplay**: UX debugging, identifying friction points
+### Client-Side Initialization
+
+In `client/src/App.tsx`:
+1. **GA4**: Loaded via `initGA4()` from `client/src/config/ga4.config.ts`. Measurement ID: `G-JLRWHE1HV4` (or `VITE_GA4_ID` / `VITE_GA_MEASUREMENT_ID` env var). Injects gtag.js, tracks page views, video events, conversions, language mismatches, and geographic behavior.
+2. **Clarity**: Loaded via `initClarity()` from `client/src/analytics/clarity.ts`. Requires `VITE_CLARITY_PROJECT_ID` env var. Injects the Clarity tracking script.
+3. **Custom tracker**: SPA page views and video events sent to `/api/analytics/*` endpoints via fetch.
+
+### Server-Side GA4 Access
+
+The server uses `@google-analytics/data` (BetaAnalyticsDataClient) to query GA4 Data API and Realtime API. Requires `GA4_SERVICE_ACCOUNT_KEY` (JSON) and `GA4_PROPERTY_ID` env vars. Helper functions in `server/services/analytics/ga4.service.ts`: `qSessions`, `qTotalUsers`, `qReturningUsers`, `qPlays`, `qWatchTimeTotal`, `qCompletes`, `qSessionsTrendWithComparison`.
+
+### GA4 Measurement Protocol Relay
+
+`POST /api/ga4/mp` relays video events (video_start, video_progress, video_complete) to Google's Measurement Protocol endpoint, bypassing client-side ad blockers. Requires `GA_API_SECRET` env var.
 
 ---
 
 ## Database Tables
 
-Analytics data is stored in 8 Supabase tables:
-
-| Table | Purpose | Key Columns |
-|-------|---------|-------------|
-| `analytics_sessions` | Visitor sessions | session_id, ip_address, country_code, device_category, session_duration, is_bounce, is_returning |
-| `analytics_views` | Page/video views | view_id, session_id, video_id, video_type, completion_percentage, watched_to_end |
-| `realtime_visitors` | Currently active | session_id, current_page, last_seen, is_active |
-| `performance_metrics` | Page/video load times | metric_type, metric_name, value, unit |
-| `engagement_heatmap` | Click/scroll tracking | page_url, element_id, event_type, x_position, y_position |
-| `conversion_funnel` | Funnel step completion | funnel_step, step_order, completed_at |
-| `analytics_exclusions` | IP filtering rules | ip_cidr, label, active, applies_from |
-| `blog_post_views` | Blog-specific tracking | post_slug, session_id, time_on_page |
-
-**Note:** Legacy tables `analytics_events` (8,512 rows) and `analytics_conversions` (10 rows) exist in database but are NOT in schema.ts — these are from old Replit system and should eventually be dropped.
-
----
-
-## Custom vs GA4 Comparison
-
-| Feature | Custom Supabase | Google Analytics 4 |
-|---------|-----------------|-------------------|
-| Data ownership | 100% owned | Google-hosted |
-| Real-time | Yes, instant | 24-48 hour delay |
-| IP exclusion | Full control, immediate | Limited, delayed |
-| Video watch duration | ✅ Seconds precision | ❌ Not tracked |
-| Video completion % | ✅ Yes | ❌ Not tracked |
-| Session deduplication | 30-second window | Google's algorithm |
-| Admin interface | Integrated in /admin | Separate GA4 UI |
+| Table | In Drizzle | Purpose |
+|-------|------------|---------|
+| `analytics_sessions` | Yes | Visitor sessions: IP, country, device, duration, bounce, returning flags |
+| `analytics_views` | Yes | Page/video views per session: URL, video ID, watch time, completion % |
+| `analytics_exclusions` | Yes | IP/CIDR exclusion rules for filtering internal traffic |
+| `realtime_visitors` | Yes | Currently active visitors (session, page, last_seen) |
+| `performance_metrics` | Yes | Web Vitals (LCP, etc.) — DB schema wider than Drizzle definition |
+| `analytics_events` | No (DB-only) | Legacy event store + CTA click events (event_name, cta_id, page_path) |
+| `analytics_conversions` | No (DB-only) | Conversion tracking by type (legacy, mostly unused) |
+| `conversion_funnel` | No (DB-only) | Funnel step tracking |
+| `engagement_heatmap` | No (DB-only) | Click/scroll heatmap data |
+| `blog_post_views` | No (DB-only) | Per-post view tracking |
 
 ---
 
 ## Admin Dashboard
 
-**Access:** `/admin` → Analytics section
+**Access:** `/admin` → Analytics section (`?an_tab=<tab>`)
 
-### Time Period Filters
-- **7d** / **30d** (default) / **90d**
-- Active filter shows orange highlight
+### Dashboard Tabs
 
-### Dashboard Sections
+| Tab | Component | Data Source | Description |
+|-----|-----------|-------------|-------------|
+| **Overview** | AnalyticsNewOverview | Memopyk or GA4 | KPI cards (sessions, unique visitors, returning visitors, bounce rate, avg watch time), period comparison |
+| **Live View** | AnalyticsNewLiveView | GA4 Realtime API | Active users, by country, by device, currently-watching tracker |
+| **Trends** | AnalyticsNewTrends | Memopyk or GA4 | Daily session/user charts with period-over-period comparison |
+| **Video** | AnalyticsNewVideo | Memopyk or GA4 | Top videos by plays, watch time, completion rate; per-video funnel |
+| **Geo** | AnalyticsNewGeo | Memopyk | Country breakdown with sessions, users, percentage |
+| **CTA** | AnalyticsNewCta | analytics_events | CTA click tracking: book_call, quick_quote; by language, page, daily trend |
+| **Blog** | AnalyticsNewBlog | Memopyk | Popular posts, daily view trends, topics, keywords, categories |
+| **Clarity** | Placeholder | — | Placeholder for future Microsoft Clarity embed |
+| **Fallback** | AnalyticsNewFallback | — | Error/fallback state display |
+| **Exclusions** | IpExclusionsManager | Admin API | CRUD for IP exclusion rules; shows "Your IP" badge |
 
-| Section | Data Source | Metrics |
-|---------|-------------|---------|
-| Overview | Custom + GA4 | Total views, unique visitors, new vs returning, bounce rate, avg session duration |
-| Video Performance | Custom | Views per video, watch duration, completion %, hero vs gallery breakdown |
-| Geographic | Custom | Country breakdown with flags, top countries |
-| Trends | Custom | Traffic over time, patterns |
-| Live Visitors | Custom | Real-time active users |
-| Blog Analytics | Custom | Post views by language (FR/EN), popular posts |
+### Global Filters
 
----
-
-## Video Tracking
-
-### Tracked Events
-
-| Event | Trigger | Data Captured |
-|-------|---------|---------------|
-| `video_play` | User clicks play | videoId, videoType, timestamp |
-| `video_pause` | User pauses | videoId, currentTime |
-| `video_progress` | 25%, 50%, 75%, 90% | videoId, percentage |
-| `video_complete` | Video ends | videoId, watchDuration |
-
-### Video Types
-
-| Type | Location |
-|------|----------|
-| `hero` | Homepage hero section |
-| `gallery` | Gallery section portfolio items |
-
----
-
-## IP Exclusion System
-
-Exclude internal traffic (developers, team, bots) from analytics.
-
-### How It Works
-1. IP addresses stored in `analytics_exclusions` table
-2. Every analytics event checks against exclusion list before recording
-3. Excluded IPs get "🟠 IP Filtered" badge in dashboard
-4. Exclusions are complete — no partial data leaks
-
-### Managing Exclusions (Admin Dashboard)
-- **Add IP**: Enter IP address and optional comment
-- **Edit**: Update comments for existing exclusions
-- **Delete**: Remove exclusion to start tracking that IP
-
-### Current Exclusions
-
-| IP | Label |
-|----|-------|
-| 109.17.150.48 | Capdenac home network |
-| 0.0.0.0 | Local development traffic |
-
-### SQL Example
-```sql
--- Add exclusion
-INSERT INTO analytics_exclusions (ip_cidr, label, active)
-VALUES ('192.168.1.0/24', 'Office network', true);
-
--- View active exclusions
-SELECT * FROM analytics_exclusions WHERE active = true;
-```
+- **Data source toggle**: Memopyk (custom) vs GA4
+- **Date range**: Start/end date pickers
+- **Since date**: Optional filter for "data since" cutoff
+- **Locale filter**: All / fr-FR / en-US
+- **Country filter**: All or specific country
 
 ---
 
 ## API Endpoints
 
-### Public Endpoints
+### Session Recording (Custom Tracker)
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/analytics/track` | POST | Track page view/event |
-| `/api/analytics/video-event` | POST | Track video interaction |
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/api/analytics/session` | None | Create/resume visitor session. Returns `session_id` for subsequent calls. Checks IP exclusion. |
+| POST | `/api/analytics/session-update` | None | Update session duration (called periodically + on page hide) |
+| POST | `/api/analytics/session-page-view` | None | Record SPA page navigation within session |
+| POST | `/api/analytics/video-view` | None | Record video view with deduplication (same video+session updates existing row) |
+| POST | `/api/analytics/event` | None | General event recording. Accepts `event_name` or `type`. Routes to video/pageview/generic handlers. |
+| POST | `/api/analytics/performance` | None | Accept Web Vitals from frontend (logged, not persisted) |
+| GET | `/api/analytics/current-ip` | None | Returns caller's IP address (for Exclusions tab badge) |
 
-### Admin Endpoints (authenticated)
+### GA4 Data Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/analytics/overview` | GET | Dashboard overview stats |
-| `/api/analytics/sessions` | GET | Session list |
-| `/api/analytics/video-stats` | GET | Video performance data |
-| `/api/analytics/geographic` | GET | Geographic breakdown |
-| `/api/analytics/realtime` | GET | Current active visitors |
-| `/api/analytics/trends` | GET | Traffic trends |
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/api/ga4/mp` | None | Measurement Protocol relay (video_start, video_progress, video_complete only) |
+| GET | `/api/ga4/report` | None | Unified report dispatcher. `?report=topVideos\|videoFunnel\|geo\|trends` |
+| GET | `/api/ga4/kpis` | None | KPI summary: sessions, unique/returning visitors, plays, avg watch, completions. Supports `dataSource=ga4\|memopyk` |
+| GET | `/api/ga4/trend` | None | Daily session/user/bounce data. Supports `dataSource=ga4\|memopyk`, date range, locale, country filters |
+| GET | `/api/ga4/realtime` | None | GA4 Realtime: active users, by country, by device |
+| GET | `/api/ga4/realtime/top-videos` | None | Realtime video plays from GA4 |
+| GET | `/api/ga4/realtime/video-progress` | None | Realtime video progress funnel (10/25/50/75/90% buckets) for a specific videoId |
+| GET | `/api/ga4/top-videos` | None | Top videos: plays, avgWatchSeconds, completionRate, reach50Pct |
+| GET | `/api/ga4/videos` | None | Per-video stats + engagement metrics |
+| GET | `/api/ga4/funnel` | None | Video progress funnel for a specific videoId |
+| GET | `/api/ga4/geo` | None | Geographic breakdown from Supabase sessions (country, sessions, users, percentage) |
+| GET | `/api/ga4/cta` | None | CTA click analytics from `analytics_events` table (by CTA ID, language, page, daily) |
 
-### IP Exclusions
+### Blog Analytics
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/ip-exclusions` | GET | List all excluded IPs |
-| `/api/ip-exclusions` | POST | Add new exclusion |
-| `/api/ip-exclusions/:ip` | PATCH | Update exclusion comment |
-| `/api/ip-exclusions/:ip` | DELETE | Remove exclusion |
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/analytics/blog/popular` | None | Posts ranked by view count. Params: `days`, `language` |
+| GET | `/api/analytics/blog/trends` | None | Daily blog view counts. Params: `days`, `language` |
+| GET | `/api/analytics/blog/topics` | None | Topics ranked by views from linked posts |
+| GET | `/api/analytics/blog/keywords` | None | Keywords ranked by traffic from posts using them |
+| GET | `/api/analytics/blog/categories` | None | Category performance breakdown |
 
-### GA4 Data
+All blog analytics endpoints join `analytics_views.page_url` to `blog_posts.slug` via `SUBSTRING(page_url FROM '/blog/([^/?#]+)')`. All filter excluded IPs.
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/ga4/kpis` | GET | Key performance indicators |
-| `/api/ga4/top-videos` | GET | Top performing videos |
-| `/api/ga4/countries` | GET | Geographic breakdown |
+### Frontend Event Logging
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/api/event` | None | Frontend event logging. CTA clicks (`event_name: 'cta_click'`) are persisted to `analytics_events` table. |
+| POST | `/api/performance` | None | Performance metrics logging (logged only) |
+| GET | `/api/conversions` | None | Conversion data (stub — returns `{ total: 0 }`) |
+
+### Utility
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/unified-cache/stats` | None | Cache statistics (stub) |
+| GET | `/api/tracker/currently-watching` | None | Live video viewers from realtime service |
+
+### IP Exclusions (Admin)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/admin/analytics/exclusions` | Admin | List all IP exclusions |
+| POST | `/api/admin/analytics/exclusions` | Admin | Create exclusion `{ ip_cidr, label, active }` |
+| PUT | `/api/admin/analytics/exclusions/:id` | Admin | Update exclusion |
+| DELETE | `/api/admin/analytics/exclusions/:id` | Admin | Delete exclusion |
 
 ---
 
-## Configuration
+## Server Services
 
-### Environment Variables
-```env
-# GA4
-GA4_API_SECRET=your-ga4-secret
-GA4_MEASUREMENT_ID=G-XXXXXXXXXX
+| Service | File | Purpose |
+|---------|------|---------|
+| `ga4.service.ts` | `server/services/analytics/` | GA4 Data API query functions (sessions, users, trends with comparison) |
+| `session.service.ts` | `server/services/analytics/` | Session creation/resumption, IP exclusion check, duration tracking |
+| `event-recorder.service.ts` | `server/services/analytics/` | Record page views and video events to `analytics_views`, IP extraction |
+| `video-analytics.service.ts` | `server/services/analytics/` | Video stats aggregation, top videos, engagement, funnel data |
+| `realtime.service.ts` | `server/services/analytics/` | Currently-watching tracker |
+| `ip-exclusion.service.ts` | `server/services/analytics/` | IP exclusion CRUD and checking |
+| `geo.service.ts` | `server/services/analytics/` | Geographic data helpers |
 
-# Microsoft Clarity
-CLARITY_PROJECT_ID=your-clarity-id
+---
 
-# OpenReplay (optional)
-OPENREPLAY_PROJECT_KEY=your-project-key
+## Environment Variables
+
+| Variable | Purpose |
+|----------|---------|
+| `VITE_GA4_ID` or `VITE_GA_MEASUREMENT_ID` | GA4 Measurement ID (client-side). Fallback: `G-JLRWHE1HV4` |
+| `GA4_PROPERTY_ID` | GA4 Property ID for Data API (server-side). Value: `501023254` |
+| `GA4_SERVICE_ACCOUNT_KEY` | Service account JSON for GA4 Data API |
+| `GA_API_SECRET` | GA4 Measurement Protocol API secret |
+| `VITE_CLARITY_PROJECT_ID` | Microsoft Clarity project ID (client-side) |
+| `DATABASE_URL` | PostgreSQL connection (used by all custom analytics) |
+
+---
+
+## IP Exclusion System
+
+Filters internal/developer traffic from analytics.
+
+1. **Tracking layer**: `session.service.ts` checks IP against `analytics_exclusions` before creating sessions. Excluded IPs get a `{ filtered: 'ip_excluded' }` response.
+2. **Query layer**: All analytics endpoints call `getExcludedIPs()` and add `NOT IN` filters. CIDR suffixes are stripped (e.g., `/32` removed).
+3. **Admin UI**: Exclusions tab shows current rules, "Your IP" badge, and CRUD controls.
+
+---
+
+## Data Flow Summary
+
 ```
+Browser
+  ├── gtag.js → Google Analytics 4 (client-side)
+  ├── Clarity script → Microsoft Clarity (session replay)
+  └── fetch() → /api/analytics/* (first-party, custom)
+        │
+        ├── /analytics/session → getOrCreateSession() → analytics_sessions
+        ├── /analytics/session-page-view → recordPageView() → analytics_views
+        ├── /analytics/video-view → recordVideoEvent() → analytics_views (deduped)
+        ├── /event (cta_click) → analytics_events
+        └── /ga4/mp → Google MP endpoint (ad-blocker bypass)
 
-### GA4 Property
-- **Property ID**: 501023254
-- **Measurement ID**: Stored in `GA4_MEASUREMENT_ID` secret
-
----
-
-## Data Retention
-
-| Data Type | Retention | Notes |
-|-----------|-----------|-------|
-| Sessions | 90 days | Auto-cleanup recommended |
-| Video events | 90 days | Aggregated stats preserved |
-| Realtime visitors | 24 hours | Short-lived by design |
-| Performance metrics | 30 days | Sampled for trends |
-
-### Cleanup Query
-```sql
--- Remove old sessions
-DELETE FROM analytics_sessions
-WHERE created_at < NOW() - INTERVAL '90 days';
-
--- Remove old video views
-DELETE FROM analytics_views
-WHERE created_at < NOW() - INTERVAL '90 days';
+Admin Dashboard
+  ├── /ga4/kpis → memopyk: analytics_sessions | ga4: GA4 Data API
+  ├── /ga4/trend → memopyk: analytics_sessions | ga4: qSessionsTrendWithComparison
+  ├── /ga4/realtime → GA4 Realtime API (active users, country, device)
+  ├── /ga4/top-videos → video-analytics.service → analytics_views
+  ├── /ga4/geo → analytics_sessions (country aggregation)
+  ├── /ga4/cta → analytics_events (CTA clicks)
+  ├── /analytics/blog/* → analytics_views JOIN blog_posts
+  └── /admin/analytics/exclusions → analytics_exclusions (CRUD)
 ```
 
 ---
 
 ## Historical Data Quality
 
-**Important:** Analytics data collected before January 31, 2026 has known quality issues from old Replit `hybrid-storage.ts` bugs:
+Data collected before January 31, 2026 has known quality issues from old Replit-era bugs:
 
-| Metric | Pre-2026 Status | Notes |
-|--------|-----------------|-------|
-| Sessions | ✅ Reliable | 9,018 sessions since Aug 2025 |
-| Unique Visitors | ✅ Reliable | Based on IP address |
-| Page Views | ❌ Unreliable | Only 71 records vs 9,018 sessions |
-| Session Duration | ❌ Unreliable | 94% show 0 seconds |
-| Bounce Rate | ❌ Unreliable | Logic was broken |
-| Video Analytics | ❌ Unreliable | Sparse data |
+| Metric | Pre-2026 | Post-2026 |
+|--------|----------|-----------|
+| Sessions | Reliable | Reliable |
+| Unique Visitors | Reliable | Reliable |
+| Page Views | Unreliable (71 records vs 9K sessions) | Reliable |
+| Session Duration | 94% show 0 seconds | Reliable |
+| Bounce Rate | Logic was broken | Reliable |
+| Video Analytics | Sparse | Full (deduped, progress, completion) |
 
-**Recommendation:** Use GA4 for pre-2026 historical analysis. New system (rebuilt Jan 31, 2026) properly tracks all metrics.
-
----
-
-## Troubleshooting
-
-### No Data in Dashboard
-1. Check date range filter (try 30d)
-2. Verify your IP is not excluded
-3. Check browser console for API errors
-4. Verify Supabase connection is healthy
-
-### IP Exclusion Not Working
-1. Verify IP format (e.g., `109.17.150.48`)
-2. Check if using VPN/proxy
-3. Clear browser cache and reload
-4. Verify exclusion exists in admin panel
-
-### Video Events Not Tracking
-1. Check browser console for errors
-2. Verify video elements have correct data attributes
-3. Test in incognito mode (no ad blockers)
-
-### GA4 Data Delayed
-- Normal: GA4 has 24-48 hour processing delay
-- Check Realtime report in GA4 dashboard for immediate data
-- Custom analytics provides instant data
+Use GA4 for pre-2026 historical analysis.
 
 ---
 
@@ -263,11 +234,15 @@ WHERE created_at < NOW() - INTERVAL '90 days';
 
 | File | Purpose |
 |------|---------|
-| `shared/schema.ts` | Database table definitions |
-| `server/routes/analytics.routes.ts` | Analytics API routes |
-| `server/services/analytics/` | Analytics service modules |
-| `client/src/admin/analyticsNew/AnalyticsNewDashboard.tsx` | Admin analytics dashboard |
-| `client/src/admin/analyticsNew/AnalyticsNewOverview.tsx` | Overview tab component |
+| `server/routes/analytics.routes.ts` | All analytics + GA4 API endpoints (21 routes) |
+| `server/routes/blog-analytics.routes.ts` | Blog-specific analytics (5 routes) |
+| `server/routes/admin.routes.ts` | IP exclusion CRUD (4 routes) |
+| `server/services/analytics/*.ts` | 7 service modules (GA4, session, events, video, realtime, IP, geo) |
+| `client/src/admin/analyticsNew/*.tsx` | 13 dashboard components (tabs, filters, charts) |
+| `client/src/config/ga4.config.ts` | GA4 client-side config and event helpers |
+| `client/src/analytics/clarity.ts` | Clarity initialization |
+| `client/src/analytics/ga.ts` | Advanced GA4 tracking (video, geo, language mismatch) |
+| `shared/schema.ts` | Drizzle table definitions (analytics_sessions, analytics_views, analytics_exclusions, etc.) |
 
 ---
 

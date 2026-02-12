@@ -37,7 +37,7 @@
 1. Browser sends request to Coolify reverse proxy (HTTPS).
 2. Coolify forwards to Express on port 5000 inside the Docker container.
 3. Express middleware chain: body parsing, cookie parser, CORS, request logging, API rate limiting, CSP headers.
-4. **API requests** (`/api/*`): routed through 22 modular route files registered in `server/routes.ts`. Route handlers query the database via Drizzle ORM (`server/db.ts`) using the `postgres.js` driver. Responses are JSON.
+4. **API requests** (`/api/*`): routed through 23 modular route files registered in `server/routes.ts`. Route handlers query the database via Drizzle ORM (`server/db.ts`) using the `postgres.js` driver. Responses are JSON.
 5. **Static assets** (production): Express serves built files from `dist/public/`. Non-API, non-asset requests fall through to the SPA fallback, which serves `index.html`.
 6. **SPA routing**: The React app uses `wouter` for client-side routing. All public pages are locale-prefixed (`/fr-FR/...`, `/en-US/...`). Admin pages are behind `AdminRoute` auth guards.
 
@@ -57,9 +57,9 @@
 server/                 Express backend
   index.ts              Server entry point (startup sequence, health checks, background jobs)
   app.ts                Express app config (middleware, CSP, static serving, error handling)
-  routes.ts             Route aggregator (imports and mounts 22 route modules)
+  routes.ts             Route aggregator (imports and mounts 23 route modules)
   db.ts                 Lazy-initialized Drizzle ORM + postgres.js connection
-  routes/               22 modular route files (health, hero, gallery, blog, analytics, etc.)
+  routes/               23 modular route files (health, hero, gallery, blog, analytics, etc.)
   middleware/            auth, cache, error, logger, security middleware
   services/             Business logic (email, analytics, cache, media, partners, SEO, etc.)
   jobs/                 Background tasks (ga4-scheduler.ts, sync.job.ts)
@@ -101,7 +101,7 @@ uploads/                Local upload staging directory
 |------|---------|
 | `server/index.ts` | Server startup: validates env vars, registers health checks, creates HTTP server, registers routes, sets up static serving, launches background jobs (GA4 scheduler, sync service) |
 | `server/app.ts` | Express app instance with middleware stack: body parsing (50mb limit), cookie-parser, CORS, request logging, API rate limiting, CSP headers, SPA fallback |
-| `server/routes.ts` | Imports and mounts all 22 route modules under `/api` prefixes |
+| `server/routes.ts` | Imports and mounts all 23 route modules under `/api` prefixes |
 | `server/db.ts` | Lazy-initialized database connection via `postgres.js` driver + Drizzle ORM with full schema |
 | `client/src/main.tsx` | React entry: `createRoot` with `HelmetProvider` for SEO meta tags |
 | `client/src/App.tsx` | Root React component: `QueryClientProvider` (TanStack Query), `AuthProvider`, `LanguageProvider`, `wouter` Router, GA4/Clarity initialization |

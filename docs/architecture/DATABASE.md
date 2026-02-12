@@ -29,7 +29,7 @@
 
 | Table | Cols | Purpose |
 |-------|------|---------|
-| `blog_posts` | 23 | Posts with slug, language (en-US/fr-FR), status (draft/in_review/published), HTML content, SEO JSON, view count. Links to `content_topics` via `source_topic_id` and `image_bank` via `hero_image_bank_id` |
+| `blog_posts` | 23 | Posts with slug, language (en-US/fr-FR), status (draft/in_review/published/archived), HTML content, SEO JSON, view count. Links to `content_topics` via `source_topic_id` and `image_bank` via `hero_image_bank_id` |
 | `blog_tags` | 6 | Tag catalog with unique name/slug, color, icon |
 | `blog_post_tags` | 2 | Junction table (post_id, tag_id) -- composite PK, cascade deletes |
 | `blog_galleries` | 6 | Per-post image galleries (sort order, URL, title, alt) |
