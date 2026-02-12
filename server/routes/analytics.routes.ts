@@ -62,10 +62,26 @@ const initGA4Client = () => {
   try {
     const SA_KEY = process.env.GA4_SERVICE_ACCOUNT_KEY;
     console.log('🔑 [GA4] Initializing client with service account JSON');
-    
-    return new BetaAnalyticsDataClient(
-      SA_KEY ? { credentials: JSON.parse(SA_KEY) } : {}
-    );
+
+    if (!SA_KEY) {
+      return new BetaAnalyticsDataClient();
+    }
+
+    // Try base64 decode first (recommended for Coolify/Docker)
+    let jsonStr: string;
+    try {
+      jsonStr = Buffer.from(SA_KEY, 'base64').toString('utf-8');
+      JSON.parse(jsonStr); // Verify it's valid JSON after base64 decode
+    } catch {
+      // Not base64, try as raw JSON
+      jsonStr = SA_KEY;
+    }
+
+    const parsed = JSON.parse(jsonStr);
+    if (parsed.private_key) {
+      parsed.private_key = parsed.private_key.replace(/\\n/g, '\n');
+    }
+    return new BetaAnalyticsDataClient({ credentials: parsed });
   } catch (error) {
     console.error('❌ [GA4] Failed to initialize client:', error);
     throw error;
