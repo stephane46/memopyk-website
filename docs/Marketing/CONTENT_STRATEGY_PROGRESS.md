@@ -1,6 +1,6 @@
 # Content Strategy Progress
 
-*Last updated: Feb 7, 2026*
+*Last updated: Feb 12, 2026*
 
 ## Overview
 
@@ -174,9 +174,39 @@ All inserted with `status: idea`, `role: pillar`, `priority: 1`.
 |---|---|---|---|
 | Before | 4 | 17 | 21 |
 | Added | 6 | 0 | 6 |
-| **Total** | **10** | **17** | **27** |
+| **Total** | **10** | **17** | **27** → 37 after overnight pipeline (see below) |
 
 Topic groups with articles: 8 of 35. Supporting Articles get added per group via full framework passes, starting with gift_anniversary (biggest opportunity at 5.2M).
+
+---
+
+## Overnight Content Pipeline (Feb 12, 2026)
+
+### Topics inserted (10)
+- 4 FR gift_retire spokes: Personnalisé, Original, Collègue, Humour (parent: Cadeau de départ guide)
+- 1 EN gift_retire pillar: Retirement Gift Ideas: The Complete Guide
+- 5 EN pillars (Pillar-First Expansion): Anniversary, Graduation, Wedding Anniversary, Mother's Day, Super 8/8mm/VCR
+
+### Articles drafted (6 FR Priority 1)
+- Souvenirs d'enfance : comment les préserver pour toujours (memory)
+- Souvenirs de voyage : 7 façons de revivre vos aventures (memory)
+- Diaporama anniversaire : idées pour un moment inoubliable (montage)
+- Montage vidéo avec photos et musique : guide et astuces (montage)
+- Montage vidéo de mariage : pourquoi confier la création à un pro (montage)
+- Numériser vos cassettes VHS : le guide complet (vhs)
+
+All saved as drafts on staging. Status: draft, linked to source topics.
+
+### Revised totals
+
+| | Main Guides | Supporting Articles | Total |
+|---|---|---|---|
+| Before | 10 | 17 | 27 |
+| Added (spokes) | 0 | 4 | 4 |
+| Added (pillars) | 6 | 0 | 6 |
+| **Total** | **16** | **21** | **37** → 28 in DB (9 from P1 framework not yet inserted) |
+
+Topic groups with articles: 13 of 35.
 
 ---
 
