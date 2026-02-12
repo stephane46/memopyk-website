@@ -31,7 +31,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
   const [content, setContent] = useState('');
-  const [status, setStatus] = useState<'draft' | 'in_review' | 'published'>('draft');
+  const [status, setStatus] = useState<'draft' | 'in_review' | 'published' | 'archived'>('draft');
   const [publishedAt, setPublishedAt] = useState<Date | null>(null);
   const [heroUrl, setHeroUrl] = useState<string | null>(null);
   const [isFeatured, setIsFeatured] = useState(false);

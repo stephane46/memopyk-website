@@ -132,7 +132,7 @@ export const BlogAICreator: React.FC = () => {
   const { toast } = useToast();
   const [topic, setTopic] = useState('');
   const [language, setLanguage] = useState<'en-US' | 'fr-FR'>('en-US');
-  const [status, setStatus] = useState<'draft' | 'in_review' | 'published'>('draft');
+  const [status, setStatus] = useState<'draft' | 'in_review' | 'published' | 'archived'>('draft');
   const [publishedAt, setPublishedAt] = useState<Date | null>(null);
   const [seoKeywords, setSeoKeywords] = useState('');
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);

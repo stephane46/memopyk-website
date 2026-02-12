@@ -5,7 +5,7 @@
  * Note: BlogTag type is defined in schema.ts (Drizzle ORM inferred type)
  */
 
-export type BlogPostStatus = 'draft' | 'in_review' | 'published';
+export type BlogPostStatus = 'draft' | 'in_review' | 'published' | 'archived';
 
 export type BlogPost = {
   id: string;

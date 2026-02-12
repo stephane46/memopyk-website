@@ -78,7 +78,8 @@ export function Layout({ children }: LayoutProps) {
   }, [location]);
 
   // Handle anchor scrolling
-  const handleAnchorClick = (sectionId: string, animateElementId?: string) => {
+  const handleAnchorClick = (sectionId: string | undefined, animateElementId?: string) => {
+    if (!sectionId) return;
     // First navigate to home page if not already there
     const cleanLocation = location.replace(/^\/(fr-FR|en-US)/, '') || '/';
     if (cleanLocation !== '/') {

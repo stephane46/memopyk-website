@@ -139,7 +139,7 @@ export default function DirectUpload({
         
       } catch (directUploadError) {
         console.log(`⚠️ Direct upload failed, trying server-side upload fallback...`);
-        console.log(`Error: ${directUploadError.message}`);
+        console.log(`Error: ${(directUploadError as Error).message}`);
         
         // Fallback: Upload through our server
         const formData = new FormData();

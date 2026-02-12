@@ -5,7 +5,7 @@ export function LanguageSelectionPage() {
   const { language, setLanguage } = useLanguage();
   const [, setLocation] = useLocation();
 
-  const handleLanguageSelect = (lang: 'fr' | 'en') => {
+  const handleLanguageSelect = (lang: 'fr-FR' | 'en-US') => {
     setLanguage(lang);
     // Redirect to home page after language selection
     setLocation('/');
@@ -17,15 +17,15 @@ export function LanguageSelectionPage() {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">MEMOPYK</h1>
           <p className="text-gray-600">
-            {language === 'fr' ? 'Choisissez votre langue' : 'Choose your language'}
+            {language === 'fr-FR' ? 'Choisissez votre langue' : 'Choose your language'}
           </p>
         </div>
 
         <div className="space-y-4">
           <button
-            onClick={() => handleLanguageSelect('fr')}
+            onClick={() => handleLanguageSelect('fr-FR')}
             className={`w-full p-4 rounded-lg border-2 transition-all ${
-              language === 'fr'
+              language === 'fr-FR'
                 ? 'border-blue-500 bg-blue-50 text-blue-700'
                 : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
             }`}
@@ -38,7 +38,7 @@ export function LanguageSelectionPage() {
                   <div className="text-sm text-gray-500">Films Mémoire</div>
                 </div>
               </div>
-              {language === 'fr' && (
+              {language === 'fr-FR' && (
                 <div className="text-blue-500">
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -49,9 +49,9 @@ export function LanguageSelectionPage() {
           </button>
 
           <button
-            onClick={() => handleLanguageSelect('en')}
+            onClick={() => handleLanguageSelect('en-US')}
             className={`w-full p-4 rounded-lg border-2 transition-all ${
-              language === 'en'
+              language === 'en-US'
                 ? 'border-blue-500 bg-blue-50 text-blue-700'
                 : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
             }`}
@@ -64,7 +64,7 @@ export function LanguageSelectionPage() {
                   <div className="text-sm text-gray-500">Memory Films</div>
                 </div>
               </div>
-              {language === 'en' && (
+              {language === 'en-US' && (
                 <div className="text-blue-500">
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -80,7 +80,7 @@ export function LanguageSelectionPage() {
             onClick={() => setLocation('/')}
             className="text-blue-600 hover:text-blue-700 text-sm font-medium"
           >
-            {language === 'fr' ? 'Continuer avec' : 'Continue with'} {language === 'fr' ? 'Français' : 'English'}
+            {language === 'fr-FR' ? 'Continuer avec' : 'Continue with'} {language === 'fr-FR' ? 'Français' : 'English'}
           </button>
         </div>
       </div>

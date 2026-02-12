@@ -157,7 +157,7 @@ const trackINP = (): void => {
     });
 
     // Observe event timing entries
-    inpObserver.observe({ type: 'event', buffered: true, durationThreshold: 16 });
+    inpObserver.observe({ type: 'event', buffered: true, durationThreshold: 16 } as PerformanceObserverInit);
 
     // Report INP when page is hidden
     const reportINP = () => {
