@@ -63,10 +63,17 @@ test.describe('Blog Post CRUD Operations', () => {
     await expect(newPostButton).toBeVisible({ timeout: 10000 });
     await expect(newPostButton).toBeEnabled({ timeout: 5000 });
 
-    // Wait before triggering the POST request
-    await page.waitForTimeout(1500);
+    // Click New Post — this navigates to a creation method page
+    await newPostButton.click();
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(1000);
 
-    // Click New Post and wait for API response with retry logic for rate limits
+    // The app shows "Create a New Blog Post" with two options:
+    // "Write from scratch" and "Generate with AI"
+    // Click "Write from scratch" which triggers the actual POST API call
+    const writeFromScratch = page.getByText('Write from scratch');
+    await expect(writeFromScratch).toBeVisible({ timeout: 10000 });
+
     let attempts = 0;
     const maxAttempts = 3;
     let lastStatus = 0;
@@ -79,7 +86,7 @@ test.describe('Blog Post CRUD Operations', () => {
         { timeout: 30000 }
       );
 
-      await newPostButton.click();
+      await writeFromScratch.click();
 
       const response = await responsePromise;
       lastStatus = response.status();
@@ -91,8 +98,14 @@ test.describe('Blog Post CRUD Operations', () => {
         await page.waitForTimeout(3000);
         await page.reload();
         await page.waitForLoadState('networkidle');
+        // Navigate back to posts to start over
+        await navigateToBlogHub(page);
         await clickBlogTab(page, 'posts');
         await page.waitForTimeout(2000);
+        // Re-click New Post to get back to creation method page
+        await page.getByTestId('button-new-post').click();
+        await page.waitForLoadState('networkidle');
+        await page.waitForTimeout(1000);
         continue;
       }
 
