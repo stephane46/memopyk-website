@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, Eye, Upload, Search, Languages, Star } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, Save, Eye, Upload, Search, Languages, Star, Tag, X } from 'lucide-react';
 import { Editor } from '@tinymce/tinymce-react';
 import DOMPurify from 'dompurify';
 import { StatusSelector } from './StatusSelector';
@@ -37,7 +38,10 @@ export function BlogEditor({ postId }: BlogEditorProps) {
   const [isFeatured, setIsFeatured] = useState(false);
   const [featuredOrder, setFeaturedOrder] = useState<number>(1);
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
-  
+  const [primaryKeyword, setPrimaryKeyword] = useState('');
+  const [secondaryKeywords, setSecondaryKeywords] = useState<string[]>([]);
+  const [secondaryKeywordInput, setSecondaryKeywordInput] = useState('');
+
   // Image picker state
   const [isImagePickerOpen, setIsImagePickerOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -114,6 +118,8 @@ export function BlogEditor({ postId }: BlogEditorProps) {
       setHeroUrl(post.hero_url);
       setIsFeatured(post.is_featured || false);
       setFeaturedOrder((post as any).featured_order || 1);
+      setPrimaryKeyword((post as any).primary_keyword || '');
+      setSecondaryKeywords((post as any).secondary_keywords || []);
     }
   }, [post]);
 
@@ -164,7 +170,9 @@ export function BlogEditor({ postId }: BlogEditorProps) {
       published_at: publishedAt?.toISOString() || null,
       hero_url: heroUrl,
       is_featured: isFeatured,
-      featured_order: isFeatured ? featuredOrder : null
+      featured_order: isFeatured ? featuredOrder : null,
+      primary_keyword: primaryKeyword || null,
+      secondary_keywords: secondaryKeywords.length > 0 ? secondaryKeywords : null
     });
 
     // Save tags
@@ -362,8 +370,74 @@ export function BlogEditor({ postId }: BlogEditorProps) {
             />
           </div>
 
+          {/* SEO Keywords */}
+          <div className="space-y-4 p-4 bg-emerald-50/50 border border-emerald-200 rounded-lg">
+            <div className="flex items-center gap-2">
+              <Tag className="h-4 w-4 text-emerald-600" />
+              <Label className="text-base font-semibold text-emerald-800">SEO Keywords</Label>
+            </div>
+
+            {/* Primary Keyword */}
+            <div>
+              <Label htmlFor="primary-keyword" className="text-sm text-gray-700">Primary Keyword</Label>
+              <div className="flex items-center gap-3 mt-1">
+                <Input
+                  id="primary-keyword"
+                  value={primaryKeyword}
+                  onChange={(e) => setPrimaryKeyword(e.target.value)}
+                  placeholder="e.g. photos chiots smartphone"
+                  className="max-w-md"
+                  data-testid="input-primary-keyword"
+                />
+                {primaryKeyword && (
+                  <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 px-2.5 py-0.5 text-xs font-medium">
+                    <Tag className="h-3 w-3 mr-1 inline" />
+                    {primaryKeyword}
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            {/* Secondary Keywords */}
+            <div>
+              <Label htmlFor="secondary-keywords" className="text-sm text-gray-700">Secondary Keywords</Label>
+              <div className="flex flex-wrap gap-2 mt-1 mb-2">
+                {secondaryKeywords.map((kw, i) => (
+                  <Badge key={i} variant="secondary" className="bg-gray-100 text-gray-700 border-gray-300 px-2.5 py-0.5 text-xs font-medium">
+                    {kw}
+                    <button
+                      type="button"
+                      onClick={() => setSecondaryKeywords(secondaryKeywords.filter((_, idx) => idx !== i))}
+                      className="ml-1.5 hover:text-red-600"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+              <Input
+                id="secondary-keywords"
+                value={secondaryKeywordInput}
+                onChange={(e) => setSecondaryKeywordInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    const value = secondaryKeywordInput.trim().replace(/,$/, '');
+                    if (value && !secondaryKeywords.includes(value)) {
+                      setSecondaryKeywords([...secondaryKeywords, value]);
+                    }
+                    setSecondaryKeywordInput('');
+                  }
+                }}
+                placeholder="Type keyword and press Enter or comma to add"
+                className="max-w-md"
+                data-testid="input-secondary-keywords"
+              />
+            </div>
+          </div>
+
           {/* Hero Image */}
-          <BlogHeroImageUpload 
+          <BlogHeroImageUpload
             currentImageUrl={heroUrl}
             onImageSelect={setHeroUrl}
           />
