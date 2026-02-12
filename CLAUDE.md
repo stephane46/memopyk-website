@@ -18,7 +18,7 @@ MEMOPYK creates professional "Films Souvenirs" (souvenir/memory films) from clie
 | Analytics | ✅ GA4 + custom Supabase (blog analytics endpoints added Feb 11) |
 | Partner Directory | ✅ Working (Mapbox GL JS upgrade planned) |
 | Auto-deploy | ✅ Push → GitHub webhook → Coolify |
-| Help System | ✅ 31 screens, 2 flows (all admin sections covered) |
+| Help System | ✅ Complete (31 screens, 2 flows, 20/20 naive user pass) |
 | Blog Hub | ✅ 5 workflow tabs, 12,501 keywords, 25 clusters |
 | Production | ✅ Live on Coolify (Replit fully replaced Feb 2) |
 
@@ -71,6 +71,10 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-12: Help content 20/20 — all admin screens pass naive user test, Cache help rewritten
+- 2026-02-12: Production SEO values set — bilingual titles/descriptions, OG images, JSON-LD (Service+Organization), hreflang
+- 2026-02-12: SEO bugs fixed — EN language switch blank page, server-side meta tag injection for crawlers
+- 2026-02-12: DB cleanup — 34K duplicate SEO rows removed
 - 2026-02-12: Overnight Agent Teams — doc fixes (table count, help screens, flagged items), help validation, SEO service implementation, naive-user help test
 - 2026-02-11: Documentation audit — 107→33 files, 9.5MB→387KB (96% reduction). Updated README, MIGRATION_PROGRESS, TECH_DEBT, BLOG_WORKFLOW.
 - 2026-02-11: Blog analytics endpoints (5 new: popular, trends, topics, keywords, categories)
@@ -85,7 +89,6 @@ READ THESE FIRST:
 See docs/TECH_DEBT.md for full list. Key items:
 - 36 client TS errors (non-blocking, in analytics components)
 - Mapbox GL JS migration planned for Partner Directory
-- Help system needed for non-blog admin sections
 - Analytics dashboard rebuild decision pending
 
 ## Agent Teams

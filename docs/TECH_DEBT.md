@@ -1,7 +1,7 @@
 # Technical Debt & Deferred Work
 
 **Purpose**: Track technical improvements, skipped tests, and deferred tasks
-**Last Updated**: 2026-02-11
+**Last Updated**: 2026-02-12
 
 ---
 
@@ -41,6 +41,9 @@
 
 | Date | Item | Solution |
 |------|------|----------|
+| Feb 12 | SEO service was a stub | Real implementation: bilingual settings, head preview, audit log, history |
+| Feb 12 | Help content gaps (4 screens) | Image Bank, Partners, Travel Agencies expanded; Cache help fully rewritten (20/20 pass) |
+| Feb 12 | 34K duplicate SEO rows | Cleaned to 2 rows; added unique constraint on seo_settings.page |
 | Feb 11 | Help system for non-blog admin sections | 22 new help_screens added (31 total), all admin sections covered |
 | Feb 9 | 48 dead files in codebase | Deleted (Phase 2: Dead Code Removal) |
 | Feb 9 | ~12,000 lines of dead code | Removed across 46 components + 2 route files |
