@@ -124,7 +124,6 @@ const SeoManagement: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('🔍 SEO LOAD DEBUG - Raw API Response:', data);
       setSeoData(data);
       
       // Populate form with data
@@ -150,25 +149,7 @@ const SeoManagement: React.FC = () => {
           'twitter.image': data.twitter?.image || '',
         };
         
-        console.log('🔍 SEO LOAD DEBUG - Form Data Before Reset:', formData);
-        
-        // Use form.reset() with keepDefaultValues: false to force complete reset
         form.reset(formData, { keepDefaultValues: false });
-        
-        // Additional debug after reset
-        setTimeout(() => {
-          const afterResetValues = {
-            title: form.getValues('title'),
-            description: form.getValues('description'),
-            keywords: form.getValues('keywords')
-          };
-          console.log('🔍 SEO LOAD DEBUG - Form Values After Reset:', afterResetValues);
-          console.log('🔍 SEO LOAD DEBUG - Form Watch Values:', {
-            title: form.watch('title'),
-            description: form.watch('description'),
-            keywords: form.watch('keywords')
-          });
-        }, 100);
 
         setHreflangList(data.hreflang || []);
         setExtrasList(data.extras || []);
@@ -187,7 +168,6 @@ const SeoManagement: React.FC = () => {
 
   // Save SEO data
   const onSubmit = async (data: SeoFormData) => {
-    console.log('🔍 SEO SAVE DEBUG - Form Data Submitted:', data);
     setSaving(true);
     try {
       const payload = {
@@ -337,17 +317,10 @@ const SeoManagement: React.FC = () => {
 
   // Load data when language changes
   useEffect(() => {
-    console.log('🔍 SEO MANAGEMENT COMPONENT - Language changed to:', currentLang);
     loadSeoData();
   }, [currentLang]);
 
-  // Component mount debug
-  useEffect(() => {
-    console.log('🔍 SEO MANAGEMENT COMPONENT - Component mounted');
-    return () => console.log('🔍 SEO MANAGEMENT COMPONENT - Component unmounted');
-  }, []);
-
-  if (loading) {
+  if (!seoData && loading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-center">

@@ -49,7 +49,7 @@ export function SEO({ page = 'homepage' }: SEOProps) {
     queryKey: ['/api/seo-config', language],
     queryFn: async () => {
       const response = await apiRequest(`/api/seo-config?lang=${language}`, 'GET');
-      return response as unknown as SeoData;
+      return await response.json() as SeoData;
     },
   });
 

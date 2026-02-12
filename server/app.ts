@@ -8,6 +8,7 @@
 import express, { type Request, type Response, type NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import path from "path";
+import fs from "fs";
 import { requestLogger } from "./middleware/logger.middleware";
 import { corsMiddleware, apiRateLimit } from "./middleware/security.middleware";
 import { errorHandler, notFoundHandler } from "./middleware/error.middleware";
@@ -66,11 +67,48 @@ export function setupErrorHandler() {
 }
 
 // ============================================================================
-// STATIC FILE SERVING (Production)
+// STATIC FILE SERVING (Production) + Server-Side SEO Injection
 // ============================================================================
+
+// In-memory SEO cache: { [lang]: { html, timestamp } }
+const seoCache: Record<string, { html: string; timestamp: number }> = {};
+const SEO_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+function detectLanguage(req: Request): "fr-FR" | "en-US" {
+  const acceptLang = req.headers["accept-language"] || "";
+  // Check for English preference; default to French (primary market)
+  if (/^en/i.test(acceptLang)) return "en-US";
+  return "fr-FR";
+}
+
+async function getSeoHtml(lang: "fr-FR" | "en-US"): Promise<string> {
+  const cached = seoCache[lang];
+  if (cached && Date.now() - cached.timestamp < SEO_CACHE_TTL) {
+    return cached.html;
+  }
+  try {
+    const { seoService } = await import("./services/seo.service");
+    const html = await seoService.generateHeadPreview(lang);
+    seoCache[lang] = { html, timestamp: Date.now() };
+    return html;
+  } catch (err) {
+    console.error("SEO injection: failed to generate tags", err);
+    return "";
+  }
+}
+
 export function setupStaticServing() {
   // Vite builds to dist/public/, server compiles to dist/server/
   const clientDist = path.resolve(process.cwd(), "dist/public");
+
+  // Read index.html once at startup
+  const indexPath = path.join(clientDist, "index.html");
+  let indexHtml = "";
+  try {
+    indexHtml = fs.readFileSync(indexPath, "utf-8");
+  } catch {
+    console.warn("⚠️ Could not read index.html — SEO injection disabled");
+  }
 
   // Serve static files for non-API routes
   app.use((req: Request, res: Response, next: NextFunction) => {
@@ -82,15 +120,68 @@ export function setupStaticServing() {
 
   // Flags and other static assets are included in dist/public via Vite's publicDir
   app.use('/flags', express.static(path.join(clientDist, 'flags')));
-  
-  // SPA fallback - serve index.html for all non-API routes
-  app.get("*", (req: Request, res: Response, next: NextFunction) => {
+
+  // SPA fallback — inject SEO meta tags into index.html before sending
+  app.get("*", async (req: Request, res: Response, next: NextFunction) => {
     if (req.path.startsWith("/api")) {
       return next();
     }
-    res.sendFile(path.join(clientDist, "index.html"));
+
+    // Skip SEO injection for admin routes or if index.html wasn't loaded
+    if (!indexHtml || req.path.startsWith("/admin")) {
+      if (indexHtml) {
+        res.type("html").send(indexHtml);
+      } else {
+        res.sendFile(indexPath);
+      }
+      return;
+    }
+
+    try {
+      const lang = detectLanguage(req);
+      const seoTags = await getSeoHtml(lang);
+
+      if (!seoTags) {
+        res.type("html").send(indexHtml);
+        return;
+      }
+
+      // Replace the static <title> and inject SEO tags before </head>
+      let html = indexHtml;
+
+      // Extract the dynamic title from the SEO tags
+      const titleMatch = seoTags.match(/<title>([^<]*)<\/title>/);
+      if (titleMatch) {
+        // Replace the Vite default title with the SEO title
+        html = html.replace(
+          /<title>[^<]*<\/title>/,
+          `<title>${titleMatch[1]}</title>`
+        );
+        // Remove the title from seoTags to avoid duplication
+        const tagsWithoutTitle = seoTags.replace(/<title>[^<]*<\/title>\n?/, "");
+        // Also replace the static meta description
+        html = html.replace(
+          /<meta name="description" content="[^"]*" \/>/,
+          ""
+        );
+        html = html.replace("</head>", `    ${tagsWithoutTitle}\n  </head>`);
+      } else {
+        html = html.replace("</head>", `    ${seoTags}\n  </head>`);
+      }
+
+      // Set html lang attribute to match detected language
+      html = html.replace(
+        /<html lang="[^"]*">/,
+        `<html lang="${lang === "fr-FR" ? "fr" : "en"}">`
+      );
+
+      res.type("html").send(html);
+    } catch (err) {
+      console.error("SEO injection error, serving plain index.html:", err);
+      res.type("html").send(indexHtml);
+    }
   });
-  
+
   console.log(`📦 Static files configured from: ${clientDist}`);
 }
 
