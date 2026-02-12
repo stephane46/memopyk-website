@@ -14,13 +14,13 @@
 |--------|-------|
 | **Total screens tested** | 20 |
 | **Screens with help content** | 20 (100%) |
-| **PASS** | 16 |
-| **MINOR issues** | 4 |
+| **PASS** | 20 (after re-test) |
+| **MINOR issues** | 0 (after re-test) |
 | **MAJOR issues** | 0 |
 | **CRITICAL issues** | 0 |
 | **Total screenshots** | 40 (20 page + 20 help) |
 
-**Overall verdict:** The help system is comprehensive and well-written. Every admin screen has contextual help content. A naive user could understand and operate most sections based on the help alone. Issues found are minor and relate to help depth (not accuracy).
+**Overall verdict:** The help system is comprehensive and well-written. Every admin screen has contextual help content. All 4 screens flagged in the overnight run were fixed in the Feb 12 re-test — 20/20 screens now pass. A naive user could understand and operate all sections based on the help alone.
 
 ---
 
@@ -364,9 +364,119 @@ Either fully translate to English or add French equivalents in parentheses consi
 
 ---
 
+## Re-test February 12, 2026 (evening)
+
+**Tester:** Claude Code
+**Method:** Puppeteer MCP (manual evaluation) + Playwright (automated screenshots)
+**Screenshots:** `tests/e2e/screenshots/naive-user-retest/`
+
+The 4 screens flagged as MINOR in the overnight test were re-tested after help content was updated earlier today.
+
+### Re-test Results
+
+| Screen | Previous Rating | New Rating | Verdict |
+|--------|----------------|------------|---------|
+| Image Bank | MINOR | **PASS** | All gaps fixed |
+| Partners Directory | MINOR | **PASS** | All gaps fixed |
+| Travel Agencies | MINOR | **PASS** | All gaps fixed |
+| Cache Management | MINOR | **PASS** | Fully rewritten — now documents actual media cache UI |
+
+---
+
+### Image Bank (tab=images) — PASS
+
+**Screenshots:** `images-page.png`, `images-help.png`
+
+**Previously missing, now fixed:**
+- **Manage Labels button** — Documented: "Open the label management dialog to create, rename, or delete color-coded labels for organizing images"
+- **Upload Images button** — Documented: "Upload new images via drag-and-drop or file browser. Supports JPG, PNG, WebP up to 5MB each. Set alt text, category, and labels per image before uploading"
+- **Category dropdown filter** — Documented with all 7 categories listed
+- **Usage dropdown filter** — Documented with all 5 options (Show All, Unused Only, Used in Posts, Hero Images, Body Images)
+- **Search filter** — Documented: "Find images by filename, alt text, or labels"
+- **Unused badge** — Documented: "Unused (gray) — Image is not referenced by any post"
+- **Used in X posts badge** — Documented: "Used in X posts (green) — Image is actively used"
+- **Hover actions** — All 3 documented: View (eye icon), Edit (pencil icon), Delete (trash icon, red)
+- **Image Cards** — Card structure explained (thumbnail, filename, category badge, file size, labels)
+- **Tips section** — 4 practical tips about filenames, compression, labels, and cleanup
+
+**Verdict:** Comprehensive. A naive user could fully operate Image Bank from the help alone.
+
+---
+
+### Partners Directory (tab=partners) — PASS
+
+**Screenshots:** `partners-page.png`, `partners-help.png`
+
+**Previously missing, now fixed:**
+- **Add Partner button** — Documented: "Create a new partner entry manually (opens a 4-tab form: Basic Info, Location, Services, Visibility)"
+- **Import TSV button** — Documented: "Bulk import partners from a tab-separated spreadsheet"
+- **View Map button** — Documented: "Open the public partner directory map in a new tab"
+- **Download Excel button** — Documented: "Export all partners as a downloadable spreadsheet"
+- **All table columns** — All 9 columns documented: Date, Partner, Type, Contact, Location, Status, Active, Show on Map, Actions
+- **Interactive columns** — Status (click to cycle), Active (click to toggle), Show on Map (click to toggle)
+- **Filters** — Search, Status dropdown, Type dropdown all documented
+- **Partner Statuses** — Pending, Approved, Rejected explained
+- **Edit Partner Form** — All 4 tabs documented (Basic Info, Location, Services, Visibility)
+
+**Verdict:** Thorough. Every visible UI element is documented.
+
+---
+
+### Travel Agencies (tab=travel-agencies) — PASS
+
+**Screenshots:** `travel-agencies-page.png`, `travel-agencies-help.png`
+
+**Previously missing, now fixed:**
+- **Both sub-tabs** — Uploads and Agency Codes documented with descriptions
+- **Uploads Tab header buttons** — Refresh Stats and Refresh List documented
+- **Uploads filters** — Search, Agency dropdown, Date range all documented
+- **All table columns** — All 8 columns documented: Date/Time, Client Name, Email, Agency, Share Link, Status, Upload Status
+- **Row actions** — Mail icon (resend confirmation) and Trash icon (delete record) documented
+- **Agency Codes Tab** — Full documentation: header buttons (Refresh, Add Agency Code), card layout, card fields, card actions (Edit, Delete), search filter
+- **Add Agency Code form** — Fields listed: agency name, code, email, phone, notes, active toggle
+
+**Verdict:** Both sub-tabs fully documented. A naive user would understand the complete travel agency upload workflow.
+
+---
+
+### Cache Management (tab=cache) — PASS (rewritten)
+
+**Screenshots:** `cache-page.png`, `cache-help.png`
+
+**Previously:** Help described a GA4 analytics cache system (Status Cards, System Information, Clear All Cache) that didn't exist on the page. The actual page shows a media/video file cache.
+
+**Fix applied:** Help content fully rewritten via SQL UPDATE to match the actual UI. New content documents:
+- **Storage Management Overview** — Cache Usage progress bar, Auto Cleanup retention period, Media Files count
+- **Video Sections** — Vidéos Hero and Vidéos Galerie panels explained, with Production badge, X/Y count, Update Status button
+- **Per-File Status** — Green checkmark, Cached (~50ms) badge, download count, timestamp, Refresh Cache button
+- **Global Cache Actions** — All three buttons documented: All Media Cache (purple), Smart Cleanup, Images Orphelines
+- **Tips** — 4 practical tips about deployment caching, performance, cleanup, and per-file refresh
+
+**Naive user evaluation:** A user unfamiliar with the cache system would understand what each section shows, how to refresh individual files, and when to run global cache operations. All visible UI elements are now documented.
+
+**Verdict:** Complete rewrite. Every element on the page is covered.
+
+---
+
+### Re-test Summary
+
+**All 4 screens fixed.** Image Bank, Partners Directory, Travel Agencies had their help content expanded earlier today. Cache Management help was fully rewritten (via SQL UPDATE) to replace incorrect GA4 analytics cache description with accurate media cache documentation.
+
+**Updated overall count:**
+| Metric | Original (overnight) | After re-test |
+|--------|---------------------|---------------|
+| PASS | 16 | **20** |
+| MINOR | 4 | **0** |
+| MAJOR | 0 | 0 |
+| CRITICAL | 0 | 0 |
+
+---
+
 ## Test Artifacts
 
 - **Playwright script:** `tests/e2e/naive-user-overnight.ts`
 - **Screenshots (40 files):** `tests/e2e/screenshots/naive-user-overnight/`
 - **JSON results:** `tests/e2e/screenshots/naive-user-overnight/results.json`
+- **Re-test screenshots (8 files):** `tests/e2e/screenshots/naive-user-retest/`
+- **Re-test script:** Playwright (inline, cleaned up after run)
 - **This report:** `docs/reports/naive-user-test-report.md`
