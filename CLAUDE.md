@@ -71,6 +71,9 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-12: API health check (56 endpoints, 96.4% pass) — 1 GA4 realtime credential bug found
+- 2026-02-12: E2E test suite expansion — 7 new spec files (blog-crud, seo, faq, gallery, partners, cache, hero), 1,603 lines
+- 2026-02-12: Architecture doc fixes — route count consistency (22 files/23 groups), partners admin endpoints, content pipeline expanded to 21 endpoints
 - 2026-02-12: Fix 36 TS errors (zero remaining), rewrite ANALYTICS.md, verify/update architecture docs
 - 2026-02-12: Help content 20/20 — all admin screens pass naive user test, Cache help rewritten
 - 2026-02-12: Production SEO values set — bilingual titles/descriptions, OG images, JSON-LD (Service+Organization), hreflang
@@ -88,6 +91,7 @@ READ THESE FIRST:
 ## Known Issues
 
 See docs/TECH_DEBT.md for full list. Key items:
+- GA4 Realtime API: `/api/ga4/realtime/top-videos` returns 500 (credential JSON parse error — base64-encoded instead of raw JSON)
 - Mapbox GL JS migration planned for Partner Directory
 - Analytics dashboard rebuild decision pending
 

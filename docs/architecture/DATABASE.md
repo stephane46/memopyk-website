@@ -92,11 +92,12 @@ Supporting tables:
 | `faqs` | 13 | FAQ items with bilingual Q&A, section ordering |
 | `legal_documents` | 8 | Legal pages (privacy, terms) -- bilingual content |
 
-### CTA & Site Settings (1 table)
+### CTA & Site Settings (2 tables)
 
 | Table | Cols | Purpose |
 |-------|------|---------|
 | `cta_settings` | 8 | Call-to-action button configuration (bilingual text + URLs) |
+| `why_memopyk_cards` | 11 | "Why MEMOPYK" benefit cards below hero (bilingual title/description, lucide icon name, tailwind gradient, order index, active flag) |
 
 ### Contacts (1 table)
 

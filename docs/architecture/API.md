@@ -1,6 +1,6 @@
 # API Reference
 
-Complete endpoint inventory from the 23 route modules in `server/routes/`.
+Complete endpoint inventory from the 22 route files in `server/routes/` (23 groups, since hero.routes.ts defines 2).
 
 ## Route Module Inventory
 
@@ -16,7 +16,7 @@ Complete endpoint inventory from the 23 route modules in `server/routes/`.
 | 8 | Legal | legal.routes.ts | /api | Mixed | 5 |
 | 9 | Analytics | analytics.routes.ts | /api | None | 21 |
 | 10 | Newsletter | newsletter.routes.ts | /api/newsletter | None | 1 |
-| 11 | Partners | partners.routes.ts | /api/partners | Mixed | 6 |
+| 11 | Partners | partners.routes.ts | /api/partners | Mixed | 7 |
 | 12 | Admin | admin.routes.ts | /api/admin | Admin | 7 |
 | 13 | Content | content.routes.ts | /api/admin/content | Admin | 21 |
 | 14 | SEO | seo.routes.ts | /api | Mixed | 8 |
@@ -30,7 +30,7 @@ Complete endpoint inventory from the 23 route modules in `server/routes/`.
 | 22 | Image Bank | image-bank.routes.ts | /api | Admin | 8 |
 | 23 | Blog Analytics | blog-analytics.routes.ts | /api | None | 5 |
 
-**Total: ~204 endpoints.** Auth column: None = all public, Admin = all requireAdmin, Mixed = some public + some admin.
+**Total: ~205 endpoints across 22 route files (23 groups, since hero.routes.ts is split).** Auth column: None = all public, Admin = all requireAdmin, Mixed = some public + some admin.
 
 ## Authentication
 
@@ -178,6 +178,7 @@ Token source: `VITE_ADMIN_SECRET` env var, sent as `Authorization: Bearer <token
 | CTA | /api | CTA (POST, PATCH :id) + Why cards (POST, PATCH :id, DELETE :id) |
 | Legal | /api/legal | POST, PATCH :id, DELETE :id |
 | SEO | /api/seo, /api/admin/seo | POST, PATCH :id, GET admin list, POST admin, GET preview, GET history, POST publish |
+| Partners | /api/partners | GET /download (Excel), POST /import-tsv (bulk TSV), POST /create, PATCH :id/update, DELETE :id |
 | Help Screens | /api/help/screens | GET (list), POST, PATCH :id, DELETE :id |
 | Help Flows | /api/help/flows | POST, PATCH :id, DELETE :id |
 
@@ -200,9 +201,50 @@ Token source: `VITE_ADMIN_SECRET` env var, sent as `Authorization: Bearer <token
 | GET/POST/PUT/DELETE | /api/admin/blog/tags | Tag CRUD |
 | POST/GET | /api/admin/blog/posts/:id/tags | Assign/get post tags |
 
-### Content Pipeline (base: /api/admin/content, standard CRUD for each)
+### Content Pipeline (base: /api/admin/content, all requireAdmin)
 
-Keywords (GET /stats, list, :id, POST, PATCH :id, DELETE :id), Topics, Plans, Assignments -- all follow the same 5-6 endpoint pattern.
+All use Zod validation. Supabase client direct queries (not Drizzle).
+
+#### Keywords (6 endpoints)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /api/admin/content/keywords/stats | Aggregated stats (cached, 1-min TTL). Counts by market, intent, tier, cluster |
+| GET | /api/admin/content/keywords | List with pagination (`page`, `pageSize`), filters (`market`, `intent`, `tier`, `cluster`, `search`) |
+| GET | /api/admin/content/keywords/:id | Get single keyword |
+| POST | /api/admin/content/keywords | Create keyword |
+| PATCH | /api/admin/content/keywords/:id | Update keyword |
+| DELETE | /api/admin/content/keywords/:id | Delete keyword |
+
+#### Topics (5 endpoints)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /api/admin/content/topics | List with filters (`category`, `priority`, `status`, `market`, `cluster`, `role`, `search`) |
+| GET | /api/admin/content/topics/:id | Get single topic |
+| POST | /api/admin/content/topics | Create topic |
+| PATCH | /api/admin/content/topics/:id | Update topic |
+| DELETE | /api/admin/content/topics/:id | Delete topic (blocks if assignments exist) |
+
+#### Weekly Plans (5 endpoints)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /api/admin/content/plans | List with filters (`year`, `status`) |
+| GET | /api/admin/content/plans/:id | Get single plan |
+| POST | /api/admin/content/plans | Create weekly plan |
+| PATCH | /api/admin/content/plans/:id | Update plan |
+| DELETE | /api/admin/content/plans/:id | Delete plan |
+
+#### Assignments (5 endpoints)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /api/admin/content/assignments | List with filters (`start_date`, `end_date`, `status`, `plan_id`) |
+| GET | /api/admin/content/assignments/:id | Get single assignment |
+| POST | /api/admin/content/assignments | Create assignment |
+| PATCH | /api/admin/content/assignments/:id | Update assignment |
+| DELETE | /api/admin/content/assignments/:id | Delete assignment |
 
 ### Admin Utilities
 
