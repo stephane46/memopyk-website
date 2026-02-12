@@ -81,6 +81,10 @@ function detectLanguage(req: Request): "fr-FR" | "en-US" {
   return "fr-FR";
 }
 
+// Per-language OG image swap (DB stores FR image; EN variant uses same path with -en suffix)
+const OG_IMAGE_FR = "og-home-fr.jpg";
+const OG_IMAGE_EN = "og-home-en.jpg";
+
 async function getSeoHtml(lang: "fr-FR" | "en-US"): Promise<string> {
   const cached = seoCache[lang];
   if (cached && Date.now() - cached.timestamp < SEO_CACHE_TTL) {
@@ -88,7 +92,11 @@ async function getSeoHtml(lang: "fr-FR" | "en-US"): Promise<string> {
   }
   try {
     const { seoService } = await import("./services/seo.service");
-    const html = await seoService.generateHeadPreview(lang);
+    let html = await seoService.generateHeadPreview(lang);
+    // Swap OG/Twitter image to the EN variant when serving English
+    if (lang === "en-US" && html.includes(OG_IMAGE_FR)) {
+      html = html.replaceAll(OG_IMAGE_FR, OG_IMAGE_EN);
+    }
     seoCache[lang] = { html, timestamp: Date.now() };
     return html;
   } catch (err) {
