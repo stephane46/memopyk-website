@@ -71,6 +71,7 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-13: Post-overhaul verification — puppy post fixes (alt text, internal links), keyword count corrected (107), naive user help test 20/20, 3 help screens updated (keywords count, Blog Hub Brand Brain link, Posts share buttons + language dialog)
 - 2026-02-13: Infrastructure overhaul — Brand Brain enriched (6 entries, 1900-2800 chars each), generate-content API endpoint (Anthropic + Brand Brain), dynamic sitemap (/sitemap.xml), blog editor AI Assist modal, language selector, sitemap/FAQ schema toggles, WhatsApp share button, 4 dead endpoints removed, seoRedirects removed from schema, CreatePostLanding + CacheManagementPage deleted, 13 FR articles regenerated with Brand Brain, 5 help screens updated
 - 2026-02-13: Server-side SEO fix — route-aware language detection, blog post OG tags + JSON-LD, og:url/og:locale, SSR dedup (30/30 checks pass)
 - 2026-02-12: Content pipeline — 13 FR articles drafted (6 P1 + 7 P2), 59 image suggestions, social OG audit

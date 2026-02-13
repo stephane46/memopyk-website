@@ -7,13 +7,6 @@
 
 ## Active Items
 
-### Puppy Post Image Alt Text + Internal Links
-**Date Added**: 2026-02-13
-**Severity**: Low
-**Location**: blog_posts table (2 published puppy posts)
-**Details**: 4 images have empty alt text, no internal links to /gallery or /faq. SQL fixes documented in docs/reports/puppy-posts-analysis.md.
-**To Fix**: Run documented SQL UPDATE statements (DB write access needed).
-
 ### Mapbox GL JS Migration
 **Date Added**: 2026-01-30
 **Severity**: Medium
@@ -41,6 +34,9 @@
 
 | Date | Item | Solution |
 |------|------|----------|
+| Feb 13 | Puppy post alt text + internal links | Fixed via API: alt text for 4 images, internal links to /gallery and /faq in both EN and FR posts |
+| Feb 13 | Help content gaps (3 screens) | Keywords count 12,501→107, Blog Hub Brand Brain link, Posts share buttons + language dialog |
+| Feb 13 | Keyword count discrepancy (12,501 vs 107) | Updated in CLAUDE.md, admin-rules.md, keywords help screen |
 | Feb 13 | Disconnected Brand Brain | Enriched 6 entries (1900-2800 chars), connected to AI generation endpoint |
 | Feb 13 | Hardcoded AI prompts | Removed 129-line MASTER_PROMPT_TEMPLATE, replaced with server-side Brand Brain endpoint |
 | Feb 13 | Static sitemap | Dynamic /sitemap.xml from published blog posts, 1-hour cache |
