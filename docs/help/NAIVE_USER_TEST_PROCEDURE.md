@@ -121,15 +121,57 @@ const text = await page.locator('.w-80 .prose').textContent(); // Gets actual co
 
 **Rule:** Any element that loads data asynchronously (help content, image grids, post lists) needs an explicit wait for the **data indicator**, not just the **container**. The container appears instantly; the data arrives later.
 
+### Lesson learned #3 (February 13, 2026) — Discovery vs Checklist
+A previous test was given a hardcoded list of 31 screens and told to check each one. The test reported "19/19 PASS" — but it only tested 19 screens, skipping the rest without explanation, and provided zero detail per screen. The root cause: treating the test as a checklist to tick off rather than an exploration to document.
+
+**Fix:** The naive user test is discovery-based. Phase 1 maps the entire admin by clicking everything. The total screen count is an OUTPUT of the test, not an INPUT. If the tester discovers 25 screens, they test 25. If they discover 35, they test 35. No screen is skipped.
+
+---
+
+## Admin UI Architecture
+
+The MEMOPYK admin uses a multi-level navigation structure. The naive user tester MUST understand this to avoid missing screens.
+
+### Level 1: Sidebar sections
+The dark sidebar (.bg-gray-900) contains top-level section links. Each click loads a different admin area. The tester must click EVERY sidebar item to discover all sections.
+
+### Level 2: Tab bars within sections
+Some sections contain a horizontal tab bar at the top of the content area:
+
+- **Blog Hub**: Has numbered tabs ①-⑤ (Keywords, Planned Posts, Planner, Posts, Image Bank). Clicking "Blog" in the sidebar lands on the Blog Hub, then you click each numbered tab.
+- **Contenu Site**: May have tabs for different content types (Hero, Gallery, FAQ, etc.) OR these may be separate sidebar items — the tester must discover which.
+- **Système**: Groups system tools — may contain AI Context, Cache, and other items as tabs or sidebar sub-items.
+
+### Level 3: Sub-tabs within tabs
+Some tabs contain a SECOND level of tabs:
+
+- **Analytics**: Clicking "Analytics" in the sidebar opens a section that has its own sub-tab bar (Overview, Blog, Clarity, CTA, Exclusions, Diagnostics, Geography, Live, Trends, Video). Each sub-tab is a separate screen with its own help content — treat each as a separate screen.
+
+### Level 4: Modal/editor screens
+Some screens are reached by clicking items within a list:
+
+- **Blog Editor**: Reached by clicking an existing post in the Posts tab. Full editor screen with its own help content.
+- **AI Creator**: May be reached via a button/link from the Blog Hub or may be a separate sidebar item — the tester must discover.
+
+### Key principle
+The tester should NEVER assume how many screens exist. They systematically click every sidebar item, every tab, every sub-tab. The total screen count is a DISCOVERY, not a given.
+
 ---
 
 ## Test Structure
 
-### Phase 1: Discovery
+### Phase 1: Full Discovery
 1. Login to admin
-2. Find the help button (should be discoverable without instructions)
-3. Open the help panel
-4. Document first impressions: is the purpose clear?
+2. Screenshot the sidebar in its entirety
+3. Click EVERY item in the sidebar, one by one
+4. For each sidebar item:
+   a. Screenshot the screen that loads
+   b. Look for tab bars — if present, click EVERY tab and screenshot each
+   c. For each tab, look for sub-tab bars — if present, click EVERY sub-tab and screenshot each
+   d. Record: sidebar item name → what loaded → any tabs found → any sub-tabs found
+5. Build a COMPLETE navigation map from what you discovered
+6. Count total unique screens — this number is a finding, not predetermined
+7. Find the help button and verify it's discoverable without instructions
 
 ### Phase 2: Flow walkthroughs
 For each help flow (currently 2: "Create a blog post", "Translate a post"):
@@ -143,12 +185,20 @@ For each help flow (currently 2: "Create a blog post", "Translate a post"):
    f. Advance to next step
 3. DO NOT save/publish real content — we're testing navigation and labels
 
-### Phase 3: Screen help accuracy
-For each screen that has help content:
-1. Navigate to the screen
+### Phase 3: Screen help accuracy (ALL discovered screens)
+For EVERY screen discovered in Phase 1 (not a predetermined list):
+1. Navigate to the screen via UI clicks (sidebar → tab → sub-tab)
 2. Open the help panel
-3. Screenshot both the help content and the actual UI
-4. Compare: does help match reality?
+3. Wait for help content to load (`.w-80 .prose h3`, 5000ms timeout)
+4. Screenshot both the help content AND the actual UI (TWO screenshots per screen)
+5. Answer these questions:
+   a. Does the help title match the screen you're on?
+   b. Does the help content mention UI elements that actually exist on screen?
+   c. Does the help content MISS any visible UI elements a user would need explained?
+   d. Is the language plain or jargon-heavy? Any unclear terms?
+   e. Is anything visibly broken on the screen itself (errors, missing data, broken layout, console errors)?
+   f. Does help say "No help content available for this screen yet"? → automatic BLOCKED
+6. Rate: CLEAR / AMBIGUOUS / BLOCKED with specific justification
 
 ---
 
@@ -201,6 +251,7 @@ Both Markdown and HTML versions should be generated. The HTML version should emb
 | V1 | 2026-02-03 | 3 flows (old names) | Outdated — tested pre-unification tab structure |
 | V2 | 2026-02-04 | 2 flows (DB audit only) | Not a real naive test — compared DB strings vs code, no browser |
 | V3 | 2026-02-04 | 2 flows + 9 screens | Pending — first real browser walkthrough with screenshots |
+| V5 | 2026-02-13 | 2 flows + ALL discovered screens | Pending — discovery-based, full per-screen analysis |
 
 ### Lessons Learned
 - **V1** was a good pattern (Playwright, screenshots, ratings) but tested stale flow content
@@ -229,6 +280,7 @@ The prompt should:
 - Specify screenshot naming convention
 - Specify report output location and format
 - Include the rating system (CLEAR / AMBIGUOUS / BLOCKED)
+- **Never hardcode the screen list** — the prompt should instruct discovery, not enumerate screens. The tester counts screens as a finding.
 
 ---
 
