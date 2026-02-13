@@ -1,0 +1,2165 @@
+{
+  "screens": [
+    {
+      "id": "analytics",
+      "name": "Analytics",
+      "navPath": [
+        "Analytics"
+      ],
+      "contentHeading": "",
+      "helpTitle": "Analytics Dashboard",
+      "helpBodyLength": 1629,
+      "helpBodyExcerpt": "Analytics Dashboard\nTrack visitor behavior, video engagement, CTA clicks, and blog performance - all from one dashboard.\n\nTab Navigation\nUse the horizontal tabs to switch between analytics views:\n\n  O",
+      "visibleElements": [
+        "[Button] Cookie settings",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "ALL",
+        "EN",
+        "FR",
+        "ALL",
+        "Today",
+        "Yesterday",
+        "Last 7 days",
+        "Last 30 days",
+        "Last 90 days",
+        "Custom range",
+        "Blog",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "Help title \"Analytics Dashboard\" present (no heading to compare)"
+        },
+        "b_elementsReferenced": {
+          "answer": false,
+          "detail": "Help text (1629 chars) does not reference any of the 7 visible elements"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "7/7 screen elements not referenced: [Button] Cookie settings, [Link] Digitization Directory, [Link] Legal Notice"
+        },
+        "d_plainLanguage": {
+          "answer": false,
+          "detail": "Technical terms found: \\bSupabase\\b"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (1629 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Technical jargon: Technical terms found: \\bSupabase\\b",
+      "helpScreenshot": "screen-analytics-help.png",
+      "uiScreenshot": "screen-analytics-ui.png"
+    },
+    {
+      "id": "analytics-overview",
+      "name": "Analytics > Overview",
+      "navPath": [
+        "Analytics",
+        "Overview"
+      ],
+      "contentHeading": "",
+      "helpTitle": "Overview",
+      "helpBodyLength": 460,
+      "helpBodyExcerpt": "Overview\nKey performance indicators at a glance for the selected date range.\nKPI Cards\n\n  Visitors — Unique visitors (by IP)\n  Sessions — Total browsing sessions\n  Page Views — Total page loads across",
+      "visibleElements": [
+        "[Button] Cookie settings",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "ALL",
+        "EN",
+        "FR",
+        "ALL",
+        "Today",
+        "Yesterday",
+        "Last 7 days",
+        "Last 30 days",
+        "Last 90 days",
+        "Custom range",
+        "Blog",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "Help title \"Overview\" present (no heading to compare)"
+        },
+        "b_elementsReferenced": {
+          "answer": false,
+          "detail": "Help text (460 chars) does not reference any of the 7 visible elements"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "7/7 screen elements not referenced: [Button] Cookie settings, [Link] Digitization Directory, [Link] Legal Notice"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (460 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Help doesn't reference visible elements: 7/7 screen elements not referenced: [Button] Cookie settings, [Link] Digitization Directory, [Link] Legal Notice",
+      "helpScreenshot": "screen-analytics-overview-help.png",
+      "uiScreenshot": "screen-analytics-overview-ui.png"
+    },
+    {
+      "id": "analytics-live-view",
+      "name": "Analytics > Live View",
+      "navPath": [
+        "Analytics",
+        "Live View"
+      ],
+      "contentHeading": "",
+      "helpTitle": "Analytics Dashboard",
+      "helpBodyLength": 1629,
+      "helpBodyExcerpt": "Analytics Dashboard\nTrack visitor behavior, video engagement, CTA clicks, and blog performance - all from one dashboard.\n\nTab Navigation\nUse the horizontal tabs to switch between analytics views:\n\n  O",
+      "visibleElements": [
+        "[Button] Cookie settings",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "ALL",
+        "EN",
+        "FR",
+        "ALL",
+        "Today",
+        "Yesterday",
+        "Last 7 days",
+        "Last 30 days",
+        "Last 90 days",
+        "Custom range",
+        "Blog",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "Help title \"Analytics Dashboard\" present (no heading to compare)"
+        },
+        "b_elementsReferenced": {
+          "answer": false,
+          "detail": "Help text (1629 chars) does not reference any of the 7 visible elements"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "7/7 screen elements not referenced: [Button] Cookie settings, [Link] Digitization Directory, [Link] Legal Notice"
+        },
+        "d_plainLanguage": {
+          "answer": false,
+          "detail": "Technical terms found: \\bSupabase\\b"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (1629 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Technical jargon: Technical terms found: \\bSupabase\\b",
+      "helpScreenshot": "screen-analytics-live-view-help.png",
+      "uiScreenshot": "screen-analytics-live-view-ui.png"
+    },
+    {
+      "id": "analytics-trends",
+      "name": "Analytics > Trends",
+      "navPath": [
+        "Analytics",
+        "Trends"
+      ],
+      "contentHeading": "📈 Trends",
+      "helpTitle": "Traffic Trends",
+      "helpBodyLength": 460,
+      "helpBodyExcerpt": "Traffic Trends\nVisualize how your site traffic changes over time.\nCharts\n\n  Daily Sessions — Line chart of session counts per day\n  Daily Page Views — Line chart of total page views per day\n  New vs R",
+      "visibleElements": [
+        "[Button] Sessions",
+        "[Button] Visitors",
+        "[Button] Duration",
+        "[Button] Engagement",
+        "[Button] Cookie settings",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "ALL",
+        "EN",
+        "FR",
+        "ALL",
+        "Today",
+        "Yesterday",
+        "Last 7 days",
+        "Last 30 days",
+        "Last 90 days",
+        "Custom range",
+        "Blog",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"Traffic Trends\" relates to \"📈 Trends\""
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 2 elements directly, 0 by concept, 0 shared concepts ()"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "9/11 screen elements not referenced: [Button] Duration, [Button] Engagement, [Button] Cookie settings"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (460 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Help references some elements but misses others. 9/11 screen elements not referenced: [Button] Duration, [Button] Engagement, [Button] Cookie settings",
+      "helpScreenshot": "screen-analytics-trends-help.png",
+      "uiScreenshot": "screen-analytics-trends-ui.png"
+    },
+    {
+      "id": "analytics-video",
+      "name": "Analytics > Video",
+      "navPath": [
+        "Analytics",
+        "Video"
+      ],
+      "contentHeading": "Video Analytics",
+      "helpTitle": "Video Analytics",
+      "helpBodyLength": 611,
+      "helpBodyExcerpt": "Video Analytics\nTrack how visitors engage with your videos: starts, watch duration, and completion rates.\nMetrics\n\n  Total Views — Number of video play events\n  Unique Viewers — Distinct IPs who watch",
+      "visibleElements": [
+        "[Button] Cookie settings",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "ALL",
+        "EN",
+        "FR",
+        "ALL",
+        "Today",
+        "Yesterday",
+        "Last 7 days",
+        "Last 30 days",
+        "Last 90 days",
+        "Custom range",
+        "Blog",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"Video Analytics\" relates to \"Video Analytics\""
+        },
+        "b_elementsReferenced": {
+          "answer": false,
+          "detail": "Help text (611 chars) does not reference any of the 7 visible elements"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "7/7 screen elements not referenced: [Button] Cookie settings, [Link] Digitization Directory, [Link] Legal Notice"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (611 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Help doesn't reference visible elements: 7/7 screen elements not referenced: [Button] Cookie settings, [Link] Digitization Directory, [Link] Legal Notice",
+      "helpScreenshot": "screen-analytics-video-help.png",
+      "uiScreenshot": "screen-analytics-video-ui.png"
+    },
+    {
+      "id": "analytics-geo",
+      "name": "Analytics > Geo",
+      "navPath": [
+        "Analytics",
+        "Geo"
+      ],
+      "contentHeading": "Geographic Market Analysis",
+      "helpTitle": "Geography",
+      "helpBodyLength": 499,
+      "helpBodyExcerpt": "Geography\nWhere your visitors come from — countries, cities, and language breakdown.\nCountry Distribution\nBar chart showing the top countries by visitor count. Hover for exact numbers.\nLanguage Split\n",
+      "visibleElements": [
+        "[Button] Export",
+        "[Button] Reset View",
+        "[Button] Cookie settings",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "ALL",
+        "EN",
+        "FR",
+        "ALL",
+        "Today",
+        "Yesterday",
+        "Last 7 days",
+        "Last 30 days",
+        "Last 90 days",
+        "Custom range",
+        "Blog",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": false,
+          "detail": "\"Geography\" does not match \"Geographic Market Analysis\""
+        },
+        "b_elementsReferenced": {
+          "answer": false,
+          "detail": "Help text (499 chars) does not reference any of the 9 visible elements"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "9/9 screen elements not referenced: [Button] Export, [Button] Reset View, [Button] Cookie settings"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (499 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Help title doesn't match screen: \"Geography\" does not match \"Geographic Market Analysis\"",
+      "helpScreenshot": "screen-analytics-geo-help.png",
+      "uiScreenshot": "screen-analytics-geo-ui.png"
+    },
+    {
+      "id": "analytics-cta",
+      "name": "Analytics > CTA",
+      "navPath": [
+        "Analytics",
+        "CTA"
+      ],
+      "contentHeading": "CTA Analytics",
+      "helpTitle": "CTA Tracking",
+      "helpBodyLength": 528,
+      "helpBodyExcerpt": "CTA Tracking\nMonitor clicks on call-to-action buttons: \"Book a Call\", \"Quick Quote\", and other CTAs.\nDual Tracking\nCTA clicks are sent to both GA4 and the internal Supabase database for reliability. T",
+      "visibleElements": [
+        "[Button] Refresh",
+        "[Button] Cookie settings",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "ALL",
+        "EN",
+        "FR",
+        "ALL",
+        "Today",
+        "Yesterday",
+        "Last 7 days",
+        "Last 30 days",
+        "Last 90 days",
+        "Custom range",
+        "Blog",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"CTA Tracking\" relates to \"CTA Analytics\""
+        },
+        "b_elementsReferenced": {
+          "answer": false,
+          "detail": "Help text (528 chars) does not reference any of the 8 visible elements"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "8/8 screen elements not referenced: [Button] Refresh, [Button] Cookie settings, [Link] Digitization Directory"
+        },
+        "d_plainLanguage": {
+          "answer": false,
+          "detail": "Technical terms found: \\bSupabase\\b"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (528 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Technical jargon: Technical terms found: \\bSupabase\\b",
+      "helpScreenshot": "screen-analytics-cta-help.png",
+      "uiScreenshot": "screen-analytics-cta-ui.png"
+    },
+    {
+      "id": "analytics-blog",
+      "name": "Analytics > Blog",
+      "navPath": [
+        "Analytics",
+        "Blog"
+      ],
+      "contentHeading": "Blog Analytics",
+      "helpTitle": "Blog Analytics",
+      "helpBodyLength": 920,
+      "helpBodyExcerpt": "Blog Analytics\nTrack blog post performance: views, reading patterns, popular topics, and keyword traffic.\n\nData Source\nToggle between MEMOPYK and GA4 at the top. Blog analytics default to MEMOPYK (int",
+      "visibleElements": [
+        "[Button] MEMOPYK",
+        "[Button] GA4",
+        "[Button] Cookie settings",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "ALL",
+        "EN",
+        "FR",
+        "ALL",
+        "Today",
+        "Yesterday",
+        "Last 7 days",
+        "Last 30 days",
+        "Last 90 days",
+        "Custom range",
+        "Blog",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"Blog Analytics\" relates to \"Blog Analytics\""
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 2 elements directly, 0 by concept, 0 shared concepts ()"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "7/9 screen elements not referenced: [Button] Cookie settings, [Link] Digitization Directory, [Link] Legal Notice"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (920 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Help references some elements but misses others. 7/9 screen elements not referenced: [Button] Cookie settings, [Link] Digitization Directory, [Link] Legal Notice",
+      "helpScreenshot": "screen-analytics-blog-help.png",
+      "uiScreenshot": "screen-analytics-blog-ui.png"
+    },
+    {
+      "id": "analytics-clarity",
+      "name": "Analytics > Clarity",
+      "navPath": [
+        "Analytics",
+        "Clarity"
+      ],
+      "contentHeading": "Microsoft Clarity",
+      "helpTitle": "Microsoft Clarity",
+      "helpBodyLength": 942,
+      "helpBodyExcerpt": "Microsoft Clarity\nHeatmaps and session recordings powered by Microsoft Clarity.\n\nStatus\nThis tab shows your Clarity integration status. If a project ID is configured, you'll see a link to the Clarity ",
+      "visibleElements": [
+        "[Button] Cookie settings",
+        "[Link] Open Clarity Dashboard↗",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "ALL",
+        "EN",
+        "FR",
+        "ALL",
+        "Today",
+        "Yesterday",
+        "Last 7 days",
+        "Last 30 days",
+        "Last 90 days",
+        "Custom range",
+        "Blog",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"Microsoft Clarity\" relates to \"Microsoft Clarity\""
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 0 elements directly, 1 by concept, 0 shared concepts ()"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "7/8 screen elements not referenced: [Button] Cookie settings, [Link] Digitization Directory, [Link] Legal Notice"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (942 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Help references some elements but misses others. 7/8 screen elements not referenced: [Button] Cookie settings, [Link] Digitization Directory, [Link] Legal Notice",
+      "helpScreenshot": "screen-analytics-clarity-help.png",
+      "uiScreenshot": "screen-analytics-clarity-ui.png"
+    },
+    {
+      "id": "analytics-fallback",
+      "name": "Analytics > Fallback",
+      "navPath": [
+        "Analytics",
+        "Fallback"
+      ],
+      "contentHeading": "System Diagnostics",
+      "helpTitle": "System Diagnostics",
+      "helpBodyLength": 676,
+      "helpBodyExcerpt": "System Diagnostics\nServer health, database status, and cache usage at a glance.\n\nStatus Cards\n\n  Server - Server health status and version number\n  Database - Connection status and response time\n  Upt",
+      "visibleElements": [
+        "[Button] Refresh",
+        "[Button] Cookie settings",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "ALL",
+        "EN",
+        "FR",
+        "ALL",
+        "Today",
+        "Yesterday",
+        "Last 7 days",
+        "Last 30 days",
+        "Last 90 days",
+        "Custom range",
+        "Blog",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"System Diagnostics\" relates to \"System Diagnostics\""
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 1 elements directly, 0 by concept, 1 shared concepts (refresh)"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "7/8 screen elements not referenced: [Button] Cookie settings, [Link] Digitization Directory, [Link] Legal Notice"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (676 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Help references some elements but misses others. 7/8 screen elements not referenced: [Button] Cookie settings, [Link] Digitization Directory, [Link] Legal Notice",
+      "helpScreenshot": "screen-analytics-fallback-help.png",
+      "uiScreenshot": "screen-analytics-fallback-ui.png"
+    },
+    {
+      "id": "analytics-exclusions",
+      "name": "Analytics > Exclusions",
+      "navPath": [
+        "Analytics",
+        "Exclusions"
+      ],
+      "contentHeading": "IP Exclusions",
+      "helpTitle": "IP Exclusions",
+      "helpBodyLength": 955,
+      "helpBodyExcerpt": "IP Exclusions\nManage IP addresses excluded from all analytics data, and configure date-based data exclusions.\n\nIP Exclusions\n\n  Excluded IPs are filtered out from all MEMOPYK analytics queries\n  Both ",
+      "visibleElements": [
+        "[Button] Show IP",
+        "[Button] Exclude My IP",
+        "[Button] Add Exclusion",
+        "[Button] Edit",
+        "[Button] Show",
+        "[Button] Delete",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "ALL",
+        "EN",
+        "FR",
+        "ALL",
+        "Today",
+        "Yesterday",
+        "Last 7 days",
+        "Last 30 days",
+        "Last 90 days",
+        "Custom range",
+        "Blog",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"IP Exclusions\" relates to \"IP Exclusions\""
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 2 elements directly, 3 by concept, 2 shared concepts (add, delete)"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "7/12 screen elements not referenced: [Button] Edit, [Link] Digitization Directory, [Link] Legal Notice"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (955 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Help references some elements but misses others. 7/12 screen elements not referenced: [Button] Edit, [Link] Digitization Directory, [Link] Legal Notice",
+      "helpScreenshot": "screen-analytics-exclusions-help.png",
+      "uiScreenshot": "screen-analytics-exclusions-ui.png"
+    },
+    {
+      "id": "blog",
+      "name": "Blog",
+      "navPath": [
+        "Blog"
+      ],
+      "contentHeading": "3PlannerSchedule when",
+      "helpTitle": "Planner",
+      "helpBodyLength": 1400,
+      "helpBodyExcerpt": "Blog Hub Header\nThe top of the page shows the Blog Hub with its 5-step workflow: Keywords → Planned Posts → Planner → Posts → Image Bank. Click any tab to switch. The Brand Brain link in the top-right",
+      "visibleElements": [
+        "[Button] TopicsPlan when to write",
+        "[Button] PostsSee when they go live",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "Today",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"Planner\" relates to \"3PlannerSchedule when\""
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 0 elements directly, 2 by concept, 0 shared concepts ()"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "6/8 screen elements not referenced: [Link] Digitization Directory, [Link] Legal Notice, [Link] Terms of Service"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (1400 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Help references some elements but misses others. 6/8 screen elements not referenced: [Link] Digitization Directory, [Link] Legal Notice, [Link] Terms of Service",
+      "helpScreenshot": "screen-blog-help.png",
+      "uiScreenshot": "screen-blog-ui.png"
+    },
+    {
+      "id": "blog-keywords",
+      "name": "Blog > Keywords",
+      "navPath": [
+        "Blog",
+        "Keywords"
+      ],
+      "contentHeading": "Keyword Research",
+      "helpTitle": "Keywords (107)",
+      "helpBodyLength": 2492,
+      "helpBodyExcerpt": "Keywords (107)\nSEO keywords from Google Keyword Planner, organized for content planning.\n\nQuick Filters\nOne-click presets for common keyword analysis tasks:\n\n  🎯 Quick Wins — Low competition + High i",
+      "visibleElements": [
+        "[Button] New Keyword",
+        "[Button] Quick Wins",
+        "[Button] Traffic Drivers",
+        "[Button] Money Keywords",
+        "[Button] France Priority",
+        "[Button] Blog Ideas",
+        "[Button] Cluster: 6 selected",
+        "[Button] Market: All",
+        "[Button] Tier: All",
+        "[Button] Searches: All",
+        "[Button] Comp.: All",
+        "[Button] Intent: All",
+        "[Button] Keyword",
+        "[Button] Market",
+        "[Button] Tier",
+        "[Button] Searches/mo",
+        "[Button] Comp.",
+        "[Button] Intent",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"Keywords (107)\" relates to \"Keyword Research\""
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 11 elements directly, 2 by concept, 3 shared concepts (search, keyword, cluster)"
+        },
+        "c_elementsMissed": {
+          "answer": false,
+          "detail": "Only 11/24 elements not referenced — acceptable coverage"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (2492 chars)"
+        }
+      },
+      "rating": "CLEAR",
+      "justification": "Help title matches, content references UI elements, plain language. Help references 11 elements directly, 2 by concept, 3 shared concepts (search, keyword, cluster)",
+      "helpScreenshot": "screen-blog-keywords-help.png",
+      "uiScreenshot": "screen-blog-keywords-ui.png"
+    },
+    {
+      "id": "blog-planned-posts",
+      "name": "Blog > Planned Posts",
+      "navPath": [
+        "Blog",
+        "Planned Posts"
+      ],
+      "contentHeading": "2Planned PostsWhat to write",
+      "helpTitle": "Planned Posts",
+      "helpBodyLength": 3143,
+      "helpBodyExcerpt": "Planned Posts\nYour blog post backlog. Each entry here becomes one published blog post. Plan what to write, then use \"Create Post\" to generate it with AI.\n\nTwo views\n\n  List view (default) — A flat lis",
+      "visibleElements": [
+        "[Button] All Roles",
+        "[Button] All Topic Groups",
+        "[Button] All Categories",
+        "[Button] All Statuses",
+        "[Button] All Types",
+        "[Button] All Priorities",
+        "[Button] 🇫🇷 France",
+        "[Button] 🇺🇸 English",
+        "[Button] List",
+        "[Button] Grouped",
+        "[Button] Plan New Post",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "All",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"Planned Posts\" relates to \"2Planned PostsWhat to write\""
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 3 elements directly, 3 by concept, 0 shared concepts ()"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "11/17 screen elements not referenced: [Button] All Roles, [Button] All Categories, [Button] All Statuses"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (3143 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Help references some elements but misses others. 11/17 screen elements not referenced: [Button] All Roles, [Button] All Categories, [Button] All Statuses",
+      "helpScreenshot": "screen-blog-planned-posts-help.png",
+      "uiScreenshot": "screen-blog-planned-posts-ui.png"
+    },
+    {
+      "id": "blog-posts",
+      "name": "Blog > Posts",
+      "navPath": [
+        "Blog",
+        "Posts"
+      ],
+      "contentHeading": "Posts",
+      "helpTitle": "Posts",
+      "helpBodyLength": 1392,
+      "helpBodyExcerpt": "PostsThis is where you manage all your blog posts - create, edit, preview, translate, and delete.Top ButtonsNew Post (orange, top right) - Creates a blank French (fr-FR) draft and opens the Blog Edito",
+      "visibleElements": [
+        "[Button] New Post",
+        "[Button] Manage Tags",
+        "[Button] All Posts",
+        "[Button] All Languages",
+        "[Button] Draft",
+        "[Button] View source topic",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"Posts\" relates to \"Posts\""
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 4 elements directly, 2 by concept, 2 shared concepts (draft, tag)"
+        },
+        "c_elementsMissed": {
+          "answer": false,
+          "detail": "Only 6/12 elements not referenced — acceptable coverage"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (1392 chars)"
+        }
+      },
+      "rating": "CLEAR",
+      "justification": "Help title matches, content references UI elements, plain language. Help references 4 elements directly, 2 by concept, 2 shared concepts (draft, tag)",
+      "helpScreenshot": "screen-blog-posts-help.png",
+      "uiScreenshot": "screen-blog-posts-ui.png"
+    },
+    {
+      "id": "blog-images",
+      "name": "Blog > Images",
+      "navPath": [
+        "Blog",
+        "Images"
+      ],
+      "contentHeading": "Image Bank",
+      "helpTitle": "Image Bank",
+      "helpBodyLength": 1584,
+      "helpBodyExcerpt": "Image Bank\nCentral library for all blog images and media assets.\nHeader Buttons\n\n  Manage Labels ?�� Open the label management dialog to create, rename, or delete color-coded labels for organizing ima",
+      "visibleElements": [
+        "[Button] Manage Labels",
+        "[Button] Upload Images",
+        "[Button] All Categories",
+        "[Button] All Images",
+        "[Button] Cookie settings",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"Image Bank\" relates to \"Image Bank\""
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 2 elements directly, 2 by concept, 1 shared concepts (image)"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "7/11 screen elements not referenced: [Button] Cookie settings, [Link] Digitization Directory, [Link] Legal Notice"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (1584 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Help references some elements but misses others. 7/11 screen elements not referenced: [Button] Cookie settings, [Link] Digitization Directory, [Link] Legal Notice",
+      "helpScreenshot": "screen-blog-images-help.png",
+      "uiScreenshot": "screen-blog-images-ui.png"
+    },
+    {
+      "id": "agences-de-voyage",
+      "name": "Agences de Voyage",
+      "navPath": [
+        "Agences de Voyage"
+      ],
+      "contentHeading": "Travel Upload Submissions",
+      "helpTitle": "Travel Agency Management",
+      "helpBodyLength": 1727,
+      "helpBodyExcerpt": "Travel Agency Management\nManage the travel agency upload portal and agency access codes. Travel agencies receive a unique code, visit the upload page, enter their code, and submit vacation photos/vide",
+      "visibleElements": [
+        "[Button] Refresh Stats",
+        "[Button] Refresh List",
+        "[Button] All agencies",
+        "[Button] Date/Time",
+        "[Button] Client Name",
+        "[Button] Agency",
+        "[Button] Upload Status",
+        "[Button] Load Stats",
+        "[Button] Cookie settings",
+        "[Link] lberne31@yahoo.fr",
+        "[Link] Open",
+        "[Link] ab@cd.com",
+        "[Link] stephane.eloit@outlook.com",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"Travel Agency Management\" relates to \"Travel Upload Submissions\""
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 7 elements directly, 1 by concept, 2 shared concepts (date, refresh)"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "11/19 screen elements not referenced: [Button] Cookie settings, [Link] lberne31@yahoo.fr, [Link] Open"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (1727 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Help references some elements but misses others. 11/19 screen elements not referenced: [Button] Cookie settings, [Link] lberne31@yahoo.fr, [Link] Open",
+      "helpScreenshot": "screen-agences-de-voyage-help.png",
+      "uiScreenshot": "screen-agences-de-voyage-ui.png"
+    },
+    {
+      "id": "annuaire-pro",
+      "name": "Annuaire Pro",
+      "navPath": [
+        "Annuaire Pro"
+      ],
+      "contentHeading": "",
+      "helpTitle": "Partners Directory",
+      "helpBodyLength": 1543,
+      "helpBodyExcerpt": "Partners Directory\nManage the professional digitization partners displayed in the partner directory on the website.\nHeader Buttons\n\n  Add Partner — Create a new partner entry manually (opens a 4-tab f",
+      "visibleElements": [
+        "[Button] Add Partner",
+        "[Button] Import TSV",
+        "[Button] View Map",
+        "[Button] Download Excel",
+        "[Button] All Status",
+        "[Button] All Types",
+        "[Button] Approved",
+        "[Button] Active",
+        "[Button] On Map",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "Help title \"Partners Directory\" present (no heading to compare)"
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 7 elements directly, 3 by concept, 2 shared concepts (add, import)"
+        },
+        "c_elementsMissed": {
+          "answer": false,
+          "detail": "Only 5/15 elements not referenced — acceptable coverage"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (1543 chars)"
+        }
+      },
+      "rating": "CLEAR",
+      "justification": "Help title matches, content references UI elements, plain language. Help references 7 elements directly, 3 by concept, 2 shared concepts (add, import)",
+      "helpScreenshot": "screen-annuaire-pro-help.png",
+      "uiScreenshot": "screen-annuaire-pro-ui.png"
+    },
+    {
+      "id": "seo",
+      "name": "SEO",
+      "navPath": [
+        "SEO"
+      ],
+      "contentHeading": "Basic SEO",
+      "helpTitle": "SEO Management",
+      "helpBodyLength": 1031,
+      "helpBodyExcerpt": "SEO Management\nConfigure meta tags, Open Graph data, and page-level SEO settings for the website.\n\nLanguage Switcher\nUse the French / English toggle in the top-right to edit SEO settings for each lang",
+      "visibleElements": [
+        "[Button] 🇫🇷 French",
+        "[Button] 🇺🇸 English",
+        "[Button] History",
+        "[Button] Publish",
+        "[Button] Save SEO Settings",
+        "[Button] Cookie settings",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"SEO Management\" relates to \"Basic SEO\""
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 3 elements directly, 3 by concept, 1 shared concepts (publish)"
+        },
+        "c_elementsMissed": {
+          "answer": false,
+          "detail": "Only 6/12 elements not referenced — acceptable coverage"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (1031 chars)"
+        }
+      },
+      "rating": "CLEAR",
+      "justification": "Help title matches, content references UI elements, plain language. Help references 3 elements directly, 3 by concept, 1 shared concepts (publish)",
+      "helpScreenshot": "screen-seo-help.png",
+      "uiScreenshot": "screen-seo-ui.png"
+    },
+    {
+      "id": "videos-hero",
+      "name": "Vidéos Hero",
+      "navPath": [
+        "Vidéos Hero"
+      ],
+      "contentHeading": "Gestion Hero",
+      "helpTitle": "Hero Video Management",
+      "helpBodyLength": 629,
+      "helpBodyExcerpt": "Hero Video Management\nControl the hero video section at the top of the homepage.\n\nVideo Management\n\n  Upload hero videos for the homepage banner (drag-and-drop or file picker)\n  Bilingual videos - set",
+      "visibleElements": [
+        "[Button] Gestion Vidéos",
+        "[Button] Textes & Superpositions",
+        "[Button] Move Earlier",
+        "[Button] Move Later",
+        "[Button] Edit Video",
+        "[Button] Delete",
+        "[Button] Cookie settings",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"Hero Video Management\" relates to \"Gestion Hero\""
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 0 elements directly, 1 by concept, 2 shared concepts (edit, video)"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "12/13 screen elements not referenced: [Button] Gestion Vidéos, [Button] Textes & Superpositions, [Button] Move Earlier"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (629 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Help references some elements but misses others. 12/13 screen elements not referenced: [Button] Gestion Vidéos, [Button] Textes & Superpositions, [Button] Move Earlier",
+      "helpScreenshot": "screen-videos-hero-help.png",
+      "uiScreenshot": "screen-videos-hero-ui.png"
+    },
+    {
+      "id": "galerie-videos",
+      "name": "Galerie Vidéos",
+      "navPath": [
+        "Galerie Vidéos"
+      ],
+      "contentHeading": "Galerie",
+      "helpTitle": "Video Gallery Management",
+      "helpBodyLength": 427,
+      "helpBodyExcerpt": "Video Gallery Management\nManage the portfolio video gallery displayed on the website.\n\nWhat You Can Do\n\n  Add/edit/delete gallery video entries\n  Reorder videos by drag-and-drop\n  Set thumbnails and c",
+      "visibleElements": [
+        "[Button] NOUVELLE VIDEO",
+        "[Button] The summer of Pom - L’été de Pom",
+        "[Button] ↑Move Earlier",
+        "[Button] ↓Move Later",
+        "[Button] Recadrer FR",
+        "[Button] Recadrer EN",
+        "[Button] Portrait",
+        "[Button] Sauvegarder",
+        "[Button] Annuler",
+        "[Button] Supprimer",
+        "[Button] Gérer Templates",
+        "[Button] Cookie settings",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"Video Gallery Management\" contextually matches \"Galerie\" (via Galerie Vidéos)"
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 0 elements directly, 1 by concept, 1 shared concepts (video)"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "17/18 screen elements not referenced: [Button] The summer of Pom - L’été de Pom, [Button] ↑Move Earlier, [Button] ↓Move Later"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (427 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Help references some elements but misses others. 17/18 screen elements not referenced: [Button] The summer of Pom - L’été de Pom, [Button] ↑Move Earlier, [Button] ↓Move Later",
+      "helpScreenshot": "screen-galerie-videos-help.png",
+      "uiScreenshot": "screen-galerie-videos-ui.png"
+    },
+    {
+      "id": "faq",
+      "name": "FAQ",
+      "navPath": [
+        "FAQ"
+      ],
+      "contentHeading": "FAQ",
+      "helpTitle": "FAQ Management",
+      "helpBodyLength": 461,
+      "helpBodyExcerpt": "FAQ Management\nManage the Frequently Asked Questions displayed on the website.\n\nWhat You Can Do\n\n  Create FAQ sections — group related questions together\n  Add/edit/delete questions within each sectio",
+      "visibleElements": [
+        "[Button] Nouvelle Section",
+        "[Button] Nouvelle FAQ",
+        "[Button] undefinedundefined",
+        "[Button] Cookie settings",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"FAQ Management\" relates to \"FAQ\""
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 0 elements directly, 1 by concept, 0 shared concepts ()"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "9/10 screen elements not referenced: [Button] Nouvelle FAQ, [Button] undefinedundefined, [Button] Cookie settings"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (461 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Help references some elements but misses others. 9/10 screen elements not referenced: [Button] Nouvelle FAQ, [Button] undefinedundefined, [Button] Cookie settings",
+      "helpScreenshot": "screen-faq-help.png",
+      "uiScreenshot": "screen-faq-ui.png"
+    },
+    {
+      "id": "pourquoi-memopyk",
+      "name": "Pourquoi MEMOPYK",
+      "navPath": [
+        "Pourquoi MEMOPYK"
+      ],
+      "contentHeading": "Pourquoi MEMOPYK",
+      "helpTitle": "Why MEMOPYK Cards",
+      "helpBodyLength": 284,
+      "helpBodyExcerpt": "Why MEMOPYK Cards\nManage the \"Why MEMOPYK\" cards section on the homepage — the value propositions shown to visitors.\n\nWhat You Can Do\n\n  Edit card content — title, description, icon\n  Reorder cards — ",
+      "visibleElements": [
+        "[Button] Nouvelle Carte",
+        "[Button] Cookie settings",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"Why MEMOPYK Cards\" relates to \"Pourquoi MEMOPYK\""
+        },
+        "b_elementsReferenced": {
+          "answer": false,
+          "detail": "Help text (284 chars) does not reference any of the 8 visible elements"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "8/8 screen elements not referenced: [Button] Nouvelle Carte, [Button] Cookie settings, [Link] Digitization Directory"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (284 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Help doesn't reference visible elements: 8/8 screen elements not referenced: [Button] Nouvelle Carte, [Button] Cookie settings, [Link] Digitization Directory",
+      "helpScreenshot": "screen-pourquoi-memopyk-help.png",
+      "uiScreenshot": "screen-pourquoi-memopyk-ui.png"
+    },
+    {
+      "id": "boutons-cta",
+      "name": "Boutons CTA",
+      "navPath": [
+        "Boutons CTA"
+      ],
+      "contentHeading": "CTA Button Management",
+      "helpTitle": "CTA Button Management",
+      "helpBodyLength": 405,
+      "helpBodyExcerpt": "CTA Button Management\nManage Call-to-Action buttons displayed across the website.\n\nWhat You Can Do\n\n  Edit button text — labels for Book a Call, Quick Quote, etc.\n  Configure destinations — where each",
+      "visibleElements": [
+        "[Button] Edit",
+        "[Button] Cookie settings",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"CTA Button Management\" relates to \"CTA Button Management\""
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 1 elements directly, 0 by concept, 1 shared concepts (edit)"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "7/8 screen elements not referenced: [Button] Cookie settings, [Link] Digitization Directory, [Link] Legal Notice"
+        },
+        "d_plainLanguage": {
+          "answer": false,
+          "detail": "Technical terms found: \\bSupabase\\b"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (405 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Technical jargon: Technical terms found: \\bSupabase\\b",
+      "helpScreenshot": "screen-boutons-cta-help.png",
+      "uiScreenshot": "screen-boutons-cta-ui.png"
+    },
+    {
+      "id": "documents-legaux",
+      "name": "Documents Légaux",
+      "navPath": [
+        "Documents Légaux"
+      ],
+      "contentHeading": "Documents Légaux",
+      "helpTitle": "Legal Document Management",
+      "helpBodyLength": 531,
+      "helpBodyExcerpt": "Legal Document Management\nManage legal pages displayed on the website.\n\nWhat You Can Do\n\n  Edit document content in rich text format\n  Bilingual support - separate French and English versions\n  Toggle",
+      "visibleElements": [
+        "[Button] Nouveau Document",
+        "[Button] Cookie settings",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"Legal Document Management\" relates to \"Documents Légaux\""
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 5 elements directly, 2 by concept, 0 shared concepts ()"
+        },
+        "c_elementsMissed": {
+          "answer": false,
+          "detail": "Only 1/8 elements not referenced — acceptable coverage"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (531 chars)"
+        }
+      },
+      "rating": "CLEAR",
+      "justification": "Help title matches, content references UI elements, plain language. Help references 5 elements directly, 2 by concept, 0 shared concepts ()",
+      "helpScreenshot": "screen-documents-legaux-help.png",
+      "uiScreenshot": "screen-documents-legaux-ui.png"
+    },
+    {
+      "id": "ai-context",
+      "name": "AI Context",
+      "navPath": [
+        "AI Context"
+      ],
+      "contentHeading": "Brand Guidelines",
+      "helpTitle": "AI Context - Brand Brain",
+      "helpBodyLength": 1149,
+      "helpBodyExcerpt": "AI Context - Brand Brain\nDefine the brand personality, tone, and knowledge base that AI uses when generating and translating blog content.\n\nWhat You See\nSix context entries organized by category:\n\n  B",
+      "visibleElements": [
+        "[Button] Edit",
+        "[Button] Cookie settings",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"AI Context - Brand Brain\" relates to \"Brand Guidelines\""
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 1 elements directly, 0 by concept, 1 shared concepts (edit)"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "7/8 screen elements not referenced: [Button] Cookie settings, [Link] Digitization Directory, [Link] Legal Notice"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (1149 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Help references some elements but misses others. 7/8 screen elements not referenced: [Button] Cookie settings, [Link] Digitization Directory, [Link] Legal Notice",
+      "helpScreenshot": "screen-ai-context-help.png",
+      "uiScreenshot": "screen-ai-context-ui.png"
+    },
+    {
+      "id": "cache",
+      "name": "Cache",
+      "navPath": [
+        "Cache"
+      ],
+      "contentHeading": "Gestion du Cache",
+      "helpTitle": "Cache Management",
+      "helpBodyLength": 2257,
+      "helpBodyExcerpt": "Cache Management\nManage the local file cache for all media assets (hero videos, gallery videos, and images). Cached files are served directly from the server for faster page loads instead of fetching ",
+      "visibleElements": [
+        "[Button] Update Status",
+        "[Button] Refresh Cache",
+        "[Button] 🚀 All Media CacheCache tous les médias avec vérification complète",
+        "[Button] 🧹 Smart CleanupSupprime fichiers expirés (>30j) + orphelins uniquement",
+        "[Button] 🗑️ Images OrphelinesSupprime images inutilisées uniquement",
+        "[Button] Cookie settings",
+        "[Link] Digitization Directory",
+        "[Link] Legal Notice",
+        "[Link] Terms of Service",
+        "[Link] Terms of Sale",
+        "[Link] Privacy Policy",
+        "[Link] Cookie Policy"
+      ],
+      "excludedByBaseline": [
+        "Our service",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Quotation",
+        "Contact",
+        "Blog",
+        "FAQ",
+        "Pourquoi MEMOPYK",
+        "Our service",
+        "Quotation",
+        "Why MEMOPYK",
+        "Gallery",
+        "FAQ",
+        "Contact",
+        "Blog",
+        "Blog",
+        "contact@memopyk.com",
+        "(+33) 07 45 84 38 21",
+        "admin"
+      ],
+      "analysis": {
+        "a_titleMatch": {
+          "answer": true,
+          "detail": "\"Cache Management\" relates to \"Gestion du Cache\""
+        },
+        "b_elementsReferenced": {
+          "answer": true,
+          "detail": "Help references 2 elements directly, 3 by concept, 3 shared concepts (date, refresh, image)"
+        },
+        "c_elementsMissed": {
+          "answer": true,
+          "detail": "7/12 screen elements not referenced: [Button] Cookie settings, [Link] Digitization Directory, [Link] Legal Notice"
+        },
+        "d_plainLanguage": {
+          "answer": true,
+          "detail": "Language is plain and user-friendly"
+        },
+        "e_brokenUI": {
+          "answer": false,
+          "detail": "No visible errors on screen"
+        },
+        "f_helpExists": {
+          "answer": true,
+          "detail": "Help content present (2257 chars)"
+        }
+      },
+      "rating": "AMBIGUOUS",
+      "justification": "Help references some elements but misses others. 7/12 screen elements not referenced: [Button] Cookie settings, [Link] Digitization Directory, [Link] Legal Notice",
+      "helpScreenshot": "screen-cache-help.png",
+      "uiScreenshot": "screen-cache-ui.png"
+    }
+  ],
+  "summary": {
+    "clear": 5,
+    "ambiguous": 22,
+    "blocked": 0
+  }
+}

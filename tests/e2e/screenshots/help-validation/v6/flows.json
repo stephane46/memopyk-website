@@ -1,0 +1,193 @@
+{
+  "flows": [
+    {
+      "name": "Create a blog post",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "title": "Step 1 of 7",
+          "instruction": "In the Blog Hub, click the Posts tab to see all your blog posts.",
+          "actionTaken": "Posts tab visible on screen",
+          "visibleAfter": [],
+          "helpScreenshot": "flow1-step1-help.png",
+          "actionScreenshot": "flow1-step1-action.png",
+          "rating": "CLEAR",
+          "justification": "Instruction makes sense — Posts tab visible on screen"
+        },
+        {
+          "stepNumber": 2,
+          "title": "Step 2 of 7",
+          "instruction": "Click the + New Post button in the top-right corner. This opens the creation page.",
+          "actionTaken": "New Post button visible",
+          "visibleAfter": [],
+          "helpScreenshot": "flow1-step2-help.png",
+          "actionScreenshot": "flow1-step2-action.png",
+          "rating": "CLEAR",
+          "justification": "Instruction makes sense — New Post button visible"
+        },
+        {
+          "stepNumber": 3,
+          "title": "Step 3 of 7",
+          "instruction": "You have two options: Write from scratch opens the Blog Editor directly. Generate with AI uses AI to create a draft.",
+          "actionTaken": "Instruction references content editing (verified page context)",
+          "visibleAfter": [],
+          "helpScreenshot": "flow1-step3-help.png",
+          "actionScreenshot": "flow1-step3-action.png",
+          "rating": "CLEAR",
+          "justification": "Instruction makes sense — Instruction references content editing (verified page context)"
+        },
+        {
+          "stepNumber": 4,
+          "title": "Step 4 of 7",
+          "instruction": "If you chose \"Write from scratch\": The Blog Editor opens with a blank post. Enter your Title, write your content in the editor, and add images as needed.",
+          "actionTaken": "Title field not found",
+          "visibleAfter": [],
+          "helpScreenshot": "flow1-step4-help.png",
+          "actionScreenshot": "flow1-step4-action.png",
+          "rating": "AMBIGUOUS",
+          "justification": "Described element not visible on current screen: Title field not found"
+        },
+        {
+          "stepNumber": 5,
+          "title": "Step 5 of 7",
+          "instruction": "If you chose \"Generate with AI\": Enter your topic, select tone and keywords, then click Generate AI Prompt. Copy the prompt to your AI assistant, paste the JSON response, then click Save Blog Post to save and open in Blog Editor.",
+          "actionTaken": "Save/Publish button visible: \"4PostsWrite & publish\"",
+          "visibleAfter": [],
+          "helpScreenshot": "flow1-step5-help.png",
+          "actionScreenshot": "flow1-step5-action.png",
+          "rating": "CLEAR",
+          "justification": "Instruction makes sense — Save/Publish button visible: \"4PostsWrite & publish\""
+        },
+        {
+          "stepNumber": 6,
+          "title": "Step 6 of 7",
+          "instruction": "In the Blog Editor, configure: Tags, Hero Image, and Description (SEO).",
+          "actionTaken": "Metadata fields not found",
+          "visibleAfter": [],
+          "helpScreenshot": "flow1-step6-help.png",
+          "actionScreenshot": "flow1-step6-action.png",
+          "rating": "AMBIGUOUS",
+          "justification": "Described element not visible on current screen: Metadata fields not found"
+        },
+        {
+          "stepNumber": 7,
+          "title": "Step 7 of 7",
+          "instruction": "Set Status to Draft, In Review, or Published. Click Save Changes.",
+          "actionTaken": "Save/Publish button visible: \"4PostsWrite & publish\"",
+          "visibleAfter": [],
+          "helpScreenshot": "flow1-step7-help.png",
+          "actionScreenshot": "flow1-step7-action.png",
+          "rating": "CLEAR",
+          "justification": "Instruction makes sense — Save/Publish button visible: \"4PostsWrite & publish\""
+        }
+      ],
+      "navigationMethod": "Next",
+      "summary": {
+        "clear": 5,
+        "ambiguous": 2,
+        "blocked": 0
+      }
+    },
+    {
+      "name": "Translate a postTranslate a post to another language using AI or manual tools",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "title": "Step 1 of 8",
+          "instruction": "Go to Posts and locate the post you want to translate.",
+          "actionTaken": "Translate control visible",
+          "visibleAfter": [],
+          "helpScreenshot": "flow2-step1-help.png",
+          "actionScreenshot": "flow2-step1-action.png",
+          "rating": "CLEAR",
+          "justification": "Instruction makes sense — Translate control visible"
+        },
+        {
+          "stepNumber": 2,
+          "title": "Step 2 of 8",
+          "instruction": "Click the 🌐 translate icon next to the post. A dialog will appear.",
+          "actionTaken": "Translate control visible",
+          "visibleAfter": [],
+          "helpScreenshot": "flow2-step2-help.png",
+          "actionScreenshot": "flow2-step2-action.png",
+          "rating": "CLEAR",
+          "justification": "Instruction makes sense — Translate control visible"
+        },
+        {
+          "stepNumber": 3,
+          "title": "Step 3 of 8",
+          "instruction": "Choose ✨ Translate with AI for automatic translation, or Translate manually to use your own tools.",
+          "actionTaken": "Translate control visible",
+          "visibleAfter": [],
+          "helpScreenshot": "flow2-step3-help.png",
+          "actionScreenshot": "flow2-step3-action.png",
+          "rating": "CLEAR",
+          "justification": "Instruction makes sense — Translate control visible"
+        },
+        {
+          "stepNumber": 4,
+          "title": "Step 4 of 8",
+          "instruction": "If you chose AI: the editor opens with the translated content. Review the title, description, and content for accuracy.",
+          "actionTaken": "Translate control visible",
+          "visibleAfter": [],
+          "helpScreenshot": "flow2-step4-help.png",
+          "actionScreenshot": "flow2-step4-action.png",
+          "rating": "CLEAR",
+          "justification": "Instruction makes sense — Translate control visible"
+        },
+        {
+          "stepNumber": 5,
+          "title": "Step 5 of 8",
+          "instruction": "If you chose manual: the editor opens with the original content. Click Translation Assistant to use the translation helper, or translate directly.",
+          "actionTaken": "Translate control visible",
+          "visibleAfter": [],
+          "helpScreenshot": "flow2-step5-help.png",
+          "actionScreenshot": "flow2-step5-action.png",
+          "rating": "CLEAR",
+          "justification": "Instruction makes sense — Translate control visible"
+        },
+        {
+          "stepNumber": 6,
+          "title": "Step 6 of 8",
+          "instruction": "Make any necessary edits to the translation. Images are automatically preserved in their original positions.",
+          "actionTaken": "Instruction references content editing (verified page context)",
+          "visibleAfter": [],
+          "helpScreenshot": "flow2-step6-help.png",
+          "actionScreenshot": "flow2-step6-action.png",
+          "rating": "CLEAR",
+          "justification": "Instruction makes sense — Instruction references content editing (verified page context)"
+        },
+        {
+          "stepNumber": 7,
+          "title": "Step 7 of 8",
+          "instruction": "Verify the Slug is language-appropriate (e.g., ends in -en or -fr). Update the Description (SEO) if needed.",
+          "actionTaken": "Metadata fields not found",
+          "visibleAfter": [],
+          "helpScreenshot": "flow2-step7-help.png",
+          "actionScreenshot": "flow2-step7-action.png",
+          "rating": "AMBIGUOUS",
+          "justification": "Described element not visible on current screen: Metadata fields not found"
+        },
+        {
+          "stepNumber": 8,
+          "title": "Step 8 of 8",
+          "instruction": "Change Status to Published when ready. Click Save Changes.",
+          "actionTaken": "Save/Publish button visible: \"4PostsWrite & publish\"",
+          "visibleAfter": [],
+          "helpScreenshot": "flow2-step8-help.png",
+          "actionScreenshot": "flow2-step8-action.png",
+          "rating": "CLEAR",
+          "justification": "Instruction makes sense — Save/Publish button visible: \"4PostsWrite & publish\""
+        }
+      ],
+      "navigationMethod": "Next",
+      "summary": {
+        "clear": 7,
+        "ambiguous": 1,
+        "blocked": 0
+      }
+    }
+  ],
+  "flowNavigationUI": "Next",
+  "totalSteps": 15
+}

@@ -1,0 +1,496 @@
+{
+  "startTime": "2026-02-13T22:55:20.255Z",
+  "endTime": "2026-02-13T22:57:56.174Z",
+  "baselineChrome": [
+    "Notre service",
+    "Pourquoi MEMOPYK",
+    "Galerie",
+    "Blog",
+    "FAQ",
+    "Devis",
+    "Contact",
+    "Analytics",
+    "Partenaires",
+    "Agences de Voyage",
+    "Annuaire Pro",
+    "SEO",
+    "Contenu Site",
+    "Vidéos Hero",
+    "Galerie Vidéos",
+    "Boutons CTA",
+    "Documents Légaux",
+    "Système",
+    "AI Context",
+    "Cache",
+    "Aide",
+    "Déconnexion",
+    "ALL",
+    "EN",
+    "FR",
+    "Today",
+    "Yesterday",
+    "Last 7 days",
+    "Last 30 days",
+    "Last 90 days",
+    "Custom range",
+    "Overview",
+    "Live View",
+    "Trends",
+    "Video",
+    "Geo",
+    "CTA",
+    "Clarity",
+    "Fallback",
+    "Exclusions",
+    "Annuaire numérisation",
+    "Mentions légales",
+    "Conditions générales d'utilisation",
+    "Conditions générales de vente",
+    "Politique de confidentialité",
+    "Politique des cookies",
+    "Paramètres des cookies",
+    "contact@memopyk.com",
+    "(+33) 07 45 84 38 21",
+    "admin",
+    "Tout accepter",
+    "Refuser",
+    "Paramètres",
+    "Politique de cookies"
+  ],
+  "sidebarItems": [
+    "Analytics",
+    "Blog",
+    "Partenaires",
+    "Agences de Voyage",
+    "Annuaire Pro",
+    "SEO",
+    "Contenu Site",
+    "Vidéos Hero",
+    "Galerie Vidéos",
+    "FAQ",
+    "Pourquoi MEMOPYK",
+    "Boutons CTA",
+    "Documents Légaux",
+    "Système",
+    "AI Context",
+    "Cache"
+  ],
+  "groups": [],
+  "screens": [
+    {
+      "id": "analytics",
+      "name": "Analytics",
+      "navPath": [
+        "Analytics"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new",
+      "contentHeading": "",
+      "helpTitle": "Analytics Dashboard",
+      "helpBodyLength": 1629,
+      "helpBodyExcerpt": "Analytics Dashboard\nTrack visitor behavior, video engagement, CTA clicks, and blog performance - all from one dashboard.\n\nTab Navigation\nUse the horizontal tabs to switch between analytics views:\n\n  O",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new|Analytics Dashboard|1629",
+      "screenshot": "discovery-analytics.png"
+    },
+    {
+      "id": "analytics-overview",
+      "name": "Analytics > Overview",
+      "navPath": [
+        "Analytics",
+        "Overview"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=overview",
+      "contentHeading": "",
+      "helpTitle": "Overview",
+      "helpBodyLength": 460,
+      "helpBodyExcerpt": "Overview\nKey performance indicators at a glance for the selected date range.\nKPI Cards\n\n  Visitors — Unique visitors (by IP)\n  Sessions — Total browsing sessions\n  Page Views — Total page loads across",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=overview|Overview|460",
+      "screenshot": "discovery-analytics-overview.png"
+    },
+    {
+      "id": "analytics-live-view",
+      "name": "Analytics > Live View",
+      "navPath": [
+        "Analytics",
+        "Live View"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=live",
+      "contentHeading": "",
+      "helpTitle": "Live Visitors",
+      "helpBodyLength": 365,
+      "helpBodyExcerpt": "Live Visitors\nReal-time activity on the site right now.\nWhat You See\n\n  Active Users - Visitors with activity in the last 5 minutes\n  Current Pages - Which pages are being viewed right now\n  Session T",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=live|Live Visitors|365",
+      "screenshot": "discovery-analytics-live-view.png"
+    },
+    {
+      "id": "analytics-trends",
+      "name": "Analytics > Trends",
+      "navPath": [
+        "Analytics",
+        "Trends"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=trends",
+      "contentHeading": "",
+      "helpTitle": "Traffic Trends",
+      "helpBodyLength": 460,
+      "helpBodyExcerpt": "Traffic Trends\nVisualize how your site traffic changes over time.\nCharts\n\n  Daily Sessions — Line chart of session counts per day\n  Daily Page Views — Line chart of total page views per day\n  New vs R",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=trends|Traffic Trends|460",
+      "screenshot": "discovery-analytics-trends.png"
+    },
+    {
+      "id": "analytics-video",
+      "name": "Analytics > Video",
+      "navPath": [
+        "Analytics",
+        "Video"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=video",
+      "contentHeading": "",
+      "helpTitle": "Video Analytics",
+      "helpBodyLength": 611,
+      "helpBodyExcerpt": "Video Analytics\nTrack how visitors engage with your videos: starts, watch duration, and completion rates.\nMetrics\n\n  Total Views — Number of video play events\n  Unique Viewers — Distinct IPs who watch",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=video|Video Analytics|611",
+      "screenshot": "discovery-analytics-video.png"
+    },
+    {
+      "id": "analytics-geo",
+      "name": "Analytics > Geo",
+      "navPath": [
+        "Analytics",
+        "Geo"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=geo",
+      "contentHeading": "",
+      "helpTitle": "Geography",
+      "helpBodyLength": 499,
+      "helpBodyExcerpt": "Geography\nWhere your visitors come from — countries, cities, and language breakdown.\nCountry Distribution\nBar chart showing the top countries by visitor count. Hover for exact numbers.\nLanguage Split\n",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=geo|Geography|499",
+      "screenshot": "discovery-analytics-geo.png"
+    },
+    {
+      "id": "analytics-cta",
+      "name": "Analytics > CTA",
+      "navPath": [
+        "Analytics",
+        "CTA"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=cta",
+      "contentHeading": "",
+      "helpTitle": "CTA Tracking",
+      "helpBodyLength": 528,
+      "helpBodyExcerpt": "CTA Tracking\nMonitor clicks on call-to-action buttons: \"Book a Call\", \"Quick Quote\", and other CTAs.\nDual Tracking\nCTA clicks are sent to both GA4 and the internal Supabase database for reliability. T",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=cta|CTA Tracking|528",
+      "screenshot": "discovery-analytics-cta.png"
+    },
+    {
+      "id": "analytics-blog",
+      "name": "Analytics > Blog",
+      "navPath": [
+        "Analytics",
+        "Blog"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=blog",
+      "contentHeading": "",
+      "helpTitle": "Blog Analytics",
+      "helpBodyLength": 920,
+      "helpBodyExcerpt": "Blog Analytics\nTrack blog post performance: views, reading patterns, popular topics, and keyword traffic.\n\nData Source\nToggle between MEMOPYK and GA4 at the top. Blog analytics default to MEMOPYK (int",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=blog|Blog Analytics|920",
+      "screenshot": "discovery-analytics-blog.png"
+    },
+    {
+      "id": "analytics-clarity",
+      "name": "Analytics > Clarity",
+      "navPath": [
+        "Analytics",
+        "Clarity"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=clarity",
+      "contentHeading": "",
+      "helpTitle": "Microsoft Clarity",
+      "helpBodyLength": 942,
+      "helpBodyExcerpt": "Microsoft Clarity\nHeatmaps and session recordings powered by Microsoft Clarity.\n\nStatus\nThis tab shows your Clarity integration status. If a project ID is configured, you'll see a link to the Clarity ",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=clarity|Microsoft Clarity|942",
+      "screenshot": "discovery-analytics-clarity.png"
+    },
+    {
+      "id": "analytics-fallback",
+      "name": "Analytics > Fallback",
+      "navPath": [
+        "Analytics",
+        "Fallback"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=fallback",
+      "contentHeading": "",
+      "helpTitle": "System Diagnostics",
+      "helpBodyLength": 676,
+      "helpBodyExcerpt": "System Diagnostics\nServer health, database status, and cache usage at a glance.\n\nStatus Cards\n\n  Server - Server health status and version number\n  Database - Connection status and response time\n  Upt",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=fallback|System Diagnostics|676",
+      "screenshot": "discovery-analytics-fallback.png"
+    },
+    {
+      "id": "analytics-exclusions",
+      "name": "Analytics > Exclusions",
+      "navPath": [
+        "Analytics",
+        "Exclusions"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=exclusions",
+      "contentHeading": "",
+      "helpTitle": "IP Exclusions",
+      "helpBodyLength": 955,
+      "helpBodyExcerpt": "IP Exclusions\nManage IP addresses excluded from all analytics data, and configure date-based data exclusions.\n\nIP Exclusions\n\n  Excluded IPs are filtered out from all MEMOPYK analytics queries\n  Both ",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new&an_tab=exclusions|IP Exclusions|955",
+      "screenshot": "discovery-analytics-exclusions.png"
+    },
+    {
+      "id": "blog",
+      "name": "Blog",
+      "navPath": [
+        "Blog"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=planner",
+      "contentHeading": "3PlannerSchedule when",
+      "helpTitle": "Planner",
+      "helpBodyLength": 1400,
+      "helpBodyExcerpt": "Blog Hub Header\nThe top of the page shows the Blog Hub with its 5-step workflow: Keywords → Planned Posts → Planner → Posts → Image Bank. Click any tab to switch. The Brand Brain link in the top-right",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=planner|Planner|1400",
+      "screenshot": "discovery-blog.png"
+    },
+    {
+      "id": "blog-keywords",
+      "name": "Blog > Keywords",
+      "navPath": [
+        "Blog",
+        "Keywords"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=keywords",
+      "contentHeading": "3PlannerSchedule when",
+      "helpTitle": "Keywords (107)",
+      "helpBodyLength": 2492,
+      "helpBodyExcerpt": "Keywords (107)\nSEO keywords from Google Keyword Planner, organized for content planning.\n\nQuick Filters\nOne-click presets for common keyword analysis tasks:\n\n  🎯 Quick Wins — Low competition + High i",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=keywords|Keywords (107)|2492",
+      "screenshot": "discovery-blog-keywords.png"
+    },
+    {
+      "id": "blog-planned-posts",
+      "name": "Blog > Planned Posts",
+      "navPath": [
+        "Blog",
+        "Planned Posts"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=topics",
+      "contentHeading": "3PlannerSchedule when",
+      "helpTitle": "Planned Posts",
+      "helpBodyLength": 3143,
+      "helpBodyExcerpt": "Planned Posts\nYour blog post backlog. Each entry here becomes one published blog post. Plan what to write, then use \"Create Post\" to generate it with AI.\n\nTwo views\n\n  List view (default) — A flat lis",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=topics|Planned Posts|3143",
+      "screenshot": "discovery-blog-planned-posts.png"
+    },
+    {
+      "id": "blog-posts",
+      "name": "Blog > Posts",
+      "navPath": [
+        "Blog",
+        "Posts"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=posts",
+      "contentHeading": "3PlannerSchedule when",
+      "helpTitle": "Posts",
+      "helpBodyLength": 1392,
+      "helpBodyExcerpt": "PostsThis is where you manage all your blog posts - create, edit, preview, translate, and delete.Top ButtonsNew Post (orange, top right) - Creates a blank French (fr-FR) draft and opens the Blog Edito",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=posts|Posts|1392",
+      "screenshot": "discovery-blog-posts.png"
+    },
+    {
+      "id": "blog-images",
+      "name": "Blog > Images",
+      "navPath": [
+        "Blog",
+        "Images"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=images",
+      "contentHeading": "3PlannerSchedule when",
+      "helpTitle": "Image Bank",
+      "helpBodyLength": 1584,
+      "helpBodyExcerpt": "Image Bank\nCentral library for all blog images and media assets.\nHeader Buttons\n\n  Manage Labels ?�� Open the label management dialog to create, rename, or delete color-coded labels for organizing ima",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=images|Image Bank|1584",
+      "screenshot": "discovery-blog-images.png"
+    },
+    {
+      "id": "agences-de-voyage",
+      "name": "Agences de Voyage",
+      "navPath": [
+        "Agences de Voyage"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=travel-agencies",
+      "contentHeading": "Travel Upload Submissions",
+      "helpTitle": "Travel Agency Management",
+      "helpBodyLength": 1727,
+      "helpBodyExcerpt": "Travel Agency Management\nManage the travel agency upload portal and agency access codes. Travel agencies receive a unique code, visit the upload page, enter their code, and submit vacation photos/vide",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=travel-agencies|Travel Agency Management|1727",
+      "screenshot": "discovery-agences-de-voyage.png"
+    },
+    {
+      "id": "annuaire-pro",
+      "name": "Annuaire Pro",
+      "navPath": [
+        "Annuaire Pro"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=partners",
+      "contentHeading": "",
+      "helpTitle": "Partners Directory",
+      "helpBodyLength": 1543,
+      "helpBodyExcerpt": "Partners Directory\nManage the professional digitization partners displayed in the partner directory on the website.\nHeader Buttons\n\n  Add Partner — Create a new partner entry manually (opens a 4-tab f",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=partners|Partners Directory|1543",
+      "screenshot": "discovery-annuaire-pro.png"
+    },
+    {
+      "id": "seo",
+      "name": "SEO",
+      "navPath": [
+        "SEO"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=seo",
+      "contentHeading": "Basic SEO",
+      "helpTitle": "SEO Management",
+      "helpBodyLength": 1031,
+      "helpBodyExcerpt": "SEO Management\nConfigure meta tags, Open Graph data, and page-level SEO settings for the website.\n\nLanguage Switcher\nUse the French / English toggle in the top-right to edit SEO settings for each lang",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=seo|SEO Management|1031",
+      "screenshot": "discovery-seo.png"
+    },
+    {
+      "id": "videos-hero",
+      "name": "Vidéos Hero",
+      "navPath": [
+        "Vidéos Hero"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=hero-management",
+      "contentHeading": "Gestion Hero",
+      "helpTitle": "Hero Video Management",
+      "helpBodyLength": 629,
+      "helpBodyExcerpt": "Hero Video Management\nControl the hero video section at the top of the homepage.\n\nVideo Management\n\n  Upload hero videos for the homepage banner (drag-and-drop or file picker)\n  Bilingual videos - set",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=hero-management|Hero Video Management|629",
+      "screenshot": "discovery-videos-hero.png"
+    },
+    {
+      "id": "galerie-videos",
+      "name": "Galerie Vidéos",
+      "navPath": [
+        "Galerie Vidéos"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=gallery",
+      "contentHeading": "Galerie",
+      "helpTitle": "Video Gallery Management",
+      "helpBodyLength": 427,
+      "helpBodyExcerpt": "Video Gallery Management\nManage the portfolio video gallery displayed on the website.\n\nWhat You Can Do\n\n  Add/edit/delete gallery video entries\n  Reorder videos by drag-and-drop\n  Set thumbnails and c",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=gallery|Video Gallery Management|427",
+      "screenshot": "discovery-galerie-videos.png"
+    },
+    {
+      "id": "faq",
+      "name": "FAQ",
+      "navPath": [
+        "FAQ"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=faq",
+      "contentHeading": "FAQ",
+      "helpTitle": "FAQ Management",
+      "helpBodyLength": 461,
+      "helpBodyExcerpt": "FAQ Management\nManage the Frequently Asked Questions displayed on the website.\n\nWhat You Can Do\n\n  Create FAQ sections — group related questions together\n  Add/edit/delete questions within each sectio",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=faq|FAQ Management|461",
+      "screenshot": "discovery-faq.png"
+    },
+    {
+      "id": "pourquoi-memopyk",
+      "name": "Pourquoi MEMOPYK",
+      "navPath": [
+        "Pourquoi MEMOPYK"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=why-memopyk",
+      "contentHeading": "Pourquoi MEMOPYK",
+      "helpTitle": "Why MEMOPYK Cards",
+      "helpBodyLength": 284,
+      "helpBodyExcerpt": "Why MEMOPYK Cards\nManage the \"Why MEMOPYK\" cards section on the homepage — the value propositions shown to visitors.\n\nWhat You Can Do\n\n  Edit card content — title, description, icon\n  Reorder cards — ",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=why-memopyk|Why MEMOPYK Cards|284",
+      "screenshot": "discovery-pourquoi-memopyk.png"
+    },
+    {
+      "id": "boutons-cta",
+      "name": "Boutons CTA",
+      "navPath": [
+        "Boutons CTA"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=cta",
+      "contentHeading": "CTA Button Management",
+      "helpTitle": "CTA Button Management",
+      "helpBodyLength": 405,
+      "helpBodyExcerpt": "CTA Button Management\nManage Call-to-Action buttons displayed across the website.\n\nWhat You Can Do\n\n  Edit button text — labels for Book a Call, Quick Quote, etc.\n  Configure destinations — where each",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=cta|CTA Button Management|405",
+      "screenshot": "discovery-boutons-cta.png"
+    },
+    {
+      "id": "documents-legaux",
+      "name": "Documents Légaux",
+      "navPath": [
+        "Documents Légaux"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=legal-docs",
+      "contentHeading": "Documents Légaux",
+      "helpTitle": "Legal Document Management",
+      "helpBodyLength": 531,
+      "helpBodyExcerpt": "Legal Document Management\nManage legal pages displayed on the website.\n\nWhat You Can Do\n\n  Edit document content in rich text format\n  Bilingual support - separate French and English versions\n  Toggle",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=legal-docs|Legal Document Management|531",
+      "screenshot": "discovery-documents-legaux.png"
+    },
+    {
+      "id": "ai-context",
+      "name": "AI Context",
+      "navPath": [
+        "AI Context"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=ai-context",
+      "contentHeading": "Brand Guidelines",
+      "helpTitle": "AI Context - Brand Brain",
+      "helpBodyLength": 1149,
+      "helpBodyExcerpt": "AI Context - Brand Brain\nDefine the brand personality, tone, and knowledge base that AI uses when generating and translating blog content.\n\nWhat You See\nSix context entries organized by category:\n\n  B",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=ai-context|AI Context - Brand Brain|1149",
+      "screenshot": "discovery-ai-context.png"
+    },
+    {
+      "id": "cache",
+      "name": "Cache",
+      "navPath": [
+        "Cache"
+      ],
+      "url": "https://memopyk.memopyk.com/en-US/admin?tab=cache",
+      "contentHeading": "Gestion du Cache",
+      "helpTitle": "Cache Management",
+      "helpBodyLength": 2257,
+      "helpBodyExcerpt": "Cache Management\nManage the local file cache for all media assets (hero videos, gallery videos, and images). Cached files are served directly from the server for faster page loads instead of fetching ",
+      "fingerprint": "https://memopyk.memopyk.com/en-US/admin?tab=cache|Cache Management|2257",
+      "screenshot": "discovery-cache.png"
+    }
+  ],
+  "duplicates": [
+    {
+      "id": "blog-planner",
+      "duplicateOf": "existing",
+      "reason": "identical fingerprint"
+    },
+    {
+      "id": "partenaires",
+      "duplicateOf": "previous",
+      "reason": "https://memopyk.memopyk.com/en-US/admin?tab=images|Image Bank|1584"
+    },
+    {
+      "id": "contenu-site",
+      "duplicateOf": "previous",
+      "reason": "https://memopyk.memopyk.com/en-US/admin?tab=seo|SEO Management|1031"
+    },
+    {
+      "id": "systeme",
+      "duplicateOf": "previous",
+      "reason": "https://memopyk.memopyk.com/en-US/admin?tab=legal-docs|Legal Document Management|531"
+    }
+  ],
+  "totalUnique": 27
+}
