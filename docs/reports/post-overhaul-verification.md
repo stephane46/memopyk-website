@@ -66,6 +66,14 @@ All infrastructure overhaul features verified on staging. Help system passes 20/
 - Alt text added to 4 images across both EN and FR posts
 - Internal links to /gallery and /faq added to both posts
 - Hero images display correctly
+- FR post URL fix: `/blog/slug` without language prefix now auto-redirects to `/fr-FR/blog/slug`
+- Language-mismatch fix: posts with wrong language prefix in URL retry without filter and redirect
+
+### 8b. Related Posts
+- **Status**: PASS (implemented, no data yet)
+- RelatedPosts component renders at bottom of blog posts
+- API endpoint `/blog/posts/:slug/related` returns related posts by tags, falls back to same-language posts
+- Currently returns empty (only 1 FR + 1 EN published post) — will populate as more posts are published
 
 ### 9. 13 Regenerated Articles
 - **Status**: PASS
