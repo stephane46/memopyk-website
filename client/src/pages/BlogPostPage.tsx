@@ -75,34 +75,35 @@ export default function BlogPostPage() {
   }, [slug]);
 
   const { data: post, isLoading } = useQuery<Post | null>({
-    queryKey: ['/api/blog/post', slug, hasLanguagePrefix ? urlLanguageCode : 'auto'],
+    queryKey: ['/api/blog/post', slug, urlLanguageCode],
     queryFn: async () => {
-      // When URL has language prefix, filter by it; otherwise fetch by slug only
-      const url = hasLanguagePrefix
-        ? `/api/blog/posts/${slug}?language=${urlLanguageCode}`
-        : `/api/blog/posts/${slug}`;
-      const response = await fetch(url);
-      if (response.status === 404) return null;
-      if (!response.ok) throw new Error('Failed to fetch post');
-      const data = await response.json();
-
-      // Client-side guard: verify language matches (only when URL has explicit prefix)
-      if (hasLanguagePrefix && data && data.language !== urlLanguageCode) {
-        console.warn(`⚠️ Language mismatch for post ${slug}: expected ${urlLanguageCode}, got ${data.language}`);
-        return null;
+      // Try with the URL's language first
+      const response = await fetch(`/api/blog/posts/${slug}?language=${urlLanguageCode}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data && !data.error) return data;
       }
 
-      return data;
+      // If not found, retry without language filter (post may be in another language)
+      if (response.status === 404) {
+        const fallbackResponse = await fetch(`/api/blog/posts/${slug}`);
+        if (fallbackResponse.ok) {
+          const data = await fallbackResponse.json();
+          if (data && !data.error) return data;
+        }
+      }
+
+      return null;
     }
   });
 
-  // Redirect to canonical language-prefixed URL when accessed without prefix
+  // Redirect to correct language-prefixed URL if post language doesn't match URL
   useEffect(() => {
-    if (post && !hasLanguagePrefix) {
+    if (post && post.language && post.language !== urlLanguageCode) {
       const langPrefix = post.language === 'fr-FR' ? '/fr-FR' : '/en-US';
       setLocation(`${langPrefix}/blog/${post.slug}`, { replace: true });
     }
-  }, [post, hasLanguagePrefix, setLocation]);
+  }, [post, urlLanguageCode, setLocation]);
 
   // Derive language from post data (when available) or URL prefix
   const languageCode = (post?.language as 'fr-FR' | 'en-US') || urlLanguageCode;
