@@ -63,7 +63,7 @@ READ THESE FIRST:
 | Layer | Tech | Key Files |
 |-------|------|-----------|
 | Frontend | React 18, TypeScript, Vite, Tailwind, shadcn/ui | `client/src/` |
-| Backend | Express.js, TypeScript | `server/routes/` (22 route modules) |
+| Backend | Express.js, TypeScript | `server/routes/` (23 route modules) |
 | Database | Supabase PostgreSQL, Drizzle ORM | `shared/schema.ts` (85 app tables, 35 in Drizzle schema) |
 | Deployment | Docker, Coolify | `Dockerfile`, `docker-compose.yml` |
 | Email | Resend | Contact form, notifications |
@@ -71,6 +71,7 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-13: Infrastructure overhaul — Brand Brain enriched (6 entries, 1900-2800 chars each), generate-content API endpoint (Anthropic + Brand Brain), dynamic sitemap (/sitemap.xml), blog editor AI Assist modal, language selector, sitemap/FAQ schema toggles, WhatsApp share button, 4 dead endpoints removed, seoRedirects removed from schema, CreatePostLanding + CacheManagementPage deleted, 13 FR articles regenerated with Brand Brain, 5 help screens updated
 - 2026-02-13: Server-side SEO fix — route-aware language detection, blog post OG tags + JSON-LD, og:url/og:locale, SSR dedup (30/30 checks pass)
 - 2026-02-12: Content pipeline — 13 FR articles drafted (6 P1 + 7 P2), 59 image suggestions, social OG audit
 - 2026-02-12: E2E evening run — 39/39 pass, social sharing report (3 OG issues documented)

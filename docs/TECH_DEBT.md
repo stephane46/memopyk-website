@@ -1,18 +1,18 @@
 # Technical Debt & Deferred Work
 
 **Purpose**: Track technical improvements, skipped tests, and deferred tasks
-**Last Updated**: 2026-02-12
+**Last Updated**: 2026-02-13
 
 ---
 
 ## Active Items
 
-### 36 Client TypeScript Errors
-**Date Added**: 2026-02-09
-**Severity**: Low (non-blocking)
-**Location**: Admin analytics components
-**Details**: Pre-existing TS errors that don't prevent compilation or runtime. Mostly type mismatches in legacy analytics dashboard code.
-**To Fix**: Fix during analytics dashboard rebuild.
+### Puppy Post Image Alt Text + Internal Links
+**Date Added**: 2026-02-13
+**Severity**: Low
+**Location**: blog_posts table (2 published puppy posts)
+**Details**: 4 images have empty alt text, no internal links to /gallery or /faq. SQL fixes documented in docs/reports/puppy-posts-analysis.md.
+**To Fix**: Run documented SQL UPDATE statements (DB write access needed).
 
 ### Mapbox GL JS Migration
 **Date Added**: 2026-01-30
@@ -41,6 +41,14 @@
 
 | Date | Item | Solution |
 |------|------|----------|
+| Feb 13 | Disconnected Brand Brain | Enriched 6 entries (1900-2800 chars), connected to AI generation endpoint |
+| Feb 13 | Hardcoded AI prompts | Removed 129-line MASTER_PROMPT_TEMPLATE, replaced with server-side Brand Brain endpoint |
+| Feb 13 | Static sitemap | Dynamic /sitemap.xml from published blog posts, 1-hour cache |
+| Feb 13 | Dead code (4 endpoints + 2 pages + seoRedirects) | Removed from analytics.routes.ts, AdminPage, schema.ts |
+| Feb 13 | Blog editor missing AI integration | AI Assist button with modal, language selector, sitemap/FAQ toggles |
+| Feb 13 | Missing WhatsApp share | Added WhatsApp button to BlogPostPage |
+| Feb 13 | 13 draft articles with placeholder content | Regenerated with Brand Brain-powered AI (4-6 min reads, 5.5-6.5K chars) |
+| Feb 13 | 36 client TS errors | Fixed (0 remaining, build passes clean) |
 | Feb 12 | SEO service was a stub | Real implementation: bilingual settings, head preview, audit log, history |
 | Feb 12 | Help content gaps (4 screens) | Image Bank, Partners, Travel Agencies expanded; Cache help fully rewritten (20/20 pass) |
 | Feb 12 | 34K duplicate SEO rows | Cleaned to 2 rows; added unique constraint on seo_settings.page |
