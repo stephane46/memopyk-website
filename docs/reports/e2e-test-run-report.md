@@ -1,22 +1,22 @@
 # E2E Test Run Report
 
-**Date:** 2026-02-12
+**Latest Run:** 2026-02-12 (evening)
 **Target:** https://memopyk.memopyk.com (staging)
 **Runner:** Playwright + Chromium, viewport 2560x1440
 **Branch:** staging
 
-## Summary
+## Summary (2026-02-12 Evening Run)
 
-| Spec File | Tests | Pass | Fail | Status |
-|-----------|-------|------|------|--------|
-| blog-crud.spec.ts | 2 | 2 | 0 | PASS |
-| faq-admin.spec.ts | 4 | 4 | 0 | PASS |
-| hero-admin.spec.ts | 7 | 7 | 0 | PASS |
-| partners-admin.spec.ts | 7 | 7 | 0 | PASS |
-| cache-admin.spec.ts | 7 | 7 | 0 | PASS |
-| gallery-admin.spec.ts | 6 | 6 | 0 | PASS |
-| seo-admin.spec.ts | 6 | 6 | 0 | PASS |
-| **TOTAL** | **39** | **39** | **0** | **ALL PASS** |
+| Spec File | Tests | Pass | Fail | Duration | Status |
+|-----------|-------|------|------|----------|--------|
+| blog-crud.spec.ts | 2 | 2 | 0 | 34.2s | ✅ PASS |
+| faq-admin.spec.ts | 4 | 4 | 0 | 10.0s | ✅ PASS |
+| hero-admin.spec.ts | 7 | 7 | 0 | 12.5s | ✅ PASS |
+| partners-admin.spec.ts | 7 | 7 | 0 | 12.4s | ✅ PASS |
+| cache-admin.spec.ts | 7 | 7 | 0 | 13.8s | ✅ PASS |
+| gallery-admin.spec.ts | 6 | 6 | 0 | 19.3s | ✅ PASS |
+| seo-admin.spec.ts | 6 | 6 | 0 | 9.3s | ✅ PASS |
+| **TOTAL** | **39** | **39** | **0** | **111.5s** | **✅ ALL PASS** |
 
 ## Test Fixes Made
 
@@ -41,6 +41,23 @@
 ## App Bugs Discovered
 
 None. All failures were test-level issues (stale selectors, missing intermediate navigation steps, non-existent sidebar items).
+
+## Run History
+
+### 2026-02-12 Evening Run
+- **Status:** All 39 tests passed ✅
+- **Total duration:** 111.5 seconds
+- **Test fixes:** None required
+- **App bugs:** None discovered
+- **Notes:** Clean run with no issues. All specs ran sequentially to completion.
+
+### 2026-02-12 Initial Run
+- **Status:** All 39 tests passed after fixes
+- **Test fixes:**
+  - blog-crud: Added "Write from scratch" selection step
+  - cache-admin: Graceful handling for missing sidebar items ("Tests", "Deploiement")
+- **App bugs:** None
+- **Recommendation:** Use `--workers=1` or `--workers=2` for staging to avoid rate-limiting
 
 ## Notes
 
