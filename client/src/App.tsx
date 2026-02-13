@@ -98,6 +98,7 @@ function AnalyticsRouter() {
           <Route path="/en-US/blog/search" component={SearchResultsPage} />
           <Route path="/fr-FR/blog/:slug" component={BlogPostPage} />
           <Route path="/en-US/blog/:slug" component={BlogPostPage} />
+          <Route path="/blog/:slug" component={BlogPostPage} />
           <Route path="/fr-FR/blog" component={BlogIndexPage} />
           <Route path="/en-US/blog" component={BlogIndexPage} />
 

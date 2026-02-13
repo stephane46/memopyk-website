@@ -188,10 +188,10 @@ router.get('/blog/posts/:slug/related', async (req: Request, res: Response) => {
 
     const supabase = getSupabase();
 
-    // Get the current post
+    // Get the current post with keywords for fallback matching
     const { data: currentPost, error: postError } = await supabase
       .from('blog_posts')
-      .select('id, language')
+      .select('id, language, primary_keyword, secondary_keywords')
       .eq('slug', slug)
       .eq('status', 'published')
       .single();
@@ -200,49 +200,71 @@ router.get('/blog/posts/:slug/related', async (req: Request, res: Response) => {
       return res.json({ success: true, data: [], total: 0 });
     }
 
-    // Get tags for this post
-    const { data: currentTags, error: tagsError } = await supabase
+    // Strategy 1: Match by shared tags
+    let relatedPosts: any[] = [];
+
+    const { data: currentTags } = await supabase
       .from('blog_post_tags')
       .select('tag_id')
       .eq('post_id', currentPost.id);
 
-    if (tagsError || !currentTags || currentTags.length === 0) {
-      return res.json({ success: true, data: [], total: 0 });
+    if (currentTags && currentTags.length > 0) {
+      const tagIds = currentTags.map((t: any) => t.tag_id);
+
+      const { data: relatedPostTags, error: relatedError } = await supabase
+        .from('blog_post_tags')
+        .select('post_id, blog_posts(*)')
+        .in('tag_id', tagIds)
+        .neq('post_id', currentPost.id);
+
+      if (relatedError) throw relatedError;
+
+      // Group by post and count shared tags
+      const postScores: { [key: string]: { post: any; score: number } } = {};
+
+      relatedPostTags?.forEach((item: any) => {
+        const post = item.blog_posts;
+        if (post && post.status === 'published' && post.language === currentPost.language) {
+          if (!postScores[post.id]) {
+            postScores[post.id] = { post, score: 0 };
+          }
+          postScores[post.id].score++;
+        }
+      });
+
+      relatedPosts = Object.values(postScores)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, limit)
+        .map(item => ({
+          ...item.post,
+          featured_image_url: item.post.hero_url,
+          publish_date: item.post.published_at
+        }));
     }
 
-    const tagIds = currentTags.map((t: any) => t.tag_id);
+    // Strategy 2: Fallback to same-language posts when tags return insufficient results
+    if (relatedPosts.length < limit) {
+      const excludeIds = [currentPost.id, ...relatedPosts.map((p: any) => p.id)];
 
-    // Find other posts with same tags
-    const { data: relatedPostTags, error: relatedError } = await supabase
-      .from('blog_post_tags')
-      .select('post_id, blog_posts(*)')
-      .in('tag_id', tagIds)
-      .neq('post_id', currentPost.id);
+      const { data: fallbackPosts } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('language', currentPost.language)
+        .eq('status', 'published')
+        .not('id', 'in', `(${excludeIds.join(',')})`)
+        .lte('published_at', new Date().toISOString())
+        .order('published_at', { ascending: false })
+        .limit(limit - relatedPosts.length);
 
-    if (relatedError) throw relatedError;
-
-    // Group by post and count shared tags
-    const postScores: { [key: string]: { post: any; score: number } } = {};
-
-    relatedPostTags?.forEach((item: any) => {
-      const post = item.blog_posts;
-      if (post && post.status === 'published' && post.language === currentPost.language) {
-        if (!postScores[post.id]) {
-          postScores[post.id] = { post, score: 0 };
-        }
-        postScores[post.id].score++;
+      if (fallbackPosts && fallbackPosts.length > 0) {
+        const transformed = fallbackPosts.map((post: any) => ({
+          ...post,
+          featured_image_url: post.hero_url,
+          publish_date: post.published_at
+        }));
+        relatedPosts = [...relatedPosts, ...transformed];
       }
-    });
-
-    // Sort by score and take top N
-    const relatedPosts = Object.values(postScores)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, limit)
-      .map(item => ({
-        ...item.post,
-        featured_image_url: item.post.hero_url,
-        publish_date: item.post.published_at
-      }));
+    }
 
     res.json({
       success: true,

@@ -61,11 +61,11 @@ interface Post {
 }
 
 export default function BlogPostPage() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const params = useParams<{ slug: string }>();
   const slug = params.slug;
-  const languageCode = location.includes('/fr-FR') ? 'fr-FR' : 'en-US';
-  const language = languageCode === 'fr-FR' ? 'fr' : 'en';
+  const hasLanguagePrefix = location.startsWith('/fr-FR/') || location.startsWith('/en-US/');
+  const urlLanguageCode = location.includes('/fr-FR') ? 'fr-FR' : 'en-US';
   const [readingProgress, setReadingProgress] = useState(0);
   const scrollTrackerRef = useRef<ScrollTracker | null>(null);
 
@@ -75,23 +75,38 @@ export default function BlogPostPage() {
   }, [slug]);
 
   const { data: post, isLoading } = useQuery<Post | null>({
-    queryKey: ['/api/blog/post', slug, languageCode],
+    queryKey: ['/api/blog/post', slug, hasLanguagePrefix ? urlLanguageCode : 'auto'],
     queryFn: async () => {
-      const response = await fetch(`/api/blog/posts/${slug}?language=${languageCode}`);
+      // When URL has language prefix, filter by it; otherwise fetch by slug only
+      const url = hasLanguagePrefix
+        ? `/api/blog/posts/${slug}?language=${urlLanguageCode}`
+        : `/api/blog/posts/${slug}`;
+      const response = await fetch(url);
       if (response.status === 404) return null;
       if (!response.ok) throw new Error('Failed to fetch post');
       const data = await response.json();
-      
-      // Client-side guard: verify language matches
-      if (data && data.language !== languageCode) {
-        console.warn(`⚠️ Language mismatch for post ${slug}: expected ${languageCode}, got ${data.language}`);
+
+      // Client-side guard: verify language matches (only when URL has explicit prefix)
+      if (hasLanguagePrefix && data && data.language !== urlLanguageCode) {
+        console.warn(`⚠️ Language mismatch for post ${slug}: expected ${urlLanguageCode}, got ${data.language}`);
         return null;
       }
-      
+
       return data;
     }
   });
 
+  // Redirect to canonical language-prefixed URL when accessed without prefix
+  useEffect(() => {
+    if (post && !hasLanguagePrefix) {
+      const langPrefix = post.language === 'fr-FR' ? '/fr-FR' : '/en-US';
+      setLocation(`${langPrefix}/blog/${post.slug}`, { replace: true });
+    }
+  }, [post, hasLanguagePrefix, setLocation]);
+
+  // Derive language from post data (when available) or URL prefix
+  const languageCode = (post?.language as 'fr-FR' | 'en-US') || urlLanguageCode;
+  const language = languageCode === 'fr-FR' ? 'fr' : 'en';
 
   // Track blog post view for analytics (exclude admin and development)
   useEffect(() => {
