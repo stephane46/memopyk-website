@@ -71,6 +71,8 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-12: Content pipeline — 13 FR articles drafted (6 P1 + 7 P2), 59 image suggestions, social OG audit
+- 2026-02-12: E2E evening run — 39/39 pass, social sharing report (3 OG issues documented)
 - 2026-02-12: Content pipeline overnight — 10 topics inserted, 6 FR P1 articles drafted as blog posts
 - 2026-02-12: API health check (56 endpoints, 96.4% pass) — 1 GA4 realtime credential bug found
 - 2026-02-12: E2E test suite expansion — 7 new spec files (blog-crud, seo, faq, gallery, partners, cache, hero), 1,603 lines
