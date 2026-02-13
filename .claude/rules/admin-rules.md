@@ -30,7 +30,7 @@ paths:
 
 ## Blog Admin
 - Blog Hub has 5 workflow tabs: Keywords → Topics → Planner → Posts → Image Bank
-- 12,501 keywords in database across 25 clusters
+- 107 keywords in database across 25 clusters (reduced from 12,501 during Feb 12 strategy review)
 - See docs/guides/BLOG_WORKFLOW.md for the full content pipeline
 
 ## Database

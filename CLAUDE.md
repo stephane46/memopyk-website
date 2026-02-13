@@ -19,7 +19,7 @@ MEMOPYK creates professional "Films Souvenirs" (souvenir/memory films) from clie
 | Partner Directory | ✅ Working (Mapbox GL JS upgrade planned) |
 | Auto-deploy | ✅ Push → GitHub webhook → Coolify |
 | Help System | ✅ Complete (31 screens, 2 flows, 20/20 naive user pass) |
-| Blog Hub | ✅ 5 workflow tabs, 12,501 keywords, 25 clusters |
+| Blog Hub | ✅ 5 workflow tabs, 107 keywords, 25 clusters |
 | Production | ✅ Live on Coolify (Replit fully replaced Feb 2) |
 
 ## Quick Commands
@@ -88,7 +88,7 @@ READ THESE FIRST:
 - 2026-02-11: Documentation audit — 107→33 files, 9.5MB→387KB (96% reduction). Updated README, MIGRATION_PROGRESS, TECH_DEBT, BLOG_WORKFLOW.
 - 2026-02-11: Blog analytics endpoints (5 new: popular, trends, topics, keywords, categories)
 - 2026-02-09: Architecture audit — security hardening, 48 dead files removed (~12K lines), 9 DB indexes, fetch pattern standardization, React.lazy code splitting
-- 2026-02-06: Keyword management system — 12,501 FR+EN keywords, 25 clusters, multi-select filters, quick presets
+- 2026-02-06: Keyword management system — 107 FR+EN keywords (reduced from 12,501 during strategy review), 25 clusters, multi-select filters, quick presets
 - 2026-02-05: Topics CRUD, Blog Hub workflow tabs (numbered circles ①-⑤)
 - 2026-02-04: AI translation, unified post creation, Brand Brain foundation
 - 2026-02-02: Production live on Coolify, help system complete
