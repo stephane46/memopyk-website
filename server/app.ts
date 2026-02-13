@@ -75,29 +75,38 @@ const seoCache: Record<string, { html: string; timestamp: number }> = {};
 const SEO_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 function detectLanguage(req: Request): "fr-FR" | "en-US" {
+  // Check URL path FIRST (social crawlers don't send Accept-Language)
+  if (req.path.startsWith("/en-US") || req.path.includes("/en-US/")) return "en-US";
+  if (req.path.startsWith("/fr-FR") || req.path.includes("/fr-FR/")) return "fr-FR";
+  // Fall back to Accept-Language header
   const acceptLang = req.headers["accept-language"] || "";
-  // Check for English preference; default to French (primary market)
   if (/^en/i.test(acceptLang)) return "en-US";
   return "fr-FR";
+}
+
+function extractBlogSlug(path: string): string | null {
+  const match = path.match(/\/blog\/([^/?#]+)/);
+  return match ? match[1] : null;
 }
 
 // Per-language OG image swap (DB stores FR image; EN variant uses same path with -en suffix)
 const OG_IMAGE_FR = "og-home-fr.jpg";
 const OG_IMAGE_EN = "og-home-en.jpg";
 
-async function getSeoHtml(lang: "fr-FR" | "en-US"): Promise<string> {
-  const cached = seoCache[lang];
+async function getSeoHtml(lang: "fr-FR" | "en-US", requestPath?: string): Promise<string> {
+  const cacheKey = `${lang}:${requestPath || "/"}`;
+  const cached = seoCache[cacheKey];
   if (cached && Date.now() - cached.timestamp < SEO_CACHE_TTL) {
     return cached.html;
   }
   try {
     const { seoService } = await import("./services/seo.service");
-    let html = await seoService.generateHeadPreview(lang);
+    let html = await seoService.generateHeadPreview(lang, requestPath);
     // Swap OG/Twitter image to the EN variant when serving English
     if (lang === "en-US" && html.includes(OG_IMAGE_FR)) {
       html = html.replaceAll(OG_IMAGE_FR, OG_IMAGE_EN);
     }
-    seoCache[lang] = { html, timestamp: Date.now() };
+    seoCache[cacheKey] = { html, timestamp: Date.now() };
     return html;
   } catch (err) {
     console.error("SEO injection: failed to generate tags", err);
@@ -147,7 +156,15 @@ export function setupStaticServing() {
 
     try {
       const lang = detectLanguage(req);
-      const seoTags = await getSeoHtml(lang);
+      const blogSlug = extractBlogSlug(req.path);
+
+      let seoTags: string;
+      if (blogSlug) {
+        const { seoService } = await import("./services/seo.service");
+        seoTags = await seoService.generateBlogPostHead(blogSlug, lang, req.path);
+      } else {
+        seoTags = await getSeoHtml(lang, req.path);
+      }
 
       if (!seoTags) {
         res.type("html").send(indexHtml);

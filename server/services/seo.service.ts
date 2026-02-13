@@ -15,6 +15,9 @@ import * as schema from "@shared/schema";
 
 type Lang = "fr-FR" | "en-US";
 
+// Blog post SEO cache (5-minute TTL)
+const blogSeoCache: Record<string, { html: string; timestamp: number }> = {};
+
 /** The column suffix for a given lang */
 function langSuffix(lang: Lang): "En" | "Fr" {
   return lang === "en-US" ? "En" : "Fr";
@@ -196,11 +199,15 @@ async function saveSeoSettings(
  * GET /admin/seo/preview?lang=fr-FR
  * Generates a real HTML head snippet from current settings.
  */
-async function generateHeadPreview(lang: Lang) {
+async function generateHeadPreview(lang: Lang, requestPath?: string) {
   const settings = await getSeoSettings(lang);
   if (!settings) return "<head><!-- No SEO settings configured --></head>";
 
+  const baseUrl = "https://www.memopyk.com";
   const lines: string[] = [];
+
+  // SSR marker
+  lines.push(`<meta name="ssr-seo" content="true" />`);
 
   // Title
   if (settings.title) lines.push(`<title>${esc(settings.title)}</title>`);
@@ -246,10 +253,10 @@ async function generateHeadPreview(lang: Lang) {
     lines.push(
       `<meta property="og:type" content="${esc(settings.openGraph.type)}" />`,
     );
-  if (settings.openGraph.url)
-    lines.push(
-      `<meta property="og:url" content="${esc(settings.openGraph.url)}" />`,
-    );
+  // og:url from actual request path, not from DB settings
+  lines.push(`<meta property="og:url" content="${baseUrl}${requestPath || `/${lang}`}" />`);
+  lines.push(`<meta property="og:locale" content="${lang === 'fr-FR' ? 'fr_FR' : 'en_US'}" />`);
+  lines.push(`<meta property="og:site_name" content="MEMOPYK" />`);
 
   // Twitter
   if (settings.twitter.card)
@@ -342,6 +349,85 @@ async function createBackup(data: unknown, adminUser?: string) {
   return { ok: true };
 }
 
+/**
+ * Generate SEO head tags for a specific blog post (used by server-side injection).
+ * Queries the blog_posts table by slug, produces article OG + BlogPosting JSON-LD.
+ */
+async function generateBlogPostHead(slug: string, lang: Lang, requestPath: string): Promise<string> {
+  const cacheKey = `blog:${slug}`;
+  const cached = blogSeoCache[cacheKey];
+  if (cached && Date.now() - cached.timestamp < 300000) return cached.html;
+
+  try {
+    const rows = await db
+      .select()
+      .from(schema.blogPosts)
+      .where(eq(schema.blogPosts.slug, slug))
+      .limit(1);
+
+    const post = rows[0];
+    if (!post || post.status !== "published") {
+      return generateHeadPreview(lang, requestPath);
+    }
+
+    const baseUrl = "https://www.memopyk.com";
+    const seo = (post.seo as any) || {};
+    const title = seo.title || post.title;
+    const description = seo.description || post.description || "";
+    const image = seo.ogImage || post.heroUrl || `${baseUrl}/og-home-fr.jpg`;
+    const canonicalUrl = `${baseUrl}/blog/${post.slug}`;
+
+    const lines: string[] = [];
+    lines.push(`<meta name="ssr-seo" content="true" />`);
+    lines.push(`<title>${esc(title)} | MEMOPYK</title>`);
+    lines.push(`<meta name="description" content="${esc(description)}" />`);
+
+    // OG tags
+    lines.push(`<meta property="og:type" content="article" />`);
+    lines.push(`<meta property="og:title" content="${esc(title)}" />`);
+    lines.push(`<meta property="og:description" content="${esc(description)}" />`);
+    lines.push(`<meta property="og:image" content="${esc(image)}" />`);
+    lines.push(`<meta property="og:url" content="${canonicalUrl}" />`);
+    lines.push(`<meta property="og:locale" content="${lang === 'fr-FR' ? 'fr_FR' : 'en_US'}" />`);
+    lines.push(`<meta property="og:site_name" content="MEMOPYK" />`);
+    if (post.publishedAt) {
+      lines.push(`<meta property="og:article:published_time" content="${new Date(post.publishedAt).toISOString()}" />`);
+    }
+
+    // Twitter tags
+    lines.push(`<meta name="twitter:card" content="summary_large_image" />`);
+    lines.push(`<meta name="twitter:title" content="${esc(title)}" />`);
+    lines.push(`<meta name="twitter:description" content="${esc(description)}" />`);
+    lines.push(`<meta name="twitter:image" content="${esc(image)}" />`);
+
+    // BlogPosting JSON-LD
+    const jsonLd: Record<string, unknown> = {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": title,
+      "description": description,
+      "image": image,
+      "author": { "@type": "Organization", "name": "MEMOPYK" },
+      "publisher": {
+        "@type": "Organization",
+        "name": "MEMOPYK",
+        "logo": { "@type": "ImageObject", "url": `${baseUrl}/memopyk-og-fr.png` }
+      },
+      "mainEntityOfPage": { "@type": "WebPage", "@id": canonicalUrl }
+    };
+    if (post.publishedAt) jsonLd.datePublished = new Date(post.publishedAt).toISOString();
+    if (post.updatedAt) jsonLd.dateModified = new Date(post.updatedAt).toISOString();
+    lines.push(`<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`);
+
+    const html = lines.join("\n");
+    blogSeoCache[cacheKey] = { html, timestamp: Date.now() };
+    return html;
+  } catch (err) {
+    console.error("Blog SEO generation failed for slug:", slug, err);
+    return generateHeadPreview(lang, requestPath);
+  }
+}
+
 /** HTML-escape for attribute values */
 function esc(str: string): string {
   return str
@@ -355,6 +441,7 @@ export const seoService = {
   getSeoSettings,
   saveSeoSettings,
   generateHeadPreview,
+  generateBlogPostHead,
   getSeoHistory,
   createBackup,
 };
