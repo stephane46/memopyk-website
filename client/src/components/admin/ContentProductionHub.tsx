@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Rocket, Calendar, FileText, Search, BookOpen, Image } from 'lucide-react';
+import { Rocket, Calendar, FileText, Search, BookOpen, Image, Brain } from 'lucide-react';
 import { ContentProductionPlanner } from './ContentProductionPlanner';
 import { ContentProductionTopics } from './ContentProductionTopics';
 import { ContentProductionKeywords } from './ContentProductionKeywords';
@@ -111,14 +111,30 @@ export default function ContentProductionHub() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <Rocket className="h-8 w-8 text-[#D67C4A]" />
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Blog Hub</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Research keywords, plan content, schedule, and publish blog posts
-          </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Rocket className="h-8 w-8 text-[#D67C4A]" />
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Blog Hub</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Research keywords, plan content, schedule, and publish blog posts
+            </p>
+          </div>
         </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            const params = new URLSearchParams(window.location.search);
+            params.set('tab', 'ai-context');
+            window.location.href = `${window.location.pathname}?${params.toString()}`;
+          }}
+          className="text-gray-500 hover:text-[#D67C4A]"
+          data-testid="button-brand-brain"
+        >
+          <Brain className="h-4 w-4 mr-1.5" />
+          Brand Brain
+        </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">

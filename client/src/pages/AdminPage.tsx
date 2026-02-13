@@ -10,7 +10,7 @@ const GalleryManagementNew = React.lazy(() => import('@/components/admin/Gallery
 const FAQManagementWorking = React.lazy(() => import('@/components/admin/FAQManagementWorking'));
 const SeoManagement = React.lazy(() => import('@/components/admin/SeoManagement'));
 const PartnersManagementEnhanced = React.lazy(() => import('@/components/admin/PartnersManagementEnhanced'));
-const CacheManagementPage = React.lazy(() => import('@/pages/CacheManagementPage'));
+
 const ContentProductionHub = React.lazy(() => import('@/components/admin/ContentProductionHub'));
 const TravelUploadsAdmin = React.lazy(() => import('@/components/admin/TravelUploadsAdmin'));
 const TravelAgencyCodesAdmin = React.lazy(() => import('@/components/admin/TravelAgencyCodesAdmin'));
@@ -23,7 +23,7 @@ const LegalDocumentManagement = React.lazy(() => import('@/components/admin/Lega
 const CtaManagement = React.lazy(() => import('@/components/admin/CtaManagement').then(m => ({ default: m.CtaManagement })));
 const WhyMemopykManagement = React.lazy(() => import('@/components/admin/WhyMemopykManagement').then(m => ({ default: m.WhyMemopykManagement })));
 const AIContextManager = React.lazy(() => import('@/admin/AIContextManager').then(m => ({ default: m.AIContextManager })));
-const CreatePostLanding = React.lazy(() => import('@/admin/CreatePostLanding').then(m => ({ default: m.CreatePostLanding })));
+
 
 function AdminSectionLoader() {
   return (
@@ -417,11 +417,6 @@ function AdminPageContent() {
               <ContentProductionHub />
             )}
 
-            {/* Create New Post Landing - Choice screen for manual vs AI creation */}
-            {activeSection === 'new-post' && (
-              <CreatePostLanding />
-            )}
-
             {/* FAQ */}
             {activeSection === 'faq' && (
               <div className="space-y-6">
@@ -452,13 +447,6 @@ function AdminPageContent() {
             {activeSection === 'legal-docs' && (
               <div className="space-y-6">
                 <LegalDocumentManagement />
-              </div>
-            )}
-
-            {/* GA4 Cache Management */}
-            {activeSection === 'cache-management' && (
-              <div className="space-y-6">
-                <CacheManagementPage />
               </div>
             )}
 

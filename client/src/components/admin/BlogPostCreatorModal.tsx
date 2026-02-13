@@ -1,18 +1,15 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Sparkles, Copy, CheckCircle, CheckCircle2, AlertCircle, Loader2, Send, FileJson } from 'lucide-react';
+import { Sparkles, Loader2, Send } from 'lucide-react';
 import { HtmlEditor } from '@/admin/HtmlEditor';
 import { BlogHeroImageUpload } from '@/admin/BlogHeroImageUpload';
-import { BlogTagSelector } from '@/admin/BlogTagSelector';
-import { StatusSelector } from '@/admin/StatusSelector';
-import { PublishedAtPicker } from '@/admin/PublishedAtPicker';
 import DOMPurify from 'dompurify';
 import { queryClient, adminFetch } from '@/lib/queryClient';
 
@@ -47,131 +44,55 @@ interface BlogPostCreatorModalProps {
   onClose: () => void;
 }
 
-const MASTER_PROMPT_TEMPLATE = `You are an expert content writer for MEMOPYK, a service that transforms personal photos and videos into emotional stories and premium memory films.
-
-Your task is to generate a COMPLETE VALID JSON OBJECT with approximately {{TARGET_WORDS}} words of HTML content (acceptable range: {{TARGET_WORDS_MIN}} to {{TARGET_WORDS_MAX}} words). The JSON must be valid, must contain properly escaped quotes, and must NOT contain any comments, explanations, or text before or after the JSON object.
-
-IMPORTANT OUTPUT RULES:
-1. Output ONLY the JSON object. No introduction, no commentary, no text outside JSON.
-2. Do NOT wrap the JSON in backticks or code fences.
-3. The JSON MUST be valid and must parse successfully.
-4. The "content" value MUST contain fully escaped double quotes (\") and MUST end with a closing quote before the next field begins.
-5. The "content" field must contain the FULL ~{{TARGET_WORDS}} word HTML article in ONE STRING.
-6. DO NOT use the em dash (—). Use only the hyphen (-).
-7. Use ONLY the allowed HTML tags: <h2>, <h3>, <h4>, <p>, <ul>, <li>, <ol>, <strong>, <em>, <blockquote>, <table>, <thead>, <tbody>, <tr>, <th>, <td>
-8. Include 2 to 4 IMAGE SUGGESTIONS using this exact format inside <p> tags:
-   <p>📸 IMAGE SUGGESTION: [description] | [Portrait/Landscape] [dimensions] | [purpose]</p>
-
-ARTICLE STYLE REQUIREMENTS:
-- Topic: {{TOPIC}}
-- Language: {{LOCALE}}
-- SEO keywords: {{SEO_KEYWORDS}} (use naturally){{ADDITIONAL_CONTEXT}}
-- Style: professional, warm, family-centric, actionable, inspirational
-- Structure: 
-  * 2-3 paragraph hook
-  * 4-6 H2 sections
-  * H3 subsections where appropriate
-  * Practical steps and numbered lists
-  * Strong conclusion with call-to-action
-
-RETURN EXACTLY THIS JSON STRUCTURE:
-
-{
-  "title": "Your SEO-Optimized Blog Title Here",
-  "slug": "your-url-friendly-slug-here",
-  "language": "{{LOCALE}}",
-  "status": "draft",
-  "published_at": null,
-  "description": "A compelling 150-character summary that encourages readers to explore this guide.",
-  "hero_caption": "A short inspiring caption for the hero image",
-  "content": "<h2>...</h2><p>...FULL {{TARGET_WORDS}} WORD HTML ARTICLE...</p>",
-  "read_time_minutes": {{READ_TIME}},
-  "image": null,
-  "seo": {
-    "title": "SEO Title Under 60 Characters",
-    "description": "SEO meta description under 160 characters with primary keywords.",
-    "og_image": null
-  },
-  "tags": ["relevant-tag-1", "relevant-tag-2", "relevant-tag-3"],
-  "author": null,
-  "is_featured": false,
-  "featured_order": null,
-  "assets_manifest": [
-    { "ref": "hero", "alt": "Descriptive alt text for hero image", "notes": "Use as hero image" }
-  ]
-}
-
-FINAL CRITICAL RULE:
-You MUST generate the JSON in a way that fits fully within the token limit and does not truncate. Ensure the "content" string is fully closed and the JSON parses without errors.
-
-Now generate the output.`;
-
 export function BlogPostCreatorModal({ topic, isOpen, onClose }: BlogPostCreatorModalProps) {
   const { toast } = useToast();
   const [language, setLanguage] = useState<'en-US' | 'fr-FR'>('en-US');
   const [status, setStatus] = useState<'draft' | 'in_review' | 'published'>('draft');
-  const [publishedAt, setPublishedAt] = useState<Date | null>(null);
-  const [generatedPrompt, setGeneratedPrompt] = useState('');
-  const [aiJsonInput, setAiJsonInput] = useState('');
-  const [validationError, setValidationError] = useState<string | null>(null);
+  const [notes, setNotes] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  
-  // Editable parsed fields
-  const [parsedData, setParsedData] = useState<any>(null);
-  const [editableTitle, setEditableTitle] = useState('');
-  const [editableSlug, setEditableSlug] = useState('');
-  const [editableDescription, setEditableDescription] = useState('');
-  const [editableContent, setEditableContent] = useState('');
+  const [generatedPost, setGeneratedPost] = useState<any>(null);
 
-  const generatePrompt = () => {
-    const allKeywords = [topic.primary_keyword, ...(topic.secondary_keywords || [])].join(', ');
-    const estimatedReadTime = Math.ceil(topic.target_word_count / 200);
-    const minWords = Math.floor(topic.target_word_count * 0.9); // 90% of target
-    const maxWords = Math.ceil(topic.target_word_count * 1.1); // 110% of target
-
-    // Build additional context from optional fields (only include non-empty values)
-    let additionalContext = '';
-    if (topic.content_angle) {
-      additionalContext += `\n- Content angle: ${topic.content_angle}`;
-    }
-    if (topic.description) {
-      additionalContext += `\n- Article scope: ${topic.description}`;
-    }
-    if (topic.search_intent) {
-      additionalContext += `\n- Search intent: ${topic.search_intent}`;
-    }
-
-    const prompt = MASTER_PROMPT_TEMPLATE
-      .replace(/\{\{TOPIC\}\}/g, topic.title)
-      .replace(/\{\{LOCALE\}\}/g, language)
-      .replace(/\{\{STATUS\}\}/g, status)
-      .replace(/\{\{TARGET_WORDS\}\}/g, topic.target_word_count.toString())
-      .replace(/\{\{TARGET_WORDS_MIN\}\}/g, minWords.toString())
-      .replace(/\{\{TARGET_WORDS_MAX\}\}/g, maxWords.toString())
-      .replace(/\{\{SEO_KEYWORDS\}\}/g, allKeywords)
-      .replace(/\{\{ADDITIONAL_CONTEXT\}\}/g, additionalContext)
-      .replace(/\{\{READ_TIME\}\}/g, estimatedReadTime.toString());
-
-    setGeneratedPrompt(prompt);
-    toast({
-      title: "Prompt generated!",
-      description: "Copy this prompt and paste it into your AI assistant"
-    });
-  };
-
-  const copyToClipboard = async () => {
+  const handleGenerate = async () => {
+    setIsGenerating(true);
     try {
-      await navigator.clipboard.writeText(generatedPrompt);
-      toast({
-        title: "Copied!",
-        description: "Prompt copied to clipboard"
+      const response = await adminFetch('/api/admin/blog/generate-content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          topic: topic.title,
+          language,
+          primaryKeyword: topic.primary_keyword,
+          secondaryKeywords: topic.secondary_keywords,
+          notes: [
+            topic.content_angle ? `Content angle: ${topic.content_angle}` : '',
+            topic.description ? `Scope: ${topic.description}` : '',
+            topic.search_intent ? `Search intent: ${topic.search_intent}` : '',
+            notes.trim()
+          ].filter(Boolean).join('\n') || undefined,
+          targetWordCount: topic.target_word_count
+        })
       });
-    } catch (error) {
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || error.message || 'Generation failed');
+      }
+
+      const result = await response.json();
+      setGeneratedPost(result.data || result);
       toast({
-        title: "Copy failed",
-        description: "Please copy manually",
+        title: "Content generated",
+        description: "Review and edit below, then create the post"
+      });
+    } catch (error: any) {
+      toast({
+        title: "Generation failed",
+        description: error.message || 'Failed to generate content',
         variant: "destructive"
       });
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -182,89 +103,24 @@ export function BlogPostCreatorModal({ topic, isOpen, onClose }: BlogPostCreator
     });
   };
 
-  const parseAndValidateJSON = () => {
-    if (!aiJsonInput.trim()) {
-      toast({
-        title: "JSON Required",
-        description: "Please paste the AI-generated JSON first",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(aiJsonInput.trim());
-      
-      // Validate required fields
-      if (!parsed.title || !parsed.slug || !parsed.content) {
-        throw new Error('Missing required fields: title, slug, or content');
-      }
-      
-      // Store parsed data and populate editable fields
-      setParsedData(parsed);
-      setEditableTitle(parsed.title);
-      setEditableSlug(parsed.slug);
-      setEditableDescription(parsed.description || '');
-      setEditableContent(parsed.content);
-      setValidationError(null);
-      
-      toast({
-        title: "JSON Parsed!",
-        description: "Review and edit fields below before creating the post"
-      });
-    } catch (error: any) {
-      const errorMsg = error instanceof SyntaxError 
-        ? 'Invalid JSON format. Check for missing quotes, commas, or brackets.' 
-        : error.message;
-      
-      setValidationError(errorMsg);
-      toast({
-        title: "Parse failed",
-        description: errorMsg,
-        variant: "destructive"
-      });
-    }
-  };
-
   const createBlogPost = async () => {
-    if (!parsedData) {
-      toast({
-        title: "Parse JSON First",
-        description: "Please paste and parse the JSON before creating the post",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!editableTitle || !editableSlug || !editableContent) {
-      toast({
-        title: "Missing Required Fields",
-        description: "Title, slug, and content are required",
-        variant: "destructive"
-      });
-      return;
-    }
+    if (!generatedPost) return;
 
     setIsCreating(true);
-    setValidationError(null);
-
     try {
-      // Sanitize content
-      const sanitizedContent = sanitizeContent(editableContent);
-      
-      // Prepare post data with source_topic_id and keywords (using edited fields)
+      const sanitizedContent = sanitizeContent(generatedPost.content);
       const postData = {
-        title: editableTitle,
-        slug: editableSlug,
-        description: editableDescription,
+        title: generatedPost.title,
+        slug: generatedPost.slug,
+        description: generatedPost.description || '',
         content: sanitizedContent,
-        hero_url: parsedData.image || null,
+        hero_url: generatedPost.image || null,
         language,
         status,
-        published_at: publishedAt ? publishedAt.toISOString() : null,
-        is_featured: parsedData.is_featured || false,
-        meta_title: parsedData.seo?.title || editableTitle,
-        meta_description: parsedData.seo?.description || editableDescription || '',
+        published_at: null,
+        is_featured: false,
+        meta_title: generatedPost.seo?.title || generatedPost.title,
+        meta_description: generatedPost.seo?.description || generatedPost.description || '',
         source_topic_id: topic.id,
         primary_keyword: topic.primary_keyword,
         secondary_keywords: topic.secondary_keywords || []
@@ -276,25 +132,17 @@ export function BlogPostCreatorModal({ topic, isOpen, onClose }: BlogPostCreator
         body: JSON.stringify(postData)
       });
 
-      // Parse response JSON safely
-      let responseData;
-      try {
-        responseData = await response.json();
-      } catch (parseError) {
-        throw new Error('Server returned invalid response. Please try again.');
+      if (!response.ok) {
+        const responseData = await response.json();
+        throw new Error(responseData.error || responseData.message || 'Failed to create blog post');
       }
 
-      // Check for errors
-      if (!response.ok) {
-        const errorMsg = responseData.error || responseData.message || 'Failed to create blog post';
-        throw new Error(errorMsg);
-      }
-      
-      // Invalidate cache to refresh UI
+      const responseData = await response.json();
+
       await queryClient.invalidateQueries({ queryKey: ['/api/admin/content/topics'] });
       await queryClient.invalidateQueries({ queryKey: ['/api/admin/blog/posts'] });
       await queryClient.invalidateQueries({ queryKey: ['/api/blog-tags'] });
-      
+
       toast({
         title: "Success!",
         description: `Blog post "${responseData.data.title}" created from topic!`
@@ -302,15 +150,9 @@ export function BlogPostCreatorModal({ topic, isOpen, onClose }: BlogPostCreator
 
       onClose();
     } catch (error: any) {
-      console.error('Error creating blog post:', error);
-      const errorMsg = error instanceof SyntaxError 
-        ? 'Invalid JSON format. Check the JSON syntax and try again.' 
-        : error.message || 'Failed to create blog post';
-      
-      setValidationError(errorMsg);
       toast({
         title: "Creation failed",
-        description: errorMsg,
+        description: error.message || 'Failed to create blog post',
         variant: "destructive"
       });
     } finally {
@@ -327,7 +169,7 @@ export function BlogPostCreatorModal({ topic, isOpen, onClose }: BlogPostCreator
             Create Post from Topic
           </DialogTitle>
           <DialogDescription className="text-gray-600 dark:text-gray-400">
-            Generate an AI prompt pre-filled with topic data, then paste the AI's JSON response to create the post
+            Generate content with AI using topic data, then review and create the post
           </DialogDescription>
         </DialogHeader>
 
@@ -399,138 +241,83 @@ export function BlogPostCreatorModal({ topic, isOpen, onClose }: BlogPostCreator
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <Label className="text-gray-900 dark:text-white">Additional Notes (optional)</Label>
+                <Textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Any extra instructions for the AI..."
+                  rows={2}
+                  data-testid="textarea-notes"
+                />
+              </div>
+
               <Button
-                onClick={generatePrompt}
+                onClick={handleGenerate}
+                disabled={isGenerating}
                 className="w-full bg-[#D67C4A] hover:bg-[#C56B3A] text-white"
-                data-testid="button-generate-prompt"
+                data-testid="button-generate"
               >
-                <Sparkles className="h-4 w-4 mr-2" />
-                Generate AI Prompt
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Generating content...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Generate with AI
+                  </>
+                )}
               </Button>
             </CardContent>
           </Card>
 
-          {/* Generated Prompt */}
-          {generatedPrompt && (
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-gray-900 dark:text-white">Generated Prompt</CardTitle>
-                  <Button
-                    onClick={copyToClipboard}
-                    variant="outline"
-                    size="sm"
-                    data-testid="button-copy-prompt"
-                  >
-                    <Copy className="h-4 w-4 mr-2" />
-                    Copy
-                  </Button>
-                </div>
-                <CardDescription className="text-gray-600 dark:text-gray-400">
-                  Copy this prompt and paste it into ChatGPT, Claude, or your preferred AI assistant
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  value={generatedPrompt}
-                  readOnly
-                  className="font-mono text-sm h-64 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white"
-                  data-testid="textarea-prompt"
-                />
-              </CardContent>
-            </Card>
-          )}
-
-          {/* AI JSON Response Input */}
-          {generatedPrompt && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-gray-900 dark:text-white">AI Response (JSON)</CardTitle>
-                <CardDescription className="text-gray-600 dark:text-gray-400">
-                  Paste the JSON response from your AI assistant below, then click "Parse JSON"
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Textarea
-                  value={aiJsonInput}
-                  onChange={(e) => setAiJsonInput(e.target.value)}
-                  placeholder='Paste AI-generated JSON here...'
-                  className="font-mono text-sm h-64 text-gray-900 dark:text-white"
-                  data-testid="textarea-json-input"
-                />
-                {validationError && (
-                  <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-                    <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5" />
-                    <div className="text-sm text-red-600 dark:text-red-400">{validationError}</div>
-                  </div>
-                )}
-                <Button
-                  onClick={parseAndValidateJSON}
-                  disabled={!aiJsonInput.trim()}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                  data-testid="button-parse-json"
-                >
-                  <FileJson className="h-4 w-4 mr-2" />
-                  Parse JSON
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Editable Fields (shown after parsing) */}
-          {parsedData && (
+          {/* Generated Content Review */}
+          {generatedPost && (
             <Card className="border-green-500 border-2">
               <CardHeader>
-                <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-green-600" />
-                  Parsed Data - Review & Edit Before Creating
-                </CardTitle>
-                <CardDescription className="text-gray-600 dark:text-gray-400">
-                  You can edit any field below before creating the post
-                </CardDescription>
+                <CardTitle className="text-gray-900 dark:text-white">Review & Create</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label className="text-gray-900 dark:text-white">Title *</Label>
+                  <Label className="text-gray-900 dark:text-white">Title</Label>
                   <Input
-                    value={editableTitle}
-                    onChange={(e) => setEditableTitle(e.target.value)}
-                    className="text-gray-900 dark:text-white"
+                    value={generatedPost.title}
+                    onChange={(e) => setGeneratedPost({ ...generatedPost, title: e.target.value })}
                     data-testid="input-title"
                   />
                 </div>
                 <div>
-                  <Label className="text-gray-900 dark:text-white">Slug *</Label>
+                  <Label className="text-gray-900 dark:text-white">Slug</Label>
                   <Input
-                    value={editableSlug}
-                    onChange={(e) => setEditableSlug(e.target.value)}
-                    className="text-gray-900 dark:text-white font-mono"
+                    value={generatedPost.slug}
+                    onChange={(e) => setGeneratedPost({ ...generatedPost, slug: e.target.value })}
+                    className="font-mono"
                     data-testid="input-slug"
                   />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    URL-friendly identifier (e.g., "my-blog-post")
-                  </p>
                 </div>
                 <div>
                   <Label className="text-gray-900 dark:text-white">Description</Label>
                   <Textarea
-                    value={editableDescription}
-                    onChange={(e) => setEditableDescription(e.target.value)}
-                    className="text-gray-900 dark:text-white h-20"
+                    value={generatedPost.description || ''}
+                    onChange={(e) => setGeneratedPost({ ...generatedPost, description: e.target.value })}
+                    className="h-20"
                     data-testid="textarea-description"
                   />
                 </div>
+
+                <BlogHeroImageUpload
+                  currentImageUrl={generatedPost.hero_url || generatedPost.image}
+                  onImageSelect={(url) => setGeneratedPost({ ...generatedPost, hero_url: url, image: url })}
+                />
+
                 <div>
-                  <Label className="text-gray-900 dark:text-white">Content Preview (HTML)</Label>
-                  <Textarea
-                    value={editableContent.substring(0, 500) + '...'}
-                    readOnly
-                    className="text-gray-900 dark:text-white font-mono text-xs h-32 bg-gray-50 dark:bg-gray-800"
-                    data-testid="textarea-content-preview"
+                  <Label className="text-gray-900 dark:text-white">Content</Label>
+                  <HtmlEditor
+                    value={generatedPost.content}
+                    onChange={(content) => setGeneratedPost({ ...generatedPost, content })}
                   />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Full content: {editableContent.length} characters
-                  </p>
                 </div>
 
                 <Button

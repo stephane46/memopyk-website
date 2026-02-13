@@ -19,17 +19,50 @@ import { useQuery } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
 import './analyticsNew.tokens.css';
 
-// Clarity placeholder (SDK not yet installed — needs project ID from clarity.microsoft.com)
-const AnalyticsNewClarity: React.FC = () => (
-  <div className="analytics-new-container space-y-6">
-    <h2 className="text-xl font-bold text-gray-900">Microsoft Clarity</h2>
-    <AnalyticsNewLoadingStates
-      mode="empty"
-      title="Clarity integration coming soon"
-      description="Microsoft Clarity insights and heatmaps will be accessible here. Create a project at clarity.microsoft.com and add the project ID to enable."
-    />
-  </div>
-);
+// Clarity tab — links to external dashboard
+const AnalyticsNewClarity: React.FC = () => {
+  const clarityProjectId = (import.meta as any).env?.VITE_CLARITY_PROJECT_ID;
+  return (
+    <div className="analytics-new-container space-y-6">
+      <h2 className="text-xl font-bold text-gray-900">Microsoft Clarity</h2>
+      {clarityProjectId ? (
+        <div className="p-6 bg-white rounded-lg border border-gray-200 space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-green-500" />
+            <span className="text-sm font-medium text-gray-700">Clarity is configured</span>
+          </div>
+          <p className="text-sm text-gray-600">
+            Project ID: <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">{clarityProjectId}</code>
+          </p>
+          <a
+            href={`https://clarity.microsoft.com/projects/view/${clarityProjectId}/dashboard`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Open Clarity Dashboard
+            <span className="text-xs opacity-75">&#8599;</span>
+          </a>
+        </div>
+      ) : (
+        <div className="p-6 bg-white rounded-lg border border-gray-200 space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-gray-400" />
+            <span className="text-sm font-medium text-gray-700">Not configured</span>
+          </div>
+          <p className="text-sm text-gray-600">
+            To enable Clarity heatmaps and session recordings:
+          </p>
+          <ol className="text-sm text-gray-600 list-decimal list-inside space-y-1">
+            <li>Create a project at <a href="https://clarity.microsoft.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">clarity.microsoft.com</a></li>
+            <li>Add the project ID as <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">VITE_CLARITY_PROJECT_ID</code> in your environment</li>
+            <li>Redeploy the application</li>
+          </ol>
+        </div>
+      )}
+    </div>
+  );
+};
 
 interface AnalyticsNewDashboardProps {
   className?: string;

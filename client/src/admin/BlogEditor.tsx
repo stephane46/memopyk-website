@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Save, Eye, Upload, Search, Languages, Star, Tag, X } from 'lucide-react';
+import { Loader2, Save, Eye, Upload, Search, Languages, Star, Tag, X, Sparkles } from 'lucide-react';
 import { Editor } from '@tinymce/tinymce-react';
 import DOMPurify from 'dompurify';
 import { StatusSelector } from './StatusSelector';
@@ -17,7 +17,8 @@ import { PublishedAtPicker } from './PublishedAtPicker';
 import { BlogHeroImageUpload } from './BlogHeroImageUpload';
 import { BlogTagSelector } from './BlogTagSelector';
 import { createTinyMCEConfig, getAdminToken } from './tinymce/config';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TranslationAssistant } from './TranslationAssistant';
 import type { BlogPost } from '@shared/blogTypes';
 import { BlogEditorSkeleton } from './skeletons/BlogEditorSkeleton';
@@ -41,6 +42,18 @@ export function BlogEditor({ postId }: BlogEditorProps) {
   const [primaryKeyword, setPrimaryKeyword] = useState('');
   const [secondaryKeywords, setSecondaryKeywords] = useState<string[]>([]);
   const [secondaryKeywordInput, setSecondaryKeywordInput] = useState('');
+  const [language, setLanguage] = useState<'fr-FR' | 'en-US'>('fr-FR');
+  const [includeInSitemap, setIncludeInSitemap] = useState(true);
+  const [enableFaqSchema, setEnableFaqSchema] = useState(true);
+
+  // AI Assist state
+  const [isAIAssistOpen, setIsAIAssistOpen] = useState(false);
+  const [aiTopic, setAiTopic] = useState('');
+  const [aiNotes, setAiNotes] = useState('');
+  const [aiTargetWordCount, setAiTargetWordCount] = useState(900);
+  const [isAIGenerating, setIsAIGenerating] = useState(false);
+  const [showAIOverwriteConfirm, setShowAIOverwriteConfirm] = useState(false);
+  const [pendingAIResult, setPendingAIResult] = useState<any>(null);
 
   // Image picker state
   const [isImagePickerOpen, setIsImagePickerOpen] = useState(false);
@@ -120,6 +133,9 @@ export function BlogEditor({ postId }: BlogEditorProps) {
       setFeaturedOrder((post as any).featured_order || 1);
       setPrimaryKeyword((post as any).primary_keyword || '');
       setSecondaryKeywords((post as any).secondary_keywords || []);
+      setLanguage(post.language as 'fr-FR' | 'en-US' || 'fr-FR');
+      setIncludeInSitemap((post as any).include_in_sitemap !== false);
+      setEnableFaqSchema((post as any).enable_faq_schema !== false);
     }
   }, [post]);
 
@@ -172,7 +188,10 @@ export function BlogEditor({ postId }: BlogEditorProps) {
       is_featured: isFeatured,
       featured_order: isFeatured ? featuredOrder : null,
       primary_keyword: primaryKeyword || null,
-      secondary_keywords: secondaryKeywords.length > 0 ? secondaryKeywords : null
+      secondary_keywords: secondaryKeywords.length > 0 ? secondaryKeywords : null,
+      language,
+      include_in_sitemap: includeInSitemap,
+      enable_faq_schema: enableFaqSchema
     });
 
     // Save tags
@@ -269,6 +288,66 @@ export function BlogEditor({ postId }: BlogEditorProps) {
     }
   };
 
+  const applyAIResult = (result: any) => {
+    if (result.title) setTitle(result.title);
+    if (result.slug) setSlug(result.slug);
+    if (result.description) setDescription(result.description);
+    if (result.content) setContent(result.content);
+    setIsAIAssistOpen(false);
+    setPendingAIResult(null);
+    toast({
+      title: "AI content applied",
+      description: "Title, slug, description, and content have been filled. Remember to save."
+    });
+  };
+
+  const handleAIGenerate = async () => {
+    if (!aiTopic.trim()) {
+      toast({ title: "Topic required", variant: "destructive" });
+      return;
+    }
+
+    setIsAIGenerating(true);
+    try {
+      const response = await adminFetch('/api/admin/blog/generate-content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          topic: aiTopic.trim(),
+          language,
+          primaryKeyword: primaryKeyword.trim() || undefined,
+          secondaryKeywords: secondaryKeywords.length > 0 ? secondaryKeywords : undefined,
+          notes: aiNotes.trim() || undefined,
+          targetWordCount: aiTargetWordCount
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || error.message || 'Generation failed');
+      }
+
+      const result = await response.json();
+      const data = result.data || result;
+
+      // If content already exists, ask for confirmation
+      if (content.trim() && content.trim() !== '<p></p>') {
+        setPendingAIResult(data);
+        setShowAIOverwriteConfirm(true);
+      } else {
+        applyAIResult(data);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Generation failed",
+        description: error.message || 'Failed to generate content',
+        variant: "destructive"
+      });
+    } finally {
+      setIsAIGenerating(false);
+    }
+  };
+
   if (isLoading) {
     return <BlogEditorSkeleton />;
   }
@@ -290,6 +369,18 @@ export function BlogEditor({ postId }: BlogEditorProps) {
           <CardTitle className="flex items-center justify-between">
             <span>Edit Blog Post</span>
             <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setAiTopic((post as any)?.source_topic_title || title || '');
+                  setIsAIAssistOpen(true);
+                }}
+                className="border-purple-400 text-purple-600 hover:bg-purple-50"
+                data-testid="button-ai-assist"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                AI Assist
+              </Button>
               {isTranslationDraft && (
                 <Button
                   variant="outline"
@@ -511,12 +602,46 @@ export function BlogEditor({ postId }: BlogEditorProps) {
             </div>
           </div>
 
-          {/* Language Badge */}
+          {/* Language Selector */}
           <div className="flex items-center gap-2">
             <Label>Language:</Label>
-            <span className="text-sm font-medium text-gray-700">
-              {post.language === 'en-US' ? 'English' : 'French'}
-            </span>
+            <Select value={language} onValueChange={(val) => setLanguage(val as 'fr-FR' | 'en-US')}>
+              <SelectTrigger className="w-48" data-testid="select-language">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="fr-FR">French (fr-FR)</SelectItem>
+                <SelectItem value="en-US">English (en-US)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Sitemap & FAQ Schema */}
+          <div className="space-y-4 p-4 bg-blue-50/50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="sitemap-toggle" className="text-sm font-medium">Include in Sitemap</Label>
+                <p className="text-xs text-gray-500">Include this post in the XML sitemap for search engines</p>
+              </div>
+              <Switch
+                id="sitemap-toggle"
+                checked={includeInSitemap}
+                onCheckedChange={setIncludeInSitemap}
+                data-testid="switch-sitemap"
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="faq-toggle" className="text-sm font-medium">Enable FAQ Schema</Label>
+                <p className="text-xs text-gray-500">Auto-generates FAQ structured data from question headings</p>
+              </div>
+              <Switch
+                id="faq-toggle"
+                checked={enableFaqSchema}
+                onCheckedChange={setEnableFaqSchema}
+                data-testid="switch-faq-schema"
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -607,6 +732,118 @@ export function BlogEditor({ postId }: BlogEditorProps) {
               </div>
             )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI Assist Modal */}
+      <Dialog open={isAIAssistOpen} onOpenChange={setIsAIAssistOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-purple-600" />
+              AI Assist
+            </DialogTitle>
+            <DialogDescription>
+              Generate content with AI. Fields will be filled with the result.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="ai-topic">Topic *</Label>
+              <Input
+                id="ai-topic"
+                value={aiTopic}
+                onChange={(e) => setAiTopic(e.target.value)}
+                placeholder="What should the article be about?"
+                data-testid="input-ai-topic"
+              />
+            </div>
+            <div>
+              <Label>Primary Keyword</Label>
+              <Input value={primaryKeyword} disabled className="bg-gray-50" />
+            </div>
+            {secondaryKeywords.length > 0 && (
+              <div>
+                <Label>Secondary Keywords</Label>
+                <Input value={secondaryKeywords.join(', ')} disabled className="bg-gray-50" />
+              </div>
+            )}
+            <div>
+              <Label htmlFor="ai-notes">Notes (optional)</Label>
+              <Textarea
+                id="ai-notes"
+                value={aiNotes}
+                onChange={(e) => setAiNotes(e.target.value)}
+                placeholder="Any specific instructions..."
+                rows={2}
+                data-testid="textarea-ai-notes"
+              />
+            </div>
+            <div>
+              <Label htmlFor="ai-word-count">Target Word Count</Label>
+              <Input
+                id="ai-word-count"
+                type="number"
+                min={300}
+                max={3000}
+                value={aiTargetWordCount}
+                onChange={(e) => setAiTargetWordCount(parseInt(e.target.value) || 900)}
+                data-testid="input-ai-word-count"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAIAssistOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAIGenerate}
+              disabled={isAIGenerating || !aiTopic.trim()}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+              data-testid="button-ai-generate"
+            >
+              {isAIGenerating ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Generate
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI Overwrite Confirmation */}
+      <Dialog open={showAIOverwriteConfirm} onOpenChange={setShowAIOverwriteConfirm}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Replace existing content?</DialogTitle>
+            <DialogDescription>
+              This post already has content. AI-generated content will overwrite the title, slug, description, and body.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setShowAIOverwriteConfirm(false);
+              setPendingAIResult(null);
+            }}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+              onClick={() => {
+                setShowAIOverwriteConfirm(false);
+                if (pendingAIResult) applyAIResult(pendingAIResult);
+              }}
+            >
+              Replace
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
