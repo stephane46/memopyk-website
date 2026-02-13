@@ -348,7 +348,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
     }
   };
 
-  const isBlankDraft = post?.status === 'draft' && !title.trim() && (!content.trim() || content.trim() === '<p></p>');
+  const isBlankDraft = post?.status === 'draft' && (!title.trim() || title.trim() === 'Untitled Post') && (!content.trim() || content.trim() === '<p></p>' || content.trim() === '<p>Start writing your post here...</p>');
 
   if (isLoading) {
     return <BlogEditorSkeleton />;
