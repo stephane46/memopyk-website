@@ -374,7 +374,7 @@ async function generateBlogPostHead(slug: string, lang: Lang, requestPath: strin
     const seo = (post.seo as any) || {};
     const title = seo.title || post.title;
     const description = seo.description || post.description || "";
-    const image = seo.ogImage || post.heroUrl || `${baseUrl}/og-home-fr.jpg`;
+    const image = seo.ogImage || (post.heroUrl ? encodeURI(post.heroUrl) : null) || `${baseUrl}/og-home-fr.jpg`;
     const canonicalUrl = `${baseUrl}/blog/${post.slug}`;
 
     const lines: string[] = [];
@@ -419,6 +419,26 @@ async function generateBlogPostHead(slug: string, lang: Lang, requestPath: strin
     if (post.updatedAt) jsonLd.dateModified = new Date(post.updatedAt).toISOString();
     lines.push(`<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`);
 
+    // FAQ JSON-LD (if post has FAQ-style headings ending with ?)
+    if ((post as any).enableFaqSchema !== false && post.contentHtml) {
+      const faqs = extractFaqFromHtml(post.contentHtml);
+      if (faqs.length > 0) {
+        const faqJsonLd = {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": faqs.map(faq => ({
+            "@type": "Question",
+            "name": faq.question,
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": faq.answer
+            }
+          }))
+        };
+        lines.push(`<script type="application/ld+json">${JSON.stringify(faqJsonLd)}</script>`);
+      }
+    }
+
     const html = lines.join("\n");
     blogSeoCache[cacheKey] = { html, timestamp: Date.now() };
     return html;
@@ -426,6 +446,21 @@ async function generateBlogPostHead(slug: string, lang: Lang, requestPath: strin
     console.error("Blog SEO generation failed for slug:", slug, err);
     return generateHeadPreview(lang, requestPath);
   }
+}
+
+/** Extract FAQ pairs from HTML content (H2/H3 ending with ? followed by a <p>) */
+function extractFaqFromHtml(html: string): Array<{ question: string; answer: string }> {
+  const faqs: Array<{ question: string; answer: string }> = [];
+  const regex = /<h[23][^>]*>([^<]*\?)<\/h[23]>\s*<p[^>]*>([\s\S]*?)<\/p>/gi;
+  let match;
+  while ((match = regex.exec(html)) !== null) {
+    const question = match[1].trim();
+    const answer = match[2].replace(/<[^>]+>/g, '').trim();
+    if (question && answer) {
+      faqs.push({ question, answer });
+    }
+  }
+  return faqs;
 }
 
 /** HTML-escape for attribute values */

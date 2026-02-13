@@ -32,13 +32,17 @@ import helpRoutes from "./routes/help.routes";
 import aiContextRoutes from "./routes/ai-context.routes";
 import imageBankRoutes from "./routes/image-bank.routes";
 import blogAnalyticsRoutes from "./routes/blog-analytics.routes";
+import sitemapRoutes from "./routes/sitemap.routes";
 
 /**
  * Register all API routes on the Express app
  */
 export async function registerRoutes(app: Express): Promise<void> {
   console.log("📋 Registering API routes...");
-  
+
+  // Sitemap route (no /api prefix, must be before static serving)
+  app.use(sitemapRoutes);            // /sitemap.xml
+
   // Health check routes (paths already include /api prefix)
   app.use(healthRoutes);             // /api/health/detailed, /api/ready, /api/live
 
@@ -94,7 +98,7 @@ export async function registerRoutes(app: Express): Promise<void> {
   // Blog Analytics routes
   app.use("/api", blogAnalyticsRoutes);     // /api/analytics/blog/*
 
-  console.log("✅ All 22 route modules registered: health, hero, gallery, faq, contact, cta, legal, analytics, newsletter, partners, admin, content, seo, blog, blog-tags, blog-admin, media, travel-upload, help, ai-context, image-bank, blog-analytics");
+  console.log("✅ All 23 route modules registered: sitemap, health, hero, gallery, faq, contact, cta, legal, analytics, newsletter, partners, admin, content, seo, blog, blog-tags, blog-admin, media, travel-upload, help, ai-context, image-bank, blog-analytics");
   console.log("✅ All routes migrated ✅");
 }
 

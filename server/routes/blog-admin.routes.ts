@@ -23,6 +23,7 @@
 
 import { Router, Request, Response } from 'express';
 import { DateTime } from 'luxon';
+import Anthropic from '@anthropic-ai/sdk';
 import { requireAdmin } from '../middleware/auth.middleware';
 import { getSupabase, blogCacheClear } from './blog-shared';
 import {
@@ -91,6 +92,160 @@ router.post('/admin/blog/posts', requireAdmin, async (req: Request, res: Respons
     res.status(500).json({
       success: false,
       error: error?.message || 'Failed to create blog post'
+    });
+  }
+});
+
+/**
+ * POST /admin/blog/generate-content
+ * Generate blog post content using Claude AI with Brand Brain context
+ */
+router.post('/admin/blog/generate-content', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const { topic, language, primaryKeyword, secondaryKeywords, notes, targetWordCount } = req.body;
+
+    if (!topic || !language) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: topic, language'
+      });
+    }
+
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({
+        success: false,
+        error: 'AI content generation not configured. ANTHROPIC_API_KEY is missing.'
+      });
+    }
+
+    const supabase = getSupabase();
+
+    // Fetch Brand Brain context
+    const aiContext = await fetchAIContext(supabase);
+    const brandIdentity = aiContext.brand?.brand_identity || '';
+    const toneVoice = aiContext.brand?.tone_voice || '';
+    const writingRules = aiContext.brand?.writing_rules || '';
+    const targetAudience = aiContext.brand?.target_audience || '';
+    const seoGuidelines = aiContext.brand?.seo_guidelines || '';
+
+    // Build system prompt from Brand Brain
+    const systemPrompt = `You are a professional blog content writer for MEMOPYK.
+
+## Brand Identity
+${brandIdentity}
+
+## Tone of Voice
+${toneVoice}
+
+## Writing Rules
+${writingRules}
+
+## Target Audience
+${targetAudience}
+
+## SEO Guidelines
+${seoGuidelines}
+
+${aiContext.publishedPostsList ? `## Published Posts for Internal Linking\n${aiContext.publishedPostsList}` : ''}
+
+## Output Format
+Return a JSON object with this exact structure (no markdown wrapping, just raw JSON):
+{
+  "title": "The blog post title",
+  "slug": "url-friendly-slug",
+  "description": "Meta description under 155 characters",
+  "content": "<h2>...</h2><p>...</p>...",
+  "seo": {
+    "title": "SEO title under 60 chars",
+    "description": "Meta description under 155 chars",
+    "keywords": ["keyword1", "keyword2"]
+  },
+  "tags": ["tag1", "tag2"],
+  "readTimeMinutes": 5
+}
+
+## HTML Rules for content field
+- Use only these HTML tags: h2, h3, p, strong, em, ul, ol, li, a, blockquote
+- Use single quotes for all HTML attributes (e.g., <a href='...'> not <a href="...">)
+- Never use em dashes. Use regular hyphens instead.
+- Do NOT use markdown formatting inside the HTML
+- For image suggestions, use this exact format: <p style='color: #cc0000; font-weight: bold;'>IMAGE SUGGESTION: [description] | [orientation] [dims] | [purpose]</p>
+- Include 2-3 image suggestions placed naturally within the content`;
+
+    // Build user prompt
+    const langLabel = language === 'fr-FR' ? 'French' : 'English';
+    const wordCount = targetWordCount || 1000;
+
+    let userPrompt = `Write a blog post in ${langLabel} about: ${topic}
+
+Target word count: ${wordCount} words`;
+
+    if (primaryKeyword) {
+      userPrompt += `\nPrimary keyword: ${primaryKeyword}`;
+    }
+    if (secondaryKeywords?.length) {
+      userPrompt += `\nSecondary keywords: ${secondaryKeywords.join(', ')}`;
+    }
+    if (notes) {
+      userPrompt += `\nAdditional notes: ${notes}`;
+    }
+
+    userPrompt += `\n\nReturn ONLY the JSON object, no markdown code fences or other text.`;
+
+    // Call Anthropic API
+    const anthropic = new Anthropic({ apiKey });
+
+    console.log(`Generating blog content: "${topic}" (${langLabel}, ~${wordCount} words)`);
+
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 8192,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }]
+    });
+
+    // Extract text from response
+    const rawText = response.content
+      .filter((block): block is Anthropic.TextBlock => block.type === 'text')
+      .map(block => block.text)
+      .join('\n');
+
+    if (!rawText) {
+      throw new Error('Empty response from AI service');
+    }
+
+    // Parse JSON response (strip markdown fences if present)
+    const jsonStr = rawText.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
+    const parsed = JSON.parse(jsonStr);
+
+    console.log(`Blog content generated: "${parsed.title}" (${response.usage.output_tokens} tokens)`);
+
+    res.json({
+      success: true,
+      data: {
+        title: parsed.title,
+        slug: parsed.slug,
+        description: parsed.description,
+        content: parsed.content,
+        seo: parsed.seo,
+        tags: parsed.tags,
+        readTimeMinutes: parsed.readTimeMinutes
+      }
+    });
+  } catch (error: any) {
+    console.error('Error in POST /admin/blog/generate-content:', error);
+
+    if (error instanceof SyntaxError) {
+      return res.status(500).json({
+        success: false,
+        error: 'AI response was not valid JSON. Please try again.'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: error?.message || 'Failed to generate blog content'
     });
   }
 });

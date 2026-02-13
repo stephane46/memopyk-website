@@ -218,20 +218,6 @@ export const seoSettings = pgTable("seo_settings", {
   updatedAt: timestamp("updated_at").defaultNow()
 });
 
-// SEO redirect rules table - 301/302 redirects management
-export const seoRedirects = pgTable("seo_redirects", {
-  id: serial("id").primaryKey(),
-  fromPath: text("from_path").notNull(), // Source path to redirect from
-  toPath: text("to_path").notNull(), // Target path to redirect to
-  redirectType: integer("redirect_type").default(301), // 301 permanent, 302 temporary
-  isActive: boolean("is_active").default(true),
-  description: text("description"), // Admin notes about the redirect
-  hitCount: integer("hit_count").default(0), // Track how often redirect is used
-  lastHit: timestamp("last_hit"), // When redirect was last used
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
-});
-
 // SEO audit logs table - track SEO changes over time
 export const seoAuditLogs = pgTable("seo_audit_logs", {
   id: serial("id").primaryKey(),
@@ -366,7 +352,6 @@ export const insertContactSchema = createInsertSchema(contacts).omit({ id: true,
 export const insertLegalDocumentSchema = createInsertSchema(legalDocuments).omit({ id: true, updatedAt: true });
 export const insertCtaSettingsSchema = createInsertSchema(ctaSettings).omit({ createdAt: true, updatedAt: true });
 export const insertSeoSettingsSchema = createInsertSchema(seoSettings).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertSeoRedirectSchema = createInsertSchema(seoRedirects).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertSeoAuditLogSchema = createInsertSchema(seoAuditLogs).omit({ id: true, createdAt: true });
 export const insertCountryNamesSchema = createInsertSchema(countryNames).omit({ createdAt: true, updatedAt: true });
 export const insertWhyMemopykCardsSchema = createInsertSchema(whyMemopykCards).omit({ createdAt: true, updatedAt: true });
@@ -386,7 +371,6 @@ export type Contact = typeof contacts.$inferSelect;
 export type LegalDocument = typeof legalDocuments.$inferSelect;
 export type CtaSettings = typeof ctaSettings.$inferSelect;
 export type SeoSettings = typeof seoSettings.$inferSelect;
-export type SeoRedirect = typeof seoRedirects.$inferSelect;
 export type SeoAuditLog = typeof seoAuditLogs.$inferSelect;
 export type CountryNames = typeof countryNames.$inferSelect;
 export type AnalyticsSession = typeof analyticsSessions.$inferSelect;
@@ -480,7 +464,11 @@ export const blogPosts = pgTable("blog_posts", {
   
   // Analytics
   viewCount: integer("view_count").default(0), // Total view count for analytics
-  
+
+  // Sitemap & Schema controls
+  includeInSitemap: boolean("include_in_sitemap").default(true),
+  enableFaqSchema: boolean("enable_faq_schema").default(true),
+
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow()
 });
@@ -783,7 +771,6 @@ export type InsertContact = z.infer<typeof insertContactSchema>;
 export type InsertLegalDocument = z.infer<typeof insertLegalDocumentSchema>;
 export type InsertCtaSettings = z.infer<typeof insertCtaSettingsSchema>;
 export type InsertSeoSettings = z.infer<typeof insertSeoSettingsSchema>;
-export type InsertSeoRedirect = z.infer<typeof insertSeoRedirectSchema>;
 export type InsertSeoAuditLog = z.infer<typeof insertSeoAuditLogSchema>;
 export type InsertCountryNames = z.infer<typeof insertCountryNamesSchema>;
 export type InsertAnalyticsSession = z.infer<typeof insertAnalyticsSessionSchema>;

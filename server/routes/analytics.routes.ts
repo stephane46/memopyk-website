@@ -1627,15 +1627,6 @@ router.post('/analytics/event', async (req: Request, res: Response) => {
   }
 });
 
-/**
- * POST /analytics/performance
- * Accept Web Vitals / performance metrics from frontend.
- * Log only for now — no persistence.
- */
-router.post('/analytics/performance', (_req: Request, res: Response) => {
-  res.json({ success: true });
-});
-
 // ============================================================================
 // Frontend Event Logging (to Supabase)
 // ============================================================================
@@ -1689,51 +1680,6 @@ router.post('/event', async (req: Request, res: Response) => {
   }
 });
 
-router.get('/conversions', async (req: Request, res: Response) => {
-  try {
-    const { start_date, end_date } = req.query;
-
-    if (!start_date || !end_date) {
-      return res.status(400).json({
-        success: false,
-        error: 'start_date and end_date query parameters are required'
-      });
-    }
-
-    // TODO: Fetch from analytics DB service
-    // const totals = await analyticsDBService.getConversionTotals(start_date, end_date);
-
-    res.json({ success: true, data: { total: 0, count: 0 } });
-  } catch (err) {
-    console.error('Analytics conversions endpoint error:', err);
-    res.status(500).json({ success: false, error: 'Failed to fetch conversion data' });
-  }
-});
-
-router.post('/performance', async (req: Request, res: Response) => {
-  try {
-    const performanceData = req.body;
-
-    if (!performanceData.page_path) {
-      return res.status(400).json({ success: false, error: 'page_path is required' });
-    }
-
-    const enrichedData = {
-      ...performanceData,
-      user_agent: req.headers['user-agent'] || null,
-    };
-
-    // TODO: Log to Supabase via analytics DB service
-    // analyticsDBService.logPerformanceMetric(enrichedData).catch(console.error);
-
-    console.log('⚡ [Analytics] Performance metric received for:', enrichedData.page_path);
-    res.json({ success: true });
-  } catch (err) {
-    console.error('Performance metrics endpoint error:', err);
-    res.status(500).json({ success: false, error: 'Failed to process performance metrics' });
-  }
-});
-
 router.get('/health', (req: Request, res: Response) => {
   // TODO: Check analytics DB service status
   const isReady = !!process.env.DATABASE_URL;
@@ -1744,39 +1690,6 @@ router.get('/health', (req: Request, res: Response) => {
     ga4_configured: !!GA4_MID,
     message: isReady ? 'Analytics service operational' : 'Analytics service disabled'
   });
-});
-
-// ============================================================================
-// Unified Cache Stats Endpoint
-// ============================================================================
-
-router.get('/unified-cache/stats', (_req: Request, res: Response) => {
-  try {
-    // Return stub cache stats since video cache service isn't migrated yet
-    const stats = {
-      video: {
-        totalSize: 0,
-        itemCount: 0,
-        hitRate: 0,
-        missRate: 0,
-      },
-      image: {
-        totalSize: 0,
-        itemCount: 0,
-        hitRate: 0,
-        missRate: 0,
-      },
-      total: 0,
-      timestamp: new Date().toISOString(),
-      stub: true,
-      message: 'Cache service not yet migrated',
-    };
-
-    res.json(stats);
-  } catch (error: any) {
-    console.error('❌ Unified cache stats error:', error);
-    res.status(500).json({ error: 'Failed to get cache stats' });
-  }
 });
 
 export default router;
