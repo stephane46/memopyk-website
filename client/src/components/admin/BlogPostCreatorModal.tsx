@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Sparkles, Loader2, Send } from 'lucide-react';
+import { Sparkles, Loader2, Send, Pencil } from 'lucide-react';
 import { HtmlEditor } from '@/admin/HtmlEditor';
 import { BlogHeroImageUpload } from '@/admin/BlogHeroImageUpload';
 import DOMPurify from 'dompurify';
@@ -93,6 +93,49 @@ export function BlogPostCreatorModal({ topic, isOpen, onClose }: BlogPostCreator
       });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleWriteManually = async () => {
+    setIsCreating(true);
+    try {
+      const response = await adminFetch('/api/admin/blog/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          language,
+          title: topic.title,
+          slug: topic.slug,
+          description: topic.description || '',
+          primary_keyword: topic.primary_keyword,
+          secondary_keywords: topic.secondary_keywords || [],
+          source_topic_id: topic.id
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to create post');
+
+      const result = await response.json();
+      if (result.success && result.data?.id) {
+        await queryClient.invalidateQueries({ queryKey: ['/api/admin/content/topics'] });
+        await queryClient.invalidateQueries({ queryKey: ['/api/admin/blog/posts'] });
+        toast({
+          title: "Draft created",
+          description: "Opening editor with topic data pre-filled"
+        });
+        onClose();
+        const currentPath = window.location.pathname;
+        const langPrefix = currentPath.match(/^\/(en-US|fr-FR)/)?.[0] || '';
+        window.location.href = `${langPrefix}/admin?tab=blog-edit&id=${result.data.id}`;
+      }
+    } catch (error: any) {
+      toast({
+        title: "Creation failed",
+        description: error.message || 'Failed to create draft',
+        variant: "destructive"
+      });
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -252,24 +295,36 @@ export function BlogPostCreatorModal({ topic, isOpen, onClose }: BlogPostCreator
                 />
               </div>
 
-              <Button
-                onClick={handleGenerate}
-                disabled={isGenerating}
-                className="w-full bg-[#D67C4A] hover:bg-[#C56B3A] text-white"
-                data-testid="button-generate"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Generating content...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Generate with AI
-                  </>
-                )}
-              </Button>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  onClick={handleGenerate}
+                  disabled={isGenerating}
+                  className="w-full bg-[#D67C4A] hover:bg-[#C56B3A] text-white"
+                  data-testid="button-generate"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Generate with AI
+                    </>
+                  )}
+                </Button>
+                <Button
+                  onClick={handleWriteManually}
+                  disabled={isCreating}
+                  variant="outline"
+                  className="w-full border-[#D67C4A] text-[#D67C4A] hover:bg-orange-50"
+                  data-testid="button-write-manually"
+                >
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Write Manually
+                </Button>
+              </div>
             </CardContent>
           </Card>
 

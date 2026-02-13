@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Save, Eye, Upload, Search, Languages, Star, Tag, X, Sparkles } from 'lucide-react';
+import { Loader2, Save, Eye, Upload, Search, Languages, Star, Tag, X, Sparkles, Globe, Trash2 } from 'lucide-react';
 import { Editor } from '@tinymce/tinymce-react';
 import DOMPurify from 'dompurify';
 import { StatusSelector } from './StatusSelector';
@@ -348,6 +348,8 @@ export function BlogEditor({ postId }: BlogEditorProps) {
     }
   };
 
+  const isBlankDraft = post?.status === 'draft' && !title.trim() && (!content.trim() || content.trim() === '<p></p>');
+
   if (isLoading) {
     return <BlogEditorSkeleton />;
   }
@@ -369,6 +371,26 @@ export function BlogEditor({ postId }: BlogEditorProps) {
           <CardTitle className="flex items-center justify-between">
             <span>Edit Blog Post</span>
             <div className="flex gap-2">
+              {isBlankDraft && (
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      await adminFetch(`/api/admin/blog/posts/${postId}`, { method: 'DELETE' });
+                      const currentPath = window.location.pathname;
+                      const langPrefix = currentPath.match(/^\/(en-US|fr-FR)/)?.[0] || '';
+                      window.location.href = `${langPrefix}/admin?tab=posts`;
+                    } catch (e) {
+                      toast({ title: 'Failed to discard', variant: 'destructive' });
+                    }
+                  }}
+                  className="border-red-300 text-red-600 hover:bg-red-50"
+                  data-testid="button-discard"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Discard
+                </Button>
+              )}
               <Button
                 variant="outline"
                 onClick={() => {
@@ -424,6 +446,21 @@ export function BlogEditor({ postId }: BlogEditorProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Language */}
+          <div className="flex items-center gap-2">
+            <Globe className="h-4 w-4 text-gray-500" />
+            <Label>Language:</Label>
+            <Select value={language} onValueChange={(val) => setLanguage(val as 'fr-FR' | 'en-US')}>
+              <SelectTrigger className="w-48" data-testid="select-language">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="fr-FR">French (fr-FR)</SelectItem>
+                <SelectItem value="en-US">English (en-US)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Title */}
           <div>
             <Label htmlFor="title">Title</Label>
@@ -585,6 +622,26 @@ export function BlogEditor({ postId }: BlogEditorProps) {
             )}
           </div>
 
+          {/* AI Assist CTA for blank posts */}
+          {isBlankDraft && (
+            <div className="border-2 border-dashed border-purple-300 rounded-lg p-8 text-center bg-purple-50/50">
+              <Sparkles className="h-8 w-8 text-purple-500 mx-auto mb-3" />
+              <h3 className="text-lg font-semibold text-purple-800 mb-2">Start with AI</h3>
+              <p className="text-sm text-purple-600 mb-4">Generate a complete article with AI assistance, or start writing manually below.</p>
+              <Button
+                onClick={() => {
+                  setAiTopic((post as any)?.source_topic_title || title || '');
+                  setIsAIAssistOpen(true);
+                }}
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+                data-testid="button-ai-assist-cta"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                Generate with AI
+              </Button>
+            </div>
+          )}
+
           {/* Content Editor */}
           <div>
             <Label>Content</Label>
@@ -600,20 +657,6 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                 })}
               />
             </div>
-          </div>
-
-          {/* Language Selector */}
-          <div className="flex items-center gap-2">
-            <Label>Language:</Label>
-            <Select value={language} onValueChange={(val) => setLanguage(val as 'fr-FR' | 'en-US')}>
-              <SelectTrigger className="w-48" data-testid="select-language">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="fr-FR">French (fr-FR)</SelectItem>
-                <SelectItem value="en-US">English (en-US)</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
 
           {/* Sitemap & FAQ Schema */}
