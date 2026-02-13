@@ -71,6 +71,7 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-13: UI fixes — language selector moved to top of editor, blank draft Discard button + AI CTA banner, "Write Manually" in topic modal, stats labels fixed, help text rewritten (Sitemap/FAQ), naive user test 19/19
 - 2026-02-13: Blog URL fix — language-prefix auto-redirect for cross-language slugs, related posts fallback to same-language posts
 - 2026-02-13: Post-overhaul verification — puppy post fixes (alt text, internal links), keyword count corrected (107), naive user help test 20/20, 3 help screens updated (keywords count, Blog Hub Brand Brain link, Posts share buttons + language dialog)
 - 2026-02-13: Infrastructure overhaul — Brand Brain enriched (6 entries, 1900-2800 chars each), generate-content API endpoint (Anthropic + Brand Brain), dynamic sitemap (/sitemap.xml), blog editor AI Assist modal, language selector, sitemap/FAQ schema toggles, WhatsApp share button, 4 dead endpoints removed, seoRedirects removed from schema, CreatePostLanding + CacheManagementPage deleted, 13 FR articles regenerated with Brand Brain, 5 help screens updated
