@@ -59,29 +59,27 @@ export function BlogManagePosts() {
   const [filterTopic, setFilterTopic] = useState<string | null>(null);
   const [filterKeyword, setFilterKeyword] = useState<string | null>(null);
   const [tagManagementOpen, setTagManagementOpen] = useState(false);
-  const [newPostDialogOpen, setNewPostDialogOpen] = useState(false);
-  const [newPostLanguage, setNewPostLanguage] = useState<'fr-FR' | 'en-US'>('fr-FR');
   const [isCreatingNewPost, setIsCreatingNewPost] = useState(false);
 
   // Translation dialog state
   const [translateDialogPost, setTranslateDialogPost] = useState<BlogPost | null>(null);
   const [translateMethod, setTranslateMethod] = useState<'ai' | 'manual' | null>(null);
 
-  // Create new post with selected language
+  // Create new blank post (defaults to fr-FR, changeable in editor)
   const handleCreateNewPost = async () => {
+    if (isCreatingNewPost) return;
     setIsCreatingNewPost(true);
     try {
       const response = await adminFetch('/api/admin/blog/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ language: newPostLanguage })
+        body: JSON.stringify({ language: 'fr-FR' })
       });
 
       if (!response.ok) throw new Error('Failed to create post');
 
       const result = await response.json();
       if (result.success && result.data?.id) {
-        setNewPostDialogOpen(false);
         const currentPath = window.location.pathname;
         const langPrefix = currentPath.match(/^\/(en-US|fr-FR)/)?.[0] || '';
         window.location.href = `${langPrefix}/admin?tab=blog-edit&id=${result.data.id}`;
@@ -340,12 +338,22 @@ export function BlogManagePosts() {
         </div>
         <div className="flex gap-2">
           <Button
-            onClick={() => setNewPostDialogOpen(true)}
+            onClick={handleCreateNewPost}
+            disabled={isCreatingNewPost}
             className="bg-[#D67C4A] hover:bg-[#C56B39] text-white"
             data-testid="button-new-post"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            New Post
+            {isCreatingNewPost ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              <>
+                <Plus className="w-4 h-4 mr-2" />
+                New Post
+              </>
+            )}
           </Button>
           <Button
             onClick={() => setTagManagementOpen(true)}
@@ -461,7 +469,7 @@ export function BlogManagePosts() {
                     <>
                       Get started by{' '}
                       <button
-                        onClick={() => setNewPostDialogOpen(true)}
+                        onClick={handleCreateNewPost}
                         className="text-[#D67C4A] hover:text-[#C56B39] underline font-medium"
                       >
                         creating your first blog post
@@ -646,55 +654,6 @@ export function BlogManagePosts() {
         open={tagManagementOpen}
         onOpenChange={setTagManagementOpen}
       />
-
-      {/* New Post Language Dialog */}
-      <Dialog open={newPostDialogOpen} onOpenChange={setNewPostDialogOpen}>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Globe className="h-5 w-5 text-[#D67C4A]" />
-              Create New Post
-            </DialogTitle>
-            <DialogDescription>
-              Choose the language for your new blog post
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4 space-y-4">
-            <Select value={newPostLanguage} onValueChange={(val: any) => setNewPostLanguage(val)}>
-              <SelectTrigger data-testid="select-new-post-language">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="fr-FR">French (fr-FR)</SelectItem>
-                <SelectItem value="en-US">English (en-US)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setNewPostDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleCreateNewPost}
-              disabled={isCreatingNewPost}
-              className="bg-[#D67C4A] hover:bg-[#C56B39] text-white"
-              data-testid="button-confirm-new-post"
-            >
-              {isCreatingNewPost ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Translation Choice Dialog */}
       <Dialog open={!!translateDialogPost} onOpenChange={(open) => !open && setTranslateDialogPost(null)}>
