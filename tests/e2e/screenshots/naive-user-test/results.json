@@ -1,0 +1,917 @@
+[
+  {
+    "tab": "analytics-new",
+    "name": "Analytics Dashboard",
+    "rating": "MAJOR",
+    "issues": [
+      "24 UI elements not mentioned in help: today, yesterday, last 7 days, last 30 days, last 90 days",
+      "Help content very brief (<200 chars)"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 38,
+    "uiElements": [
+      {
+        "type": "button",
+        "text": "ALL"
+      },
+      {
+        "type": "button",
+        "text": "EN"
+      },
+      {
+        "type": "button",
+        "text": "FR"
+      },
+      {
+        "type": "button",
+        "text": "ALL"
+      },
+      {
+        "type": "button",
+        "text": "Today"
+      },
+      {
+        "type": "button",
+        "text": "Yesterday"
+      },
+      {
+        "type": "button",
+        "text": "Last 7 days"
+      },
+      {
+        "type": "button",
+        "text": "Last 30 days"
+      },
+      {
+        "type": "button",
+        "text": "Last 90 days"
+      },
+      {
+        "type": "button",
+        "text": "Custom range"
+      },
+      {
+        "type": "button",
+        "text": "Overview"
+      },
+      {
+        "type": "button",
+        "text": "Live View"
+      },
+      {
+        "type": "button",
+        "text": "Trends"
+      },
+      {
+        "type": "button",
+        "text": "Video"
+      },
+      {
+        "type": "button",
+        "text": "Geo"
+      },
+      {
+        "type": "button",
+        "text": "CTA"
+      },
+      {
+        "type": "button",
+        "text": "Blog"
+      },
+      {
+        "type": "button",
+        "text": "Clarity"
+      },
+      {
+        "type": "button",
+        "text": "Fallback"
+      },
+      {
+        "type": "button",
+        "text": "Exclusions"
+      }
+    ]
+  },
+  {
+    "tab": "blog",
+    "name": "Blog Hub (Keywords)",
+    "rating": "MAJOR",
+    "issues": [
+      "14 UI elements not mentioned in help: brand brain, 1keywordsresearch seo, 2planned postswhat to write, 3plannerschedule when, 4postswrite & publish",
+      "Help content very brief (<200 chars)"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 25,
+    "uiElements": [
+      {
+        "type": "button",
+        "text": "Brand Brain"
+      },
+      {
+        "type": "button",
+        "text": "1KeywordsResearch SEO"
+      },
+      {
+        "type": "button",
+        "text": "2Planned PostsWhat to write"
+      },
+      {
+        "type": "button",
+        "text": "3PlannerSchedule when"
+      },
+      {
+        "type": "button",
+        "text": "4PostsWrite & publish"
+      },
+      {
+        "type": "button",
+        "text": "5Image BankStore media"
+      },
+      {
+        "type": "button",
+        "text": "Keywords"
+      },
+      {
+        "type": "button",
+        "text": "Planned Posts"
+      },
+      {
+        "type": "button",
+        "text": "Planner"
+      },
+      {
+        "type": "button",
+        "text": "Posts"
+      },
+      {
+        "type": "button",
+        "text": "Images"
+      },
+      {
+        "type": "button",
+        "text": "TopicsPlan when to write"
+      },
+      {
+        "type": "button",
+        "text": "PostsSee when they go live"
+      },
+      {
+        "type": "button",
+        "text": "Today"
+      },
+      {
+        "type": "tab",
+        "text": "1KeywordsResearch SEO"
+      },
+      {
+        "type": "tab",
+        "text": "2Planned PostsWhat to write"
+      },
+      {
+        "type": "tab",
+        "text": "3PlannerSchedule when"
+      },
+      {
+        "type": "tab",
+        "text": "4PostsWrite & publish"
+      },
+      {
+        "type": "tab",
+        "text": "5Image BankStore media"
+      },
+      {
+        "type": "tab",
+        "text": "Keywords"
+      }
+    ]
+  },
+  {
+    "tab": "seo",
+    "name": "SEO Management",
+    "rating": "MAJOR",
+    "issues": [
+      "10 UI elements not mentioned in help: 🇫🇷 french, 🇺🇸 english, history, publish, basic seo",
+      "Help content very brief (<200 chars)"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 20,
+    "uiElements": [
+      {
+        "type": "button",
+        "text": "🇫🇷 French"
+      },
+      {
+        "type": "button",
+        "text": "🇺🇸 English"
+      },
+      {
+        "type": "button",
+        "text": "History"
+      },
+      {
+        "type": "button",
+        "text": "Publish"
+      },
+      {
+        "type": "button",
+        "text": "Basic SEO"
+      },
+      {
+        "type": "button",
+        "text": "Robots"
+      },
+      {
+        "type": "button",
+        "text": "Social Media"
+      },
+      {
+        "type": "button",
+        "text": "Advanced"
+      },
+      {
+        "type": "button",
+        "text": "Live Preview"
+      },
+      {
+        "type": "button",
+        "text": "Save SEO Settings"
+      },
+      {
+        "type": "input",
+        "text": "Enter page title (max 70 chars)"
+      },
+      {
+        "type": "textarea",
+        "text": "Enter meta description (max 320 chars)"
+      },
+      {
+        "type": "input",
+        "text": "keyword1, keyword2, keyword3"
+      },
+      {
+        "type": "input",
+        "text": "https://memopyk.com/page"
+      },
+      {
+        "type": "tab",
+        "text": "Basic SEO"
+      },
+      {
+        "type": "tab",
+        "text": "Robots"
+      },
+      {
+        "type": "tab",
+        "text": "Social Media"
+      },
+      {
+        "type": "tab",
+        "text": "Advanced"
+      },
+      {
+        "type": "tab",
+        "text": "Live Preview"
+      },
+      {
+        "type": "h1",
+        "text": "SEO Management"
+      }
+    ]
+  },
+  {
+    "tab": "travel-agencies",
+    "name": "Travel Agencies",
+    "rating": "MINOR",
+    "issues": [
+      "5 UI elements not mentioned in help: uploads, agency codes, refresh stats, refresh list, all agencies",
+      "Help content very brief (<200 chars)"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 9,
+    "uiElements": [
+      {
+        "type": "button",
+        "text": "Uploads"
+      },
+      {
+        "type": "button",
+        "text": "Agency Codes"
+      },
+      {
+        "type": "button",
+        "text": "Refresh Stats"
+      },
+      {
+        "type": "button",
+        "text": "Refresh List"
+      },
+      {
+        "type": "button",
+        "text": "All agencies"
+      },
+      {
+        "type": "input",
+        "text": "Search by name or email..."
+      },
+      {
+        "type": "tab",
+        "text": "Uploads"
+      },
+      {
+        "type": "tab",
+        "text": "Agency Codes"
+      },
+      {
+        "type": "h2",
+        "text": "Travel Upload Submissions"
+      }
+    ]
+  },
+  {
+    "tab": "partners",
+    "name": "Partners Directory",
+    "rating": "MINOR",
+    "issues": [
+      "6 UI elements not mentioned in help: add partner, import tsv, view map, download excel, all status",
+      "Help content very brief (<200 chars)"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 7,
+    "uiElements": [
+      {
+        "type": "button",
+        "text": "Add Partner"
+      },
+      {
+        "type": "button",
+        "text": "Import TSV"
+      },
+      {
+        "type": "button",
+        "text": "View Map"
+      },
+      {
+        "type": "button",
+        "text": "Download Excel"
+      },
+      {
+        "type": "button",
+        "text": "All Status"
+      },
+      {
+        "type": "button",
+        "text": "All Types"
+      },
+      {
+        "type": "input",
+        "text": "Search by name or city..."
+      }
+    ]
+  },
+  {
+    "tab": "hero-management",
+    "name": "Hero Videos",
+    "rating": "MAJOR",
+    "issues": [
+      "14 UI elements not mentioned in help: gestion vidéos, textes & superpositions, move earlier, move later, edit video",
+      "Help content very brief (<200 chars)"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 16,
+    "uiElements": [
+      {
+        "type": "button",
+        "text": "Gestion Vidéos"
+      },
+      {
+        "type": "button",
+        "text": "Textes & Superpositions"
+      },
+      {
+        "type": "button",
+        "text": "Move Earlier"
+      },
+      {
+        "type": "button",
+        "text": "Move Later"
+      },
+      {
+        "type": "button",
+        "text": "Edit Video"
+      },
+      {
+        "type": "button",
+        "text": "Delete"
+      },
+      {
+        "type": "button",
+        "text": "Move Earlier"
+      },
+      {
+        "type": "button",
+        "text": "Move Later"
+      },
+      {
+        "type": "button",
+        "text": "Edit Video"
+      },
+      {
+        "type": "button",
+        "text": "Delete"
+      },
+      {
+        "type": "button",
+        "text": "Move Earlier"
+      },
+      {
+        "type": "button",
+        "text": "Move Later"
+      },
+      {
+        "type": "button",
+        "text": "Edit Video"
+      },
+      {
+        "type": "button",
+        "text": "Delete"
+      },
+      {
+        "type": "h2",
+        "text": "Gestion Hero"
+      },
+      {
+        "type": "h3",
+        "text": "Add New Hero Video"
+      }
+    ]
+  },
+  {
+    "tab": "gallery",
+    "name": "Gallery",
+    "rating": "MAJOR",
+    "issues": [
+      "11 UI elements not mentioned in help: nouvelle video, the summer of pom - l’été de pom, ↑move earlier, ↓move later, recadrer fr",
+      "Help content very brief (<200 chars)"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 31,
+    "uiElements": [
+      {
+        "type": "button",
+        "text": "NOUVELLE VIDEO"
+      },
+      {
+        "type": "button",
+        "text": "The summer of Pom - L’été de Pom"
+      },
+      {
+        "type": "button",
+        "text": "↑Move Earlier"
+      },
+      {
+        "type": "button",
+        "text": "↓Move Later"
+      },
+      {
+        "type": "button",
+        "text": "Recadrer FR"
+      },
+      {
+        "type": "button",
+        "text": "Recadrer EN"
+      },
+      {
+        "type": "button",
+        "text": "Portrait"
+      },
+      {
+        "type": "button",
+        "text": "Sauvegarder"
+      },
+      {
+        "type": "button",
+        "text": "Annuler"
+      },
+      {
+        "type": "button",
+        "text": "Supprimer"
+      },
+      {
+        "type": "button",
+        "text": "Gérer Templates"
+      },
+      {
+        "type": "input",
+        "text": "80 photos & 10 videos"
+      },
+      {
+        "type": "input",
+        "text": "2 minutes"
+      },
+      {
+        "type": "input",
+        "text": "80 photos et 10 vidéos"
+      },
+      {
+        "type": "input",
+        "text": "2 minutes"
+      },
+      {
+        "type": "textarea",
+        "text": "This film shows..."
+      },
+      {
+        "type": "textarea",
+        "text": "The Client is a wife..."
+      },
+      {
+        "type": "textarea",
+        "text": "Ce film montre..."
+      },
+      {
+        "type": "textarea",
+        "text": "Le client est une épouse..."
+      },
+      {
+        "type": "input",
+        "text": "https://supabase.memopyk.org/storage/v1/object/public/memopyk-videos/..."
+      }
+    ]
+  },
+  {
+    "tab": "faq",
+    "name": "FAQ",
+    "rating": "MINOR",
+    "issues": [
+      "Help content very brief (<200 chars)"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 3,
+    "uiElements": [
+      {
+        "type": "button",
+        "text": "Nouvelle Section"
+      },
+      {
+        "type": "button",
+        "text": "Nouvelle FAQ"
+      },
+      {
+        "type": "h2",
+        "text": "FAQ"
+      }
+    ]
+  },
+  {
+    "tab": "why-memopyk",
+    "name": "Why MEMOPYK",
+    "rating": "MINOR",
+    "issues": [
+      "Help content very brief (<200 chars)"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 3,
+    "uiElements": [
+      {
+        "type": "button",
+        "text": "Nouvelle Carte"
+      },
+      {
+        "type": "h2",
+        "text": "Pourquoi MEMOPYK"
+      },
+      {
+        "type": "h3",
+        "text": "Cartes Why MEMOPYK (0)"
+      }
+    ]
+  },
+  {
+    "tab": "cta",
+    "name": "CTA Buttons",
+    "rating": "MINOR",
+    "issues": [
+      "Help content very brief (<200 chars)"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 1,
+    "uiElements": [
+      {
+        "type": "h2",
+        "text": "CTA Button Management"
+      }
+    ]
+  },
+  {
+    "tab": "legal-docs",
+    "name": "Legal Documents",
+    "rating": "MINOR",
+    "issues": [
+      "Help content very brief (<200 chars)"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 4,
+    "uiElements": [
+      {
+        "type": "button",
+        "text": "Nouveau Document"
+      },
+      {
+        "type": "button",
+        "text": "Créer le premier document"
+      },
+      {
+        "type": "h2",
+        "text": "Documents Légaux"
+      },
+      {
+        "type": "h3",
+        "text": "Documents Existants (0)"
+      }
+    ]
+  },
+  {
+    "tab": "ai-context",
+    "name": "AI Context (Brand Brain)",
+    "rating": "MINOR",
+    "issues": [
+      "Help content very brief (<200 chars)"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 0,
+    "uiElements": []
+  },
+  {
+    "tab": "cache",
+    "name": "Cache Management",
+    "rating": "MINOR",
+    "issues": [
+      "5 UI elements not mentioned in help: update status, update status, 🚀 all media cachecache tous les médias avec vérification complète, 🧹 smart cleanupsupprime fichiers expirés (>30j) + orphelins uniquement, 🗑️ images orphelinessupprime images inutilisées uniquement",
+      "Help content very brief (<200 chars)"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 6,
+    "uiElements": [
+      {
+        "type": "button",
+        "text": "Update Status"
+      },
+      {
+        "type": "button",
+        "text": "Update Status"
+      },
+      {
+        "type": "button",
+        "text": "🚀 All Media CacheCache tous les médias avec vérification complète"
+      },
+      {
+        "type": "button",
+        "text": "🧹 Smart CleanupSupprime fichiers expirés (>30j) + orphelins uniquement"
+      },
+      {
+        "type": "button",
+        "text": "🗑️ Images OrphelinesSupprime images inutilisées uniquement"
+      },
+      {
+        "type": "h2",
+        "text": "Gestion du Cache"
+      }
+    ]
+  },
+  {
+    "tab": "blog-keywords",
+    "name": "Blog > Keywords",
+    "rating": "MINOR",
+    "issues": [
+      "Help content very brief"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 42
+  },
+  {
+    "tab": "blog-topics",
+    "name": "Blog > Planned Posts",
+    "rating": "MINOR",
+    "issues": [
+      "Help content very brief"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 22
+  },
+  {
+    "tab": "blog-planner",
+    "name": "Blog > Planner",
+    "rating": "MINOR",
+    "issues": [
+      "Help content very brief"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 25
+  },
+  {
+    "tab": "blog-posts",
+    "name": "Blog > Posts",
+    "rating": "MINOR",
+    "issues": [
+      "Help content very brief"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 70
+  },
+  {
+    "tab": "blog-images",
+    "name": "Blog > Image Bank",
+    "rating": "MINOR",
+    "issues": [
+      "Help content very brief"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 28
+  },
+  {
+    "tab": "blog-ai-creator",
+    "name": "Blog > AI Creator",
+    "rating": "MINOR",
+    "issues": [
+      "Help content very brief"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 30
+  },
+  {
+    "tab": "blog-edit",
+    "name": "Blog Editor",
+    "rating": "MAJOR",
+    "issues": [
+      "Missing documentation for: AI Assist",
+      "Missing documentation for: Language selector",
+      "Missing documentation for: Sitemap toggle"
+    ],
+    "helpFound": true,
+    "helpTitle": "",
+    "helpLength": 58,
+    "uiElementCount": 29,
+    "uiElements": [
+      {
+        "type": "button",
+        "text": "Brand Brain"
+      },
+      {
+        "type": "button",
+        "text": "1KeywordsResearch SEO"
+      },
+      {
+        "type": "button",
+        "text": "2Planned PostsWhat to write"
+      },
+      {
+        "type": "button",
+        "text": "3PlannerSchedule when"
+      },
+      {
+        "type": "button",
+        "text": "4PostsWrite & publish"
+      },
+      {
+        "type": "button",
+        "text": "5Image BankStore media"
+      },
+      {
+        "type": "button",
+        "text": "Keywords"
+      },
+      {
+        "type": "button",
+        "text": "Planned Posts"
+      },
+      {
+        "type": "button",
+        "text": "Planner"
+      },
+      {
+        "type": "button",
+        "text": "Posts"
+      },
+      {
+        "type": "button",
+        "text": "Images"
+      },
+      {
+        "type": "button",
+        "text": "New Post"
+      },
+      {
+        "type": "button",
+        "text": "Manage Tags"
+      },
+      {
+        "type": "button",
+        "text": "All Posts"
+      },
+      {
+        "type": "button",
+        "text": "All Languages"
+      },
+      {
+        "type": "button",
+        "text": "creating your first blog post"
+      },
+      {
+        "type": "tab",
+        "text": "1KeywordsResearch SEO"
+      },
+      {
+        "type": "tab",
+        "text": "2Planned PostsWhat to write"
+      },
+      {
+        "type": "tab",
+        "text": "3PlannerSchedule when"
+      },
+      {
+        "type": "tab",
+        "text": "4PostsWrite & publish"
+      },
+      {
+        "type": "tab",
+        "text": "5Image BankStore media"
+      },
+      {
+        "type": "tab",
+        "text": "Keywords"
+      },
+      {
+        "type": "tab",
+        "text": "Planned Posts"
+      },
+      {
+        "type": "tab",
+        "text": "Planner"
+      },
+      {
+        "type": "tab",
+        "text": "Posts"
+      },
+      {
+        "type": "tab",
+        "text": "Images"
+      },
+      {
+        "type": "h1",
+        "text": "Blog Hub"
+      },
+      {
+        "type": "h2",
+        "text": "Posts"
+      },
+      {
+        "type": "h3",
+        "text": "No posts found"
+      }
+    ]
+  },
+  {
+    "tab": "FEATURE",
+    "name": "Dynamic Sitemap",
+    "rating": "PASS",
+    "issues": []
+  }
+]

@@ -1,0 +1,142 @@
+[
+  {
+    "tab": "analytics-new",
+    "name": "Analytics Dashboard",
+    "rating": "PASS",
+    "helpLength": 1594,
+    "issues": []
+  },
+  {
+    "tab": "blog",
+    "name": "Blog Hub (Planner default)",
+    "rating": "PASS",
+    "helpLength": 1361,
+    "issues": []
+  },
+  {
+    "tab": "keywords",
+    "name": "Keywords",
+    "rating": "PASS",
+    "helpLength": 2341,
+    "issues": []
+  },
+  {
+    "tab": "topics",
+    "name": "Planned Posts",
+    "rating": "PASS",
+    "helpLength": 3050,
+    "issues": []
+  },
+  {
+    "tab": "planner",
+    "name": "Planner",
+    "rating": "PASS",
+    "helpLength": 1361,
+    "issues": []
+  },
+  {
+    "tab": "posts",
+    "name": "Posts",
+    "rating": "PASS",
+    "helpLength": 2591,
+    "issues": []
+  },
+  {
+    "tab": "images",
+    "name": "Image Bank",
+    "rating": "PASS",
+    "helpLength": 1553,
+    "issues": []
+  },
+  {
+    "tab": "ai-creator",
+    "name": "AI Creator",
+    "rating": "PASS",
+    "helpLength": 1305,
+    "issues": []
+  },
+  {
+    "tab": "seo",
+    "name": "SEO Management",
+    "rating": "PASS",
+    "helpLength": 1361,
+    "issues": []
+  },
+  {
+    "tab": "travel-agencies",
+    "name": "Travel Agencies",
+    "rating": "PASS",
+    "helpLength": 1696,
+    "issues": []
+  },
+  {
+    "tab": "partners",
+    "name": "Partners Directory",
+    "rating": "PASS",
+    "helpLength": 1492,
+    "issues": []
+  },
+  {
+    "tab": "hero-management",
+    "name": "Hero Videos",
+    "rating": "PASS",
+    "helpLength": 612,
+    "issues": []
+  },
+  {
+    "tab": "gallery",
+    "name": "Gallery",
+    "rating": "PASS",
+    "helpLength": 418,
+    "issues": []
+  },
+  {
+    "tab": "faq",
+    "name": "FAQ",
+    "rating": "PASS",
+    "helpLength": 446,
+    "issues": []
+  },
+  {
+    "tab": "why-memopyk",
+    "name": "Why MEMOPYK",
+    "rating": "PASS",
+    "helpLength": 278,
+    "issues": []
+  },
+  {
+    "tab": "cta",
+    "name": "CTA Buttons",
+    "rating": "PASS",
+    "helpLength": 398,
+    "issues": []
+  },
+  {
+    "tab": "legal-docs",
+    "name": "Legal Documents",
+    "rating": "PASS",
+    "helpLength": 508,
+    "issues": []
+  },
+  {
+    "tab": "ai-context",
+    "name": "AI Context (Brand Brain)",
+    "rating": "PASS",
+    "helpLength": 1126,
+    "issues": []
+  },
+  {
+    "tab": "cache",
+    "name": "Cache Management",
+    "rating": "PASS",
+    "helpLength": 2222,
+    "issues": []
+  },
+  {
+    "tab": "blog-edit",
+    "name": "Blog Editor",
+    "rating": "PASS",
+    "helpLength": 3298,
+    "issues": []
+  }
+]
