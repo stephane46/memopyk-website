@@ -1,0 +1,333 @@
+{
+  "timestamp": "2026-02-14T09:29:44.303Z",
+  "totalScreens": 35,
+  "screens": [
+    {
+      "name": "Analytics",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=analytics-new",
+      "type": "direct"
+    },
+    {
+      "name": "Analytics - Blog",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=planner",
+      "type": "tab",
+      "tabParent": "Analytics"
+    },
+    {
+      "name": "Analytics - Boutons CTA",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=cta",
+      "type": "tab",
+      "tabParent": "Analytics"
+    },
+    {
+      "name": "Blog",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=planner",
+      "type": "direct"
+    },
+    {
+      "name": "Blog - 1KeywordsResearch SEO",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=keywords",
+      "type": "tab",
+      "tabParent": "Blog"
+    },
+    {
+      "name": "Blog - 2Planned PostsWhat to write",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=topics",
+      "type": "tab",
+      "tabParent": "Blog"
+    },
+    {
+      "name": "Blog - 3PlannerSchedule when",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=planner",
+      "type": "tab",
+      "tabParent": "Blog"
+    },
+    {
+      "name": "Blog - 4PostsWrite & publish",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=posts",
+      "type": "tab",
+      "tabParent": "Blog"
+    },
+    {
+      "name": "Blog - 5Image BankStore media",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=images",
+      "type": "tab",
+      "tabParent": "Blog"
+    },
+    {
+      "name": "Partenaires",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=images",
+      "type": "direct"
+    },
+    {
+      "name": "Partenaires - 1KeywordsResearch SEO",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=keywords",
+      "type": "tab",
+      "tabParent": "Partenaires"
+    },
+    {
+      "name": "Partenaires - 2Planned PostsWhat to write",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=topics",
+      "type": "tab",
+      "tabParent": "Partenaires"
+    },
+    {
+      "name": "Partenaires - 3PlannerSchedule when",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=planner",
+      "type": "tab",
+      "tabParent": "Partenaires"
+    },
+    {
+      "name": "Partenaires - 4PostsWrite & publish",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=posts",
+      "type": "tab",
+      "tabParent": "Partenaires"
+    },
+    {
+      "name": "Partenaires - 5Image BankStore media",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=images",
+      "type": "tab",
+      "tabParent": "Partenaires"
+    },
+    {
+      "name": "Galerie Vidéos",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=gallery",
+      "type": "direct"
+    },
+    {
+      "name": "Vidéos Hero",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=hero-management",
+      "type": "direct"
+    },
+    {
+      "name": "FAQ",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=faq",
+      "type": "direct"
+    },
+    {
+      "name": "Documents Légaux",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=legal-docs",
+      "type": "direct"
+    },
+    {
+      "name": "Boutons CTA",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=cta",
+      "type": "direct"
+    },
+    {
+      "name": "SEO",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=seo",
+      "type": "direct"
+    },
+    {
+      "name": "SEO - Basic SEO",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=seo",
+      "type": "tab",
+      "tabParent": "SEO"
+    },
+    {
+      "name": "SEO - Robots",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=seo",
+      "type": "tab",
+      "tabParent": "SEO"
+    },
+    {
+      "name": "SEO - Social Media",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=seo",
+      "type": "tab",
+      "tabParent": "SEO"
+    },
+    {
+      "name": "SEO - Advanced",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=seo",
+      "type": "tab",
+      "tabParent": "SEO"
+    },
+    {
+      "name": "SEO - Live Preview",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=seo",
+      "type": "tab",
+      "tabParent": "SEO"
+    },
+    {
+      "name": "Contenu Site",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=seo",
+      "type": "direct"
+    },
+    {
+      "name": "Contenu Site - Basic SEO",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=seo",
+      "type": "tab",
+      "tabParent": "Contenu Site"
+    },
+    {
+      "name": "Contenu Site - Robots",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=seo",
+      "type": "tab",
+      "tabParent": "Contenu Site"
+    },
+    {
+      "name": "Contenu Site - Social Media",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=seo",
+      "type": "tab",
+      "tabParent": "Contenu Site"
+    },
+    {
+      "name": "Contenu Site - Advanced",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=seo",
+      "type": "tab",
+      "tabParent": "Contenu Site"
+    },
+    {
+      "name": "Contenu Site - Live Preview",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=seo",
+      "type": "tab",
+      "tabParent": "Contenu Site"
+    },
+    {
+      "name": "Cache",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=cache",
+      "type": "direct"
+    },
+    {
+      "name": "AI Context",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=ai-context",
+      "type": "direct"
+    },
+    {
+      "name": "Système",
+      "route": "https://memopyk.memopyk.com/en-US/admin?tab=ai-context",
+      "type": "direct"
+    }
+  ],
+  "baselineChrome": {
+    "elementCount": 125,
+    "elements": [
+      "% returning visitors)",
+      "% vs previous period",
+      "(",
+      "(+33) 07 45 84 38 21",
+      "(affects MEMOPYK logs only, not GA4 data shown above)",
+      "(currently 2 IP addresses excluded)",
+      ", with",
+      ".",
+      "0",
+      "07 February 2026 – 14 February 2026",
+      "1",
+      "100",
+      "2",
+      "67",
+      "75",
+      "AI Context",
+      "ALL",
+      "Active Filters:",
+      "Agences de Voyage",
+      "Aide",
+      "Analytics",
+      "Analytics Dashboard",
+      "Analytics Overview",
+      "Annuaire Pro",
+      "Annuaire numérisation",
+      "Blog",
+      "Boutons CTA",
+      "CTA",
+      "Cache",
+      "Clarity",
+      "Click the eye icon (👁️) on any metric above to view detailed visitor data",
+      "Conditions générales d'utilisation",
+      "Conditions générales de vente",
+      "Contact",
+      "Contenu Site",
+      "Créateur de films souvenirs pour immortaliser vos moments les plus précieux.",
+      "Custom range",
+      "Data Source:",
+      "Date Range:",
+      "Devis",
+      "Distinct visitors (IP-based)",
+      "Documents Légaux",
+      "Déconnexion",
+      "EN",
+      "Excludes your configured IP addresses (your office, home, etc.)",
+      "Exclusions",
+      "FAQ",
+      "FR",
+      "Fallback",
+      "Filters out sessions with invalid/missing IP addresses (often bot traffic)",
+      "Filters:",
+      "GA4",
+      "GA4 (Google Analytics):",
+      "Galerie",
+      "Galerie Vidéos",
+      "Geo",
+      "IP",
+      "Last 30 days",
+      "Last 7 days",
+      "Last 90 days",
+      "Live View",
+      "Légal",
+      "M",
+      "MEMOPYK",
+      "MEMOPYK (Local Logs):",
+      "MEMOPYK typically shows fewer sessions because it:",
+      "Mentions légales",
+      "Navigation",
+      "Notre service",
+      "Nous n'utilisons jamais de cookies à des fins publicitaires, de reciblage, ni pour partager vos données avec des tiers.",
+      "Nous utilisons uniquement les cookies essentiels pour faire fonctionner le site, et -si vous le permettez- des cookies analytiques optionnels pour savoir si les visiteurs regardent nos exemples de films.",
+      "Only counts legitimate production traffic with valid IPs",
+      "Overview",
+      "Panel d'administration",
+      "Paramètres",
+      "Paramètres des cookies",
+      "Partenaires",
+      "Politique de confidentialité",
+      "Politique de cookies",
+      "Politique des cookies",
+      "Pourquoi MEMOPYK",
+      "Raw, unfiltered data from Google's tracking system. Includes all visitors, bots, and traffic. IP filters configured in your GA4 settings only apply to new data going forward, not historical data. Capdenac home network was excluded from GA4 starting November 4, 2025.",
+      "Refuser",
+      "Return Visitors",
+      "Returning visitors",
+      "SEO",
+      "Sections",
+      "Sessions (GA4)",
+      "Système",
+      "These",
+      "Today",
+      "Toggle the data source switch above to compare GA4 (all traffic) vs MEMOPYK (filtered, valid IPs only).",
+      "Tous droits réservés.",
+      "Tout accepter",
+      "Tout le suivi reste limité à MEMOPYK :",
+      "Trends",
+      "Unique Visitors",
+      "Video",
+      "Vidéos Hero",
+      "Visitor Overview",
+      "Visitor sessions from Google Analytics",
+      "Votre vie privée est importante chez MEMOPYK.",
+      "Yesterday",
+      "Your site received",
+      "Your website's local tracking logs with IP exclusions applied. Only counts sessions with valid IP addresses and filters out traffic from your excluded IPs",
+      "active now",
+      "addresses",
+      "admin",
+      "contact@memopyk.com",
+      "excluded",
+      "in the last 7 days",
+      "sessions are tracked by Google Analytics 4. Each session can include multiple page views, so your total pageview count in GA4 will be higher.",
+      "unique visitors",
+      "visitor sessions",
+      "vos activités sur le site ne sont ni reliées ni partagées avec d'autres sites",
+      "© 2026 MEMOPYK.",
+      "▲",
+      "▼",
+      "💡 Key Insight:",
+      "💡 Why the difference?",
+      "📊 Analytics Report for Current View",
+      "📊 Understanding GA4 vs MEMOPYK Data Sources",
+      "📊 Unfiltered",
+      "🚫 IP Exclusions:",
+      "🟠 IPs:"
+    ]
+  }
+}

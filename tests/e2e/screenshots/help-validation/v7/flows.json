@@ -1,0 +1,138 @@
+{
+  "timestamp": "2026-02-14T09:39:08.645Z",
+  "flows": [
+    {
+      "name": "Create a blog post",
+      "totalSteps": 7,
+      "steps": [
+        {
+          "step": 1,
+          "title": "Step 1",
+          "instruction": "In the Blog Hub, click the Posts tab to see all your blog posts.",
+          "rating": "CLEAR",
+          "justification": "Instruction is detailed and actionable"
+        },
+        {
+          "step": 2,
+          "title": "Step 2",
+          "instruction": "Click the + New Post button in the top-right corner. This opens the creation page.",
+          "rating": "CLEAR",
+          "justification": "Instruction is detailed and actionable"
+        },
+        {
+          "step": 3,
+          "title": "Step 3",
+          "instruction": "You have two options: Write from scratch opens the Blog Editor directly. Generate with AI uses AI to create a draft.",
+          "rating": "CLEAR",
+          "justification": "Instruction is detailed and actionable"
+        },
+        {
+          "step": 4,
+          "title": "Step 4",
+          "instruction": "You are now in the Blog Editor — a different screen from the Posts list. If you chose \"Write from scratch\", you see a blank post. Enter your Title at the top, then write your content in the rich text...",
+          "rating": "CLEAR",
+          "justification": "Instruction is detailed and actionable"
+        },
+        {
+          "step": 5,
+          "title": "Step 5",
+          "instruction": "If you chose \"Generate with AI\": Enter your topic, select tone and keywords, then click Generate AI Prompt. Copy the prompt to your AI assistant, paste the JSON response, then click Save Blog Post to...",
+          "rating": "CLEAR",
+          "justification": "Instruction is detailed and actionable"
+        },
+        {
+          "step": 6,
+          "title": "Step 6",
+          "instruction": "In the Blog Editor, scroll down below the content area to find the metadata fields. Set your Tags (colored labels), upload a Hero Image (the main photo for your post), and write a Description (SEO) —...",
+          "rating": "CLEAR",
+          "justification": "Instruction is detailed and actionable"
+        },
+        {
+          "step": 7,
+          "title": "Step 7",
+          "instruction": "Set Status to Draft, In Review, or Published. Click Save Changes.",
+          "rating": "CLEAR",
+          "justification": "Instruction is detailed and actionable"
+        }
+      ],
+      "summary": {
+        "clear": 7,
+        "ambiguous": 0,
+        "blocked": 0
+      }
+    },
+    {
+      "name": "Translate a post",
+      "totalSteps": 8,
+      "steps": [
+        {
+          "step": 1,
+          "title": "Step 1",
+          "instruction": "Go to Posts and locate the post you want to translate.",
+          "rating": "CLEAR",
+          "justification": "Instruction is detailed and actionable"
+        },
+        {
+          "step": 2,
+          "title": "Step 2",
+          "instruction": "Click the 🌐 translate icon next to the post. A dialog will appear.",
+          "rating": "CLEAR",
+          "justification": "Instruction is detailed and actionable"
+        },
+        {
+          "step": 3,
+          "title": "Step 3",
+          "instruction": "Choose ✨ Translate with AI for automatic translation, or Translate manually to use your own tools.",
+          "rating": "CLEAR",
+          "justification": "Instruction is detailed and actionable"
+        },
+        {
+          "step": 4,
+          "title": "Step 4",
+          "instruction": "If you chose AI: the editor opens with the translated content. Review the title, description, and content for accuracy.",
+          "rating": "CLEAR",
+          "justification": "Instruction is detailed and actionable"
+        },
+        {
+          "step": 5,
+          "title": "Step 5",
+          "instruction": "If you chose manual: the editor opens with the original content. Click Translation Assistant to use the translation helper, or translate directly.",
+          "rating": "CLEAR",
+          "justification": "Instruction is detailed and actionable"
+        },
+        {
+          "step": 6,
+          "title": "Step 6",
+          "instruction": "Make any necessary edits to the translation. Images are automatically preserved in their original positions.",
+          "rating": "CLEAR",
+          "justification": "Instruction is detailed and actionable"
+        },
+        {
+          "step": 7,
+          "title": "Step 7",
+          "instruction": "In the Blog Editor for the translated post, check that the Slug uses words in the target language (e.g., French slugs should use French words, English slugs English words). Scroll down and update the...",
+          "rating": "CLEAR",
+          "justification": "Instruction is detailed and actionable"
+        },
+        {
+          "step": 8,
+          "title": "Step 8",
+          "instruction": "Change Status to Published when ready. Click Save Changes.",
+          "rating": "CLEAR",
+          "justification": "Instruction is detailed and actionable"
+        }
+      ],
+      "summary": {
+        "clear": 8,
+        "ambiguous": 0,
+        "blocked": 0
+      }
+    }
+  ],
+  "totalSteps": 15,
+  "overallSummary": {
+    "clear": 15,
+    "ambiguous": 0,
+    "blocked": 0
+  }
+}
