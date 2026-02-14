@@ -1,7 +1,7 @@
 # Technical Debt & Deferred Work
 
 **Purpose**: Track technical improvements, skipped tests, and deferred tasks
-**Last Updated**: 2026-02-13
+**Last Updated**: 2026-02-14
 
 ---
 
@@ -34,6 +34,11 @@
 
 | Date | Item | Solution |
 |------|------|----------|
+| Feb 14 | 22 AMBIGUOUS help screens | Enriched all to 800-4300 chars with specific control descriptions, CSS badge classes |
+| Feb 14 | 3 AMBIGUOUS flow steps | Added screen context to Flow 1 steps 4/6 and Flow 2 step 7 |
+| Feb 14 | Post titles not clickable in Blog Hub | Made titles navigate to Blog Editor (/admin?tab=blog-edit&id={uuid}) |
+| Feb 14 | Travel Agency tabs unstyled | Applied proper tab styling matching other admin sections |
+| Feb 14 | Help jargon (Supabase, API references) | Removed from 5 help screens, replaced with plain language |
 | Feb 13 | Puppy post alt text + internal links | Fixed via API: alt text for 4 images, internal links to /gallery and /faq in both EN and FR posts |
 | Feb 13 | Help content gaps (3 screens) | Keywords count 12,501→107, Blog Hub Brand Brain link, Posts share buttons + language dialog |
 | Feb 13 | Keyword count discrepancy (12,501 vs 107) | Updated in CLAUDE.md, admin-rules.md, keywords help screen |

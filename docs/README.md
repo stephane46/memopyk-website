@@ -95,8 +95,11 @@ memopyk-website/
 ### Help System
 | Document | Description |
 |----------|-------------|
-| help/ADMIN_SCREEN_ROUTES.md | Admin screen route mapping |
+| help/ADMIN_SCREEN_ROUTES.md | Admin screen route mapping (30 screens, 2 flows) |
 | help/NAIVE_USER_TEST_PROCEDURE.md | Methodology for help content testing |
+| help/TEST_REPORT_V6_NAIVE_USER.md | Latest test results (27 screens, 5 CLEAR → 22 enriched Feb 14) |
+| help/TEST_REPORT_V5_NAIVE_USER.md | V5 test results (historical) |
+| help/TEST_REPORT_V5_FIXED_NAIVE_USER.md | V5-fixed test results (historical) |
 
 ### Code Reviews & Audits
 | Document | Description |
@@ -139,4 +142,4 @@ memopyk-website/
 
 ---
 
-Documentation last updated: February 12, 2026
+Documentation last updated: February 14, 2026
