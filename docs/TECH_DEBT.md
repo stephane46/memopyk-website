@@ -7,13 +7,6 @@
 
 ## Active Items
 
-### Mapbox GL JS Migration
-**Date Added**: 2026-01-30
-**Severity**: Medium
-**Location**: Partner Directory map
-**Details**: Current minimal map implementation works but Mapbox GL JS would improve UX with better interactivity, clustering, and mobile support.
-**To Fix**: Dedicated Mapbox migration task.
-
 ### Analytics Dashboard Strategic Decision
 **Date Added**: 2026-02-11
 **Severity**: Medium
@@ -21,19 +14,16 @@
 **Details**: 8,000+ lines of analytics code. Decision needed: fix existing code vs. clean rebuild with custom business metrics that GA4 can't provide. Blog analytics endpoints (5 new) already built Feb 11.
 **To Fix**: Strategic decision from Stéphane, then execute.
 
-### E2E Tests — Skipped Suites
-**Date Added**: 2026-02-02
-**Severity**: Low
-**Location**: `tests/e2e/admin-blog.spec.ts`
-**Details**: AI Creator tests (4 skipped — tab not rendering in Playwright) and Post Actions tests (3 skipped — no posts in staging DB).
-**To Fix**: Investigate AI Creator rendering; seed staging DB or create test fixtures.
-
 ---
 
 ## Resolved (Feb 2026)
 
 | Date | Item | Solution |
 |------|------|----------|
+| Feb 14 | Mapbox GL JS migration | Replaced Leaflet with Mapbox GL JS + GeoJSON clustering in PartnerMapbox.tsx, updated EN/FR directories |
+| Feb 14 | 7 skipped E2E tests | Unskipped and fixed 4 AI Creator + 3 Post Actions tests in admin-blog.spec.ts |
+| Feb 14 | 5 orphan analytics files (516 lines) | Deleted: useLocationEnrichment, ga4Report, mockReport (x2), phase3.json |
+| Feb 14 | 3 junk "Untitled Post" drafts | Deleted from blog_posts table via API |
 | Feb 14 | 22 AMBIGUOUS help screens | Enriched all to 800-4300 chars with specific control descriptions, CSS badge classes |
 | Feb 14 | 3 AMBIGUOUS flow steps | Added screen context to Flow 1 steps 4/6 and Flow 2 step 7 |
 | Feb 14 | Post titles not clickable in Blog Hub | Made titles navigate to Blog Editor (/admin?tab=blog-edit&id={uuid}) |
