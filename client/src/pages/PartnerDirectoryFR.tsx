@@ -1,7 +1,5 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { MapContainer, TileLayer, Marker, Tooltip, useMapEvents, useMap } from 'react-leaflet';
-import MarkerClusterGroup from 'react-leaflet-cluster';
 import { MapPin, Phone, Mail, Globe, Filter, Search, Package, X, Navigation, ChevronDown, ChevronUp, Camera, Film as FilmIcon, Video } from 'lucide-react';
 import { ensureUniquePartnerSlugs } from '@shared/utils/slugify';
 import { Input } from '@/components/ui/input';
@@ -14,214 +12,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import L from 'leaflet';
+import PartnerMapbox, { type MapBounds, containedInBounds } from '@/components/PartnerMapbox';
 import { PHOTO_FORMATS, FILM_FORMATS, VIDEO_CASSETTES, DELIVERY } from '@shared/partnerFormats';
-
-// Lazy icon creation - only create when first accessed to avoid module-load race conditions
-let customMarkerIcon: L.Icon | null = null;
-const getMarkerIcon = () => {
-  if (!customMarkerIcon) {
-    customMarkerIcon = new L.Icon({
-      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-      iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41],
-    });
-  }
-  return customMarkerIcon;
-};
-
-// Component to track map bounds changes
-function MapBoundsTracker({ 
-  onBoundsChange, 
-  partners,
-  expandedCard,
-  userInitiatedRef,
-  onAutoCollapse
-}: { 
-  onBoundsChange: (bounds: L.LatLngBounds) => void;
-  partners: any[];
-  expandedCard: string | null;
-  userInitiatedRef: React.MutableRefObject<boolean>;
-  onAutoCollapse: () => void;
-}) {
-  // Use refs to avoid stale closure problem - always get current values
-  const expandedCardRef = useRef(expandedCard);
-  const partnersRef = useRef(partners);
-  const onAutoCollapseRef = useRef(onAutoCollapse);
-  
-  // Update refs when props change
-  useEffect(() => {
-    expandedCardRef.current = expandedCard;
-    partnersRef.current = partners;
-    onAutoCollapseRef.current = onAutoCollapse;
-  }, [expandedCard, partners, onAutoCollapse]);
-  
-  const map = useMapEvents({
-    moveend: () => {
-      const bounds = map.getBounds();
-      onBoundsChange(bounds);
-      
-      // Auto-collapse logic: count visible partners using current ref values
-      const visibleCount = partnersRef.current.filter(p => 
-        p.lat && p.lng && bounds.contains([p.lat, p.lng])
-      ).length;
-      
-      const currentExpandedCard = expandedCardRef.current;
-      
-      // If multiple partners visible and card expanded, auto-collapse (unless user just clicked marker)
-      if (visibleCount > 1 && currentExpandedCard && !userInitiatedRef.current) {
-        onAutoCollapseRef.current();
-      }
-      
-      // Clear the user-initiated flag after map movement completes
-      userInitiatedRef.current = false;
-    },
-    zoomend: () => {
-      const bounds = map.getBounds();
-      onBoundsChange(bounds);
-      
-      // Auto-collapse logic: count visible partners using current ref values
-      const visibleCount = partnersRef.current.filter(p => 
-        p.lat && p.lng && bounds.contains([p.lat, p.lng])
-      ).length;
-      
-      const currentExpandedCard = expandedCardRef.current;
-      
-      // If multiple partners visible and card expanded, auto-collapse (unless user just clicked marker)
-      if (visibleCount > 1 && currentExpandedCard && !userInitiatedRef.current) {
-        onAutoCollapseRef.current();
-      }
-      
-      // Clear the user-initiated flag after map movement completes
-      userInitiatedRef.current = false;
-    },
-    load: () => {
-      onBoundsChange(map.getBounds());
-    }
-  });
-  return null;
-}
-
-// Component to handle zooming to a specific location
-function MapZoomController({ 
-  zoomTo, 
-  onZoomComplete 
-}: { 
-  zoomTo: { lat: number; lng: number; zoom: number; timestamp: number } | null;
-  onZoomComplete: () => void;
-}) {
-  const map = useMap();
-  
-  useEffect(() => {
-    if (zoomTo) {
-      map.flyTo([zoomTo.lat, zoomTo.lng], zoomTo.zoom, {
-        duration: 0,
-        animate: false
-      });
-      
-      // Reset zoomTo after animation completes to allow re-triggering
-      setTimeout(() => {
-        onZoomComplete();
-      }, 1500);
-    }
-  }, [zoomTo, map, onZoomComplete]);
-  
-  return null;
-}
-
-// Component to handle custom cluster clicks with tighter zoom
-function ClusterClickHandler({ clusterRef }: { clusterRef: any }) {
-  const map = useMap();
-  
-  useEffect(() => {
-    if (clusterRef.current) {
-      const group = clusterRef.current;
-      
-      group.on('clusterclick', (e: any) => {
-        e.originalEvent.stopPropagation();
-        const cluster = e.layer;
-        const childMarkers = cluster.getAllChildMarkers();
-        
-        // Calculate center of cluster markers
-        const bounds = L.latLngBounds(childMarkers.map((m: any) => m.getLatLng()));
-        
-        // Zoom to level 16 at the center to show only these markers
-        map.flyToBounds(bounds, {
-          padding: [100, 100],
-          maxZoom: 16,
-          duration: 0,
-          animate: false
-        });
-      });
-    }
-    
-    return () => {
-      if (clusterRef.current) {
-        clusterRef.current.off('clusterclick');
-      }
-    };
-  }, [clusterRef, map]);
-  
-  return null;
-}
-
-// Component to fit map bounds to all partners on initial load
-function MapFitBounds({ partners }: { partners: Array<{ lat: number | null; lng: number | null }> }) {
-  const map = useMap();
-  const hasInitialized = useRef(false);
-  
-  useEffect(() => {
-    if (!hasInitialized.current && partners.length > 0) {
-      const bounds: [number, number][] = partners
-        .filter(p => p.lat && p.lng)
-        .map(p => [p.lat!, p.lng!]);
-      
-      if (bounds.length > 0) {
-        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 10, animate: false });
-        hasInitialized.current = true;
-      }
-    }
-  }, [partners, map]);
-  
-  return null;
-}
-
-// Component to auto-zoom map when search results change
-function MapAutoZoomToSearch({ 
-  searchText, 
-  filteredPartners 
-}: { 
-  searchText: string; 
-  filteredPartners: Array<{ lat: number | null; lng: number | null }>;
-}) {
-  const map = useMap();
-  const prevSearchText = useRef('');
-  
-  useEffect(() => {
-    // Only auto-zoom when search text changes (not on initial load or filter changes)
-    if (searchText && searchText !== prevSearchText.current && filteredPartners.length > 0) {
-      const partnersWithCoords = filteredPartners.filter(p => p.lat && p.lng);
-      
-      if (partnersWithCoords.length === 1) {
-        // Single result: zoom to that specific location
-        const partner = partnersWithCoords[0];
-        map.flyTo([partner.lat!, partner.lng!], 13, { duration: 0, animate: false });
-      } else if (partnersWithCoords.length > 1) {
-        // Multiple results: fit bounds to show all
-        const bounds: [number, number][] = partnersWithCoords.map(p => [p.lat!, p.lng!]);
-        map.flyToBounds(bounds, { padding: [50, 50], maxZoom: 10, duration: 0, animate: false });
-      }
-    }
-    
-    prevSearchText.current = searchText;
-  }, [searchText, filteredPartners, map]);
-  
-  return null;
-}
 
 interface Partner {
   name: string;
@@ -259,15 +51,13 @@ export default function PartnerDirectoryFR() {
   const [searchText, setSearchText] = useState('');
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
-  const [mapBounds, setMapBounds] = useState<L.LatLngBounds | null>(null);
-  const [zoomTo, setZoomTo] = useState<{ lat: number; lng: number; zoom: number; timestamp: number } | null>(null);
+  const [mapBounds, setMapBounds] = useState<MapBounds | null>(null);
   const [modalPartner, setModalPartner] = useState<Partner | null>(null);
   const [expandedCard, setExpandedCardState] = useState<string | null>(null);
-  
+
   const setExpandedCard = (value: string | null) => {
     setExpandedCardState(value);
   };
-  const clusterRef = useRef<any>(null);
 
   const { data: partnersResponse, isLoading, refetch } = useQuery<{ partners: Partner[], total: number }>({
     queryKey: ['/api/partners', { limit: 1000, status: 'Approved', is_active: true, show_on_map: true, transform: true }],
@@ -295,9 +85,6 @@ export default function PartnerDirectoryFR() {
   // Track window width for responsive behavior
   const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' && window.innerWidth >= 1024);
   
-  // Track whether expansion was user-initiated (marker click) to prevent auto-collapse
-  const userInitiatedExpansionRef = useRef(false);
-
   // Update isDesktop on resize
   useEffect(() => {
     const handleResize = () => {
@@ -356,16 +143,10 @@ export default function PartnerDirectoryFR() {
     if (!mapBounds) {
       return mappablePartners;
     }
-    return mappablePartners.filter(partner => 
-      mapBounds.contains([partner.lat!, partner.lng!])
+    return mappablePartners.filter(partner =>
+      containedInBounds(mapBounds, partner.lat!, partner.lng!)
     );
   }, [mappablePartners, mapBounds]);
-
-  // Handler for auto-collapse triggered by map events
-  const handleAutoCollapse = () => {
-    setExpandedCard(null);
-    setSelectedPartner(null);
-  };
 
   // Service chips with counts (French labels) - ORDERED: Photo, Film, Video
   // Counts based on VISIBLE partners in the current viewport
@@ -425,17 +206,8 @@ export default function PartnerDirectoryFR() {
     if (partner.lat && partner.lng) {
       setSelectedPartner(partner.slug);
       setExpandedCard(partner.slug);
-      setZoomTo({ 
-        lat: partner.lat, 
-        lng: partner.lng, 
-        zoom: 17,
-        timestamp: Date.now()
-      });
     }
   };
-
-  // Default map center (France)
-  const mapCenter: [number, number] = [46.603354, 1.888334];
 
   return (
     <div className="min-h-screen bg-[#F2EBDC]">
@@ -516,35 +288,11 @@ export default function PartnerDirectoryFR() {
                 <MapPin className="h-5 w-5 lg:h-6 lg:w-6" />
                 <span>{visiblePartners.length} professionnel{visiblePartners.length !== 1 ? 's' : ''} trouvé{visiblePartners.length !== 1 ? 's' : ''}</span>
               </div>
-              <MapContainer
-                center={mapCenter}
-                zoom={6}
-                style={{ height: '100%', width: '100%' }}
-                data-testid="partner-map"
-                preferCanvas={true}
-                zoomAnimation={false}
-                fadeAnimation={false}
-                markerZoomAnimation={false}
-              >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                {/* Minimal working configuration - all useMap()/useMapEvents() components removed due to Leaflet bug */}
-                {mappablePartners.map((partner, index) => (
-                  partner.lat && partner.lng && (
-                    <Marker
-                      key={index}
-                      position={[partner.lat, partner.lng]}
-                    >
-                      <Tooltip direction="top" offset={[0, -20]} opacity={0.9}>
-                        <div className="font-semibold">{partner.name}</div>
-                        <div className="text-xs text-gray-600">{partner.city}</div>
-                      </Tooltip>
-                    </Marker>
-                  )
-                ))}
-              </MapContainer>
+              <PartnerMapbox
+                partners={mappablePartners}
+                onBoundsChange={setMapBounds}
+                selectedPartnerSlug={selectedPartner}
+              />
             </div>
           </div>
 
