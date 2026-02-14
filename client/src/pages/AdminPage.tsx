@@ -369,9 +369,9 @@ function AdminPageContent() {
             {/* Travel Agencies Admin (Uploads + Agency Codes) */}
             {activeSection === 'travel-agencies' && (
               <Tabs defaultValue="uploads" className="w-full">
-                <TabsList className="mb-4">
-                  <TabsTrigger value="uploads">Uploads</TabsTrigger>
-                  <TabsTrigger value="agency-codes">Agency Codes</TabsTrigger>
+                <TabsList className="mb-4 bg-gray-100 border border-gray-200">
+                  <TabsTrigger value="uploads" className="data-[state=active]:bg-white data-[state=active]:shadow data-[state=active]:text-gray-900 px-4 py-2">Uploads</TabsTrigger>
+                  <TabsTrigger value="agency-codes" className="data-[state=active]:bg-white data-[state=active]:shadow data-[state=active]:text-gray-900 px-4 py-2">Agency Codes</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="uploads">

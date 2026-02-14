@@ -18,7 +18,7 @@ MEMOPYK creates professional "Films Souvenirs" (souvenir/memory films) from clie
 | Analytics | ✅ GA4 + custom Supabase (blog analytics endpoints added Feb 11) |
 | Partner Directory | ✅ Working (Mapbox GL JS upgrade planned) |
 | Auto-deploy | ✅ Push → GitHub webhook → Coolify |
-| Help System | ✅ Complete (31 screens, 2 flows, 20/20 naive user pass) |
+| Help System | ✅ Complete (30 screens, 2 flows, V6 enriched — 22 screens upgraded, 3 flow steps fixed) |
 | Blog Hub | ✅ 5 workflow tabs, 107 keywords, 25 clusters |
 | Production | ✅ Live on Coolify (Replit fully replaced Feb 2) |
 
@@ -71,6 +71,7 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-14: Help system V6 fix — 22 AMBIGUOUS screens enriched (800-4300 chars each), 3 flow steps fixed, jargon removed (Supabase, API, endpoint), post titles clickable in Blog Posts tab, Travel Agency tab styling enhanced, QC spot-check 5/5 pass
 - 2026-02-13: UI fixes — language selector moved to top of editor, blank draft Discard button + AI CTA banner, "Write Manually" in topic modal, stats labels fixed, help text rewritten (Sitemap/FAQ), naive user test 19/19
 - 2026-02-13: Blog URL fix — language-prefix auto-redirect for cross-language slugs, related posts fallback to same-language posts
 - 2026-02-13: Post-overhaul verification — puppy post fixes (alt text, internal links), keyword count corrected (107), naive user help test 20/20, 3 help screens updated (keywords count, Blog Hub Brand Brain link, Posts share buttons + language dialog)

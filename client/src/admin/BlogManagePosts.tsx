@@ -489,7 +489,15 @@ export function BlogManagePosts() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-semibold text-gray-900 truncate">
+                        <h3
+                          className="font-semibold text-gray-900 truncate cursor-pointer hover:text-blue-700 hover:underline"
+                          onClick={() => {
+                            const currentPath = window.location.pathname;
+                            const langPrefix = currentPath.match(/^\/(en-US|fr-FR)/)?.[0] || '';
+                            window.location.href = `${langPrefix}/admin?tab=blog-edit&id=${post.id}`;
+                          }}
+                          title="Edit post"
+                        >
                           {post.title}
                         </h3>
                         
