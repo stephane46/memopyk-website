@@ -195,36 +195,50 @@ async function navigateToScreen(page: Page, screen: any) {
 
   // If it's an Analytics sub-tab, click the tab
   if (screen.analyticsTab) {
-    // Find the tab button by text
-    const tabMap: Record<string, string> = {
-      'overview': 'Overview',
-      'live': 'Live View',
-      'trends': 'Trends',
-      'video': 'Video',
-      'geo': 'Geo',
-      'cta': 'CTA',
-      'blog': 'Blog',
-      'clarity': 'Clarity',
-      'fallback': 'Fallback',
-      'exclusions': 'Exclusions',
+    // Use data-testid for analytics tabs to avoid strict mode violations
+    const testIdMap: Record<string, string> = {
+      'overview': 'tab-overview',
+      'live': 'tab-live',
+      'trends': 'tab-trends',
+      'video': 'tab-video',
+      'geo': 'tab-geo',
+      'cta': 'tab-cta',
+      'blog': 'tab-blog',
+      'clarity': 'tab-clarity',
+      'fallback': 'tab-fallback',
+      'exclusions': 'tab-exclusions',
     };
-    const tabText = tabMap[screen.analyticsTab];
-    await page.getByRole('button', { name: tabText }).click();
+    const testId = testIdMap[screen.analyticsTab];
+    if (testId) {
+      await page.getByTestId(testId).click();
+    } else {
+      // Fallback to button with exact text
+      const tabMap: Record<string, string> = {
+        'overview': 'Overview',
+        'live': 'Live View',
+        'trends': 'Trends',
+        'video': 'Video',
+        'geo': 'Geo',
+        'cta': 'CTA',
+        'blog': 'Blog',
+        'clarity': 'Clarity',
+        'fallback': 'Fallback',
+        'exclusions': 'Exclusions',
+      };
+      const tabText = tabMap[screen.analyticsTab];
+      await page.locator(`button:has-text("${tabText}")`).last().click();
+    }
     await page.waitForTimeout(2000);
   }
 }
 
 async function openHelp(page: Page) {
-  const sidebar = page.locator('.bg-gray-900.fixed');
-
   // Collapse all groups first to prevent overlapping
   await collapseAllGroups(page);
   await page.waitForTimeout(300);
 
-  await sidebar.locator('nav button')
-    .filter({ has: page.locator('span:text-is("Aide")') })
-    .first()
-    .click({ force: true });
+  const helpButton = page.locator('button:has-text("Aide")');
+  await helpButton.click({ force: true });
 
   // Wait for help content
   await page.waitForSelector('.w-80 .prose h3', { timeout: 5000 }).catch(() => null);
@@ -232,11 +246,8 @@ async function openHelp(page: Page) {
 }
 
 async function closeHelp(page: Page) {
-  const sidebar = page.locator('.bg-gray-900.fixed');
-  await sidebar.locator('nav button')
-    .filter({ has: page.locator('span:text-is("Aide")') })
-    .first()
-    .click({ force: true });
+  const helpButton = page.locator('button:has-text("Aide")');
+  await helpButton.click({ force: true });
   await page.waitForTimeout(500);
 }
 

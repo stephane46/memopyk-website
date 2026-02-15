@@ -1,0 +1,161 @@
+{
+  "timestamp": "2026-02-15T15:01:11.612Z",
+  "totalScreens": 28,
+  "screens": [
+    {
+      "name": "Analytics",
+      "route": "?tab=analytics-new",
+      "type": "direct"
+    },
+    {
+      "name": "Analytics - Overview",
+      "route": "?tab=analytics-new&an_tab=overview",
+      "type": "subtab",
+      "parent": "Analytics"
+    },
+    {
+      "name": "Analytics - Live",
+      "route": "?tab=analytics-new&an_tab=live",
+      "type": "subtab",
+      "parent": "Analytics"
+    },
+    {
+      "name": "Analytics - Trends",
+      "route": "?tab=analytics-new&an_tab=trends",
+      "type": "subtab",
+      "parent": "Analytics"
+    },
+    {
+      "name": "Analytics - Video",
+      "route": "?tab=analytics-new&an_tab=video",
+      "type": "subtab",
+      "parent": "Analytics"
+    },
+    {
+      "name": "Analytics - Geo",
+      "route": "?tab=analytics-new&an_tab=geo",
+      "type": "subtab",
+      "parent": "Analytics"
+    },
+    {
+      "name": "Analytics - Cta",
+      "route": "?tab=analytics-new&an_tab=cta",
+      "type": "subtab",
+      "parent": "Analytics"
+    },
+    {
+      "name": "Analytics - Blog",
+      "route": "?tab=analytics-new&an_tab=blog",
+      "type": "subtab",
+      "parent": "Analytics"
+    },
+    {
+      "name": "Analytics - Clarity",
+      "route": "?tab=analytics-new&an_tab=clarity",
+      "type": "subtab",
+      "parent": "Analytics"
+    },
+    {
+      "name": "Analytics - Fallback",
+      "route": "?tab=analytics-new&an_tab=fallback",
+      "type": "subtab",
+      "parent": "Analytics"
+    },
+    {
+      "name": "Analytics - Exclusions",
+      "route": "?tab=analytics-new&an_tab=exclusions",
+      "type": "subtab",
+      "parent": "Analytics"
+    },
+    {
+      "name": "Blog",
+      "route": "?tab=planner",
+      "type": "direct"
+    },
+    {
+      "name": "Keywords",
+      "route": "?tab=keywords",
+      "type": "tab",
+      "parent": "Blog"
+    },
+    {
+      "name": "Planned Posts",
+      "route": "?tab=topics",
+      "type": "tab",
+      "parent": "Blog"
+    },
+    {
+      "name": "Posts",
+      "route": "?tab=posts",
+      "type": "tab",
+      "parent": "Blog"
+    },
+    {
+      "name": "Image Bank",
+      "route": "?tab=images",
+      "type": "tab",
+      "parent": "Blog"
+    },
+    {
+      "name": "Agences de Voyage",
+      "route": "?tab=travel-agencies",
+      "type": "direct"
+    },
+    {
+      "name": "Annuaire Pro",
+      "route": "?tab=partners",
+      "type": "direct"
+    },
+    {
+      "name": "SEO",
+      "route": "?tab=seo",
+      "type": "direct"
+    },
+    {
+      "name": "Vidéos Hero",
+      "route": "?tab=hero-management",
+      "type": "direct"
+    },
+    {
+      "name": "Galerie Vidéos",
+      "route": "?tab=gallery",
+      "type": "direct"
+    },
+    {
+      "name": "FAQ",
+      "route": "?tab=faq",
+      "type": "direct"
+    },
+    {
+      "name": "Pourquoi MEMOPYK",
+      "route": "?tab=why-memopyk",
+      "type": "direct"
+    },
+    {
+      "name": "Boutons CTA",
+      "route": "?tab=cta",
+      "type": "direct"
+    },
+    {
+      "name": "Documents Légaux",
+      "route": "?tab=legal-docs",
+      "type": "direct"
+    },
+    {
+      "name": "AI Context",
+      "route": "?tab=ai-context",
+      "type": "direct"
+    },
+    {
+      "name": "Cache",
+      "route": "?tab=cache",
+      "type": "direct"
+    },
+    {
+      "name": "Blog Editor",
+      "route": "?tab=blog-edit",
+      "type": "secondary",
+      "parent": "Posts"
+    }
+  ]
+}

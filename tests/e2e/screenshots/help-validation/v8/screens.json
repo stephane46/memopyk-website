@@ -1,0 +1,432 @@
+{
+  "timestamp": "2026-02-15T15:01:11.613Z",
+  "methodology": "Strict UI-only. Zero database queries. All screens visited in browser.",
+  "summary": {
+    "total": 28,
+    "clear": 27,
+    "ambiguous": 1,
+    "blocked": 0
+  },
+  "screens": [
+    {
+      "screen_name": "Analytics",
+      "route": "?tab=analytics-new",
+      "type": "direct",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Analytics Dashboard",
+      "help_chars_approx": "long",
+      "help_length": 2628,
+      "screenshots": [
+        "screen-analytics-ui.png",
+        "screen-analytics-help.png"
+      ]
+    },
+    {
+      "screen_name": "Analytics - Overview",
+      "route": "?tab=analytics-new&an_tab=overview",
+      "type": "subtab",
+      "parent": "Analytics",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Analytics Overview",
+      "help_chars_approx": "medium",
+      "help_length": 1110,
+      "screenshots": [
+        "screen-analytics-overview-ui.png",
+        "screen-analytics-overview-help.png"
+      ]
+    },
+    {
+      "screen_name": "Analytics - Live",
+      "route": "?tab=analytics-new&an_tab=live",
+      "type": "subtab",
+      "parent": "Analytics",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Live View",
+      "help_chars_approx": "medium",
+      "help_length": 1502,
+      "screenshots": [
+        "screen-analytics-live-ui.png",
+        "screen-analytics-live-help.png"
+      ]
+    },
+    {
+      "screen_name": "Analytics - Trends",
+      "route": "?tab=analytics-new&an_tab=trends",
+      "type": "subtab",
+      "parent": "Analytics",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Trends",
+      "help_chars_approx": "medium",
+      "help_length": 1605,
+      "screenshots": [
+        "screen-analytics-trends-ui.png",
+        "screen-analytics-trends-help.png"
+      ]
+    },
+    {
+      "screen_name": "Analytics - Video",
+      "route": "?tab=analytics-new&an_tab=video",
+      "type": "subtab",
+      "parent": "Analytics",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Video Analytics",
+      "help_chars_approx": "medium",
+      "help_length": 1486,
+      "screenshots": [
+        "screen-analytics-video-ui.png",
+        "screen-analytics-video-help.png"
+      ]
+    },
+    {
+      "screen_name": "Analytics - Geo",
+      "route": "?tab=analytics-new&an_tab=geo",
+      "type": "subtab",
+      "parent": "Analytics",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Geographic Market Analysis",
+      "help_chars_approx": "medium",
+      "help_length": 1589,
+      "screenshots": [
+        "screen-analytics-geo-ui.png",
+        "screen-analytics-geo-help.png"
+      ]
+    },
+    {
+      "screen_name": "Analytics - Cta",
+      "route": "?tab=analytics-new&an_tab=cta",
+      "type": "subtab",
+      "parent": "Analytics",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "CTA Analytics",
+      "help_chars_approx": "medium",
+      "help_length": 1908,
+      "screenshots": [
+        "screen-analytics-cta-ui.png",
+        "screen-analytics-cta-help.png"
+      ]
+    },
+    {
+      "screen_name": "Analytics - Blog",
+      "route": "?tab=analytics-new&an_tab=blog",
+      "type": "subtab",
+      "parent": "Analytics",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Blog Analytics",
+      "help_chars_approx": "long",
+      "help_length": 2180,
+      "screenshots": [
+        "screen-analytics-blog-ui.png",
+        "screen-analytics-blog-help.png"
+      ]
+    },
+    {
+      "screen_name": "Analytics - Clarity",
+      "route": "?tab=analytics-new&an_tab=clarity",
+      "type": "subtab",
+      "parent": "Analytics",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Microsoft Clarity",
+      "help_chars_approx": "medium",
+      "help_length": 1455,
+      "screenshots": [
+        "screen-analytics-clarity-ui.png",
+        "screen-analytics-clarity-help.png"
+      ]
+    },
+    {
+      "screen_name": "Analytics - Fallback",
+      "route": "?tab=analytics-new&an_tab=fallback",
+      "type": "subtab",
+      "parent": "Analytics",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "System Diagnostics",
+      "help_chars_approx": "medium",
+      "help_length": 1744,
+      "screenshots": [
+        "screen-analytics-fallback-ui.png",
+        "screen-analytics-fallback-help.png"
+      ]
+    },
+    {
+      "screen_name": "Analytics - Exclusions",
+      "route": "?tab=analytics-new&an_tab=exclusions",
+      "type": "subtab",
+      "parent": "Analytics",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "IP Exclusions",
+      "help_chars_approx": "medium",
+      "help_length": 1709,
+      "screenshots": [
+        "screen-analytics-exclusions-ui.png",
+        "screen-analytics-exclusions-help.png"
+      ]
+    },
+    {
+      "screen_name": "Blog",
+      "route": "?tab=planner",
+      "type": "direct",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Planner",
+      "help_chars_approx": "medium",
+      "help_length": 1400,
+      "screenshots": [
+        "screen-blog-ui.png",
+        "screen-blog-help.png"
+      ]
+    },
+    {
+      "screen_name": "Keywords",
+      "route": "?tab=keywords",
+      "type": "tab",
+      "parent": "Blog",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Keywords (107)",
+      "help_chars_approx": "long",
+      "help_length": 2492,
+      "screenshots": [
+        "screen-keywords-ui.png",
+        "screen-keywords-help.png"
+      ]
+    },
+    {
+      "screen_name": "Planned Posts",
+      "route": "?tab=topics",
+      "type": "tab",
+      "parent": "Blog",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "View Modes",
+      "help_chars_approx": "long",
+      "help_length": 3161,
+      "screenshots": [
+        "screen-planned-posts-ui.png",
+        "screen-planned-posts-help.png"
+      ]
+    },
+    {
+      "screen_name": "Posts",
+      "route": "?tab=posts",
+      "type": "tab",
+      "parent": "Blog",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Posts",
+      "help_chars_approx": "medium",
+      "help_length": 1392,
+      "screenshots": [
+        "screen-posts-ui.png",
+        "screen-posts-help.png"
+      ]
+    },
+    {
+      "screen_name": "Image Bank",
+      "route": "?tab=images",
+      "type": "tab",
+      "parent": "Blog",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Header Controls",
+      "help_chars_approx": "long",
+      "help_length": 2972,
+      "screenshots": [
+        "screen-image-bank-ui.png",
+        "screen-image-bank-help.png"
+      ]
+    },
+    {
+      "screen_name": "Agences de Voyage",
+      "route": "?tab=travel-agencies",
+      "type": "direct",
+      "rating": "AMBIGUOUS",
+      "justification": "Help title \"Tab 1: Uploads\" may not match screen \"Agences de Voyage\"",
+      "help_title": "Tab 1: Uploads",
+      "help_chars_approx": "long",
+      "help_length": 3803,
+      "screenshots": [
+        "screen-agences-de-voyage-ui.png",
+        "screen-agences-de-voyage-help.png"
+      ]
+    },
+    {
+      "screen_name": "Annuaire Pro",
+      "route": "?tab=partners",
+      "type": "direct",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Partners Directory",
+      "help_chars_approx": "medium",
+      "help_length": 1543,
+      "screenshots": [
+        "screen-annuaire-pro-ui.png",
+        "screen-annuaire-pro-help.png"
+      ]
+    },
+    {
+      "screen_name": "SEO",
+      "route": "?tab=seo",
+      "type": "direct",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "SEO Management",
+      "help_chars_approx": "medium",
+      "help_length": 1031,
+      "screenshots": [
+        "screen-seo-ui.png",
+        "screen-seo-help.png"
+      ]
+    },
+    {
+      "screen_name": "Vidéos Hero",
+      "route": "?tab=hero-management",
+      "type": "direct",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Gérer les Vidéos Hero (Carrousel d'Accueil)",
+      "help_chars_approx": "long",
+      "help_length": 3622,
+      "screenshots": [
+        "screen-videos-hero-ui.png",
+        "screen-videos-hero-help.png"
+      ]
+    },
+    {
+      "screen_name": "Galerie Vidéos",
+      "route": "?tab=gallery",
+      "type": "direct",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Gérer la Galerie Vidéo",
+      "help_chars_approx": "long",
+      "help_length": 2433,
+      "screenshots": [
+        "screen-galerie-videos-ui.png",
+        "screen-galerie-videos-help.png"
+      ]
+    },
+    {
+      "screen_name": "FAQ",
+      "route": "?tab=faq",
+      "type": "direct",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Gérer les Questions Fréquemment Posées (FAQ)",
+      "help_chars_approx": "long",
+      "help_length": 2441,
+      "screenshots": [
+        "screen-faq-ui.png",
+        "screen-faq-help.png"
+      ]
+    },
+    {
+      "screen_name": "Pourquoi MEMOPYK",
+      "route": "?tab=why-memopyk",
+      "type": "direct",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Gérer les Cartes \"Pourquoi MEMOPYK\"",
+      "help_chars_approx": "medium",
+      "help_length": 1594,
+      "screenshots": [
+        "screen-pourquoi-memopyk-ui.png",
+        "screen-pourquoi-memopyk-help.png"
+      ]
+    },
+    {
+      "screen_name": "Boutons CTA",
+      "route": "?tab=cta",
+      "type": "direct",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Gérer les Boutons CTA (Call-to-Action)",
+      "help_chars_approx": "medium",
+      "help_length": 1324,
+      "screenshots": [
+        "screen-boutons-cta-ui.png",
+        "screen-boutons-cta-help.png"
+      ]
+    },
+    {
+      "screen_name": "Documents Légaux",
+      "route": "?tab=legal-docs",
+      "type": "direct",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Legal Document Management",
+      "help_chars_approx": "medium",
+      "help_length": 531,
+      "screenshots": [
+        "screen-documents-legaux-ui.png",
+        "screen-documents-legaux-help.png"
+      ]
+    },
+    {
+      "screen_name": "AI Context",
+      "route": "?tab=ai-context",
+      "type": "direct",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "What You See",
+      "help_chars_approx": "long",
+      "help_length": 2291,
+      "screenshots": [
+        "screen-ai-context-ui.png",
+        "screen-ai-context-help.png"
+      ]
+    },
+    {
+      "screen_name": "Cache",
+      "route": "?tab=cache",
+      "type": "direct",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Storage Overview Card",
+      "help_chars_approx": "long",
+      "help_length": 3243,
+      "screenshots": [
+        "screen-cache-ui.png",
+        "screen-cache-help.png"
+      ]
+    },
+    {
+      "screen_name": "Blog Editor",
+      "route": "?tab=blog-edit",
+      "type": "secondary",
+      "parent": "Posts",
+      "rating": "CLEAR",
+      "justification": "Help matches screen, plain language, substantial content",
+      "help_title": "Blog Editor",
+      "help_chars_approx": "long",
+      "help_length": 4251,
+      "screenshots": [
+        "screen-blog-editor-ui.png",
+        "screen-blog-editor-help.png"
+      ],
+      "blog_editor_checklist": {
+        "AI Assist": true,
+        "language": true,
+        "editor": true,
+        "Sitemap": true,
+        "FAQ Schema": true,
+        "Status": true,
+        "Save": true,
+        "Discard": true,
+        "Slug": true,
+        "description": true,
+        "image": true
+      }
+    }
+  ]
+}
