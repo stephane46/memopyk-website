@@ -127,6 +127,11 @@ export async function qAllLocales(start: string, end: string) {
 }
 
 export async function qSessions(start: string, end: string, locale?: string, country?: string) {
+  // Note: EN locale uses ALL-FR subtraction for sessions, while qTotalUsers/qReturningUsers
+  // use a NOT filter. These approaches may yield slightly different results because GA4
+  // counts users cross-session (a user with both FR and EN sessions may appear in NOT-FR results).
+  // This is expected GA4 behavior, not a bug.
+
   // EN = ALL - FR to avoid overlap
   if (locale === "en") {
     const cf = countryFilter(country);

@@ -690,10 +690,13 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Eye style={{ width: '24px', height: '24px' }} />
-                  <span className="font-bold">Sessions Details (GA4)</span>
+                  <span className="font-bold">Sessions Details ({dataSource === 'ga4' ? 'GA4' : 'MEMOPYK'})</span>
                 </div>
-                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
-                  📊 Google Analytics Data
+                <Badge
+                  variant="outline"
+                  className={dataSource === 'ga4' ? 'bg-blue-50 text-blue-700 border-blue-200 text-xs' : 'bg-orange-50 text-orange-700 border-orange-200 text-xs'}
+                >
+                  {dataSource === 'ga4' ? '📊 Google Analytics Data' : '🟠 MEMOPYK Logs'}
                 </Badge>
               </div>
             </div>
@@ -703,13 +706,16 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
               <div className="-mx-6 mb-6 -mt-4 p-4 bg-blue-50 border border-blue-200 rounded-b-lg border-t-0">
                 <div className="space-y-1 text-sm">
                   <div className="text-gray-900 font-medium">
-                    📊 GA4 Sessions: {totalViews?.value || 0} visitor sessions
+                    {dataSource === 'ga4' ? '📊 GA4 Sessions' : '🟠 MEMOPYK Sessions'}: {totalViews?.value || 0} visitor sessions
                   </div>
                   <div className="text-gray-700">
                     ℹ️ Sessions = individual visits. One session can include multiple pageviews.
                   </div>
                   <div className="text-gray-700">
-                    🚫 IP Exclusions don't affect GA4 data (configure in Google Analytics Admin)
+                    {dataSource === 'ga4'
+                      ? '🔍 Detail records below from MEMOPYK logs (GA4 does not provide individual session details)'
+                      : '🔍 Detail records from MEMOPYK logs'
+                    }
                   </div>
                 </div>
               </div>
