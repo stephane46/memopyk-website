@@ -70,6 +70,7 @@ export default function PartnerMapbox({
 
   const emitBounds = useCallback((map: mapboxgl.Map) => {
     const b = map.getBounds();
+    if (!b) return;
     onBoundsChangeRef.current({
       north: b.getNorth(),
       south: b.getSouth(),
