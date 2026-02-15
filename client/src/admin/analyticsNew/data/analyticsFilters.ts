@@ -108,8 +108,8 @@ export function buildAnalyticsParams(
     params.since = sinceDate;
   }
   
-  // Add segmentation filters
-  if (country !== 'all') params.country = country;
+  // Add segmentation filters (ALWAYS include country, even if 'all')
+  params.country = country;
   if (videoId !== 'all') params.videoId = videoId;
   
   // Add data source parameter

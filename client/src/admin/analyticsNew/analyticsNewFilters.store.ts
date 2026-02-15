@@ -293,13 +293,18 @@ export const formatParisDateWindow = (start: string, end: string): string => {
     
     // English formatting: DD MMMM YYYY
     const formatEnglish = (date: DateTime) => date.setLocale('en').toFormat('dd LLLL yyyy');
-    
-    if (start === end) {
-      // Single day
+
+    // Check if this is a single-day range (end = start + 1 day, which means exclusive end)
+    const daysDiff = endDate.diff(startDate, 'days').days;
+
+    if (start === end || Math.abs(daysDiff - 1) < 0.01) {
+      // Single day (either same date or end is exactly 1 day after start = exclusive range for single day)
       return formatEnglish(startDate);
     } else {
-      // Date range
-      return `${formatEnglish(startDate)} – ${formatEnglish(endDate)}`;
+      // True date range (multiple days)
+      // For exclusive end dates, show the day before end date
+      const displayEnd = daysDiff > 1 ? endDate.minus({ days: 1 }) : endDate;
+      return `${formatEnglish(startDate)} – ${formatEnglish(displayEnd)}`;
     }
   } catch (error) {
     console.error('formatParisDateWindow: Exception:', error, { start, end });

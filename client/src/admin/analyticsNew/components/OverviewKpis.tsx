@@ -66,11 +66,7 @@ export function OverviewKpis({
       {/* Visitor-focused metrics (like Analytics Old) */}
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-3">Visitor Overview</h3>
-        <VisitorFocusedKpis 
-          preset={preset} 
-          startDate={startDate} 
-          endDate={endDate} 
-        />
+        <VisitorFocusedKpis preset={preset} />
       </div>
     </div>
   );
