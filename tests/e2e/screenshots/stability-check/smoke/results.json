@@ -1,0 +1,540 @@
+[
+  {
+    "slug": "analytics-overview",
+    "route": "/admin?tab=analytics-new&an_tab=overview",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "analytics-live",
+    "route": "/admin?tab=analytics-new&an_tab=live",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "analytics-trends",
+    "route": "/admin?tab=analytics-new&an_tab=trends",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "analytics-video",
+    "route": "/admin?tab=analytics-new&an_tab=video",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "analytics-geo",
+    "route": "/admin?tab=analytics-new&an_tab=geo",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to fetch at 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "analytics-cta",
+    "route": "/admin?tab=analytics-new&an_tab=cta",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "analytics-blog",
+    "route": "/admin?tab=analytics-new&an_tab=blog",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: the server responded with a status of 404 ()",
+      "Failed to load resource: the server responded with a status of 404 ()",
+      "Failed to load resource: the server responded with a status of 404 ()",
+      "Failed to load resource: the server responded with a status of 404 ()",
+      "Failed to load resource: the server responded with a status of 404 ()"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "analytics-clarity",
+    "route": "/admin?tab=analytics-new&an_tab=clarity",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "analytics-exclusions",
+    "route": "/admin?tab=analytics-new&an_tab=exclusions",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "analytics-fallback",
+    "route": "/admin?tab=analytics-new&an_tab=fallback",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: the server responded with a status of 404 ()"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "analytics-new",
+    "route": "/admin?tab=analytics-new",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "cache",
+    "route": "/admin?tab=cache",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: the server responded with a status of 404 ()"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "seo",
+    "route": "/admin?tab=seo",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "keywords",
+    "route": "/admin?tab=keywords",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "planned-posts",
+    "route": "/admin?tab=topics",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "planner",
+    "route": "/admin?tab=planner",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "posts",
+    "route": "/admin?tab=posts",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1JlFc-K.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "image-bank",
+    "route": "/admin?tab=images",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "blog-editor",
+    "route": "/admin?tab=blog-edit",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1JlFc-K.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "faq",
+    "route": "/admin?tab=faq",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJnecmNE.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1JlFc-K.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "legal-docs",
+    "route": "/admin?tab=legal-docs",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "cta-buttons",
+    "route": "/admin?tab=cta",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "ai-context",
+    "route": "/admin?tab=ai-context",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "gallery",
+    "route": "/admin?tab=gallery",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "hero-management",
+    "route": "/admin?tab=hero-management",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Failed to load resource: the server responded with a status of 500 ()",
+      "Failed to load resource: the server responded with a status of 500 ()",
+      "Failed to load resource: the server responded with a status of 500 ()"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "partners",
+    "route": "/admin?tab=partners",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "travel-agencies",
+    "route": "/admin?tab=travel-agencies",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "why-memopyk",
+    "route": "/admin?tab=why-memopyk",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "ai-creator",
+    "route": "/admin?tab=ai-creator",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  },
+  {
+    "slug": "blog-hub",
+    "route": "/admin?tab=blog",
+    "loaded": true,
+    "consoleErrors": [
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED",
+      "Access to font at 'https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2' from origin 'https://memopyk.memopyk.com' has been blocked by CORS policy: Request header field x-e2e-token is not allowed by Access-Control-Allow-Headers in preflight response.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "helpButtonVisible": true,
+    "helpDrawerOpened": true
+  }
+]
