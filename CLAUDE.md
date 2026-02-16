@@ -6,7 +6,7 @@ MEMOPYK creates professional "Films Souvenirs" (souvenir/memory films) from clie
 
 ## Current Status
 
-**Last updated:** February 14, 2026
+**Last updated:** February 16, 2026
 **Staging:** https://memopyk.memopyk.com (auto-deploys on push to `staging`)
 **Production:** https://memopyk.com (auto-deploys on push to `main`)
 
@@ -18,7 +18,7 @@ MEMOPYK creates professional "Films Souvenirs" (souvenir/memory films) from clie
 | Analytics | ✅ GA4 + custom Supabase (blog analytics endpoints added Feb 11) |
 | Partner Directory | ✅ Mapbox GL JS with clustering (migrated Feb 14) |
 | Auto-deploy | ✅ Push → GitHub webhook → Coolify |
-| Help System | ✅ Complete (30 screens, 2 flows, V6 enriched — 22 screens upgraded, 3 flow steps fixed) |
+| Help System | ✅ Complete (30 screens, 2 flows, V8 validated 28/28 CLEAR, Blog Editor 11/11) |
 | Blog Hub | ✅ 5 workflow tabs, 107 keywords, 25 clusters |
 | Production | ✅ Live on Coolify (Replit fully replaced Feb 2) |
 
@@ -71,6 +71,9 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-16: Help content enrichment — 5 screens updated in Supabase (CTA Buttons rewrite, Analytics Overview, Planner, FAQ Management, Travel Agencies). QC screenshots in tests/e2e/screenshots/help-qc/
+- 2026-02-15: V8 naive user test — strict UI-only, 28/28 CLEAR, 14/15 flow steps CLEAR, Blog Editor 11/11, 2 final fixes (Agences heading, Flow 2 Step 6 wording)
+- 2026-02-14: CSP fix — added Mapbox domains to Content-Security-Policy (script-src blob:, worker-src, connect-src api.mapbox.com)
 - 2026-02-14: Cleanup + Mapbox + E2E — Leaflet→Mapbox GL JS migration (PartnerMapbox.tsx shared component, GeoJSON clustering, fly-to), 5 orphan analytics files deleted (516 lines), 3 junk draft posts deleted, 7 skipped E2E tests fixed (4 AI Creator + 3 Post Actions)
 - 2026-02-14: Help system V6 fix — 22 AMBIGUOUS screens enriched (800-4300 chars each), 3 flow steps fixed, jargon removed (Supabase, API, endpoint), post titles clickable in Blog Posts tab, Travel Agency tab styling enhanced, QC spot-check 5/5 pass
 - 2026-02-13: UI fixes — language selector moved to top of editor, blank draft Discard button + AI CTA banner, "Write Manually" in topic modal, stats labels fixed, help text rewritten (Sitemap/FAQ), naive user test 19/19
@@ -100,8 +103,7 @@ READ THESE FIRST:
 
 ## Known Issues
 
-See docs/TECH_DEBT.md for full list. Key items:
-- Analytics dashboard rebuild decision pending
+See docs/TECH_DEBT.md for full list. No blocking items.
 
 ## Agent Teams
 
