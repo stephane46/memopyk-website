@@ -59,24 +59,29 @@ The server uses `@google-analytics/data` (BetaAnalyticsDataClient) to query GA4 
 
 | Tab | Component | Data Source | Description |
 |-----|-----------|-------------|-------------|
-| **Overview** | AnalyticsNewOverview | Memopyk or GA4 | KPI cards (sessions, unique visitors, returning visitors, bounce rate, avg watch time), period comparison |
-| **Live View** | AnalyticsNewLiveView | GA4 Realtime API | Active users, by country, by device, currently-watching tracker |
-| **Trends** | AnalyticsNewTrends | Memopyk or GA4 | Daily session/user charts with period-over-period comparison |
-| **Video** | AnalyticsNewVideo | Memopyk or GA4 | Top videos by plays, watch time, completion rate; per-video funnel |
-| **Geo** | AnalyticsNewGeo | Memopyk | Country breakdown with sessions, users, percentage |
-| **CTA** | AnalyticsNewCta | analytics_events | CTA click tracking: book_call, quick_quote; by language, page, daily trend |
-| **Blog** | AnalyticsNewBlog | Memopyk | Popular posts, daily view trends, topics, keywords, categories |
-| **Clarity** | Placeholder | — | Placeholder for future Microsoft Clarity embed |
-| **Fallback** | AnalyticsNewFallback | — | Error/fallback state display |
-| **Exclusions** | IpExclusionsManager | Admin API | CRUD for IP exclusion rules; shows "Your IP" badge |
+| **Overview** | AnalyticsNewOverview | GA4 (default) or MEMOPYK | 3 KPI cards (sessions, unique visitors, returning visitors). Toggle in Overview header. Default: GA4 (persisted in localStorage). EN locale uses ALL-FR subtraction strategy. |
+| **Live View** | AnalyticsNewLiveView | MEMOPYK (Supabase) | Real-time tracking: active users by country/device (30-minute window), recent visitors (today), currently watching videos. Auto-refreshes every 10-15s. IP-filtered. **Status:** 3/5 sections broken due to missing `/api/analytics/live-tracking` and `/api/analytics/recent-visitors` endpoints (service functions exist but routes not wired). Only "Currently Watching" works. |
+| **Trends** | AnalyticsNewTrends | GA4 or MEMOPYK | 4 KPI cards (sessions, unique visitors, average session duration, video engagement) with period-over-period comparison. Line chart with current/previous period overlay. Metric selector buttons. Toggle support via centralized filters. |
+| **Video** | AnalyticsNewVideo | MEMOPYK (default) or GA4 Realtime | Top videos table with views, unique viewers, avg watch time, completion rate, engagement. Click any video to view progress funnel. **Live View toggle** (independent of global toggle): when ON, uses GA4 Realtime (last 30 min), when OFF uses MEMOPYK. |
+| **Geo** | AnalyticsNewGeo | MEMOPYK (Supabase) | World map with color-coded sessions, 4 KPI cards (top market, coverage count, market concentration, total sessions), 2 pie charts (top 5 countries by sessions/visitors), ranked country table with engagement metrics. IP-filtered. Badge now shows "🟠 IP Filtered" (fixed from incorrect "GA4"). |
+| **CTA** | AnalyticsNewCta | analytics_events | 4 KPI cards (total clicks, conversion rate, book_call, quick_quote), area chart (daily clicks over time), pie chart (CTA distribution), bar chart (clicks by page), 2 tables (top CTAs, recent clicks). Tracks book_call and quick_quote CTA buttons. |
+| **Blog** | AnalyticsNewBlog | MEMOPYK (forced) | 3 tables (popular posts, topics, keywords/categories), 2 charts (daily view trends area chart, posts by category bar chart). Toggle present but forced to MEMOPYK on mount (GA4 stubbed). |
+| **Clarity** | AnalyticsNewClarity | N/A | Microsoft Clarity integration link helper. Displays setup instructions, project link, and session replay usage guide. NOT a placeholder — complete for its purpose as a link component. |
+| **Diagnostics** | AnalyticsNewFallback | Admin API | System health dashboard: 4 KPI cards (server status, database status, uptime, analytics health), diagnostics table (cache, endpoints, services). NOT an error fallback UI — this is a full system diagnostics tool. Renamed from "Fallback" to clarify purpose. |
+| **Exclusions** | IpExclusionsManager | Admin API | CRUD for IP exclusion rules (CIDR notation supported). Shows "Your IP" badge with current IP address. Excluded IPs filtered from all MEMOPYK analytics (custom tracking, Live View, Geo, Trends when using MEMOPYK source). |
 
 ### Global Filters
 
-- **Data source toggle**: Memopyk (custom) vs GA4
-- **Date range**: Start/end date pickers
-- **Since date**: Optional filter for "data since" cutoff
-- **Locale filter**: All / fr-FR / en-US
+Centralized filtering system (AnalyticsNewGlobalFilters component) used by Overview, Trends, Video, Geo, CTA, Blog tabs:
+
+- **Date range**: Start/end date pickers or presets (Today, Yesterday, 7d, 30d, 90d, Custom)
+- **Since date**: Optional "since" cutoff for cumulative data
+- **Locale filter**: All / en / fr (note: sends 'en'/'fr', not 'en-US'/'fr-FR')
 - **Country filter**: All or specific country
+
+**Per-tab toggles:**
+- **Overview data source toggle**: GA4 ↔ MEMOPYK (in Overview header, not Global Filters). Default: GA4 (persisted in localStorage).
+- **Video Live View toggle**: Normal (MEMOPYK) ↔ Live (GA4 Realtime last 30 min)
 
 ---
 

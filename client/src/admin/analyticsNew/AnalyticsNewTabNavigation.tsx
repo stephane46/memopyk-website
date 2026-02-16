@@ -72,7 +72,7 @@ export const ANALYTICS_NEW_TABS: AnalyticsNewTab[] = [
   },
   {
     id: 'fallback',
-    label: 'Fallback',
+    label: 'Diagnostics',
     icon: AlertTriangle,
     description: '',
   },

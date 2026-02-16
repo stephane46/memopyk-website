@@ -235,8 +235,8 @@ export const AnalyticsNewGeo: React.FC = () => {
           <Badge variant="outline" className="bg-blue-50 text-blue-700 text-xs">
             Centralized Filters
           </Badge>
-          <Badge variant="outline" className="bg-green-50 text-green-700 text-xs">
-            Source: GA4
+          <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 text-xs">
+            🟠 IP Filtered
           </Badge>
         </div>
         <div className="flex items-center space-x-2">

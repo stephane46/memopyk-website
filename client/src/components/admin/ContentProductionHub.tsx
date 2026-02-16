@@ -15,7 +15,7 @@ import { ArrowLeft } from 'lucide-react';
 
 export default function ContentProductionHub() {
   // URL param state persistence
-  const [activeTab, setActiveTab] = useState<string>('planner');
+  const [activeTab, setActiveTab] = useState<string>('keywords');
   const [editPostId, setEditPostId] = useState<string | null>(null);
 
   // Initialize from URL on mount and sync URL with actual active tab
@@ -40,9 +40,9 @@ export default function ContentProductionHub() {
       setActiveTab(tabParam === 'image-bank' ? 'images' : tabParam);
     } else {
       // No valid sub-tab in URL (e.g., ?tab=blog or no tab at all)
-      // Default to 'planner' and update URL to reflect this
-      // This ensures HelpContext detects /admin?tab=planner (not /admin?tab=blog)
-      const defaultTab = 'planner';
+      // Default to 'keywords' and update URL to reflect this
+      // This ensures HelpContext detects /admin?tab=keywords (not /admin?tab=blog)
+      const defaultTab = 'keywords';
       setActiveTab(defaultTab);
 
       // Update URL to include the actual tab being shown
@@ -74,8 +74,8 @@ export default function ContentProductionHub() {
         setActiveTab(tabParam === 'image-bank' ? 'images' : tabParam);
         setEditPostId(null);
       } else {
-        // Invalid or no sub-tab - default to planner and update URL
-        const defaultTab = 'planner';
+        // Invalid or no sub-tab - default to keywords and update URL
+        const defaultTab = 'keywords';
         setActiveTab(defaultTab);
         setEditPostId(null);
 

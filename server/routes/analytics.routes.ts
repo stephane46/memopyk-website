@@ -1403,6 +1403,43 @@ router.get('/analytics/current-ip', (req: Request, res: Response) => {
 });
 
 /**
+ * GET /analytics/live-tracking
+ * Returns real-time active users data (last 30 minutes) from MEMOPYK/Supabase
+ */
+router.get('/analytics/live-tracking', async (req: Request, res: Response) => {
+  try {
+    const timeWindowMinutes = parseInt(String(req.query.timeWindow || '30'), 10);
+    const data = await realtimeService.getLiveTracking(timeWindowMinutes);
+    res.json(data);
+  } catch (error: any) {
+    console.error('❌ [Live Tracking] Error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch live tracking data',
+      message: error.message,
+    });
+  }
+});
+
+/**
+ * GET /analytics/recent-visitors
+ * Returns recent visitors from MEMOPYK/Supabase analytics_sessions
+ */
+router.get('/analytics/recent-visitors', async (req: Request, res: Response) => {
+  try {
+    const datePreset = String(req.query.datePreset || 'today');
+    const limit = parseInt(String(req.query.limit || '50'), 10);
+    const visitors = await realtimeService.getRecentVisitors(datePreset, limit);
+    res.json(visitors);
+  } catch (error: any) {
+    console.error('❌ [Recent Visitors] Error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch recent visitors',
+      message: error.message,
+    });
+  }
+});
+
+/**
  * POST /analytics/session
  * Create or resume a visitor session.
  * Frontend stores the returned session ID in localStorage for subsequent calls.
