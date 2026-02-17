@@ -139,6 +139,13 @@ export function setupStaticServing() {
   // Flags and other static assets are included in dist/public via Vite's publicDir
   app.use('/flags', express.static(path.join(clientDist, 'flags')));
 
+  // Root 301 redirect to locale-prefixed homepage
+  app.get("/", (req: Request, res: Response, next: NextFunction) => {
+    if (req.path !== "/") return next();
+    const lang = detectLanguage(req);
+    return res.redirect(301, `/${lang}`);
+  });
+
   // SPA fallback — inject SEO meta tags into index.html before sending
   app.get("*", async (req: Request, res: Response, next: NextFunction) => {
     if (req.path.startsWith("/api")) {

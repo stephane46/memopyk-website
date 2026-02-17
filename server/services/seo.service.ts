@@ -232,9 +232,11 @@ async function generateHeadPreview(lang: Lang, requestPath?: string) {
   if (settings.robotsNoSnippet) robotsParts.push("nosnippet");
   lines.push(`<meta name="robots" content="${robotsParts.join(", ")}" />`);
 
-  // Canonical
-  if (settings.canonical)
-    lines.push(`<link rel="canonical" href="${esc(settings.canonical)}" />`);
+  // Canonical — dynamic per locale
+  const canonicalPath = requestPath && requestPath !== '/'
+    ? requestPath
+    : `/${lang}`;
+  lines.push(`<link rel="canonical" href="${baseUrl}${canonicalPath}" />`);
 
   // Open Graph
   if (settings.openGraph.title)
@@ -276,15 +278,13 @@ async function generateHeadPreview(lang: Lang, requestPath?: string) {
       `<meta name="twitter:image" content="${esc(settings.twitter.image)}" />`,
     );
 
-  // Hreflang
-  if (settings.hreflang?.length) {
-    for (const h of settings.hreflang) {
-      if (h.lang && h.href)
-        lines.push(
-          `<link rel="alternate" hreflang="${esc(h.lang)}" href="${esc(h.href)}" />`,
-        );
-    }
-  }
+  // Hreflang — dynamic per locale
+  const pageSuffix = requestPath && requestPath !== '/'
+    ? requestPath.replace(/^\/(fr-FR|en-US)/, '')
+    : '';
+  lines.push(`<link rel="alternate" hreflang="fr" href="${baseUrl}/fr-FR${pageSuffix}" />`);
+  lines.push(`<link rel="alternate" hreflang="en" href="${baseUrl}/en-US${pageSuffix}" />`);
+  lines.push(`<link rel="alternate" hreflang="x-default" href="${baseUrl}/fr-FR${pageSuffix}" />`);
 
   // JSON-LD
   if (settings.jsonLd) {
@@ -375,12 +375,19 @@ async function generateBlogPostHead(slug: string, lang: Lang, requestPath: strin
     const title = seo.title || post.title;
     const description = seo.description || post.description || "";
     const image = seo.ogImage || (post.heroUrl ? encodeURI(post.heroUrl) : null) || `${baseUrl}/og-home-fr.jpg`;
-    const canonicalUrl = `${baseUrl}/blog/${post.slug}`;
+    const canonicalUrl = `${baseUrl}/${lang}/blog/${post.slug}`;
+    const blogSuffix = `/blog/${post.slug}`;
 
     const lines: string[] = [];
     lines.push(`<meta name="ssr-seo" content="true" />`);
     lines.push(`<title>${esc(title)} | MEMOPYK</title>`);
     lines.push(`<meta name="description" content="${esc(description)}" />`);
+    lines.push(`<link rel="canonical" href="${canonicalUrl}" />`);
+
+    // Hreflang alternates
+    lines.push(`<link rel="alternate" hreflang="fr" href="${baseUrl}/fr-FR${blogSuffix}" />`);
+    lines.push(`<link rel="alternate" hreflang="en" href="${baseUrl}/en-US${blogSuffix}" />`);
+    lines.push(`<link rel="alternate" hreflang="x-default" href="${baseUrl}/fr-FR${blogSuffix}" />`);
 
     // OG tags
     lines.push(`<meta property="og:type" content="article" />`);

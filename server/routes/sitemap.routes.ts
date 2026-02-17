@@ -2,6 +2,7 @@
  * Sitemap Routes
  *
  * Dynamic XML sitemap generated from published blog posts + static pages.
+ * Each page gets two entries (fr-FR + en-US) with xhtml:link hreflang alternates.
  * Cached for 1 hour.
  */
 
@@ -14,6 +15,18 @@ const router = Router();
 
 let sitemapCache: { xml: string; timestamp: number } | null = null;
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour
+
+const BASE_URL = 'https://www.memopyk.com';
+const LOCALES = ['fr-FR', 'en-US'] as const;
+
+/** Generate hreflang alternate links for a given path suffix */
+function hreflangLinks(pageSuffix: string): string {
+  const lines: string[] = [];
+  lines.push(`    <xhtml:link rel="alternate" hreflang="fr" href="${BASE_URL}/fr-FR${pageSuffix}"/>`);
+  lines.push(`    <xhtml:link rel="alternate" hreflang="en" href="${BASE_URL}/en-US${pageSuffix}"/>`);
+  lines.push(`    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE_URL}/fr-FR${pageSuffix}"/>`);
+  return lines.join('\n');
+}
 
 /**
  * GET /sitemap.xml
@@ -28,16 +41,12 @@ router.get('/sitemap.xml', async (_req: Request, res: Response) => {
       return res.send(sitemapCache.xml);
     }
 
-    const baseUrl = 'https://www.memopyk.com';
-
-    // Static pages
+    // Static pages as locale-relative path suffixes
     const staticPages = [
-      { loc: '/', changefreq: 'weekly', priority: '1.0' },
-      { loc: '/gallery', changefreq: 'monthly', priority: '0.8' },
-      { loc: '/faq', changefreq: 'monthly', priority: '0.7' },
-      { loc: '/contact', changefreq: 'monthly', priority: '0.7' },
-      { loc: '/partners', changefreq: 'monthly', priority: '0.6' },
-      { loc: '/blog', changefreq: 'daily', priority: '0.9' },
+      { suffix: '', changefreq: 'weekly', priority: '1.0' },
+      { suffix: '/gallery', changefreq: 'monthly', priority: '0.8' },
+      { suffix: '/blog', changefreq: 'daily', priority: '0.9' },
+      { suffix: '/contact', changefreq: 'monthly', priority: '0.7' },
     ];
 
     // Fetch published blog posts
@@ -56,26 +65,35 @@ router.get('/sitemap.xml', async (_req: Request, res: Response) => {
     // Build XML
     const urls: string[] = [];
 
+    // Static pages: two entries per page (one per locale)
     for (const page of staticPages) {
-      urls.push(`  <url>
-    <loc>${baseUrl}${page.loc}</loc>
+      for (const locale of LOCALES) {
+        urls.push(`  <url>
+    <loc>${BASE_URL}/${locale}${page.suffix}</loc>
+${hreflangLinks(page.suffix)}
     <changefreq>${page.changefreq}</changefreq>
     <priority>${page.priority}</priority>
   </url>`);
+      }
     }
 
+    // Blog posts: two entries per post (one per locale)
     for (const post of sitemapPosts) {
       const lastmod = post.updatedAt || post.publishedAt;
-      urls.push(`  <url>
-    <loc>${baseUrl}/blog/${post.slug}</loc>
-    <lastmod>${new Date(lastmod).toISOString().split('T')[0]}</lastmod>
+      const blogSuffix = `/blog/${post.slug}`;
+      for (const locale of LOCALES) {
+        urls.push(`  <url>
+    <loc>${BASE_URL}/${locale}${blogSuffix}</loc>
+${hreflangLinks(blogSuffix)}${lastmod ? `\n    <lastmod>${new Date(lastmod).toISOString().split('T')[0]}</lastmod>` : ''}
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>`);
+      }
     }
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${urls.join('\n')}
 </urlset>`;
 
