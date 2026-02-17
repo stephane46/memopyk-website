@@ -1,6 +1,6 @@
 # Complete Supabase Database Schema Documentation
 
-> **Generated:** 2026-02-17 by automated database audit
+> **Generated:** 2026-02-17 by automated database audit (updated after legacy cleanup)
 > **Database:** Supabase PostgreSQL at `supabase.memopyk.org`
 > **ORM:** Drizzle ORM (`drizzle-orm/postgres-js`) with `postgres` driver
 > **Schema source of truth:** `shared/schema.ts`
@@ -9,35 +9,35 @@
 
 | Metric | Count |
 |--------|-------|
-| **Total tables (public schema)** | 88 |
+| **Total tables (public schema)** | 38 |
 | **Tables in Drizzle ORM** | 33 |
-| **DB-only tables** | 55 |
-| **Tables with data (rows > 0)** | 22 |
-| **Empty tables** | 66 |
+| **DB-only tables** | 5 |
+| **Tables with data (rows > 0)** | 18 |
+| **Empty tables** | 20 |
 | **Views** | 2 (PostGIS) |
 | **Custom functions** | 21 |
-| **Foreign key constraints** | 39 |
-| **Total database size** | ~60 MB |
+| **Foreign key constraints** | 8 |
+| **Total database size** | ~30 MB |
 
 ### Category Breakdown
 
 | Category | Tables | In Drizzle | DB-Only | With Data |
 |----------|--------|------------|---------|-----------|
-| Website Core | 9 | 9 | 0 | 4 |
-| Blog & Content | 16 | 12 | 4 | 5 |
-| Analytics | 9 | 5 | 4 | 6 |
-| SEO | 6 | 2 | 4 | 1 |
+| Website Core | 9 | 9 | 0 | 3 |
+| Blog & Content | 13 | 12 | 1 | 5 |
+| Analytics | 7 | 5 | 2 | 6 |
+| SEO | 4 | 2 | 2 | 1 |
 | Partners | 1 | 1 | 0 | 0 |
 | Travel | 2 | 2 | 0 | 2 |
-| Admin/System | 3 | 2 | 1 | 2 |
-| **Unknown/Legacy** | **42** | **0** | **42** | **2** |
-| **Total** | **88** | **33** | **55** | **22** |
+| Admin/System | 2 | 2 | 0 | 2 |
+| **Total** | **38** | **33** | **5** | **19** |
+
+> **Legacy cleanup (Feb 17, 2026):** 50 empty, unreferenced legacy tables dropped (Payload CMS, quoting system, misc). 102,299 test contact rows truncated. See commit for details.
 
 ### Storage Profile (Top 10 by Size)
 
 | Table | Size | Rows | Category |
 |-------|------|------|----------|
-| contacts | 28 MB | 102,299 | Website Core |
 | analytics_sessions | 8.6 MB | 9,108 | Analytics |
 | spatial_ref_sys | 7.1 MB | 0* | PostGIS system |
 | analytics_events | 5.0 MB | 8,555 | Analytics |
@@ -45,12 +45,13 @@
 | seo_settings | 2.7 MB | 2 | SEO |
 | blog_posts | 504 KB | 18 | Blog |
 | help_screens | 296 KB | 31 | Admin/System |
-| posts | 288 KB | 0 | Legacy |
 | content_topics | 192 KB | 28 | Blog |
+| analytics_views | 176 KB | 147 | Analytics |
+| ai_context | 160 KB | 6 | Blog |
 
 *spatial_ref_sys shows 0 in pg_stat but contains PostGIS reference data (8,500+ coordinate systems)
 
-> **contacts anomaly:** 102,299 rows / 28 MB is suspicious for a contact form. Likely contains test/spam data accumulated during development. Recommend auditing and purging non-genuine submissions.
+> **contacts cleanup (Feb 17, 2026):** 102,299 test rows (4 test emails, 0 real customers) truncated. Table now empty.
 
 ---
 
@@ -67,12 +68,12 @@ Homepage, contact form, FAQ, legal pages, gallery, CTA configuration.
 | `gallery_items` | 39 | 6 | 80 KB | Yes | Portfolio items with video/image URLs, format badges, bilingual content, crop settings |
 | `faq_sections` | 8 | 0 | 16 KB | Yes | FAQ section groupings (bilingual names) |
 | `faqs` | 13 | 0 | 120 KB | Yes | FAQ items with bilingual Q&A, section ordering, JSON-LD schema |
-| `contacts` | 11 | 102,299 | 28 MB | Yes | Contact form submissions (name, email, phone, message, status) |
+| `contacts` | 11 | 0 | 16 KB | Yes | Contact form submissions (name, email, phone, message, status). Truncated Feb 17, 2026 (102K test rows purged) |
 | `legal_documents` | 8 | 0 | 88 KB | Yes | Legal page content (privacy, terms) -- bilingual |
 | `cta_settings` | 8 | 0 | 16 KB | Yes | Call-to-action button configuration (bilingual text + URLs) |
 | `why_memopyk_cards` | 11 | 0 | 16 KB | Yes | "Why MEMOPYK" benefit cards (icon, gradient, bilingual title/description) |
 
-### 2. Blog & Content Pipeline (16 tables)
+### 2. Blog & Content Pipeline (13 tables)
 
 Blog articles, content planning, keyword management, image bank, AI context.
 
@@ -90,12 +91,12 @@ Blog articles, content planning, keyword management, image bank, AI context.
 | `content_keywords` | 13 | 107 | 160 KB | Yes | SEO keywords (107 FR+EN). Composite unique on (keyword, market) |
 | `content_weekly_plans` | 11 | 0 | 16 KB | Yes | Weekly content schedules (week, year, topic IDs) |
 | `content_daily_assignments` | 8 | 0 | 16 KB | Yes | Daily topic assignments, links to `blog_posts` |
-| `content_blocks` | 7 | 0 | 16 KB | **No** | Reusable content blocks (code, bilingual title/body) |
-| `content_image_bank` | 17 | 0 | 16 KB | **No** | Content-specific image storage (unused, superseded by `image_bank`) |
-| `content_prompt_templates` | 8 | 0 | 16 KB | **No** | AI prompt templates (unused, superseded by `ai_context`) |
+| ~~`content_blocks`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (empty, unused)* |
+| ~~`content_image_bank`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (empty, superseded by image_bank)* |
+| ~~`content_prompt_templates`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (empty, superseded by ai_context)* |
 | `ai_context` | 8 | 6 | 160 KB | Yes | Brand Brain entries for Claude API context (key, title, content, category) |
 
-### 3. Analytics (9 tables)
+### 3. Analytics (7 tables)
 
 Custom analytics tracking (sessions, views, events, performance, conversions).
 
@@ -108,12 +109,12 @@ Custom analytics tracking (sessions, views, events, performance, conversions).
 | `analytics_conversions` | 13 | 10 | 152 KB | **No** | Conversion tracking by type and date |
 | `performance_metrics` | 30 | 13,669 | 4.7 MB | Yes | Core Web Vitals (LCP, CLS, INP, FID, TTFB) and page load metrics |
 | `realtime_visitors` | 11 | 0 | 16 KB | Yes | Active visitor tracking (session, page, location, last_seen) |
-| `conversion_funnel` | 6 | 0 | 16 KB | **No** | Funnel step tracking (unused) |
-| `engagement_heatmap` | 12 | 0 | 16 KB | **No** | Click/scroll heatmap data (unused) |
+| ~~`conversion_funnel`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (empty, unused)* |
+| ~~`engagement_heatmap`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (empty, unused)* |
 
 > **analytics_events note:** This table has 8,555 rows and is actively used via raw SQL (`INSERT INTO analytics_events` and `SELECT FROM analytics_events`) in `server/routes/analytics.routes.ts` for CTA click tracking. It should be added to the Drizzle schema.
 
-### 4. SEO (6 tables)
+### 4. SEO (4 tables)
 
 Search engine optimization configuration, redirects, audit trail.
 
@@ -121,9 +122,9 @@ Search engine optimization configuration, redirects, audit trail.
 |-------|------|------|------|------------|-------------|
 | `seo_settings` | 36 | 2 | 2.7 MB | Yes | Per-page SEO config (meta titles, OG tags, Twitter cards, robots, structured data, sitemap) |
 | `seo_audit_logs` | 9 | 0 | 16 KB | Yes | Change tracking for SEO edits |
-| `seo_global_config` | 15 | 0 | 16 KB | **No** | Site-wide SEO defaults (unused) |
-| `seo_global_settings` | 14 | 0 | 16 KB | **No** | Additional global SEO settings (unused, overlaps seo_global_config) |
-| `seo_image_meta` | 16 | 0 | 16 KB | **No** | Image SEO metadata (unused) |
+| ~~`seo_global_config`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (empty, unused)* |
+| ~~`seo_global_settings`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (empty, unused)* |
+| ~~`seo_image_meta`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (empty, unused)* |
 | `seo_redirects` | 10 | 0 | 64 KB | **No** | 301/302 redirect rules with hit counting (unused) |
 
 ### 5. Partners (1 table)
@@ -139,79 +140,23 @@ Search engine optimization configuration, redirects, audit trail.
 | `travel_agency_codes` | 9 | 2 | 64 KB | Yes | Agency access codes for the upload portal |
 | `travel_upload_submissions` | 17 | 3 | 80 KB | Yes | Client uploads with Nextcloud share links, email notifications |
 
-### 7. Admin/System (3 tables)
+### 7. Admin/System (2 tables)
 
 | Table | Cols | Rows | Size | In Drizzle | Description |
 |-------|------|------|------|------------|-------------|
 | `help_screens` | 8 | 31 | 296 KB | Yes | Contextual help content per admin route (HTML, tags, related flows) |
 | `help_flows` | 6 | 2 | 64 KB | Yes | Multi-step walkthrough guides stored as JSON steps |
-| `deployment_history` | 10 | 0 | 16 KB | **No** | Deployment log (unused) |
 
-### 8. Unknown/Legacy (42 tables)
+### 8. Legacy Tables (DROPPED)
 
-These tables remain from a previous Payload CMS / quoting system setup. **All are empty (0 rows), none have Drizzle schema definitions, and none are referenced in the current codebase** (verified by grep).
+All 50 legacy tables were dropped on Feb 17, 2026. They were empty (0 rows), unreferenced in code, and originated from:
 
-#### CMS / Page Builder (25 tables)
+- **Payload CMS** (25 tables): `pages`, `page_blocks`, `posts`, `galleries`, `navigation`, `navigation_items`, `globals`, `redirects`, `block_button`, `block_button_group`, `block_form`, `block_gallery`, `block_gallery_items`, `block_hero`, `block_posts`, `block_pricing`, `block_pricing_cards`, `block_richtext`, `forms`, `form_fields`, `form_submissions`, `form_submission_values`, `attachments`, `photos`, `ai_prompts`
+- **Quote/Invoice system** (6 tables): `quotes`, `quote_versions`, `quote_blocks`, `quote_lines`, `quote_number_counters`, `activities`
+- **Business/Commerce** (7 tables): `clients`, `products`, `bundles`, `bundle_items`, `devis`, `fx_rates`, `tax_rates`
+- **Miscellaneous** (12 tables): `mizzap_users`, `pdf_jobs`, `test_insert_123`, `content_blocks`, `content_image_bank`, `content_prompt_templates`, `conversion_funnel`, `deployment_history`, `engagement_heatmap`, `seo_global_config`, `seo_global_settings`, `seo_image_meta`
 
-| Table | Cols | Description |
-|-------|------|-------------|
-| `pages` | 11 | CMS pages with permalink, status, meta fields |
-| `page_blocks` | 11 | Page-to-block associations with sort order |
-| `posts` | 24 | CMS posts (NOT blog_posts) with title, content, search vectors |
-| `galleries` | 11 | CMS galleries linked to posts |
-| `navigation` | 7 | Navigation menu definitions |
-| `navigation_items` | 13 | Menu items with page/post references, nesting |
-| `globals` | 16 | Global site settings (favicon, social, colors, footer) |
-| `redirects` | 9 | URL redirect rules |
-| `block_button` | 13 | Button block with style, link, variant |
-| `block_button_group` | 6 | Button group container |
-| `block_form` | 8 | Form block referencing `forms` table |
-| `block_gallery` | 7 | Gallery block |
-| `block_gallery_items` | 8 | Gallery block items |
-| `block_hero` | 11 | Hero section block |
-| `block_posts` | 9 | Posts listing block |
-| `block_pricing` | 7 | Pricing section block |
-| `block_pricing_cards` | 14 | Pricing card block |
-| `block_richtext` | 9 | Rich text content block |
-| `forms` | 13 | Form definitions with email config |
-| `form_fields` | 16 | Form field definitions (type, validation, options) |
-| `form_submissions` | 3 | Form submission records |
-| `form_submission_values` | 7 | Individual field values per submission |
-| `attachments` | 7 | File attachments linked to quotes |
-| `photos` | 23 | Photo management with EXIF, Supabase storage, dedup hashing |
-| `ai_prompts` | 11 | AI prompt storage (replaced by `ai_context`) |
-
-#### Quote/Invoice System (6 tables)
-
-| Table | Cols | Description |
-|-------|------|-------------|
-| `quotes` | 24 | Quotes with client, numbering, status, public token |
-| `quote_versions` | 30 | Version snapshots with totals, terms, payment conditions |
-| `quote_blocks` | 6 | Section blocks within quote versions |
-| `quote_lines` | 21 | Line items with quantity, unit price, tax, discount |
-| `quote_number_counters` | 3 | Auto-increment number sequence per year |
-| `activities` | 5 | Quote activity log (type, meta, timestamp) |
-
-#### Business/Commerce (7 tables)
-
-| Table | Cols | Description |
-|-------|------|-------------|
-| `clients` | 7 | Client records (name, email, company, address) |
-| `products` | 11 | Product catalog with SKU, pricing, tax rate |
-| `bundles` | 7 | Product bundle definitions |
-| `bundle_items` | 3 | Bundle-product junction |
-| `devis` | 5 | French quotes/estimates (parallel to quotes) |
-| `fx_rates` | 5 | Foreign exchange rates |
-| `tax_rates` | 7 | Tax rate definitions by code |
-
-#### Other Legacy (4 tables)
-
-| Table | Cols | Description |
-|-------|------|-------------|
-| `mizzap_users` | 16 | Users from Mizzap project (FK to auth.users, different project entirely) |
-| `pdf_jobs` | 9 | PDF generation queue for quotes |
-| `spatial_ref_sys` | 5 | PostGIS coordinate system reference data (system table) |
-| `test_insert_123` | 2 | Test artifact (should be dropped) |
+**Kept:** `spatial_ref_sys` (PostGIS system table, required by extension)
 
 ---
 
@@ -235,41 +180,7 @@ content_daily_assignments.post_id --> blog_posts.id
 - `faqs.section_id` references `faq_sections.id`
 - `analytics_conversions.event_id` references `analytics_events` (no target column resolved)
 
-### Legacy FKs (orphaned, all tables empty)
-
-```
-activities.quote_id              --> quotes (unresolved)
-attachments.quote_id             --> quotes (unresolved)
-block_button.post_foreign        --> posts.id
-block_button.page_foreign        --> pages.id
-block_button.button_group        --> block_button_group.id
-block_form.form_foreign          --> forms.id
-block_gallery_items.block_gallery --> block_gallery.id
-block_hero.button_group          --> block_button_group.id
-block_pricing_cards.button       --> block_button.id
-block_pricing_cards.pricing      --> block_pricing.id
-bundle_items.bundle_id           --> bundles (unresolved)
-bundle_items.product_id          --> products (unresolved)
-form_fields.form_foreign         --> forms.id
-form_submission_values.field     --> form_fields.id
-form_submission_values.form_sub  --> form_submissions.id
-form_submissions.form_foreign    --> forms.id
-galleries.post_id                --> posts.id
-mizzap_users.id                  --> auth.users.id
-navigation_items.navigation      --> navigation.id
-navigation_items.page            --> pages.id
-navigation_items.post            --> posts.id
-navigation_items.parent          --> navigation_items.id (self-ref)
-page_blocks.page                 --> pages.id
-pdf_jobs.quote_id                --> quotes (unresolved)
-pdf_jobs.version_id              --> quote_versions (unresolved)
-products.default_tax_rate_id     --> tax_rates (unresolved)
-quote_blocks.version_id          --> quote_versions (unresolved)
-quote_lines.version_id           --> quote_versions (unresolved)
-quote_lines.tax_rate_id          --> tax_rates (unresolved)
-quote_versions.quote_id          --> quotes (unresolved)
-quotes.client_id                 --> clients (unresolved)
-```
+*31 legacy FKs were dropped with the legacy tables on Feb 17, 2026.*
 
 ---
 
@@ -343,9 +254,7 @@ quotes.client_id                 --> clients (unresolved)
 | `blog_post_tags` | `idx_blog_post_tags_tag_id` | btree | |
 | `blog_post_views` | `idx_blog_post_views_post_slug` | btree | |
 | `travel_agency_codes` | `idx_travel_agency_codes_code` | btree | upper(agency_code) unique |
-| `posts` (legacy) | `idx_posts_title_search` | GIN | Full-text search |
-| `posts` (legacy) | `idx_posts_content_search` | GIN | Full-text search |
-| `posts` (legacy) | `idx_posts_description_search` | GIN | Full-text search |
+| ~~`posts`~~ | ~~`idx_posts_*_search`~~ | ~~GIN~~ | *Dropped with legacy tables Feb 17, 2026* |
 
 ---
 
@@ -434,7 +343,6 @@ Some routes also use raw SQL via `pool` (e.g., `analytics.routes.ts` for `analyt
 
 | Table | Rows | Last Activity | Notes |
 |-------|------|---------------|-------|
-| contacts | 102,299 | Ongoing | Needs audit -- likely test/spam data |
 | performance_metrics | 13,669 | Ongoing | Core Web Vitals from real visitors |
 | analytics_sessions | 9,108 | Ongoing | Visitor session tracking |
 | analytics_events | 8,555 | Ongoing | CTA click events |
@@ -463,25 +371,15 @@ Some routes also use raw SQL via `pool` (e.g., `analytics.routes.ts` for `analyt
 
 ---
 
-## Unknown/Legacy Assessment
+## Legacy Cleanup History
 
-### Origin: Payload CMS + Quoting System
+**Feb 17, 2026:** 50 legacy tables dropped, 102,299 test contacts truncated.
 
-The 42 legacy tables appear to originate from two systems:
-
-1. **Payload CMS** (25 tables): A headless CMS that was used before the current React + Express architecture. Tables follow Payload's naming conventions (`block_*`, `page_blocks`, `globals`, `navigation_*`, `form_*`). All have proper PKs, FKs, and indexes suggesting a production-grade schema.
-
-2. **Quoting/Invoice System** (11 tables): A custom quote generation system with `quotes`, `quote_versions`, `quote_blocks`, `quote_lines`, `clients`, `products`, `bundles`, `tax_rates`, `fx_rates`, `pdf_jobs`, `activities`. This was likely a separate MEMOPYK business tool.
-
-3. **Other** (6 tables): `mizzap_users` (different project entirely, FK to auth.users), `photos` (photo management with EXIF), `devis` (French quotes), `ai_prompts` (replaced by ai_context), `spatial_ref_sys` (PostGIS system), `test_insert_123` (test artifact).
-
-### Cleanup Recommendation
-
-All 42 legacy tables are empty and unreferenced. They can be safely dropped to reduce schema complexity. Priority:
-- **Drop immediately:** `test_insert_123` (test artifact)
-- **Drop after confirmation:** All `block_*`, `form_*`, `page_*`, `quote_*`, `navigation_*` tables
-- **Verify first:** `mizzap_users` (has FK to auth.users -- may need to drop FK first)
-- **Keep:** `spatial_ref_sys` (PostGIS system table, required by extension)
+- **Safety verified:** grep confirmed zero code references to any legacy table
+- **contacts:** All 102,299 rows were test data (4 test emails: test@example.com, integration.test@memopyk.com, test@memopyk.com, test@test.com)
+- **50 tables dropped:** Payload CMS (25), Quote/Invoice (6), Business/Commerce (7), Miscellaneous (12)
+- **Space freed:** ~30 MB (contacts 28 MB + legacy table overhead)
+- **Kept:** `spatial_ref_sys` (PostGIS system table, required by extension)
 
 ---
 
