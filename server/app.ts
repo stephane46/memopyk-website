@@ -11,7 +11,6 @@ import path from "path";
 import fs from "fs";
 import { requestLogger } from "./middleware/logger.middleware";
 import { corsMiddleware, apiRateLimit } from "./middleware/security.middleware";
-import { camelCaseResponses } from "./middleware/camelCase.middleware";
 import { errorHandler, notFoundHandler } from "./middleware/error.middleware";
 
 export const app = express();
@@ -40,9 +39,6 @@ app.use(requestLogger);
 
 // Rate-limit API routes only (not static assets)
 app.use('/api', apiRateLimit);
-
-// Convert all API response keys from snake_case to camelCase
-app.use('/api', camelCaseResponses);
 
 // ============================================================================
 // SECURITY HEADERS (CSP) — deployment-specific, kept inline
