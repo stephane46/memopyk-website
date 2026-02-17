@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, varchar, decimal, numeric, jsonb, uuid, unique, type AnyPgColumn } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, bigserial, integer, boolean, timestamp, varchar, decimal, numeric, jsonb, uuid, unique, type AnyPgColumn } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -78,7 +78,10 @@ export const galleryItems = pgTable("gallery_items", {
   videoWidth: integer("video_width"),
   videoHeight: integer("video_height"),
   videoOrientation: text("video_orientation"), // "portrait" or "landscape"
-  
+  thumbnailUrl: text("thumbnail_url"), // Thumbnail image URL
+  hasVideo: boolean("has_video").default(false), // Whether this item has a video
+  videoAvailable: boolean("video_available").default(false), // Whether the video is accessible
+
   // Image fields
   imageUrlEn: text("image_url_en"),
   imageUrlFr: text("image_url_fr"),
@@ -307,30 +310,42 @@ export const realtimeVisitors = pgTable("realtime_visitors", {
   isTestData: boolean("is_test_data").default(false) // Flag to distinguish test data from real data
 });
 
-// Performance metrics table
+// Performance metrics table — Core Web Vitals (matches actual DB structure)
 export const performanceMetrics = pgTable("performance_metrics", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  metricType: text("metric_type").notNull(), // 'page_load', 'video_load', 'api_response', 'server_health'
-  metricName: text("metric_name").notNull(),
-  value: numeric("value").notNull(),
-  unit: text("unit"), // 'ms', 'mb', 'percent', 'count'
-  sessionId: text("session_id"),
-  ipAddress: text("ip_address"),
-  userAgent: text("user_agent"),
-  metadata: jsonb("metadata"), // Additional context like video_id, page_url, error_details
-  createdAt: timestamp("created_at").defaultNow(),
-  isTestData: boolean("is_test_data").default(false) // Flag to distinguish test data from real data
-});
-
-// Country names lookup table for localization
-export const countryNames = pgTable("country_names", {
-  iso3: varchar("iso3", { length: 3 }).primaryKey(),
-  displayName: text("display_name"), // Legacy field for backward compatibility
-  displayNameEn: text("display_name_en"),
-  displayNameFr: text("display_name_fr"),
+  id: bigserial("id", { mode: "number" }).primaryKey(),
+  metricId: uuid("metric_id").defaultRandom().notNull(),
+  pageName: varchar("page_name"),
+  pagePath: varchar("page_path"),
+  lcpValue: numeric("lcp_value"), // Largest Contentful Paint (ms)
+  lcpRating: varchar("lcp_rating"), // 'good', 'needs-improvement', 'poor'
+  clsValue: numeric("cls_value"), // Cumulative Layout Shift (score)
+  clsRating: varchar("cls_rating"),
+  inpValue: numeric("inp_value"), // Interaction to Next Paint (ms)
+  inpRating: varchar("inp_rating"),
+  fidValue: numeric("fid_value"), // First Input Delay (ms)
+  fidRating: varchar("fid_rating"),
+  dnsTime: integer("dns_time"),
+  tcpTime: integer("tcp_time"),
+  ttfb: integer("ttfb"), // Time to First Byte (ms)
+  domInteractive: integer("dom_interactive"),
+  domComplete: integer("dom_complete"),
+  pageLoadTime: integer("page_load_time"),
+  resourceCount: integer("resource_count"),
+  transferSize: integer("transfer_size"),
+  performanceScore: numeric("performance_score"),
+  accessibilityScore: numeric("accessibility_score"),
+  bestPracticesScore: numeric("best_practices_score"),
+  seoScore: numeric("seo_score"),
+  pwaScore: numeric("pwa_score"),
+  deviceType: varchar("device_type"),
+  browserName: varchar("browser_name"),
+  connectionType: varchar("connection_type"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow()
 });
+
+// NOTE: country_names table does NOT exist in DB — all usage is via raw SQL in admin.routes.ts
+// Drizzle schema definition removed to prevent misleading type generation.
 
 // Analytics IP exclusions table - for blocking IPs from GA4 data and future event ingestion
 export const analyticsExclusions = pgTable("analytics_exclusions", {
@@ -353,13 +368,12 @@ export const insertLegalDocumentSchema = createInsertSchema(legalDocuments).omit
 export const insertCtaSettingsSchema = createInsertSchema(ctaSettings).omit({ createdAt: true, updatedAt: true });
 export const insertSeoSettingsSchema = createInsertSchema(seoSettings).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertSeoAuditLogSchema = createInsertSchema(seoAuditLogs).omit({ id: true, createdAt: true });
-export const insertCountryNamesSchema = createInsertSchema(countryNames).omit({ createdAt: true, updatedAt: true });
 export const insertWhyMemopykCardsSchema = createInsertSchema(whyMemopykCards).omit({ createdAt: true, updatedAt: true });
 export const insertAnalyticsExclusionSchema = createInsertSchema(analyticsExclusions).omit({ id: true, createdAt: true, appliesFrom: true });
 export const insertAnalyticsSessionSchema = createInsertSchema(analyticsSessions).omit({ id: true, createdAt: true });
 export const insertAnalyticsViewSchema = createInsertSchema(analyticsViews).omit({ id: true, createdAt: true });
 export const insertRealtimeVisitorSchema = createInsertSchema(realtimeVisitors).omit({ id: true, createdAt: true, lastSeen: true });
-export const insertPerformanceMetricSchema = createInsertSchema(performanceMetrics).omit({ id: true, createdAt: true });
+export const insertPerformanceMetricSchema = createInsertSchema(performanceMetrics).omit({ id: true, metricId: true, createdAt: true, updatedAt: true });
 
 // Select types for all tables
 export type HeroVideo = typeof heroVideos.$inferSelect;
@@ -372,7 +386,6 @@ export type LegalDocument = typeof legalDocuments.$inferSelect;
 export type CtaSettings = typeof ctaSettings.$inferSelect;
 export type SeoSettings = typeof seoSettings.$inferSelect;
 export type SeoAuditLog = typeof seoAuditLogs.$inferSelect;
-export type CountryNames = typeof countryNames.$inferSelect;
 export type AnalyticsSession = typeof analyticsSessions.$inferSelect;
 export type AnalyticsView = typeof analyticsViews.$inferSelect;
 export type RealtimeVisitor = typeof realtimeVisitors.$inferSelect;
@@ -768,7 +781,6 @@ export type InsertLegalDocument = z.infer<typeof insertLegalDocumentSchema>;
 export type InsertCtaSettings = z.infer<typeof insertCtaSettingsSchema>;
 export type InsertSeoSettings = z.infer<typeof insertSeoSettingsSchema>;
 export type InsertSeoAuditLog = z.infer<typeof insertSeoAuditLogSchema>;
-export type InsertCountryNames = z.infer<typeof insertCountryNamesSchema>;
 export type InsertAnalyticsSession = z.infer<typeof insertAnalyticsSessionSchema>;
 export type InsertAnalyticsView = z.infer<typeof insertAnalyticsViewSchema>;
 export type InsertRealtimeVisitor = z.infer<typeof insertRealtimeVisitorSchema>;

@@ -104,7 +104,6 @@ export interface PerformanceData {
   lcp?: number; // Largest Contentful Paint (ms)
   fid?: number; // First Input Delay (ms)
   cls?: number; // Cumulative Layout Shift (score)
-  fcp?: number; // First Contentful Paint (ms)
   ttfb?: number; // Time to First Byte (ms)
   pageUrl?: string;
   ipAddress: string;
@@ -245,6 +244,7 @@ export async function recordVideoEvent(data: VideoEventData): Promise<RecordResu
 
 /**
  * Record Core Web Vitals performance metrics
+ * Inserts one row per page with all metric values as columns (matches DB schema)
  */
 export async function recordPerformanceMetrics(data: PerformanceData): Promise<RecordResult> {
   try {
@@ -259,35 +259,26 @@ export async function recordPerformanceMetrics(data: PerformanceData): Promise<R
       return { success: false, reason: "duplicate" };
     }
 
-    const metrics: Array<{ name: string; value: number }> = [];
-    if (data.lcp !== undefined) metrics.push({ name: "LCP", value: data.lcp });
-    if (data.fid !== undefined) metrics.push({ name: "FID", value: data.fid });
-    if (data.cls !== undefined) metrics.push({ name: "CLS", value: data.cls });
-    if (data.fcp !== undefined) metrics.push({ name: "FCP", value: data.fcp });
-    if (data.ttfb !== undefined) metrics.push({ name: "TTFB", value: data.ttfb });
-
-    if (metrics.length === 0) {
+    // Check if we have any metrics to record
+    if (data.lcp === undefined && data.fid === undefined && data.cls === undefined && data.ttfb === undefined) {
       return { success: false, reason: "no_metrics" };
     }
 
-    const sessionId = data.sessionId || generateSessionId();
+    await db.insert(performanceMetrics).values({
+      pagePath: data.pageUrl || null,
+      lcpValue: data.lcp !== undefined ? String(data.lcp) : null,
+      clsValue: data.cls !== undefined ? String(data.cls) : null,
+      fidValue: data.fid !== undefined ? String(data.fid) : null,
+      ttfb: data.ttfb !== undefined ? Math.round(data.ttfb) : null,
+    });
 
-    // Insert all metrics
-    for (const metric of metrics) {
-      await db.insert(performanceMetrics).values({
-        metricType: "page_load",
-        metricName: metric.name,
-        value: String(metric.value),
-        unit: metric.name === "CLS" ? "score" : "ms",
-        sessionId,
-        ipAddress: data.ipAddress,
-        userAgent: data.userAgent || null,
-        metadata: { pageUrl: data.pageUrl || null },
-        isTestData: isTestDataIP(data.ipAddress),
-      });
-    }
+    const metricNames: string[] = [];
+    if (data.lcp !== undefined) metricNames.push("LCP");
+    if (data.fid !== undefined) metricNames.push("FID");
+    if (data.cls !== undefined) metricNames.push("CLS");
+    if (data.ttfb !== undefined) metricNames.push("TTFB");
 
-    console.log(`⚡ Performance metrics recorded: ${metrics.map((m) => m.name).join(", ")}`);
+    console.log(`⚡ Performance metrics recorded: ${metricNames.join(", ")}`);
     return { success: true };
   } catch (error) {
     console.error("Error recording performance metrics:", error);
