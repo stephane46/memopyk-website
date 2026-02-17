@@ -7,18 +7,17 @@
  * - Plans: Weekly content schedules
  * - Assignments: Daily topic assignments
  *
- * Converted from hybridStorage to direct Supabase queries.
+ * Uses Drizzle ORM for all database queries.
  */
 
 import { Router, Request, Response } from 'express';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { requireAdmin } from '../middleware/auth.middleware';
 import { z } from 'zod';
+import { db } from '../db';
+import { contentKeywords, contentTopics, contentDailyAssignments, contentWeeklyPlans, blogPosts } from '@shared/schema';
+import { eq, and, or, desc, asc, ilike, inArray, sql, not, isNull, gte, lte } from 'drizzle-orm';
 
 const router = Router();
-
-// Lazy-loaded Supabase client (same pattern as blog.routes.ts)
-let supabase: SupabaseClient | null = null;
 
 // Simple in-memory cache for keywords stats
 let keywordsStatsCache: { data: any; timestamp: number } | null = null;
@@ -26,17 +25,6 @@ const STATS_CACHE_TTL = 60000; // 1 minute
 
 function invalidateStatsCache() {
   keywordsStatsCache = null;
-}
-function getSupabase(): SupabaseClient {
-  if (!supabase) {
-    const url = process.env.SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_KEY;
-    if (!url || !key) {
-      throw new Error('Missing Supabase credentials');
-    }
-    supabase = createClient(url, key);
-  }
-  return supabase;
 }
 
 // ==============================================
@@ -107,6 +95,74 @@ const keywordSchema = z.object({
 
 const keywordUpdateSchema = keywordSchema.partial();
 
+// Helper: convert snake_case zod-validated topic data to camelCase Drizzle columns
+function topicToDrizzle(data: z.infer<typeof topicSchema>) {
+  return {
+    title: data.title,
+    slug: data.slug,
+    category: data.category,
+    type: data.type,
+    market: data.market,
+    targetWordCount: data.target_word_count,
+    primaryKeyword: data.primary_keyword,
+    secondaryKeywords: data.secondary_keywords,
+    searchVolume: data.search_volume,
+    competition: data.competition,
+    searchIntent: data.search_intent,
+    contentAngle: data.content_angle,
+    description: data.description,
+    heroImageConcept: data.hero_image_concept,
+    bodyImageConcepts: data.body_image_concepts,
+    priority: data.priority,
+    status: data.status,
+    role: data.role,
+    parentTopicId: data.parent_topic_id,
+    cluster: data.cluster,
+    memopykLinkOpportunities: data.memopyk_link_opportunities,
+  };
+}
+
+// Helper: convert snake_case zod-validated keyword data to camelCase Drizzle columns
+function keywordToDrizzle(data: z.infer<typeof keywordSchema>) {
+  return {
+    keyword: data.keyword,
+    monthlySearches: data.monthly_searches,
+    competition: data.competition,
+    difficultyScore: data.difficulty_score,
+    intent: data.intent,
+    tier: data.tier,
+    market: data.market,
+    seasonal: data.seasonal,
+    seasonalMonths: data.seasonal_months,
+    cluster: data.cluster,
+  };
+}
+
+// Helper: convert snake_case zod-validated plan data to camelCase Drizzle columns
+function planToDrizzle(data: z.infer<typeof planSchema>) {
+  return {
+    weekNumber: data.week_number,
+    year: data.year,
+    startDate: new Date(data.start_date),
+    endDate: new Date(data.end_date),
+    topicsSelected: data.topics_selected,
+    status: data.status,
+    timeSpentMinutes: data.time_spent_minutes,
+    notes: data.notes,
+  };
+}
+
+// Helper: strip undefined values from a partial object
+function stripUndefined<T extends Record<string, any>>(obj: T): Partial<T> {
+  const result: any = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== undefined) {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
 // ============================================
 // KEYWORDS
 // ============================================
@@ -122,18 +178,19 @@ router.get('/keywords/stats', requireAdmin, async (req: Request, res: Response) 
       return res.json(keywordsStatsCache.data);
     }
 
-    const sb = getSupabase();
-
     // Fetch all keywords for aggregation (more efficient than multiple COUNT queries)
-    const { data: keywords, error } = await sb
-      .from('content_keywords')
-      .select('tier, intent, market, monthly_searches, cluster, competition');
-
-    if (error) throw error;
+    const keywords = await db.select({
+      tier: contentKeywords.tier,
+      intent: contentKeywords.intent,
+      market: contentKeywords.market,
+      monthlySearches: contentKeywords.monthlySearches,
+      cluster: contentKeywords.cluster,
+      competition: contentKeywords.competition,
+    }).from(contentKeywords);
 
     // Calculate stats
     const stats = {
-      totalKeywords: keywords?.length || 0,
+      totalKeywords: keywords.length,
       totalVolume: 0,
       tier1Count: 0,
       highIntentCount: 0,
@@ -145,8 +202,8 @@ router.get('/keywords/stats', requireAdmin, async (req: Request, res: Response) 
       byVolume: { mega: 0, high: 0, medium: 0, low: 0, minimal: 0 } as Record<string, number>,
     };
 
-    for (const k of keywords || []) {
-      const vol = k.monthly_searches || 0;
+    for (const k of keywords) {
+      const vol = k.monthlySearches || 0;
       stats.totalVolume += vol;
 
       // Volume range counts
@@ -197,7 +254,6 @@ router.get('/keywords/stats', requireAdmin, async (req: Request, res: Response) 
 router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { tier, intent, market, cluster, competition, search, volume_range, page, limit, offset } = req.query;
-    const sb = getSupabase();
 
     // Parse pagination params
     const pageNum = parseInt(page as string) || 1;
@@ -206,68 +262,53 @@ router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
       ? parseInt(offset as string)
       : (pageNum - 1) * limitNum;
 
-    // Build count query for total (with same filters)
-    let countQuery = sb.from('content_keywords').select('*', { count: 'exact', head: true });
-    let dataQuery = sb.from('content_keywords').select('*');
+    // Build filter conditions
+    const conditions: any[] = [];
 
-    // Apply filters to both queries (supports comma-separated multi-values)
     if (tier) {
       const tiers = (tier as string).split(',').map(t => parseInt(t.trim()));
       if (tiers.length === 1) {
-        countQuery = countQuery.eq('tier', tiers[0]);
-        dataQuery = dataQuery.eq('tier', tiers[0]);
+        conditions.push(eq(contentKeywords.tier, tiers[0]));
       } else {
-        countQuery = countQuery.in('tier', tiers);
-        dataQuery = dataQuery.in('tier', tiers);
+        conditions.push(inArray(contentKeywords.tier, tiers));
       }
     }
     if (intent) {
       const intents = (intent as string).split(',').map(i => i.trim().toLowerCase());
       if (intents.length === 1) {
-        countQuery = countQuery.ilike('intent', intents[0]);
-        dataQuery = dataQuery.ilike('intent', intents[0]);
+        conditions.push(ilike(contentKeywords.intent, intents[0]));
       } else {
-        countQuery = countQuery.in('intent', intents);
-        dataQuery = dataQuery.in('intent', intents);
+        conditions.push(inArray(contentKeywords.intent, intents));
       }
     }
     if (market) {
       const markets = (market as string).split(',').map(m => m.trim());
       if (markets.length === 1) {
-        countQuery = countQuery.eq('market', markets[0]);
-        dataQuery = dataQuery.eq('market', markets[0]);
+        conditions.push(eq(contentKeywords.market, markets[0]));
       } else {
-        countQuery = countQuery.in('market', markets);
-        dataQuery = dataQuery.in('market', markets);
+        conditions.push(inArray(contentKeywords.market, markets));
       }
     }
     if (search) {
-      const searchPattern = `%${search}%`;
-      countQuery = countQuery.ilike('keyword', searchPattern);
-      dataQuery = dataQuery.ilike('keyword', searchPattern);
+      conditions.push(ilike(contentKeywords.keyword, `%${search}%`));
     }
     if (cluster) {
       const clusters = (cluster as string).split(',').map(c => c.trim());
       if (clusters.length === 1) {
-        countQuery = countQuery.eq('cluster', clusters[0]);
-        dataQuery = dataQuery.eq('cluster', clusters[0]);
+        conditions.push(eq(contentKeywords.cluster, clusters[0]));
       } else {
-        countQuery = countQuery.in('cluster', clusters);
-        dataQuery = dataQuery.in('cluster', clusters);
+        conditions.push(inArray(contentKeywords.cluster, clusters));
       }
     }
     if (competition) {
       const comps = (competition as string).split(',').map(c => c.trim().toLowerCase());
       if (comps.length === 1) {
-        countQuery = countQuery.ilike('competition', comps[0]);
-        dataQuery = dataQuery.ilike('competition', comps[0]);
+        conditions.push(ilike(contentKeywords.competition, comps[0]));
       } else {
-        countQuery = countQuery.in('competition', comps);
-        dataQuery = dataQuery.in('competition', comps);
+        conditions.push(inArray(contentKeywords.competition, comps));
       }
     }
     if (volume_range) {
-      // Volume ranges: mega(50000+), high(5000-49999), medium(500-4999), low(50-499), minimal(0-49)
       const ranges = (volume_range as string).split(',').map(r => r.trim());
       const rangeBounds: Record<string, [number, number]> = {
         mega: [50000, 999999999],
@@ -276,57 +317,63 @@ router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
         low: [50, 499],
         minimal: [0, 49],
       };
-      // Build OR conditions for selected ranges
-      const conditions = ranges
+      const rangeConditions = ranges
         .filter(r => rangeBounds[r])
-        .map(r => `monthly_searches.gte.${rangeBounds[r][0]},monthly_searches.lte.${rangeBounds[r][1]}`);
-      if (conditions.length > 0) {
-        const orFilter = conditions.map(c => `and(${c})`).join(',');
-        countQuery = countQuery.or(orFilter);
-        dataQuery = dataQuery.or(orFilter);
+        .map(r => and(
+          gte(contentKeywords.monthlySearches, rangeBounds[r][0]),
+          lte(contentKeywords.monthlySearches, rangeBounds[r][1])
+        ));
+      if (rangeConditions.length > 0) {
+        conditions.push(or(...rangeConditions));
       }
     }
 
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
     // Execute count query
-    const { count, error: countError } = await countQuery;
-    if (countError) throw countError;
+    const [{ count: total }] = await db.select({ count: sql<number>`count(*)::int` })
+      .from(contentKeywords)
+      .where(whereClause);
 
-    // Apply pagination and ordering to data query
-    const { data, error } = await dataQuery
-      .order('monthly_searches', { ascending: false, nullsFirst: false })
-      .range(offsetNum, offsetNum + limitNum - 1);
-
-    if (error) throw error;
+    // Execute data query with pagination
+    const data = await db.select().from(contentKeywords)
+      .where(whereClause)
+      .orderBy(sql`${contentKeywords.monthlySearches} desc nulls last`)
+      .offset(offsetNum)
+      .limit(limitNum);
 
     // Enrich with topics_count and posts_count for this page of keywords
-    const keywords = data || [];
+    const keywords: any[] = data;
     if (keywords.length > 0) {
       const kwTexts = [...new Set(keywords.map((k: any) => k.keyword))];
       const kwMarkets = [...new Set(keywords.map((k: any) => k.market))];
 
       // Topics count: group by (primary_keyword, market)
-      const { data: topicCounts } = await sb
-        .from('content_topics')
-        .select('id, primary_keyword, market')
-        .in('primary_keyword', kwTexts)
-        .in('market', kwMarkets);
+      const topicCounts = await db.select({
+        id: contentTopics.id,
+        primaryKeyword: contentTopics.primaryKeyword,
+        market: contentTopics.market,
+      }).from(contentTopics)
+        .where(and(
+          inArray(contentTopics.primaryKeyword, kwTexts),
+          inArray(contentTopics.market, kwMarkets)
+        ));
 
       // Posts count: topics that have linked blog posts
-      const topicIds = topicCounts?.map((t: any) => t.id).filter(Boolean) || [];
-      let postCounts: any[] = [];
+      const topicIds = topicCounts.map(t => t.id).filter(Boolean);
+      let postCounts: { sourceTopicId: string | null }[] = [];
       if (topicIds.length > 0) {
-        const { data: posts } = await sb
-          .from('blog_posts')
-          .select('source_topic_id')
-          .in('source_topic_id', topicIds);
-        postCounts = posts || [];
+        postCounts = await db.select({
+          sourceTopicId: blogPosts.sourceTopicId,
+        }).from(blogPosts)
+          .where(inArray(blogPosts.sourceTopicId, topicIds));
       }
 
       // Build lookup maps: "keyword|market" → count
       const topicCountMap: Record<string, number> = {};
       const topicIdsByKw: Record<string, string[]> = {};
-      for (const t of topicCounts || []) {
-        const key = `${t.primary_keyword}|${t.market}`;
+      for (const t of topicCounts) {
+        const key = `${t.primaryKeyword}|${t.market}`;
         topicCountMap[key] = (topicCountMap[key] || 0) + 1;
         if (!topicIdsByKw[key]) topicIdsByKw[key] = [];
         topicIdsByKw[key].push(t.id);
@@ -334,9 +381,8 @@ router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
 
       const postCountMap: Record<string, number> = {};
       for (const p of postCounts) {
-        // Find which keyword this post's topic belongs to
         for (const [key, ids] of Object.entries(topicIdsByKw)) {
-          if (ids.includes(p.source_topic_id)) {
+          if (p.sourceTopicId && ids.includes(p.sourceTopicId)) {
             postCountMap[key] = (postCountMap[key] || 0) + 1;
             break;
           }
@@ -352,7 +398,6 @@ router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
     }
 
     // Return paginated response
-    const total = count || 0;
     const totalPages = Math.ceil(total / limitNum);
 
     res.json({
@@ -378,17 +423,13 @@ router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
  */
 router.get('/keywords/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const sb = getSupabase();
-    const { data, error } = await sb
-      .from('content_keywords')
-      .select('*')
-      .eq('id', req.params.id)
-      .single();
+    const [keyword] = await db.select().from(contentKeywords)
+      .where(eq(contentKeywords.id, req.params.id))
+      .limit(1);
 
-    if (error) throw error;
-    if (!data) return res.status(404).json({ error: 'Keyword not found' });
+    if (!keyword) return res.status(404).json({ error: 'Keyword not found' });
 
-    res.json(data);
+    res.json(keyword);
   } catch (error: any) {
     console.error('Error fetching keyword:', error);
     res.status(500).json({ error: 'Failed to fetch keyword' });
@@ -409,17 +450,12 @@ router.post('/keywords', requireAdmin, async (req: Request, res: Response) => {
       });
     }
 
-    const sb = getSupabase();
-    const { data, error } = await sb
-      .from('content_keywords')
-      .insert(parsed.data)
-      .select()
-      .single();
-
-    if (error) throw error;
+    const [result] = await db.insert(contentKeywords)
+      .values(keywordToDrizzle(parsed.data))
+      .returning();
 
     invalidateStatsCache();
-    res.json(data);
+    res.json(result);
   } catch (error: any) {
     console.error('Error creating keyword:', error);
     res.status(500).json({ error: 'Failed to create keyword' });
@@ -440,18 +476,14 @@ router.patch('/keywords/:id', requireAdmin, async (req: Request, res: Response) 
       });
     }
 
-    const sb = getSupabase();
-    const { data, error } = await sb
-      .from('content_keywords')
-      .update({ ...parsed.data, updated_at: new Date().toISOString() })
-      .eq('id', req.params.id)
-      .select()
-      .single();
-
-    if (error) throw error;
+    const drizzleData = stripUndefined(keywordToDrizzle(parsed.data as z.infer<typeof keywordSchema>));
+    const [result] = await db.update(contentKeywords)
+      .set({ ...drizzleData, updatedAt: new Date() })
+      .where(eq(contentKeywords.id, req.params.id))
+      .returning();
 
     invalidateStatsCache();
-    res.json(data);
+    res.json(result);
   } catch (error: any) {
     console.error('Error updating keyword:', error);
     res.status(500).json({ error: 'Failed to update keyword' });
@@ -464,13 +496,7 @@ router.patch('/keywords/:id', requireAdmin, async (req: Request, res: Response) 
  */
 router.delete('/keywords/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const sb = getSupabase();
-    const { error } = await sb
-      .from('content_keywords')
-      .delete()
-      .eq('id', req.params.id);
-
-    if (error) throw error;
+    await db.delete(contentKeywords).where(eq(contentKeywords.id, req.params.id));
 
     invalidateStatsCache();
     res.json({ success: true });
@@ -491,36 +517,36 @@ router.delete('/keywords/:id', requireAdmin, async (req: Request, res: Response)
 router.get('/topics', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { category, priority, status, market } = req.query;
-    const sb = getSupabase();
 
-    let query = sb.from('content_topics').select('*');
+    const conditions: any[] = [];
+    if (category) conditions.push(eq(contentTopics.category, category as string));
+    if (priority) conditions.push(eq(contentTopics.priority, parseInt(priority as string)));
+    if (status) conditions.push(eq(contentTopics.status, status as string));
+    if (market) conditions.push(eq(contentTopics.market, market as string));
 
-    if (category) query = query.eq('category', category as string);
-    if (priority) query = query.eq('priority', parseInt(priority as string));
-    if (status) query = query.eq('status', status as string);
-    if (market) query = query.eq('market', market as string);
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-    const { data: topics, error } = await query.order('priority', { ascending: false });
-
-    if (error) throw error;
+    const topics = await db.select().from(contentTopics)
+      .where(whereClause)
+      .orderBy(desc(contentTopics.priority));
 
     // Get post counts in a single query (fixes N+1 problem)
-    const { data: postCounts, error: countError } = await sb
-      .from('blog_posts')
-      .select('source_topic_id')
-      .not('source_topic_id', 'is', null);
-
-    if (countError) throw countError;
+    const postCounts = await db.select({
+      sourceTopicId: blogPosts.sourceTopicId,
+    }).from(blogPosts)
+      .where(not(isNull(blogPosts.sourceTopicId)));
 
     // Build count map
     const countMap = new Map<string, number>();
-    (postCounts || []).forEach((post: { source_topic_id: string }) => {
-      const current = countMap.get(post.source_topic_id) || 0;
-      countMap.set(post.source_topic_id, current + 1);
-    });
+    for (const post of postCounts) {
+      if (post.sourceTopicId) {
+        const current = countMap.get(post.sourceTopicId) || 0;
+        countMap.set(post.sourceTopicId, current + 1);
+      }
+    }
 
     // Merge counts into topics
-    const topicsWithCounts = (topics || []).map((topic) => ({
+    const topicsWithCounts = topics.map((topic) => ({
       ...topic,
       post_count: countMap.get(topic.id) || 0
     }));
@@ -538,17 +564,13 @@ router.get('/topics', requireAdmin, async (req: Request, res: Response) => {
  */
 router.get('/topics/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const sb = getSupabase();
-    const { data, error } = await sb
-      .from('content_topics')
-      .select('*')
-      .eq('id', req.params.id)
-      .single();
+    const [topic] = await db.select().from(contentTopics)
+      .where(eq(contentTopics.id, req.params.id))
+      .limit(1);
 
-    if (error) throw error;
-    if (!data) return res.status(404).json({ error: 'Topic not found' });
+    if (!topic) return res.status(404).json({ error: 'Topic not found' });
 
-    res.json(data);
+    res.json(topic);
   } catch (error: any) {
     console.error('Error fetching topic:', error);
     res.status(500).json({ error: 'Failed to fetch topic' });
@@ -569,15 +591,11 @@ router.post('/topics', requireAdmin, async (req: Request, res: Response) => {
       });
     }
 
-    const sb = getSupabase();
-    const { data, error } = await sb
-      .from('content_topics')
-      .insert(parsed.data)
-      .select()
-      .single();
+    const [result] = await db.insert(contentTopics)
+      .values(topicToDrizzle(parsed.data))
+      .returning();
 
-    if (error) throw error;
-    res.json(data);
+    res.json(result);
   } catch (error: any) {
     console.error('Error creating topic:', error);
     res.status(500).json({ error: 'Failed to create topic' });
@@ -598,16 +616,13 @@ router.patch('/topics/:id', requireAdmin, async (req: Request, res: Response) =>
       });
     }
 
-    const sb = getSupabase();
-    const { data, error } = await sb
-      .from('content_topics')
-      .update({ ...parsed.data, updated_at: new Date().toISOString() })
-      .eq('id', req.params.id)
-      .select()
-      .single();
+    const drizzleData = stripUndefined(topicToDrizzle(parsed.data as z.infer<typeof topicSchema>));
+    const [result] = await db.update(contentTopics)
+      .set({ ...drizzleData, updatedAt: new Date() })
+      .where(eq(contentTopics.id, req.params.id))
+      .returning();
 
-    if (error) throw error;
-    res.json(data);
+    res.json(result);
   } catch (error: any) {
     console.error('Error updating topic:', error);
     res.status(500).json({ error: 'Failed to update topic' });
@@ -620,19 +635,15 @@ router.patch('/topics/:id', requireAdmin, async (req: Request, res: Response) =>
  */
 router.delete('/topics/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const sb = getSupabase();
     const topicId = req.params.id;
 
     // Check for dependent assignments - still block if any exist
-    const { data: assignments, error: assignmentError } = await sb
-      .from('content_daily_assignments')
-      .select('id')
-      .eq('topic_id', topicId)
+    const assignments = await db.select({ id: contentDailyAssignments.id })
+      .from(contentDailyAssignments)
+      .where(eq(contentDailyAssignments.topicId, topicId))
       .limit(1);
 
-    if (assignmentError) throw assignmentError;
-
-    if (assignments && assignments.length > 0) {
+    if (assignments.length > 0) {
       return res.status(409).json({
         error: 'Cannot delete topic with existing assignments',
         code: 'HAS_ASSIGNMENTS',
@@ -641,20 +652,13 @@ router.delete('/topics/:id', requireAdmin, async (req: Request, res: Response) =
     }
 
     // Unlink any blog posts that reference this topic (set source_topic_id to null)
-    const { error: unlinkError } = await sb
-      .from('blog_posts')
-      .update({ source_topic_id: null })
-      .eq('source_topic_id', topicId);
-
-    if (unlinkError) throw unlinkError;
+    await db.update(blogPosts)
+      .set({ sourceTopicId: null })
+      .where(eq(blogPosts.sourceTopicId, topicId));
 
     // Now safe to delete the topic
-    const { error } = await sb
-      .from('content_topics')
-      .delete()
-      .eq('id', topicId);
+    await db.delete(contentTopics).where(eq(contentTopics.id, topicId));
 
-    if (error) throw error;
     res.json({ success: true });
   } catch (error: any) {
     console.error('Error deleting topic:', error);
@@ -673,16 +677,17 @@ router.delete('/topics/:id', requireAdmin, async (req: Request, res: Response) =
 router.get('/plans', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { year, status } = req.query;
-    const sb = getSupabase();
 
-    let query = sb.from('content_weekly_plans').select('*');
+    const conditions: any[] = [];
+    if (year) conditions.push(eq(contentWeeklyPlans.year, parseInt(year as string)));
+    if (status) conditions.push(eq(contentWeeklyPlans.status, status as string));
 
-    if (year) query = query.eq('year', parseInt(year as string));
-    if (status) query = query.eq('status', status as string);
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-    const { data, error } = await query.order('created_at', { ascending: false });
+    const data = await db.select().from(contentWeeklyPlans)
+      .where(whereClause)
+      .orderBy(desc(contentWeeklyPlans.createdAt));
 
-    if (error) throw error;
     res.json(data);
   } catch (error: any) {
     console.error('Error fetching weekly plans:', error);
@@ -696,17 +701,13 @@ router.get('/plans', requireAdmin, async (req: Request, res: Response) => {
  */
 router.get('/plans/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const sb = getSupabase();
-    const { data, error } = await sb
-      .from('content_weekly_plans')
-      .select('*')
-      .eq('id', req.params.id)
-      .single();
+    const [plan] = await db.select().from(contentWeeklyPlans)
+      .where(eq(contentWeeklyPlans.id, req.params.id))
+      .limit(1);
 
-    if (error) throw error;
-    if (!data) return res.status(404).json({ error: 'Plan not found' });
+    if (!plan) return res.status(404).json({ error: 'Plan not found' });
 
-    res.json(data);
+    res.json(plan);
   } catch (error: any) {
     console.error('Error fetching weekly plan:', error);
     res.status(500).json({ error: 'Failed to fetch weekly plan' });
@@ -727,15 +728,11 @@ router.post('/plans', requireAdmin, async (req: Request, res: Response) => {
       });
     }
 
-    const sb = getSupabase();
-    const { data, error } = await sb
-      .from('content_weekly_plans')
-      .insert(parsed.data)
-      .select()
-      .single();
+    const [result] = await db.insert(contentWeeklyPlans)
+      .values(planToDrizzle(parsed.data))
+      .returning();
 
-    if (error) throw error;
-    res.json(data);
+    res.json(result);
   } catch (error: any) {
     console.error('Error creating weekly plan:', error);
     res.status(500).json({ error: 'Failed to create weekly plan' });
@@ -756,16 +753,13 @@ router.patch('/plans/:id', requireAdmin, async (req: Request, res: Response) => 
       });
     }
 
-    const sb = getSupabase();
-    const { data, error } = await sb
-      .from('content_weekly_plans')
-      .update({ ...parsed.data, updated_at: new Date().toISOString() })
-      .eq('id', req.params.id)
-      .select()
-      .single();
+    const drizzleData = stripUndefined(planToDrizzle(parsed.data as z.infer<typeof planSchema>));
+    const [result] = await db.update(contentWeeklyPlans)
+      .set({ ...drizzleData, updatedAt: new Date() })
+      .where(eq(contentWeeklyPlans.id, req.params.id))
+      .returning();
 
-    if (error) throw error;
-    res.json(data);
+    res.json(result);
   } catch (error: any) {
     console.error('Error updating weekly plan:', error);
     res.status(500).json({ error: 'Failed to update weekly plan' });
@@ -778,13 +772,8 @@ router.patch('/plans/:id', requireAdmin, async (req: Request, res: Response) => 
  */
 router.delete('/plans/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const sb = getSupabase();
-    const { error } = await sb
-      .from('content_weekly_plans')
-      .delete()
-      .eq('id', req.params.id);
+    await db.delete(contentWeeklyPlans).where(eq(contentWeeklyPlans.id, req.params.id));
 
-    if (error) throw error;
     res.json({ success: true });
   } catch (error: any) {
     console.error('Error deleting weekly plan:', error);
@@ -803,31 +792,20 @@ router.delete('/plans/:id', requireAdmin, async (req: Request, res: Response) =>
 router.get('/assignments', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { startDate, endDate, status } = req.query;
-    const sb = getSupabase();
 
-    let query = sb.from('content_daily_assignments').select('*');
+    const conditions: any[] = [];
+    if (startDate) conditions.push(gte(contentDailyAssignments.date, new Date(startDate as string)));
+    if (endDate) conditions.push(lte(contentDailyAssignments.date, new Date(endDate as string)));
+    if (status) conditions.push(eq(contentDailyAssignments.status, status as string));
 
-    if (startDate) query = query.gte('date', startDate as string);
-    if (endDate) query = query.lte('date', endDate as string);
-    if (status) query = query.eq('status', status as string);
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-    const { data, error } = await query.order('date', { ascending: true });
+    const data = await db.select().from(contentDailyAssignments)
+      .where(whereClause)
+      .orderBy(asc(contentDailyAssignments.date));
 
-    if (error) throw error;
-
-    // Convert snake_case to camelCase for frontend compatibility
-    const formatted = (data || []).map(a => ({
-      id: a.id,
-      date: a.date,
-      topicId: a.topic_id,
-      postId: a.post_id,
-      status: a.status,
-      notes: a.notes,
-      createdAt: a.created_at,
-      updatedAt: a.updated_at
-    }));
-
-    res.json(formatted);
+    // Drizzle returns camelCase natively — no conversion needed
+    res.json(data);
   } catch (error: any) {
     console.error('Error fetching daily assignments:', error);
     res.status(500).json({ error: 'Failed to fetch daily assignments' });
@@ -840,27 +818,14 @@ router.get('/assignments', requireAdmin, async (req: Request, res: Response) => 
  */
 router.get('/assignments/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const sb = getSupabase();
-    const { data, error } = await sb
-      .from('content_daily_assignments')
-      .select('*')
-      .eq('id', req.params.id)
-      .single();
+    const [assignment] = await db.select().from(contentDailyAssignments)
+      .where(eq(contentDailyAssignments.id, req.params.id))
+      .limit(1);
 
-    if (error) throw error;
-    if (!data) return res.status(404).json({ error: 'Assignment not found' });
+    if (!assignment) return res.status(404).json({ error: 'Assignment not found' });
 
-    // Convert to camelCase
-    res.json({
-      id: data.id,
-      date: data.date,
-      topicId: data.topic_id,
-      postId: data.post_id,
-      status: data.status,
-      notes: data.notes,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at
-    });
+    // Drizzle returns camelCase natively — no conversion needed
+    res.json(assignment);
   } catch (error: any) {
     console.error('Error fetching daily assignment:', error);
     res.status(500).json({ error: 'Failed to fetch daily assignment' });
@@ -881,35 +846,16 @@ router.post('/assignments', requireAdmin, async (req: Request, res: Response) =>
       });
     }
 
-    const sb = getSupabase();
+    const [result] = await db.insert(contentDailyAssignments)
+      .values({
+        date: new Date(parsed.data.date),
+        topicId: parsed.data.topicId,
+        status: parsed.data.status || 'planned',
+        notes: parsed.data.notes || null,
+      })
+      .returning();
 
-    // Convert camelCase input to snake_case for database
-    const insertData: any = {
-      date: parsed.data.date,
-      topic_id: parsed.data.topicId,
-      status: parsed.data.status || 'planned',
-      notes: parsed.data.notes || null
-    };
-
-    const { data, error } = await sb
-      .from('content_daily_assignments')
-      .insert(insertData)
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    // Return camelCase
-    res.json({
-      id: data.id,
-      date: data.date,
-      topicId: data.topic_id,
-      postId: data.post_id,
-      status: data.status,
-      notes: data.notes,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at
-    });
+    res.json(result);
   } catch (error: any) {
     console.error('Error creating daily assignment:', error);
     res.status(500).json({ error: 'Failed to create daily assignment' });
@@ -930,36 +876,19 @@ router.patch('/assignments/:id', requireAdmin, async (req: Request, res: Respons
       });
     }
 
-    const sb = getSupabase();
-
-    // Convert camelCase input to snake_case
-    const updateData: any = { updated_at: new Date().toISOString() };
-    if (parsed.data.date !== undefined) updateData.date = parsed.data.date;
-    if (parsed.data.topicId !== undefined) updateData.topic_id = parsed.data.topicId;
-    if (parsed.data.postId !== undefined) updateData.post_id = parsed.data.postId;
+    const updateData: Record<string, any> = { updatedAt: new Date() };
+    if (parsed.data.date !== undefined) updateData.date = new Date(parsed.data.date);
+    if (parsed.data.topicId !== undefined) updateData.topicId = parsed.data.topicId;
+    if (parsed.data.postId !== undefined) updateData.postId = parsed.data.postId;
     if (parsed.data.status !== undefined) updateData.status = parsed.data.status;
     if (parsed.data.notes !== undefined) updateData.notes = parsed.data.notes;
 
-    const { data, error } = await sb
-      .from('content_daily_assignments')
-      .update(updateData)
-      .eq('id', req.params.id)
-      .select()
-      .single();
+    const [result] = await db.update(contentDailyAssignments)
+      .set(updateData)
+      .where(eq(contentDailyAssignments.id, req.params.id))
+      .returning();
 
-    if (error) throw error;
-
-    // Return camelCase
-    res.json({
-      id: data.id,
-      date: data.date,
-      topicId: data.topic_id,
-      postId: data.post_id,
-      status: data.status,
-      notes: data.notes,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at
-    });
+    res.json(result);
   } catch (error: any) {
     console.error('Error updating daily assignment:', error);
     res.status(500).json({ error: 'Failed to update daily assignment' });
@@ -972,13 +901,8 @@ router.patch('/assignments/:id', requireAdmin, async (req: Request, res: Respons
  */
 router.delete('/assignments/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const sb = getSupabase();
-    const { error } = await sb
-      .from('content_daily_assignments')
-      .delete()
-      .eq('id', req.params.id);
+    await db.delete(contentDailyAssignments).where(eq(contentDailyAssignments.id, req.params.id));
 
-    if (error) throw error;
     res.json({ success: true });
   } catch (error: any) {
     console.error('Error deleting daily assignment:', error);
