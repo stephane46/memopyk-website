@@ -1458,10 +1458,10 @@ router.post('/analytics/session', async (req: Request, res: Response) => {
 
     console.log(`📊 [Session] ${result.isNew ? 'Created' : 'Resumed'}: ${result.sessionId}`);
 
-    // Frontend expects { session: { id, session_id } }
+    // Frontend expects { session: { id, sessionId } }
     res.json({
       success: true,
-      session: { id: result.sessionId, session_id: result.sessionId },
+      session: { id: result.sessionId, sessionId: result.sessionId },
       isNew: result.isNew,
     });
   } catch (error) {

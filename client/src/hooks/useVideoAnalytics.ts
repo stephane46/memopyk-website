@@ -78,7 +78,7 @@ export const useVideoAnalytics = () => {
       }
     },
     onSuccess: (data) => {
-      const sessionId = data?.session?.id || data?.session?.session_id;
+      const sessionId = data?.session?.id || data?.session?.sessionId;
       if (sessionId) {
         localStorage.setItem('memopyk-current-session-id', sessionId);
       }

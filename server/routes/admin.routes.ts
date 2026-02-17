@@ -192,7 +192,7 @@ router.post('/country-names/sync-from-library', requireAdmin, async (req: Reques
     }
 
     console.log(`[admin country-names sync] Synced: ${inserted} inserted, ${updatedEn} EN, ${updatedFr} FR`);
-    return res.json({ ok: true, processed, inserted, updated_en: updatedEn, updated_fr: updatedFr });
+    return res.json({ ok: true, processed, inserted, updatedEn, updatedFr });
   } catch (err: any) {
     console.error('[admin country-names sync] error:', err);
     return res.status(500).json({ error: err.message || 'Sync failed' });
