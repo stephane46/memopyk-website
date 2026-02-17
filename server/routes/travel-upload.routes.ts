@@ -116,12 +116,12 @@ router.post('/api/travel-upload/submit', async (req, res) => {
           s.email?.toLowerCase() === email.toLowerCase()
         );
         if (existingEmail) {
-          console.log(`⚠️ Duplicate email registration attempt: ${email}, existing folder: ${existingEmail.folder_url}`);
+          console.log(`⚠️ Duplicate email registration attempt: ${email}, existing folder: ${existingEmail.folderUrl}`);
           return res.status(409).json({ 
             error: language === 'fr-FR' 
               ? 'Cette adresse email est déjà enregistrée. Contactez-nous si vous avez besoin d\'aide.'
               : 'This email address is already registered. Contact us if you need assistance.',
-            existingFolderUrl: existingEmail.folder_url
+            existingFolderUrl: existingEmail.folderUrl
           });
         }
         console.log(`✅ Email duplicate check passed: ${email}`);
@@ -312,7 +312,7 @@ router.post('/api/travel-upload/submit', async (req, res) => {
       let agencyName = '';
       try {
         const agencyData = await travelService.getTravelAgencyCodeByCode(agencyCode);
-        agencyName = agencyData?.agency_name || '';
+        agencyName = agencyData?.agencyName || '';
       } catch (e) {
         console.warn('Could not fetch agency name for email:', e);
       }
@@ -655,12 +655,12 @@ router.post('/api/travel-upload/submit', async (req, res) => {
 
       res.json({
         success: propfindResponse.status === 207,
-        webdav_status: propfindResponse.status,
-        base_url: NC_BASE,
+        webdavStatus: propfindResponse.status,
+        baseUrl: NC_BASE,
         user: NC_USER,
         folder: NC_FOLDER,
-        folder_exists: propfindResponse.status === 207,
-        response_preview: propfindText.substring(0, 200)
+        folderExists: propfindResponse.status === 207,
+        responsePreview: propfindText.substring(0, 200)
       });
     } catch (error) {
       console.error('❌ Nextcloud test failed:', error);
@@ -716,7 +716,7 @@ router.post('/api/travel-upload/submit', async (req, res) => {
       res.json({ 
         success: true, 
         message: 'Submission deleted from database. Note: The Nextcloud folder still exists and must be deleted manually if needed.',
-        folderPath: submission.folder_path
+        folderPath: submission.folderPath
       });
     } catch (error) {
       console.error('Error deleting travel upload submission:', error);
@@ -767,16 +767,16 @@ router.post('/api/travel-upload/submit', async (req, res) => {
                   </tr>
                   <tr>
                     <td style="padding:40px 30px;">
-                      <p style="color:#2A4759;font-size:18px;margin:0 0 20px;">Bonjour <strong>${submission.first_name}</strong>,</p>
+                      <p style="color:#2A4759;font-size:18px;margin:0 0 20px;">Bonjour <strong>${submission.firstName}</strong>,</p>
                       <p style="color:#333;font-size:16px;margin:0 0 25px;"><strong>Votre espace de téléversement sécurisé est maintenant prêt.</strong></p>
                       <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
                         <tr>
                           <td align="center">
-                            <a href="${submission.share_url}" style="display:inline-block;background-color:#D67C4A;color:#ffffff;padding:18px 40px;text-decoration:none;border-radius:8px;font-weight:600;font-size:16px;box-shadow:0 4px 15px rgba(214,124,74,0.4);">Accéder à mon espace</a>
+                            <a href="${submission.shareUrl}" style="display:inline-block;background-color:#D67C4A;color:#ffffff;padding:18px 40px;text-decoration:none;border-radius:8px;font-weight:600;font-size:16px;box-shadow:0 4px 15px rgba(214,124,74,0.4);">Accéder à mon espace</a>
                           </td>
                         </tr>
                       </table>
-                      <p style="color:#666;font-size:12px;margin:0 0 30px;text-align:center;">Ou copiez ce lien :<br><a href="${submission.share_url}" style="color:#D67C4A;word-break:break-all;font-size:13px;">${submission.share_url}</a></p>
+                      <p style="color:#666;font-size:12px;margin:0 0 30px;text-align:center;">Ou copiez ce lien :<br><a href="${submission.shareUrl}" style="color:#D67C4A;word-break:break-all;font-size:13px;">${submission.shareUrl}</a></p>
                       
                       <hr style="border:none;border-top:1px solid #eee;margin:25px 0;">
                       
@@ -828,8 +828,8 @@ router.post('/api/travel-upload/submit', async (req, res) => {
                       <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f8f9fa;border-radius:8px;border-left:4px solid #D67C4A;margin:0;">
                         <tr>
                           <td style="padding:15px 20px;">
-                            <p style="color:#2A4759;font-size:14px;margin:0 0 8px;"><strong>Votre Agence de Voyage:</strong> ${submission.agency_name || submission.agency_code}</p>
-                            <p style="color:#2A4759;font-size:14px;margin:0;"><strong>Votre Code MEMOPYK:</strong> ${submission.agency_code}</p>
+                            <p style="color:#2A4759;font-size:14px;margin:0 0 8px;"><strong>Votre Agence de Voyage:</strong> ${submission.agencyName || submission.agencyCode}</p>
+                            <p style="color:#2A4759;font-size:14px;margin:0;"><strong>Votre Code MEMOPYK:</strong> ${submission.agencyCode}</p>
                           </td>
                         </tr>
                       </table>
@@ -863,16 +863,16 @@ router.post('/api/travel-upload/submit', async (req, res) => {
                   </tr>
                   <tr>
                     <td style="padding:40px 30px;">
-                      <p style="color:#2A4759;font-size:18px;margin:0 0 20px;">Hello <strong>${submission.first_name}</strong>,</p>
+                      <p style="color:#2A4759;font-size:18px;margin:0 0 20px;">Hello <strong>${submission.firstName}</strong>,</p>
                       <p style="color:#333;font-size:16px;margin:0 0 25px;"><strong>Your secure upload space is now ready.</strong></p>
                       <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">
                         <tr>
                           <td align="center">
-                            <a href="${submission.share_url}" style="display:inline-block;background-color:#D67C4A;color:#ffffff;padding:18px 40px;text-decoration:none;border-radius:8px;font-weight:600;font-size:16px;box-shadow:0 4px 15px rgba(214,124,74,0.4);">Access my space</a>
+                            <a href="${submission.shareUrl}" style="display:inline-block;background-color:#D67C4A;color:#ffffff;padding:18px 40px;text-decoration:none;border-radius:8px;font-weight:600;font-size:16px;box-shadow:0 4px 15px rgba(214,124,74,0.4);">Access my space</a>
                           </td>
                         </tr>
                       </table>
-                      <p style="color:#666;font-size:12px;margin:0 0 30px;text-align:center;">Or copy this link:<br><a href="${submission.share_url}" style="color:#D67C4A;word-break:break-all;font-size:13px;">${submission.share_url}</a></p>
+                      <p style="color:#666;font-size:12px;margin:0 0 30px;text-align:center;">Or copy this link:<br><a href="${submission.shareUrl}" style="color:#D67C4A;word-break:break-all;font-size:13px;">${submission.shareUrl}</a></p>
                       
                       <hr style="border:none;border-top:1px solid #eee;margin:25px 0;">
                       
@@ -924,8 +924,8 @@ router.post('/api/travel-upload/submit', async (req, res) => {
                       <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f8f9fa;border-radius:8px;border-left:4px solid #D67C4A;margin:0;">
                         <tr>
                           <td style="padding:15px 20px;">
-                            <p style="color:#2A4759;font-size:14px;margin:0 0 8px;"><strong>Your Travel Agency:</strong> ${submission.agency_name || submission.agency_code}</p>
-                            <p style="color:#2A4759;font-size:14px;margin:0;"><strong>Your MEMOPYK Code:</strong> ${submission.agency_code}</p>
+                            <p style="color:#2A4759;font-size:14px;margin:0 0 8px;"><strong>Your Travel Agency:</strong> ${submission.agencyName || submission.agencyCode}</p>
+                            <p style="color:#2A4759;font-size:14px;margin:0;"><strong>Your MEMOPYK Code:</strong> ${submission.agencyCode}</p>
                           </td>
                         </tr>
                       </table>
@@ -988,7 +988,7 @@ router.post('/api/travel-upload/submit', async (req, res) => {
       }
       
       const authHeader = 'Basic ' + Buffer.from(`${NC_USER}:${NC_PASS}`).toString('base64');
-      const folderUrl = `${NC_BASE.replace(/\/$/, '')}/remote.php/dav/files/${NC_USER}${submission.folder_path}/`;
+      const folderUrl = `${NC_BASE.replace(/\/$/, '')}/remote.php/dav/files/${NC_USER}${submission.folderPath}/`;
       
       // PROPFIND with Depth: infinity to get all files recursively
       const propfindResponse = await fetch(folderUrl, {
@@ -1100,7 +1100,7 @@ router.post('/api/travel-upload/submit', async (req, res) => {
             continue;
           }
           
-          const folderUrl = `${NC_BASE.replace(/\/$/, '')}/remote.php/dav/files/${NC_USER}${submission.folder_path}/`;
+          const folderUrl = `${NC_BASE.replace(/\/$/, '')}/remote.php/dav/files/${NC_USER}${submission.folderPath}/`;
           
           const propfindResponse = await fetch(folderUrl, {
             method: 'PROPFIND',
@@ -1203,7 +1203,7 @@ router.post('/api/travel-upload/submit', async (req, res) => {
       const agency = await travelService.getTravelAgencyCodeByCode(code);
       
       if (agency) {
-        res.json({ valid: true, agencyName: agency.agency_name });
+        res.json({ valid: true, agencyName: agency.agencyName });
       } else {
         res.json({ valid: false });
       }

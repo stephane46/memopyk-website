@@ -24,6 +24,48 @@ function escapeValue(val: any): string {
 }
 
 // ---------------------------------------------------------------------------
+// Helper: map raw submission row to camelCase
+// ---------------------------------------------------------------------------
+function mapSubmissionRow(r: any) {
+  return {
+    id: r.id,
+    firstName: r.first_name,
+    lastName: r.last_name,
+    email: r.email,
+    phone: r.phone,
+    agencyCode: r.agency_code,
+    agencyName: r.agency_name,
+    language: r.language,
+    folderPath: r.folder_path,
+    shareUrl: r.share_url,
+    shareId: r.share_id,
+    shareToken: r.share_token,
+    status: r.status,
+    agencyEmailSent: r.agency_email_sent,
+    ngocEmailSent: r.ngoc_email_sent,
+    nextcloudFolder: r.nextcloud_folder,
+    folderCreated: r.folder_created,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+  };
+}
+
+// Helper: map raw agency code row to camelCase
+function mapAgencyCodeRow(r: any) {
+  return {
+    id: r.id,
+    agencyName: r.agency_name,
+    agencyCode: r.agency_code,
+    contactEmail: r.contact_email,
+    contactPhone: r.contact_phone,
+    notes: r.notes,
+    isActive: r.is_active,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Travel Upload Submissions
 // ---------------------------------------------------------------------------
 
@@ -58,7 +100,7 @@ export async function getTravelUploadSubmissions(filters?: {
   const result = await db.execute(sql.raw(sqlQuery));
   const data = result.rows || result;
   console.log(`✅ [Service] Query returned ${Array.isArray(data) ? data.length : 0} rows`);
-  return data;
+  return Array.isArray(data) ? data.map(mapSubmissionRow) : data;
 }
 
 export async function getTravelUploadSubmissionById(id: number) {
@@ -67,7 +109,7 @@ export async function getTravelUploadSubmissionById(id: number) {
   );
   const data = result.rows || result;
   if (Array.isArray(data) && data.length > 0) {
-    return data[0];
+    return mapSubmissionRow(data[0]);
   }
   return null;
 }
@@ -81,7 +123,7 @@ export async function createTravelUploadSubmission(submissionData: any) {
   const data = result.rows || result;
 
   if (Array.isArray(data) && data.length > 0) {
-    return data[0];
+    return mapSubmissionRow(data[0]);
   }
   throw new Error('Failed to create submission');
 }
@@ -97,7 +139,7 @@ export async function updateTravelUploadSubmission(id: number, updates: any) {
   const data = result.rows || result;
 
   if (Array.isArray(data) && data.length > 0) {
-    return data[0];
+    return mapSubmissionRow(data[0]);
   }
   throw new Error('Submission not found');
 }
@@ -134,7 +176,7 @@ export async function getTravelAgencyCodes(filters?: {
   const result = await db.execute(sql.raw(sqlQuery));
   const data = result.rows || result;
   console.log(`✅ [Service] Query returned ${Array.isArray(data) ? data.length : 0} rows`);
-  return data;
+  return Array.isArray(data) ? data.map(mapAgencyCodeRow) : data;
 }
 
 export async function getTravelAgencyCodeById(id: number) {
@@ -143,7 +185,7 @@ export async function getTravelAgencyCodeById(id: number) {
   );
   const data = result.rows || result;
   if (Array.isArray(data) && data.length > 0) {
-    return data[0];
+    return mapAgencyCodeRow(data[0]);
   }
   return null;
 }
@@ -159,7 +201,7 @@ export async function getTravelAgencyCodeByCode(code: string) {
   );
   const data = result.rows || result;
   if (Array.isArray(data) && data.length > 0) {
-    return data[0];
+    return mapAgencyCodeRow(data[0]);
   }
   return null;
 }
@@ -175,7 +217,7 @@ export async function createTravelAgencyCode(codeData: any) {
   const data = result.rows || result;
 
   if (Array.isArray(data) && data.length > 0) {
-    return data[0];
+    return mapAgencyCodeRow(data[0]);
   }
   throw new Error('Failed to create agency code');
 }
@@ -195,7 +237,7 @@ export async function updateTravelAgencyCode(id: number, updates: any) {
   const data = result.rows || result;
 
   if (Array.isArray(data) && data.length > 0) {
-    return data[0];
+    return mapAgencyCodeRow(data[0]);
   }
   throw new Error('Agency code not found');
 }

@@ -392,8 +392,8 @@ router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
       // Attach counts to each keyword
       for (const kw of keywords) {
         const key = `${kw.keyword}|${kw.market}`;
-        kw.topics_count = topicCountMap[key] || 0;
-        kw.posts_count = postCountMap[key] || 0;
+        kw.topicsCount = topicCountMap[key] || 0;
+        kw.postsCount = postCountMap[key] || 0;
       }
     }
 
@@ -548,7 +548,7 @@ router.get('/topics', requireAdmin, async (req: Request, res: Response) => {
     // Merge counts into topics
     const topicsWithCounts = topics.map((topic) => ({
       ...topic,
-      post_count: countMap.get(topic.id) || 0
+      postCount: countMap.get(topic.id) || 0
     }));
 
     res.json(topicsWithCounts);

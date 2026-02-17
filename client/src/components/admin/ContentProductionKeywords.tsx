@@ -24,8 +24,8 @@ interface ContentKeyword {
   seasonal?: boolean;
   seasonalMonths?: string[];
   cluster?: string;
-  topics_count?: number;
-  posts_count?: number;
+  topicsCount?: number;
+  postsCount?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -767,26 +767,26 @@ export function ContentProductionKeywords() {
                       </Badge>
                     </td>
                     <td className="p-3 text-center">
-                      {keyword.topics_count ? (
+                      {keyword.topicsCount ? (
                         <button
                           onClick={() => navigateToTab('topics', keyword.keyword)}
                           className="text-sm font-medium text-[#D67C4A] hover:underline"
-                          title={`View ${keyword.topics_count} topic(s)`}
+                          title={`View ${keyword.topicsCount} topic(s)`}
                         >
-                          {keyword.topics_count}
+                          {keyword.topicsCount}
                         </button>
                       ) : (
                         <span className="text-gray-300 dark:text-gray-600">—</span>
                       )}
                     </td>
                     <td className="p-3 text-center">
-                      {keyword.posts_count ? (
+                      {keyword.postsCount ? (
                         <button
                           onClick={() => navigateToTab('planner', keyword.keyword)}
                           className="text-sm font-medium text-[#D67C4A] hover:underline"
-                          title={`View ${keyword.posts_count} post(s)`}
+                          title={`View ${keyword.postsCount} post(s)`}
                         >
-                          {keyword.posts_count}
+                          {keyword.postsCount}
                         </button>
                       ) : (
                         <span className="text-gray-300 dark:text-gray-600">—</span>

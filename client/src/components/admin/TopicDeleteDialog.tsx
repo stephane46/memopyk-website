@@ -17,7 +17,7 @@ import { AlertTriangle, Info, Loader2 } from 'lucide-react';
 interface ContentTopic {
   id: string;
   title: string;
-  post_count?: number;
+  postCount?: number;
   timesGenerated?: number;
 }
 
@@ -57,7 +57,7 @@ export function TopicDeleteDialog({ isOpen, onClose, topic }: TopicDeleteDialogP
     }
   };
 
-  const postCount = topic.post_count || 0;
+  const postCount = topic.postCount || 0;
   const timesGenerated = topic.timesGenerated || 0;
 
   return (

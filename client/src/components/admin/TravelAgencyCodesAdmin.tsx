@@ -14,14 +14,14 @@ import { Plus, Pencil, Trash2, Search, RefreshCw, Building2 } from 'lucide-react
 
 interface AgencyCode {
   id: number;
-  agency_name: string;
-  agency_code: string;
-  contact_email: string | null;
-  contact_phone: string | null;
+  agencyName: string;
+  agencyCode: string;
+  contactEmail: string | null;
+  contactPhone: string | null;
   notes: string | null;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string | null;
 }
 
 interface FormData {
@@ -114,21 +114,21 @@ export default function TravelAgencyCodesAdmin() {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
-      code.agency_name?.toLowerCase().includes(query) ||
-      code.agency_code?.toLowerCase().includes(query) ||
-      code.contact_email?.toLowerCase().includes(query)
+      code.agencyName?.toLowerCase().includes(query) ||
+      code.agencyCode?.toLowerCase().includes(query) ||
+      code.contactEmail?.toLowerCase().includes(query)
     );
   });
 
   const handleEdit = (code: AgencyCode) => {
     setSelectedCode(code);
     setFormData({
-      agencyName: code.agency_name,
-      agencyCode: code.agency_code,
-      contactEmail: code.contact_email || '',
-      contactPhone: code.contact_phone || '',
+      agencyName: code.agencyName,
+      agencyCode: code.agencyCode,
+      contactEmail: code.contactEmail || '',
+      contactPhone: code.contactPhone || '',
       notes: code.notes || '',
-      isActive: code.is_active
+      isActive: code.isActive
     });
     setEditDialogOpen(true);
   };
@@ -184,33 +184,33 @@ export default function TravelAgencyCodesAdmin() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredCodes.map((code) => (
-            <Card key={code.id} className={`${!code.is_active ? 'opacity-60' : ''}`}>
+            <Card key={code.id} className={`${!code.isActive ? 'opacity-60' : ''}`}>
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="text-lg">{code.agency_name}</CardTitle>
+                    <CardTitle className="text-lg">{code.agencyName}</CardTitle>
                     <CardDescription className="font-mono text-lg font-semibold text-[#D67C4A]">
-                      {code.agency_code}
+                      {code.agencyCode}
                     </CardDescription>
                   </div>
-                  <Badge variant={code.is_active ? 'default' : 'secondary'}>
-                    {code.is_active ? 'Active' : 'Inactive'}
+                  <Badge variant={code.isActive ? 'default' : 'secondary'}>
+                    {code.isActive ? 'Active' : 'Inactive'}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 text-sm text-gray-600">
-                  {code.contact_email && (
-                    <p>Email: {code.contact_email}</p>
+                  {code.contactEmail && (
+                    <p>Email: {code.contactEmail}</p>
                   )}
-                  {code.contact_phone && (
-                    <p>Phone: {code.contact_phone}</p>
+                  {code.contactPhone && (
+                    <p>Phone: {code.contactPhone}</p>
                   )}
                   {code.notes && (
                     <p className="text-gray-500 italic truncate">{code.notes}</p>
                   )}
                   <p className="text-xs text-gray-400">
-                    Created: {new Date(code.created_at).toLocaleDateString()}
+                    Created: {new Date(code.createdAt).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex gap-2 mt-4">
@@ -384,7 +384,7 @@ export default function TravelAgencyCodesAdmin() {
           <DialogHeader>
             <DialogTitle>Delete Agency Code</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the agency code "{selectedCode?.agency_code}" ({selectedCode?.agency_name})?
+              Are you sure you want to delete the agency code "{selectedCode?.agencyCode}" ({selectedCode?.agencyName})?
               This action cannot be undone.
             </DialogDescription>
           </DialogHeader>

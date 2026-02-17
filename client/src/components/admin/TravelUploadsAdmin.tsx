@@ -16,21 +16,21 @@ import {
 
 interface Submission {
   id: number;
-  first_name: string;
-  last_name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
-  agency_code: string;
+  agencyCode: string;
   language: string;
-  folder_path: string;
-  share_url: string;
-  share_id: string;
-  share_token: string;
+  folderPath: string;
+  shareUrl: string;
+  shareId: string;
+  shareToken: string;
   status: string;
-  agency_email_sent: boolean;
-  ngoc_email_sent: boolean;
-  created_at: string;
-  updated_at: string;
+  agencyEmailSent: boolean;
+  ngocEmailSent: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface FolderStats {
@@ -70,7 +70,7 @@ export default function TravelUploadsAdmin() {
   });
 
   const uniqueAgencies = useMemo(() => {
-    const agencies = new Set(submissions.map(s => s.agency_code));
+    const agencies = new Set(submissions.map(s => s.agencyCode));
     return Array.from(agencies).sort();
   }, [submissions]);
 
@@ -80,32 +80,32 @@ export default function TravelUploadsAdmin() {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(s => 
-        s.first_name?.toLowerCase().includes(query) ||
-        s.last_name?.toLowerCase().includes(query) ||
+        s.firstName?.toLowerCase().includes(query) ||
+        s.lastName?.toLowerCase().includes(query) ||
         s.email?.toLowerCase().includes(query)
       );
     }
     
     if (agencyFilter && agencyFilter !== 'all') {
-      filtered = filtered.filter(s => s.agency_code === agencyFilter);
+      filtered = filtered.filter(s => s.agencyCode === agencyFilter);
     }
     
     if (dateRange.start) {
-      filtered = filtered.filter(s => new Date(s.created_at) >= new Date(dateRange.start));
+      filtered = filtered.filter(s => new Date(s.createdAt) >= new Date(dateRange.start));
     }
     
     if (dateRange.end) {
       const endDate = new Date(dateRange.end);
       endDate.setHours(23, 59, 59, 999);
-      filtered = filtered.filter(s => new Date(s.created_at) <= endDate);
+      filtered = filtered.filter(s => new Date(s.createdAt) <= endDate);
     }
-    
+
     filtered.sort((a, b) => {
       let comparison = 0;
-      
+
       switch (sortField) {
         case 'name':
-          comparison = `${a.last_name} ${a.first_name}`.localeCompare(`${b.last_name} ${b.first_name}`);
+          comparison = `${a.lastName} ${a.firstName}`.localeCompare(`${b.lastName} ${b.firstName}`);
           break;
         case 'size':
           const sizeA = folderStats[a.id]?.totalSize || 0;
@@ -113,10 +113,10 @@ export default function TravelUploadsAdmin() {
           comparison = sizeA - sizeB;
           break;
         case 'date':
-          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
           break;
         case 'agency':
-          comparison = a.agency_code.localeCompare(b.agency_code);
+          comparison = a.agencyCode.localeCompare(b.agencyCode);
           break;
       }
       
@@ -348,11 +348,11 @@ export default function TravelUploadsAdmin() {
                     return (
                       <tr key={submission.id} className="border-b hover:bg-gray-50">
                         <td className="p-3 whitespace-nowrap">
-                          <div className="text-gray-900">{formatFrenchDateTime(submission.created_at)}</div>
+                          <div className="text-gray-900">{formatFrenchDateTime(submission.createdAt)}</div>
                         </td>
                         <td className="p-3">
                           <div className="font-medium text-gray-900">
-                            {submission.first_name} {submission.last_name}
+                            {submission.firstName} {submission.lastName}
                           </div>
                           {submission.phone && (
                             <div className="text-xs text-gray-500">{submission.phone}</div>
@@ -364,12 +364,12 @@ export default function TravelUploadsAdmin() {
                           </a>
                         </td>
                         <td className="p-3">
-                          <Badge variant="outline">{submission.agency_code}</Badge>
+                          <Badge variant="outline">{submission.agencyCode}</Badge>
                         </td>
                         <td className="p-3">
-                          {submission.share_url ? (
+                          {submission.shareUrl ? (
                             <a
-                              href={submission.share_url}
+                              href={submission.shareUrl}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-600 hover:underline flex items-center gap-1"
@@ -485,13 +485,13 @@ export default function TravelUploadsAdmin() {
           {submissionToDelete && (
             <div className="py-4 space-y-3">
               <div className="text-sm">
-                <strong>Client:</strong> {submissionToDelete.first_name} {submissionToDelete.last_name}
+                <strong>Client:</strong> {submissionToDelete.firstName} {submissionToDelete.lastName}
               </div>
               <div className="text-sm">
                 <strong>Email:</strong> {submissionToDelete.email}
               </div>
               <div className="text-sm">
-                <strong>Folder Path:</strong> {submissionToDelete.folder_path}
+                <strong>Folder Path:</strong> {submissionToDelete.folderPath}
               </div>
               
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-4">
@@ -499,7 +499,7 @@ export default function TravelUploadsAdmin() {
                   <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
                   <div className="text-sm text-amber-800">
                     <strong>Important:</strong> This will only delete the submission record from the database. 
-                    The Nextcloud folder at <code className="bg-amber-100 px-1 rounded">{submissionToDelete.folder_path}</code> will 
+                    The Nextcloud folder at <code className="bg-amber-100 px-1 rounded">{submissionToDelete.folderPath}</code> will 
                     still exist and must be deleted manually from Nextcloud if needed.
                   </div>
                 </div>
