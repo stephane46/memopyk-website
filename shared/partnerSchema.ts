@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const PartnerIntakeSchema = z.object({
-  partner_type: z.string().optional().default("digitization"),
-  partner_name: z.string().min(2).max(120),
+  partnerType: z.string().optional().default("digitization"),
+  partnerName: z.string().min(2).max(120),
   email: z.string().min(1, "E-mail requis"),
-  email_public: z.boolean().optional().default(true),
+  emailPublic: z.boolean().optional().default(true),
   phone: z.string().min(1, "Téléphone requis"),
   website: z.string()
     .min(1, "Site web requis")
@@ -25,26 +25,26 @@ export const PartnerIntakeSchema = z.object({
     street: z.string().optional().default(""),
     line2: z.string().optional().default(""),
     city: z.string().optional().default(""),
-    postal_code: z.string().optional().default(""),
+    postalCode: z.string().optional().default(""),
     country: z.string().min(2).max(2), // ISO-2
   }),
   services: z.array(z.enum(["Photo", "Film"])).min(1, "Sélectionnez au moins un type de service"),
-  photo_formats: z.array(z.string()).optional().default([]),
-  video_formats: z.array(z.string()).optional().default([]),
-  film_formats: z.array(z.string()).optional().default([]),
-  audio_formats: z.array(z.string()).optional().default([]),
-  video_cassettes: z.array(z.string()).optional().default([]),
-  other_photo_formats: z.string().max(120).optional().default(""),
-  other_film_formats: z.string().max(120).optional().default(""),
-  other_video_formats: z.string().max(120).optional().default(""),
+  photoFormats: z.array(z.string()).optional().default([]),
+  videoFormats: z.array(z.string()).optional().default([]),
+  filmFormats: z.array(z.string()).optional().default([]),
+  audioFormats: z.array(z.string()).optional().default([]),
+  videoCassettes: z.array(z.string()).optional().default([]),
+  otherPhotoFormats: z.string().max(120).optional().default(""),
+  otherFilmFormats: z.string().max(120).optional().default(""),
+  otherVideoFormats: z.string().max(120).optional().default(""),
   delivery: z.array(z.string()).optional().default([]),
-  other_delivery: z.string().max(120).optional().default(""),
+  otherDelivery: z.string().max(120).optional().default(""),
   output: z.array(z.string()).optional().default([]),
   turnaround: z.string().optional().default(""),
   rush: z.boolean().optional().default(false),
   languages: z.array(z.string()).optional().default([]),
-  consent_listed: z.boolean(),
-  public_description: z.string().optional().default(""),
+  consentListed: z.boolean(),
+  publicDescription: z.string().optional().default(""),
   locale: z.enum(["fr", "en"]).default("fr"),
   csrfToken: z.string().min(8),
 }).refine((data) => {
@@ -58,22 +58,22 @@ export const PartnerIntakeSchema = z.object({
   path: ["email"],
 })).refine((data) => {
   const hasFormats = 
-    (data.photo_formats && data.photo_formats.length > 0) ||
-    (data.film_formats && data.film_formats.length > 0) ||
-    (data.video_cassettes && data.video_cassettes.length > 0);
+    (data.photoFormats && data.photoFormats.length > 0) ||
+    (data.filmFormats && data.filmFormats.length > 0) ||
+    (data.videoCassettes && data.videoCassettes.length > 0);
   return hasFormats;
 }, (data) => ({
   message: data.locale === "fr" 
     ? "Au moins un format doit être sélectionné (photo, film, ou cassette vidéo)"
     : "At least one format must be selected (photo, film, or video cassette)",
-  path: ["photo_formats"],
+  path: ["photoFormats"],
 })).refine((data) => {
-  return data.consent_listed === true;
+  return data.consentListed === true;
 }, (data) => ({
   message: data.locale === "fr"
     ? "Veuillez accepter d'être répertorié dans l'annuaire pour soumettre le formulaire"
     : "Please agree to be listed in the directory to submit the form",
-  path: ["consent_listed"],
+  path: ["consentListed"],
 }));
 
 export type PartnerIntake = z.infer<typeof PartnerIntakeSchema>;

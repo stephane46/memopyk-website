@@ -35,8 +35,8 @@ interface IpExclusion {
   label: string;
   user_agent?: string;
   active: boolean;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface IpExclusionsManagerProps {
@@ -83,7 +83,7 @@ export const IpExclusionsManager: React.FC<IpExclusionsManagerProps> = ({
 
   // Create exclusion mutation
   const createMutation = useMutation({
-    mutationFn: async (data: Omit<IpExclusion, 'id' | 'created_at' | 'updated_at'>) => {
+    mutationFn: async (data: Omit<IpExclusion, 'id' | 'createdAt' | 'updatedAt'>) => {
       const response = await adminFetch('/api/admin/analytics/exclusions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -504,7 +504,7 @@ export const IpExclusionsManager: React.FC<IpExclusionsManagerProps> = ({
                     </div>
                   </TableCell>
                   <TableCell className="text-sm text-gray-500">
-                    {formatDate(exclusion.created_at)}
+                    {formatDate(exclusion.createdAt)}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2 text-gray-600">

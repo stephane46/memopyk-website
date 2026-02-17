@@ -23,23 +23,23 @@ interface ContentTopic {
   slug: string;
   category: string;
   type: string;
-  target_word_count: number;
-  primary_keyword: string;
-  secondary_keywords: string[];
-  search_volume: number | null;
+  targetWordCount: number;
+  primaryKeyword: string;
+  secondaryKeywords: string[];
+  searchVolume: number | null;
   competition: string | null;
-  search_intent: string;
-  content_angle: string;
+  searchIntent: string;
+  contentAngle: string;
   description: string;
-  hero_image_concept: string | null;
-  body_image_concepts: string[] | null;
-  memopyk_link_opportunities: string | null;
-  times_generated: number;
-  last_generated_at: string | null;
+  heroImageConcept: string | null;
+  bodyImageConcepts: string[] | null;
+  memopykLinkOpportunities: string | null;
+  timesGenerated: number;
+  lastGeneratedAt: string | null;
   priority: number;
   status: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface ContentDailyAssignment {
@@ -157,9 +157,9 @@ export function ContentProductionPlanner() {
   const postsByTopicId = useMemo(() => {
     const map = new Map<string, any[]>();
     blogPosts.forEach((post: any) => {
-      if (post.source_topic_id) {
-        const existing = map.get(post.source_topic_id) || [];
-        map.set(post.source_topic_id, [...existing, post]);
+      if (post.sourceTopicId) {
+        const existing = map.get(post.sourceTopicId) || [];
+        map.set(post.sourceTopicId, [...existing, post]);
       }
     });
     return map;
@@ -172,7 +172,7 @@ export function ContentProductionPlanner() {
     
     // Sort by updated_at descending (most recent first) for deterministic ordering
     const sorted = [...posts].sort((a, b) => 
-      new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     );
     
     // Prefer most recent draft (what needs tracking), fallback to most recent published
@@ -282,9 +282,9 @@ export function ContentProductionPlanner() {
 
   // Update post publication date mutation
   const updatePostDateMutation = useMutation({
-    mutationFn: async ({ id, published_at }: { id: string; published_at: string }) => {
+    mutationFn: async ({ id, publishedAt }: { id: string; publishedAt: string }) => {
       const response = await apiRequest(`/api/admin/blog/posts/${id}`, 'PATCH', {
-        published_at,
+        publishedAt,
       });
       return await response.json();
     },
@@ -307,7 +307,7 @@ export function ContentProductionPlanner() {
   // Filter all topics by search query (for modal - show all topics)
   const filteredTopics = allTopics.filter(topic =>
     topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    topic.primary_keyword.toLowerCase().includes(searchQuery.toLowerCase())
+    topic.primaryKeyword.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Get topic by ID
@@ -449,7 +449,7 @@ export function ContentProductionPlanner() {
     if (draggedPostId) {
       updatePostDateMutation.mutate({
         id: draggedPostId,
-        published_at: date.toISOString(),
+        publishedAt: date.toISOString(),
       });
       setDraggedPostId(null);
     }
@@ -714,9 +714,9 @@ export function ContentProductionPlanner() {
                                   </div>
                                   
                                   {/* Date lines */}
-                                  {isPublished && post?.published_at && (
+                                  {isPublished && post?.publishedAt && (
                                     <div className="text-[10px] text-gray-600 dark:text-gray-400 mb-1">
-                                      Published: {new Date(post.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                      Published: {new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                     </div>
                                   )}
                                   {(isDraft || isInReview) && (
@@ -725,7 +725,7 @@ export function ContentProductionPlanner() {
                                         Assigned: {new Date(assignment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                       </div>
                                       <div className="text-[10px] text-gray-600 dark:text-gray-400 mb-1">
-                                        Publication: {post?.published_at ? new Date(post.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Not set'}
+                                        Publication: {post?.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Not set'}
                                       </div>
                                     </>
                                   )}
@@ -889,9 +889,9 @@ export function ContentProductionPlanner() {
                                   </div>
                                   
                                   {/* Date lines */}
-                                  {isPublished && post.published_at && (
+                                  {isPublished && post.publishedAt && (
                                     <div className="text-[10px] text-gray-600 dark:text-gray-400 mb-1">
-                                      Published: {new Date(post.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                      Published: {new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                     </div>
                                   )}
                                   {(isDraft || isInReview) && (
@@ -902,7 +902,7 @@ export function ContentProductionPlanner() {
                                         </div>
                                       )}
                                       <div className="text-[10px] text-gray-600 dark:text-gray-400 mb-1">
-                                        Publication: {post.published_at ? new Date(post.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Not set'}
+                                        Publication: {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Not set'}
                                       </div>
                                     </>
                                   )}
@@ -1034,15 +1034,15 @@ export function ContentProductionPlanner() {
                             </Badge>
                           )}
                         </div>
-                        <div className="text-xs font-medium" data-keyword data-keyword-text={topic.primary_keyword}>
-                          Keyword: {topic.primary_keyword}
+                        <div className="text-xs font-medium" data-keyword data-keyword-text={topic.primaryKeyword}>
+                          Keyword: {topic.primaryKeyword}
                         </div>
                         <div className="flex items-center gap-2 flex-wrap">
                           <Badge variant="custom" className={`text-xs ${getCategoryColor(topic.category)}`} data-category-badge={topic.category}>
                             {topic.category}
                           </Badge>
-                          <Badge variant="custom" className="text-xs" data-word-badge data-word-count={topic.target_word_count}>
-                            {topic.target_word_count} words
+                          <Badge variant="custom" className="text-xs" data-word-badge data-word-count={topic.targetWordCount}>
+                            {topic.targetWordCount} words
                           </Badge>
                           <Badge variant="custom" className="text-xs" data-priority-badge data-priority-num={topic.priority}>
                             Priority {topic.priority}

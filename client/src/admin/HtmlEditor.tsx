@@ -57,7 +57,7 @@ type BlogImage = {
   name: string;
   url: string;
   size: number;
-  created_at: string;
+  createdAt: string;
 };
 
 function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {

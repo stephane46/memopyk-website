@@ -8,8 +8,8 @@ import { Badge } from '@/components/ui/badge';
 
 interface Author {
   id: string;
-  first_name?: string;
-  last_name?: string;
+  firstName?: string;
+  lastName?: string;
   name?: string;
   avatar?: string;
 }
@@ -23,12 +23,12 @@ interface Post {
   language: string;
   author?: Author;
   status: string;
-  publish_date: string;
-  meta_title?: string;
-  meta_description?: string;
-  featured_image_url?: string;
-  featured_image_alt?: string;
-  reading_time_minutes?: number;
+  publishDate: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  featuredImageUrl?: string;
+  featuredImageAlt?: string;
+  readingTimeMinutes?: number;
   tags?: BlogTag[];
 }
 
@@ -147,10 +147,10 @@ export default function BlogIndexPage() {
   const getAuthorName = (author?: Author) => {
     if (!author) return null;
     if (author.name) return author.name;
-    if (author.first_name && author.last_name) {
-      return `${author.first_name} ${author.last_name}`;
+    if (author.firstName && author.lastName) {
+      return `${author.firstName} ${author.lastName}`;
     }
-    return author.first_name || author.last_name || null;
+    return author.firstName || author.lastName || null;
   };
 
   const formatDate = (dateString: string) => {
@@ -298,11 +298,11 @@ export default function BlogIndexPage() {
                   >
                     <article className="group bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
                       <div className="grid md:grid-cols-2 gap-0">
-                        {featuredPost.featured_image_url && (
+                        {featuredPost.featuredImageUrl && (
                           <div className="relative h-96 md:h-auto overflow-hidden">
                             <img
-                              src={featuredPost.featured_image_url}
-                              alt={featuredPost.featured_image_alt || featuredPost.title}
+                              src={featuredPost.featuredImageUrl}
+                              alt={featuredPost.featuredImageAlt || featuredPost.title}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                               data-testid={`img-blog-featured-${featuredPost.slug}`}
                             />
@@ -331,13 +331,13 @@ export default function BlogIndexPage() {
                             <div className="flex items-center gap-2">
                               <Calendar className="w-4 h-4 text-[#D67C4A]" />
                               <span data-testid={`text-blog-featured-date-${featuredPost.slug}`}>
-                                {formatDate(featuredPost.publish_date)}
+                                {formatDate(featuredPost.publishDate)}
                               </span>
                             </div>
-                            {featuredPost.reading_time_minutes && (
+                            {featuredPost.readingTimeMinutes && (
                               <div className="flex items-center gap-2">
                                 <Clock className="w-4 h-4 text-[#D67C4A]" />
-                                <span>{featuredPost.reading_time_minutes} {t.minRead}</span>
+                                <span>{featuredPost.readingTimeMinutes} {t.minRead}</span>
                               </div>
                             )}
                           </div>
@@ -374,11 +374,11 @@ export default function BlogIndexPage() {
                         data-testid={`card-blog-post-${post.slug}`}
                       >
                         <article className="group bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer h-full flex flex-col transform hover:-translate-y-1">
-                          {post.featured_image_url && (
+                          {post.featuredImageUrl && (
                             <div className="relative h-56 overflow-hidden">
                               <img
-                                src={post.featured_image_url}
-                                alt={post.featured_image_alt || post.title}
+                                src={post.featuredImageUrl}
+                                alt={post.featuredImageAlt || post.title}
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                 data-testid={`img-blog-featured-${post.slug}`}
                               />
@@ -402,13 +402,13 @@ export default function BlogIndexPage() {
                                 <div className="flex items-center gap-2">
                                   <Calendar className="w-3.5 h-3.5 text-[#D67C4A]" />
                                   <span data-testid={`text-blog-date-${post.slug}`}>
-                                    {formatDate(post.publish_date)}
+                                    {formatDate(post.publishDate)}
                                   </span>
                                 </div>
-                                {post.reading_time_minutes && (
+                                {post.readingTimeMinutes && (
                                   <div className="flex items-center gap-2">
                                     <Clock className="w-3.5 h-3.5 text-[#D67C4A]" />
-                                    <span>{post.reading_time_minutes} {t.minRead}</span>
+                                    <span>{post.readingTimeMinutes} {t.minRead}</span>
                                   </div>
                                 )}
                               </div>

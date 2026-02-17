@@ -26,49 +26,6 @@ import { requireAdmin } from '../middleware/auth.middleware';
 const router = Router();
 
 // =============================================================================
-// HELPER: Transform camelCase to snake_case for frontend compatibility
-// =============================================================================
-
-/**
- * Transform FAQ object from Drizzle's camelCase to snake_case
- * Frontend expects: section_id, question_en, question_fr, answer_en, answer_fr, order_index, is_active
- */
-function transformFaqToSnakeCase(faq: Record<string, unknown>) {
-  return {
-    id: faq.id,
-    section_id: faq.sectionId,
-    question_en: faq.questionEn,
-    question_fr: faq.questionFr,
-    answer_en: faq.answerEn,
-    answer_fr: faq.answerFr,
-    order_index: faq.orderIndex,
-    is_active: faq.isActive,
-    created_at: faq.createdAt,
-    updated_at: faq.updatedAt,
-  };
-}
-
-/**
- * Transform FAQ section object from Drizzle's camelCase to snake_case
- * Schema uses: nameEn, nameFr (Drizzle camelCase)
- * Frontend expects: title_en, title_fr (snake_case)
- */
-function transformSectionToSnakeCase(section: Record<string, unknown>) {
-  return {
-    id: section.id,
-    key: section.key,
-    title_en: section.nameEn,  // Map nameEn → title_en for frontend
-    title_fr: section.nameFr,  // Map nameFr → title_fr for frontend
-    name_en: section.nameEn,   // Also provide name_en alias
-    name_fr: section.nameFr,   // Also provide name_fr alias
-    order_index: section.orderIndex,
-    is_active: section.isActive,
-    created_at: section.createdAt,
-    updated_at: section.updatedAt,
-  };
-}
-
-// =============================================================================
 // HELPER: Map snake_case request keys to Drizzle camelCase
 // =============================================================================
 
@@ -113,9 +70,7 @@ function mapSectionToCamelCase(obj: Record<string, unknown>): Record<string, unk
 router.get('/faq-sections', async (req: Request, res: Response) => {
   try {
     const sections = await storage.getFaqSections();
-    // Transform to snake_case for frontend compatibility
-    const transformed = sections.map((s: Record<string, unknown>) => transformSectionToSnakeCase(s));
-    res.json(transformed);
+    res.json(sections);
   } catch (error) {
     console.error('Get FAQ sections error:', error);
     res.status(500).json({ error: 'Failed to get FAQ sections' });
@@ -213,9 +168,7 @@ router.patch('/faq-sections/:id/reorder', requireAdmin, async (req: Request, res
 router.get('/faqs', async (req: Request, res: Response) => {
   try {
     const faqs = await storage.getFaqs();
-    // Transform to snake_case for frontend compatibility
-    const transformed = faqs.map((f: Record<string, unknown>) => transformFaqToSnakeCase(f));
-    res.json(transformed);
+    res.json(faqs);
   } catch (error) {
     console.error('Get FAQs error:', error);
     res.status(500).json({ error: 'Failed to get FAQs' });
@@ -324,9 +277,7 @@ router.patch('/faqs/:id/reorder', requireAdmin, async (req: Request, res: Respon
 router.get('/faq', async (req: Request, res: Response) => {
   try {
     const faqs = await storage.getFaqs();
-    // Transform to snake_case for frontend compatibility
-    const transformed = faqs.map((f: Record<string, unknown>) => transformFaqToSnakeCase(f));
-    res.json(transformed);
+    res.json(faqs);
   } catch (error) {
     console.error('Get FAQ content error:', error);
     res.status(500).json({ error: 'Failed to get FAQ content' });

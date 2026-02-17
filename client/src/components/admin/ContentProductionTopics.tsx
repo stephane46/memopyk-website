@@ -26,27 +26,27 @@ interface ContentTopic {
   category: string;
   type: string;
   market: string;
-  target_word_count: number;
-  primary_keyword: string;
-  secondary_keywords: string[];
-  search_volume: number | null;
+  targetWordCount: number;
+  primaryKeyword: string;
+  secondaryKeywords: string[];
+  searchVolume: number | null;
   competition: string | null;
-  search_intent: string;
-  content_angle: string;
+  searchIntent: string;
+  contentAngle: string;
   description: string;
-  hero_image_concept: string | null;
-  body_image_concepts: string[] | null;
-  memopyk_link_opportunities: string | null;
-  times_generated: number;
-  last_generated_at: string | null;
+  heroImageConcept: string | null;
+  bodyImageConcepts: string[] | null;
+  memopykLinkOpportunities: string | null;
+  timesGenerated: number;
+  lastGeneratedAt: string | null;
   priority: number;
   status: string;
   role: string;
-  parent_topic_id: string | null;
+  parentTopicId: string | null;
   cluster: string | null;
-  created_at: string;
-  updated_at: string;
-  post_count?: number; // Number of actual blog posts linked to this topic
+  createdAt: string;
+  updatedAt: string;
+  postCount?: number; // Number of actual blog posts linked to this topic
 }
 
 const formatRole = (role: string): string => {
@@ -187,8 +187,8 @@ export function ContentProductionTopics() {
 
   const filteredTopics = topics.filter(topic => {
     const matchesSearch = topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        topic.primary_keyword.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        topic.secondary_keywords?.some(kw => kw.toLowerCase().includes(searchQuery.toLowerCase()));
+                        topic.primaryKeyword.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        topic.secondaryKeywords?.some(kw => kw.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesCategory = selectedCategory === 'all' || topic.category === selectedCategory;
     const matchesPriority = selectedPriority === 'all' || topic.priority.toString() === selectedPriority;
     const matchesStatus = selectedStatus === 'all' || topic.status === selectedStatus;
@@ -221,7 +221,7 @@ export function ContentProductionTopics() {
       group.sort((a, b) => {
         if (a.role === 'pillar' && b.role !== 'pillar') return -1;
         if (a.role !== 'pillar' && b.role === 'pillar') return 1;
-        return (b.search_volume || 0) - (a.search_volume || 0);
+        return (b.searchVolume || 0) - (a.searchVolume || 0);
       });
     });
 
@@ -229,8 +229,8 @@ export function ContentProductionTopics() {
     return Object.entries(groups).sort(([keyA, topicsA], [keyB, topicsB]) => {
       if (keyA === 'other') return 1;
       if (keyB === 'other') return -1;
-      const volA = topicsA.reduce((sum, t) => sum + (t.search_volume || 0), 0);
-      const volB = topicsB.reduce((sum, t) => sum + (t.search_volume || 0), 0);
+      const volA = topicsA.reduce((sum, t) => sum + (t.searchVolume || 0), 0);
+      const volB = topicsB.reduce((sum, t) => sum + (t.searchVolume || 0), 0);
       return volB - volA;
     });
   }, [filteredTopics]);
@@ -241,7 +241,7 @@ export function ContentProductionTopics() {
       const statusA = STATUS_SORT_ORDER[a.status] ?? 99;
       const statusB = STATUS_SORT_ORDER[b.status] ?? 99;
       if (statusA !== statusB) return statusA - statusB;
-      return (b.search_volume || 0) - (a.search_volume || 0);
+      return (b.searchVolume || 0) - (a.searchVolume || 0);
     });
   }, [filteredTopics]);
 
@@ -358,7 +358,7 @@ export function ContentProductionTopics() {
 
   // Reusable topic row with expandable details — used by both list and grouped views
   const renderTopicRow = (topic: ContentTopic) => {
-    const parentTopic = topic.parent_topic_id ? topics.find(t => t.id === topic.parent_topic_id) : null;
+    const parentTopic = topic.parentTopicId ? topics.find(t => t.id === topic.parentTopicId) : null;
 
     return (
       <AccordionItem value={topic.id} className="border-b border-gray-100 dark:border-gray-800 mb-1">
@@ -368,14 +368,14 @@ export function ContentProductionTopics() {
               <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
                 {topic.title}
               </span>
-              {topic.primary_keyword && (
+              {topic.primaryKeyword && (
                 <Badge variant="custom" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 flex-shrink-0">
-                  {topic.primary_keyword}
+                  {topic.primaryKeyword}
                 </Badge>
               )}
-              {topic.times_generated > 0 && (
+              {topic.timesGenerated > 0 && (
                 <Badge variant="custom" className="bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300 flex-shrink-0">
-                  Generated {topic.times_generated}x
+                  Generated {topic.timesGenerated}x
                 </Badge>
               )}
             </div>
@@ -397,7 +397,7 @@ export function ContentProductionTopics() {
                 P{topic.priority}
               </Badge>
               <Badge variant="custom" className="bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
-                {topic.target_word_count} words
+                {topic.targetWordCount} words
               </Badge>
             </div>
           </div>
@@ -412,13 +412,13 @@ export function ContentProductionTopics() {
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-gray-600 dark:text-gray-400">Primary Keyword:</span>
                     <Badge variant="custom" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                      {topic.primary_keyword}
+                      {topic.primaryKeyword}
                     </Badge>
                   </div>
-                  {topic.search_volume && (
+                  {topic.searchVolume && (
                     <div>
                       <span className="font-semibold text-gray-600 dark:text-gray-400">Search Volume:</span>
-                      <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.search_volume.toLocaleString()}</span>
+                      <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.searchVolume.toLocaleString()}</span>
                     </div>
                   )}
                   {topic.competition && (
@@ -429,7 +429,7 @@ export function ContentProductionTopics() {
                   )}
                   <div>
                     <span className="font-semibold text-gray-600 dark:text-gray-400">Search Intent:</span>
-                    <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.search_intent}</span>
+                    <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.searchIntent}</span>
                   </div>
                 </div>
               </div>
@@ -468,18 +468,18 @@ export function ContentProductionTopics() {
                   </div>
                   <div>
                     <span className="font-semibold text-gray-600 dark:text-gray-400">Target Words:</span>
-                    <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.target_word_count}</span>
+                    <span className="ml-2 font-medium text-gray-900 dark:text-white">{topic.targetWordCount}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Secondary Keywords */}
-            {topic.secondary_keywords && topic.secondary_keywords.length > 0 && (
+            {topic.secondaryKeywords && topic.secondaryKeywords.length > 0 && (
               <div>
                 <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Secondary Keywords</h4>
                 <div className="flex flex-wrap gap-2">
-                  {topic.secondary_keywords.map((kw, idx) => (
+                  {topic.secondaryKeywords.map((kw, idx) => (
                     <Badge key={idx} variant="custom" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
                       {kw}
                     </Badge>
@@ -491,7 +491,7 @@ export function ContentProductionTopics() {
             {/* Content Guidance */}
             <div>
               <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Content Angle</h4>
-              <p className="text-sm text-gray-700 dark:text-gray-300">{topic.content_angle}</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300">{topic.contentAngle}</p>
             </div>
 
             <div>
@@ -500,18 +500,18 @@ export function ContentProductionTopics() {
             </div>
 
             {/* Image Concepts */}
-            {topic.hero_image_concept && (
+            {topic.heroImageConcept && (
               <div>
                 <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Hero Image Concept</h4>
-                <p className="text-sm text-gray-700 dark:text-gray-300">{topic.hero_image_concept}</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">{topic.heroImageConcept}</p>
               </div>
             )}
 
-            {topic.body_image_concepts && topic.body_image_concepts.length > 0 && (
+            {topic.bodyImageConcepts && topic.bodyImageConcepts.length > 0 && (
               <div>
                 <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Body Image Concepts</h4>
                 <ul className="list-disc list-inside text-sm text-gray-700 dark:text-gray-300 space-y-1">
-                  {topic.body_image_concepts.map((concept, idx) => (
+                  {topic.bodyImageConcepts.map((concept, idx) => (
                     <li key={idx}>{concept}</li>
                   ))}
                 </ul>
@@ -519,10 +519,10 @@ export function ContentProductionTopics() {
             )}
 
             {/* MEMOPYK Links */}
-            {topic.memopyk_link_opportunities && (
+            {topic.memopykLinkOpportunities && (
               <div>
                 <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">MEMOPYK Link Opportunities</h4>
-                <p className="text-sm text-gray-700 dark:text-gray-300">{topic.memopyk_link_opportunities}</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">{topic.memopykLinkOpportunities}</p>
               </div>
             )}
 
@@ -530,13 +530,13 @@ export function ContentProductionTopics() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-gray-200 dark:border-gray-700">
               <div>
                 <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Times Generated:</span>
-                <span className="ml-2 text-sm font-medium text-gray-900 dark:text-white">{topic.times_generated}</span>
+                <span className="ml-2 text-sm font-medium text-gray-900 dark:text-white">{topic.timesGenerated}</span>
               </div>
-              {topic.last_generated_at && (
+              {topic.lastGeneratedAt && (
                 <div>
                   <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Last Generated:</span>
                   <span className="ml-2 text-sm font-medium text-gray-900 dark:text-white">
-                    {new Date(topic.last_generated_at).toLocaleDateString()}
+                    {new Date(topic.lastGeneratedAt).toLocaleDateString()}
                   </span>
                 </div>
               )}
@@ -574,7 +574,7 @@ export function ContentProductionTopics() {
                   Create Post
                 </Button>
               </div>
-              {topic.times_generated > 0 && (
+              {topic.timesGenerated > 0 && (
                 <Button
                   onClick={() => navigateToPosts(topic.id)}
                   variant="outline"
@@ -583,7 +583,7 @@ export function ContentProductionTopics() {
                   data-testid={`button-view-posts-${topic.id}`}
                 >
                   <BookOpen className="h-4 w-4 mr-1" />
-                  View Posts ({topic.post_count || 0})
+                  View Posts ({topic.postCount || 0})
                 </Button>
               )}
             </div>
@@ -907,7 +907,7 @@ export function ContentProductionTopics() {
                 const isOpen = openGroups[cluster] !== false;
                 const pillarCount = clusterTopics.filter(t => t.role === 'pillar').length;
                 const spokeCount = clusterTopics.filter(t => t.role === 'spoke').length;
-                const totalVolume = clusterTopics.reduce((sum, t) => sum + (t.search_volume || 0), 0);
+                const totalVolume = clusterTopics.reduce((sum, t) => sum + (t.searchVolume || 0), 0);
 
                 return (
                   <Collapsible

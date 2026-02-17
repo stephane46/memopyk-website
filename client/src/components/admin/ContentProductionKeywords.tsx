@@ -15,19 +15,19 @@ import { formatCluster } from '@/lib/utils';
 interface ContentKeyword {
   id: string;
   keyword: string;
-  monthly_searches: number;
+  monthlySearches: number;
   competition: string;
   intent: string;
   tier: number;
   market: string;
-  difficulty_score?: number;
+  difficultyScore?: number;
   seasonal?: boolean;
-  seasonal_months?: string[];
+  seasonalMonths?: string[];
   cluster?: string;
-  topics_count?: number;
-  posts_count?: number;
-  created_at: string;
-  updated_at: string;
+  topicsCount?: number;
+  postsCount?: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface KeywordsStats {
@@ -55,7 +55,7 @@ interface PaginatedResponse {
   };
 }
 
-type SortColumn = 'keyword' | 'market' | 'tier' | 'monthly_searches' | 'competition' | 'intent';
+type SortColumn = 'keyword' | 'market' | 'tier' | 'monthlySearches' | 'competition' | 'intent';
 type SortDirection = 'asc' | 'desc';
 
 const PAGE_SIZE = 100;
@@ -105,7 +105,7 @@ export function ContentProductionKeywords() {
   const [selectedVolumes, setSelectedVolumes] = useState<Set<string>>(new Set(['mega', 'high', 'medium', 'low', 'minimal']));
   const [selectedClusters, setSelectedClusters] = useState<Set<string>>(new Set());
   const [clustersInitialized, setClustersInitialized] = useState(false);
-  const [sortColumn, setSortColumn] = useState<SortColumn>('monthly_searches');
+  const [sortColumn, setSortColumn] = useState<SortColumn>('monthlySearches');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -665,12 +665,12 @@ export function ContentProductionKeywords() {
                   </th>
                   <th className="text-right p-3">
                     <button
-                      onClick={() => handleSort('monthly_searches')}
+                      onClick={() => handleSort('monthlySearches')}
                       className="flex items-center gap-1 ml-auto text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
                       data-testid="sort-searches"
                     >
                       Searches/mo
-                      {sortColumn === 'monthly_searches' ? (
+                      {sortColumn === 'monthlySearches' ? (
                         sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />
                       ) : (
                         <ArrowUpDown className="h-4 w-4 opacity-30" />
@@ -754,7 +754,7 @@ export function ContentProductionKeywords() {
                       </Badge>
                     </td>
                     <td className="p-3 text-right text-gray-900 dark:text-white">
-                      {keyword.monthly_searches?.toLocaleString() || 'N/A'}
+                      {keyword.monthlySearches?.toLocaleString() || 'N/A'}
                     </td>
                     <td className="p-3">
                       <span className={`font-medium ${getCompetitionColor(keyword.competition)}`}>
@@ -767,26 +767,26 @@ export function ContentProductionKeywords() {
                       </Badge>
                     </td>
                     <td className="p-3 text-center">
-                      {keyword.topics_count ? (
+                      {keyword.topicsCount ? (
                         <button
                           onClick={() => navigateToTab('topics', keyword.keyword)}
                           className="text-sm font-medium text-[#D67C4A] hover:underline"
-                          title={`View ${keyword.topics_count} topic(s)`}
+                          title={`View ${keyword.topicsCount} topic(s)`}
                         >
-                          {keyword.topics_count}
+                          {keyword.topicsCount}
                         </button>
                       ) : (
                         <span className="text-gray-300 dark:text-gray-600">—</span>
                       )}
                     </td>
                     <td className="p-3 text-center">
-                      {keyword.posts_count ? (
+                      {keyword.postsCount ? (
                         <button
                           onClick={() => navigateToTab('planner', keyword.keyword)}
                           className="text-sm font-medium text-[#D67C4A] hover:underline"
-                          title={`View ${keyword.posts_count} post(s)`}
+                          title={`View ${keyword.postsCount} post(s)`}
                         >
-                          {keyword.posts_count}
+                          {keyword.postsCount}
                         </button>
                       ) : (
                         <span className="text-gray-300 dark:text-gray-600">—</span>

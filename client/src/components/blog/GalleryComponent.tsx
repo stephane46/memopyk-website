@@ -43,14 +43,14 @@ export default function GalleryComponent({
   const nextImage = () => {
     if (!lightboxGallery) return;
     setLightboxIndex((prev) => 
-      prev === lightboxGallery.gallery_images.length - 1 ? 0 : prev + 1
+      prev === lightboxGallery.galleryImages.length - 1 ? 0 : prev + 1
     );
   };
 
   const previousImage = () => {
     if (!lightboxGallery) return;
     setLightboxIndex((prev) => 
-      prev === 0 ? lightboxGallery.gallery_images.length - 1 : prev - 1
+      prev === 0 ? lightboxGallery.galleryImages.length - 1 : prev - 1
     );
   };
 
@@ -118,7 +118,7 @@ export default function GalleryComponent({
               </Button>
 
               {/* Navigation */}
-              {lightboxGallery.gallery_images.length > 1 && (
+              {lightboxGallery.galleryImages.length > 1 && (
                 <>
                   <Button
                     variant="ghost"
@@ -144,18 +144,18 @@ export default function GalleryComponent({
               {/* Image */}
               <div className="flex items-center justify-center h-full p-12">
                 <img
-                  src={lightboxGallery.gallery_images[lightboxIndex].image.url}
-                  alt={lightboxGallery.gallery_images[lightboxIndex].alt_text || `Image ${lightboxIndex + 1}`}
+                  src={lightboxGallery.galleryImages[lightboxIndex].image.url}
+                  alt={lightboxGallery.galleryImages[lightboxIndex].altText || `Image ${lightboxIndex + 1}`}
                   className="max-w-full max-h-full object-contain"
                 />
               </div>
 
               {/* Caption */}
-              {lightboxGallery.gallery_images[lightboxIndex].caption && (
+              {lightboxGallery.galleryImages[lightboxIndex].caption && (
                 <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-6 text-center">
-                  <p className="text-lg">{lightboxGallery.gallery_images[lightboxIndex].caption}</p>
+                  <p className="text-lg">{lightboxGallery.galleryImages[lightboxIndex].caption}</p>
                   <p className="text-sm text-gray-300 mt-1">
-                    {lightboxIndex + 1} / {lightboxGallery.gallery_images.length}
+                    {lightboxIndex + 1} / {lightboxGallery.galleryImages.length}
                   </p>
                 </div>
               )}
@@ -175,11 +175,11 @@ function GalleryLayout({
   gallery: Gallery; 
   onImageClick: (image: GalleryImage, index: number) => void;
 }) {
-  const images = gallery.gallery_images || [];
+  const images = gallery.galleryImages || [];
   const [carouselIndex, setCarouselIndex] = useState(0);
 
   // Single Image Layout
-  if (gallery.layout_type === 'single') {
+  if (gallery.layoutType === 'single') {
     return (
       <div className="space-y-4" data-testid="gallery-layout-single">
         {images.map((image, idx) => (
@@ -187,7 +187,7 @@ function GalleryLayout({
             <div className="relative overflow-hidden rounded-xl shadow-lg">
               <img
                 src={image.image.url}
-                alt={image.alt_text || gallery.title || 'Gallery image'}
+                alt={image.altText || gallery.title || 'Gallery image'}
                 className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
                 loading="lazy"
               />
@@ -205,7 +205,7 @@ function GalleryLayout({
   }
 
   // Side-by-Side Layout
-  if (gallery.layout_type === 'side-by-side') {
+  if (gallery.layoutType === 'side-by-side') {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="gallery-layout-side-by-side">
         {images.map((image, idx) => (
@@ -213,7 +213,7 @@ function GalleryLayout({
             <div className="relative overflow-hidden rounded-xl shadow-lg aspect-[4/3]">
               <img
                 src={image.image.url}
-                alt={image.alt_text || gallery.title || 'Gallery image'}
+                alt={image.altText || gallery.title || 'Gallery image'}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 loading="lazy"
               />
@@ -231,7 +231,7 @@ function GalleryLayout({
   }
 
   // Grid 2x2 Layout
-  if (gallery.layout_type === 'grid-2') {
+  if (gallery.layoutType === 'grid-2') {
     return (
       <div className="grid grid-cols-2 gap-3" data-testid="gallery-layout-grid-2">
         {images.map((image, idx) => (
@@ -239,7 +239,7 @@ function GalleryLayout({
             <div className="relative overflow-hidden rounded-lg shadow-md aspect-square">
               <img
                 src={image.image.url}
-                alt={image.alt_text || gallery.title || 'Gallery image'}
+                alt={image.altText || gallery.title || 'Gallery image'}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 loading="lazy"
               />
@@ -254,7 +254,7 @@ function GalleryLayout({
   }
 
   // Grid 3x3 Layout
-  if (gallery.layout_type === 'grid-3') {
+  if (gallery.layoutType === 'grid-3') {
     return (
       <div className="grid grid-cols-3 gap-2" data-testid="gallery-layout-grid-3">
         {images.map((image, idx) => (
@@ -262,7 +262,7 @@ function GalleryLayout({
             <div className="relative overflow-hidden rounded-lg shadow-md aspect-square">
               <img
                 src={image.image.url}
-                alt={image.alt_text || gallery.title || 'Gallery image'}
+                alt={image.altText || gallery.title || 'Gallery image'}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 loading="lazy"
               />
@@ -277,7 +277,7 @@ function GalleryLayout({
   }
 
   // Carousel Layout
-  if (gallery.layout_type === 'carousel') {
+  if (gallery.layoutType === 'carousel') {
     const currentImage = images[carouselIndex];
     
     return (
@@ -285,7 +285,7 @@ function GalleryLayout({
         <div className="relative overflow-hidden rounded-xl shadow-xl group cursor-pointer" onClick={() => onImageClick(currentImage, carouselIndex)}>
           <img
             src={currentImage.image.url}
-            alt={currentImage.alt_text || gallery.title || 'Gallery image'}
+            alt={currentImage.altText || gallery.title || 'Gallery image'}
             className="w-full h-auto max-h-96 object-cover"
             loading="lazy"
           />

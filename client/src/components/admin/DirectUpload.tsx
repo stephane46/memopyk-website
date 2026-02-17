@@ -5,7 +5,7 @@ import { Upload, AlertCircle, CheckCircle } from 'lucide-react';
 import { adminFetch } from '@/lib/queryClient';
 
 interface DirectUploadProps {
-  onUploadComplete: (result: { url: string; filename: string; static_image_url?: string | null; auto_crop_settings?: any | null }) => void;
+  onUploadComplete: (result: { url: string; filename: string; staticImageUrl?: string | null; autoCropSettings?: any | null }) => void;
   onUploadError?: (error: string) => void;
   type?: 'video' | 'image';
   bucket?: string;
@@ -186,9 +186,9 @@ export default function DirectUpload({
       console.log(`✅ Direct upload completed successfully: ${filename}`);
       
       // Log auto-thumbnail results if available
-      if (result.static_image_url) {
-        console.log(`🎯 Auto-thumbnail generated: ${result.static_image_url}`);
-        console.log(`🎯 Auto-crop settings:`, result.auto_crop_settings);
+      if (result.staticImageUrl) {
+        console.log(`🎯 Auto-thumbnail generated: ${result.staticImageUrl}`);
+        console.log(`🎯 Auto-crop settings:`, result.autoCropSettings);
       }
 
       setUploadState({
@@ -207,8 +207,8 @@ export default function DirectUpload({
         url: publicUrl,
         filename,
         // Include auto-generated thumbnail info for images
-        static_image_url: result.static_image_url || null,
-        auto_crop_settings: result.auto_crop_settings || null
+        staticImageUrl: result.staticImageUrl || null,
+        autoCropSettings: result.autoCropSettings || null
       });
 
       // Auto-reset after 2 seconds to prepare for next upload

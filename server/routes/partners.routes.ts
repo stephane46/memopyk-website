@@ -74,22 +74,22 @@ function transformPartnerData(dbPartner: any) {
     formats: { photo: photoFormats, film: filmFormats, video: videoFormats },
     website: dbPartner.website || '',
     phone: dbPartner.phone || '',
-    phone_public: dbPartner.phonePublic || false,
+    phonePublic: dbPartner.phonePublic || false,
     email: dbPartner.email || '',
-    email_public: dbPartner.emailPublic || false,
-    public_description: dbPartner.publicDescription || '',
+    emailPublic: dbPartner.emailPublic || false,
+    publicDescription: dbPartner.publicDescription || '',
     slug: dbPartner.slug || '',
     address: dbPartner.address || '',
-    address_line2: dbPartner.addressLine2 || '',
-    postal_code: dbPartner.postalCode || '',
+    addressLine2: dbPartner.addressLine2 || '',
+    postalCode: dbPartner.postalCode || '',
     delivery: parseList(dbPartner.delivery),
-    other_photo: dbPartner.otherPhoto || '',
-    other_film: dbPartner.otherFilm || '',
-    other_video: dbPartner.otherVideo || '',
-    other_delivery: dbPartner.otherDelivery || '',
+    otherPhoto: dbPartner.otherPhoto || '',
+    otherFilm: dbPartner.otherFilm || '',
+    otherVideo: dbPartner.otherVideo || '',
+    otherDelivery: dbPartner.otherDelivery || '',
     status: dbPartner.status,
-    is_active: dbPartner.isActive,
-    show_on_map: dbPartner.showOnMap
+    isActive: dbPartner.isActive,
+    showOnMap: dbPartner.showOnMap
   };
 }
 

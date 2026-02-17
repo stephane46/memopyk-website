@@ -123,7 +123,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
         const now = new Date();
         const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
         const last24Hours = visitors.filter((v: any) => {
-          const visitDate = new Date(v.last_visit || v.created_at);
+          const visitDate = new Date(v.lastVisit || v.createdAt);
           return visitDate >= yesterday;
         }).length;
         
@@ -303,7 +303,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
           acc.push(visitor);
         } else {
           // Keep the most recent visit
-          if (new Date(visitor.created_at) > new Date(acc[existingIndex].created_at)) {
+          if (new Date(visitor.createdAt) > new Date(acc[existingIndex].createdAt)) {
             acc[existingIndex] = visitor;
           }
         }
@@ -770,7 +770,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                             <span className="text-xs text-gray-600">Visit Time</span>
                           </div>
                           <div className="text-base font-semibold text-gray-900">
-                            {getRelativeTime(visitor.last_visit || visitor.created_at)}
+                            {getRelativeTime(visitor.lastVisit || visitor.createdAt)}
                           </div>
                         </div>
 
@@ -898,7 +898,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                             <span className="text-xs text-gray-600">First Visit</span>
                           </div>
                           <div className="text-base font-semibold text-gray-900">
-                            {getRelativeTime(visitor.last_visit || visitor.created_at)}
+                            {getRelativeTime(visitor.lastVisit || visitor.createdAt)}
                           </div>
                         </div>
 
@@ -1026,7 +1026,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                             <span className="text-xs text-gray-600">Last Visit</span>
                           </div>
                           <div className="text-sm text-gray-600">
-                            {getRelativeTime(visitor.last_visit)}
+                            {getRelativeTime(visitor.lastVisit)}
                           </div>
                           <div className="text-xs text-gray-500 mt-1">
                             {visitor.visit_count} visits total

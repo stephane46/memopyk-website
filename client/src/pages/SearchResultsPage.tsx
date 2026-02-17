@@ -45,10 +45,10 @@ export default function SearchResultsPage() {
   const sortedResults = [...results].sort((a, b) => {
     switch (sortBy) {
       case 'relevance':
-        return (b.relevance_score || 0) - (a.relevance_score || 0);
+        return (b.relevanceScore || 0) - (a.relevanceScore || 0);
       case 'date':
-        const dateB = b.published_at || (b as any).publish_date;
-        const dateA = a.published_at || (a as any).publish_date;
+        const dateB = b.publishedAt || (b as any).publish_date;
+        const dateA = a.publishedAt || (a as any).publish_date;
         return new Date(dateB).getTime() - new Date(dateA).getTime();
       case 'title':
         return a.title.localeCompare(b.title);
@@ -63,7 +63,7 @@ export default function SearchResultsPage() {
   }, [query]);
 
   const formatDate = (post: BlogPost) => {
-    const dateString = post.published_at || (post as any).publish_date;
+    const dateString = post.publishedAt || (post as any).publish_date;
     if (!dateString) return '';
     return new Date(dateString).toLocaleDateString(
       languageParam === 'fr-FR' ? 'fr-FR' : 'en-US',
@@ -232,24 +232,24 @@ export default function SearchResultsPage() {
                           </Link>
                         </CardTitle>
                         <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
-                          {post.relevance_score && (
+                          {post.relevanceScore && (
                             <Badge 
                               variant="secondary" 
                               className="bg-[#D67C4A]/10 text-[#D67C4A]"
                               data-testid={`relevance-score-${post.slug}`}
                             >
                               <Star className="h-3 w-3 mr-1 fill-current" />
-                              {Math.round(post.relevance_score * 100)}% {languageParam === 'fr-FR' ? 'pertinent' : 'relevant'}
+                              {Math.round(post.relevanceScore * 100)}% {languageParam === 'fr-FR' ? 'pertinent' : 'relevant'}
                             </Badge>
                           )}
                           <span className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
                             {formatDate(post)}
                           </span>
-                          {post.read_time_minutes && (
+                          {post.readTimeMinutes && (
                             <span className="flex items-center gap-1">
                               <Clock className="h-4 w-4" />
-                              {post.read_time_minutes} min
+                              {post.readTimeMinutes} min
                             </span>
                           )}
                         </div>

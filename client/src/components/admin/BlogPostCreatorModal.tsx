@@ -19,23 +19,23 @@ interface ContentTopic {
   slug: string;
   category: string;
   type: string;
-  target_word_count: number;
-  primary_keyword: string;
-  secondary_keywords: string[];
-  search_volume: number | null;
+  targetWordCount: number;
+  primaryKeyword: string;
+  secondaryKeywords: string[];
+  searchVolume: number | null;
   competition: string | null;
-  search_intent: string;
-  content_angle: string;
+  searchIntent: string;
+  contentAngle: string;
   description: string;
-  hero_image_concept: string | null;
-  body_image_concepts: string[] | null;
-  memopyk_link_opportunities: string | null;
-  times_generated: number;
-  last_generated_at: string | null;
+  heroImageConcept: string | null;
+  bodyImageConcepts: string[] | null;
+  memopykLinkOpportunities: string | null;
+  timesGenerated: number;
+  lastGeneratedAt: string | null;
   priority: number;
   status: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface BlogPostCreatorModalProps {
@@ -62,15 +62,15 @@ export function BlogPostCreatorModal({ topic, isOpen, onClose }: BlogPostCreator
         body: JSON.stringify({
           topic: topic.title,
           language,
-          primaryKeyword: topic.primary_keyword,
-          secondaryKeywords: topic.secondary_keywords,
+          primaryKeyword: topic.primaryKeyword,
+          secondaryKeywords: topic.secondaryKeywords,
           notes: [
-            topic.content_angle ? `Content angle: ${topic.content_angle}` : '',
+            topic.contentAngle ? `Content angle: ${topic.contentAngle}` : '',
             topic.description ? `Scope: ${topic.description}` : '',
-            topic.search_intent ? `Search intent: ${topic.search_intent}` : '',
+            topic.searchIntent ? `Search intent: ${topic.searchIntent}` : '',
             notes.trim()
           ].filter(Boolean).join('\n') || undefined,
-          targetWordCount: topic.target_word_count
+          targetWordCount: topic.targetWordCount
         })
       });
 
@@ -107,9 +107,9 @@ export function BlogPostCreatorModal({ topic, isOpen, onClose }: BlogPostCreator
           title: topic.title,
           slug: topic.slug,
           description: topic.description || '',
-          primary_keyword: topic.primary_keyword,
-          secondary_keywords: topic.secondary_keywords || [],
-          source_topic_id: topic.id
+          primaryKeyword: topic.primaryKeyword,
+          secondaryKeywords: topic.secondaryKeywords || [],
+          sourceTopicId: topic.id
         })
       });
 
@@ -157,16 +157,16 @@ export function BlogPostCreatorModal({ topic, isOpen, onClose }: BlogPostCreator
         slug: generatedPost.slug,
         description: generatedPost.description || '',
         content: sanitizedContent,
-        hero_url: generatedPost.image || null,
+        heroUrl: generatedPost.image || null,
         language,
         status,
-        published_at: null,
-        is_featured: false,
-        meta_title: generatedPost.seo?.title || generatedPost.title,
-        meta_description: generatedPost.seo?.description || generatedPost.description || '',
-        source_topic_id: topic.id,
-        primary_keyword: topic.primary_keyword,
-        secondary_keywords: topic.secondary_keywords || []
+        publishedAt: null,
+        isFeatured: false,
+        metaTitle: generatedPost.seo?.title || generatedPost.title,
+        metaDescription: generatedPost.seo?.description || generatedPost.description || '',
+        sourceTopicId: topic.id,
+        primaryKeyword: topic.primaryKeyword,
+        secondaryKeywords: topic.secondaryKeywords || []
       };
 
       const response = await adminFetch('/api/admin/blog/create-from-ai', {
@@ -234,17 +234,17 @@ export function BlogPostCreatorModal({ topic, isOpen, onClose }: BlogPostCreator
                 </div>
                 <div>
                   <span className="font-semibold text-gray-900 dark:text-white">Primary Keyword:</span>
-                  <p className="text-gray-700 dark:text-gray-300">{topic.primary_keyword}</p>
+                  <p className="text-gray-700 dark:text-gray-300">{topic.primaryKeyword}</p>
                 </div>
                 <div>
                   <span className="font-semibold text-gray-900 dark:text-white">Target Words:</span>
-                  <p className="text-gray-700 dark:text-gray-300">{topic.target_word_count}</p>
+                  <p className="text-gray-700 dark:text-gray-300">{topic.targetWordCount}</p>
                 </div>
               </div>
-              {topic.secondary_keywords && topic.secondary_keywords.length > 0 && (
+              {topic.secondaryKeywords && topic.secondaryKeywords.length > 0 && (
                 <div>
                   <span className="font-semibold text-gray-900 dark:text-white">Secondary Keywords:</span>
-                  <p className="text-gray-700 dark:text-gray-300">{topic.secondary_keywords.join(', ')}</p>
+                  <p className="text-gray-700 dark:text-gray-300">{topic.secondaryKeywords.join(', ')}</p>
                 </div>
               )}
             </CardContent>
@@ -363,8 +363,8 @@ export function BlogPostCreatorModal({ topic, isOpen, onClose }: BlogPostCreator
                 </div>
 
                 <BlogHeroImageUpload
-                  currentImageUrl={generatedPost.hero_url || generatedPost.image}
-                  onImageSelect={(url) => setGeneratedPost({ ...generatedPost, hero_url: url, image: url })}
+                  currentImageUrl={generatedPost.heroUrl || generatedPost.image}
+                  onImageSelect={(url) => setGeneratedPost({ ...generatedPost, heroUrl: url, image: url })}
                 />
 
                 <div>

@@ -94,7 +94,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
     name: string;
     url: string;
     size: number;
-    created_at: string;
+    createdAt: string;
   };
 
   const allImages: BlogImage[] = imagesData?.data || [];
@@ -125,17 +125,17 @@ export function BlogEditor({ postId }: BlogEditorProps) {
       setTitle(post.title);
       setSlug(post.slug);
       setDescription(post.description);
-      setContent(post.content_html || '');
+      setContent(post.contentHtml || '');
       setStatus(post.status);
-      setPublishedAt(post.published_at ? new Date(post.published_at) : null);
-      setHeroUrl(post.hero_url);
-      setIsFeatured(post.is_featured || false);
-      setFeaturedOrder((post as any).featured_order || 1);
-      setPrimaryKeyword((post as any).primary_keyword || '');
-      setSecondaryKeywords((post as any).secondary_keywords || []);
+      setPublishedAt(post.publishedAt ? new Date(post.publishedAt) : null);
+      setHeroUrl(post.heroUrl);
+      setIsFeatured(post.isFeatured || false);
+      setFeaturedOrder(post.featuredOrder || 1);
+      setPrimaryKeyword(post.primaryKeyword || '');
+      setSecondaryKeywords(post.secondaryKeywords || []);
       setLanguage(post.language as 'fr-FR' | 'en-US' || 'fr-FR');
-      setIncludeInSitemap((post as any).include_in_sitemap !== false);
-      setEnableFaqSchema((post as any).enable_faq_schema !== false);
+      setIncludeInSitemap(post.includeInSitemap !== false);
+      setEnableFaqSchema(post.enableFaqSchema !== false);
     }
   }, [post]);
 
@@ -181,17 +181,17 @@ export function BlogEditor({ postId }: BlogEditorProps) {
       title,
       slug,
       description,
-      content_html: sanitizedContent,
+      contentHtml: sanitizedContent,
       status,
-      published_at: publishedAt?.toISOString() || null,
-      hero_url: heroUrl,
-      is_featured: isFeatured,
-      featured_order: isFeatured ? featuredOrder : null,
-      primary_keyword: primaryKeyword || null,
-      secondary_keywords: secondaryKeywords.length > 0 ? secondaryKeywords : null,
+      publishedAt: publishedAt?.toISOString() || null,
+      heroUrl: heroUrl,
+      isFeatured: isFeatured,
+      featuredOrder: isFeatured ? featuredOrder : null,
+      primaryKeyword: primaryKeyword || null,
+      secondaryKeywords: secondaryKeywords.length > 0 ? secondaryKeywords : null,
       language,
-      include_in_sitemap: includeInSitemap,
-      enable_faq_schema: enableFaqSchema
+      includeInSitemap: includeInSitemap,
+      enableFaqSchema: enableFaqSchema
     });
 
     // Save tags
@@ -401,7 +401,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
               <Button
                 variant="outline"
                 onClick={() => {
-                  setAiTopic((post as any)?.source_topic_title || title || '');
+                  setAiTopic(post?.sourceTopicTitle || title || '');
                   setIsAIAssistOpen(true);
                 }}
                 className="border-purple-400 text-purple-600 hover:bg-purple-50"
@@ -637,7 +637,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
               <p className="text-sm text-purple-600 mb-4">Generate a complete article with AI assistance, or start writing manually below.</p>
               <Button
                 onClick={() => {
-                  setAiTopic((post as any)?.source_topic_title || title || '');
+                  setAiTopic(post?.sourceTopicTitle || title || '');
                   setIsAIAssistOpen(true);
                 }}
                 className="bg-purple-600 hover:bg-purple-700 text-white"

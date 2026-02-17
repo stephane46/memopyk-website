@@ -139,9 +139,9 @@ export default function FeaturedPostsSection({
                   <Star className="h-3 w-3 mr-1 fill-current" />
                   {language === 'fr-FR' ? 'En vedette' : 'Featured'}
                 </Badge>
-                {currentPost.featured_order !== undefined && (
+                {currentPost.featuredOrder !== undefined && (
                   <Badge variant="outline" className="border-white/30 text-white">
-                    #{currentPost.featured_order}
+                    #{currentPost.featuredOrder}
                   </Badge>
                 )}
               </div>
@@ -152,18 +152,18 @@ export default function FeaturedPostsSection({
               </h2>
 
               {/* Hero Caption or Description */}
-              {(currentPost.hero_caption || currentPost.description) && (
+              {(currentPost.heroCaption || currentPost.description) && (
                 <p className="text-lg md:text-xl text-gray-200 mb-4 line-clamp-2 max-w-3xl">
-                  {currentPost.hero_caption || currentPost.description}
+                  {currentPost.heroCaption || currentPost.description}
                 </p>
               )}
 
               {/* Metadata */}
               <div className="flex flex-wrap items-center gap-4 text-sm">
-                {currentPost.read_time_minutes && (
+                {currentPost.readTimeMinutes && (
                   <span className="flex items-center gap-1.5 text-gray-300">
                     <Clock className="h-4 w-4" />
-                    {currentPost.read_time_minutes} {language === 'fr-FR' ? 'min' : 'min'}
+                    {currentPost.readTimeMinutes} {language === 'fr-FR' ? 'min' : 'min'}
                   </span>
                 )}
                 {currentPost.tags && currentPost.tags.length > 0 && (

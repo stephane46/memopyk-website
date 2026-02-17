@@ -14,14 +14,18 @@ export type BlogPost = {
   language: string;
   status: BlogPostStatus;
   description: string;
-  is_featured: boolean;
-  created_at: string;
-  published_at: string | null;
-  hero_url: string | null;
+  isFeatured: boolean;
+  createdAt: string;
+  publishedAt: string | null;
+  heroUrl: string | null;
   // Optional fields - present depending on context
-  content_html?: string;           // Full content (BlogEditor)
+  contentHtml?: string;           // Full content (BlogEditor)
   seo?: any;                       // SEO metadata (BlogEditor)
-  source_topic_id?: string | null; // Content hub reference (BlogManagePosts)
-  primary_keyword?: string | null; // SEO keyword (BlogManagePosts)
-  secondary_keywords?: string[] | null; // SEO keywords (BlogManagePosts)
+  sourceTopicId?: string | null; // Content hub reference (BlogManagePosts)
+  sourceTopicTitle?: string | null; // Content hub topic title
+  primaryKeyword?: string | null; // SEO keyword (BlogManagePosts)
+  secondaryKeywords?: string[] | null; // SEO keywords (BlogManagePosts)
+  featuredOrder?: number;
+  includeInSitemap?: boolean;
+  enableFaqSchema?: boolean;
 };

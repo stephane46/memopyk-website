@@ -52,22 +52,22 @@ interface Partner {
   };
   website: string;
   phone: string;
-  phone_public: boolean;
+  phonePublic: boolean;
   email: string;
-  email_public: boolean;
-  public_description: string;
+  emailPublic: boolean;
+  publicDescription: string;
   slug: string;
   address: string;
-  address_line2: string;
-  postal_code: string;
+  addressLine2: string;
+  postalCode: string;
   delivery: string[];
-  other_photo: string;
-  other_film: string;
-  other_video: string;
-  other_delivery: string;
+  otherPhoto: string;
+  otherFilm: string;
+  otherVideo: string;
+  otherDelivery: string;
   status?: string;
-  is_active?: boolean;
-  show_on_map?: boolean;
+  isActive?: boolean;
+  showOnMap?: boolean;
 }
 
 export default function PartnerDirectoryEN() {
@@ -92,15 +92,15 @@ export default function PartnerDirectoryEN() {
       {
         limit: 1000,
         status: "Approved",
-        is_active: true,
-        show_on_map: true,
+        isActive: true,
+        showOnMap: true,
         transform: true,
       },
     ],
     queryFn: async () => {
       try {
         const response = await fetch(
-          "/api/partners?limit=1000&status=Approved&is_active=true&show_on_map=true&transform=true",
+          "/api/partners?limit=1000&status=Approved&isActive=true&showOnMap=true&transform=true",
           {
             cache: "no-store",
             headers: { "Cache-Control": "no-cache" },
@@ -160,11 +160,11 @@ export default function PartnerDirectoryEN() {
 
   // Filter partners
   const filteredPartners = partners.filter((partner) => {
-    // CRITICAL: Only show approved, active partners with show_on_map enabled
+    // CRITICAL: Only show approved, active partners with showOnMap enabled
     const isVisible =
       partner.status === "Approved" &&
-      partner.is_active === true &&
-      partner.show_on_map === true;
+      partner.isActive === true &&
+      partner.showOnMap === true;
 
     if (!isVisible) return false;
 
@@ -478,15 +478,15 @@ export default function PartnerDirectoryEN() {
                           }
                         >
                           {/* Description with expand indicator */}
-                          {partner.public_description && (
+                          {partner.publicDescription && (
                             <div>
                               <p
                                 className={`text-sm text-gray-700 leading-snug ${!isExpanded ? "line-clamp-2" : ""}`}
                               >
-                                {partner.public_description}
+                                {partner.publicDescription}
                               </p>
                               {!isExpanded &&
-                                partner.public_description.length > 100 && (
+                                partner.publicDescription.length > 100 && (
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -532,9 +532,9 @@ export default function PartnerDirectoryEN() {
                                     {getDeliveryLabel(deliveryId)}
                                   </span>
                                 ))}
-                                {partner.other_delivery && (
+                                {partner.otherDelivery && (
                                   <span className="inline-block text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
-                                    Other: {partner.other_delivery}
+                                    Other: {partner.otherDelivery}
                                   </span>
                                 )}
                               </div>
@@ -561,10 +561,10 @@ export default function PartnerDirectoryEN() {
                                     : partner.formats.video;
                               const otherField =
                                 service === "Photo"
-                                  ? partner.other_photo
+                                  ? partner.otherPhoto
                                   : service === "Film"
-                                    ? partner.other_film
-                                    : partner.other_video;
+                                    ? partner.otherFilm
+                                    : partner.otherVideo;
 
                               const Icon = getServiceIcon(service);
                               return (
@@ -634,7 +634,7 @@ export default function PartnerDirectoryEN() {
                                 </span>
                               </a>
                             )}
-                            {partner.phone && partner.phone_public && (
+                            {partner.phone && partner.phonePublic && (
                               <a
                                 href={`tel:${partner.phone}`}
                                 className="flex items-center gap-1.5 text-[#2A4759] hover:text-[#1f3646] transition-colors"
@@ -644,7 +644,7 @@ export default function PartnerDirectoryEN() {
                                 <span className="text-xs">{partner.phone}</span>
                               </a>
                             )}
-                            {partner.email && partner.email_public && (
+                            {partner.email && partner.emailPublic && (
                               <a
                                 href={`mailto:${partner.email}`}
                                 className="flex items-center gap-1.5 text-[#2A4759] hover:text-[#1f3646] transition-colors"
@@ -654,12 +654,12 @@ export default function PartnerDirectoryEN() {
                                 <span className="text-xs">Email</span>
                               </a>
                             )}
-                            {(partner.address || partner.postal_code) && (
+                            {(partner.address || partner.postalCode) && (
                               <div className="flex items-center gap-1.5 text-gray-600">
                                 <MapPin className="h-3.5 w-3.5" />
                                 <span className="text-xs">
                                   {partner.address && `${partner.address}, `}
-                                  {partner.postal_code} {partner.city}
+                                  {partner.postalCode} {partner.city}
                                 </span>
                               </div>
                             )}
@@ -707,13 +707,13 @@ export default function PartnerDirectoryEN() {
 
               <div className="space-y-6 mt-4">
                 {/* Description */}
-                {modalPartner.public_description && (
+                {modalPartner.publicDescription && (
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-2">
                       Description
                     </h3>
                     <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                      {modalPartner.public_description}
+                      {modalPartner.publicDescription}
                     </p>
                   </div>
                 )}

@@ -15,8 +15,8 @@ import { ScrollTracker, trackShare } from '@/utils/analytics';
 
 interface Author {
   id: string;
-  first_name?: string;
-  last_name?: string;
+  firstName?: string;
+  lastName?: string;
   name?: string;
   avatar?: string;
   bio?: string;
@@ -41,22 +41,22 @@ interface Post {
   language: string;
   author?: Author;
   status: string;
-  publish_date: string;
-  meta_title?: string;
-  meta_description?: string;
-  meta_keywords?: string;
-  canonical_url?: string;
-  og_image_url?: string;
-  og_description?: string;
-  featured_image_url?: string;
-  featured_image_alt?: string;
-  reading_time_minutes?: number;
-  is_featured?: boolean;
-  featured_order?: number;
-  hero_caption?: string;
-  read_time_minutes?: number;
-  comments_enabled?: boolean;
-  disqus_thread_id?: string;
+  publishDate: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string;
+  canonicalUrl?: string;
+  ogImageUrl?: string;
+  ogDescription?: string;
+  featuredImageUrl?: string;
+  featuredImageAlt?: string;
+  readingTimeMinutes?: number;
+  isFeatured?: boolean;
+  featuredOrder?: number;
+  heroCaption?: string;
+  readTimeMinutes?: number;
+  commentsEnabled?: boolean;
+  disqusThreadId?: string;
   tags?: Tag[];
 }
 
@@ -213,10 +213,10 @@ export default function BlogPostPage() {
   const getAuthorName = (author?: Author) => {
     if (!author) return null;
     if (author.name) return author.name;
-    if (author.first_name && author.last_name) {
-      return `${author.first_name} ${author.last_name}`;
+    if (author.firstName && author.lastName) {
+      return `${author.firstName} ${author.lastName}`;
     }
-    return author.first_name || author.last_name || null;
+    return author.firstName || author.lastName || null;
   };
 
   const handleShare = async (platform: string) => {
@@ -301,9 +301,9 @@ export default function BlogPostPage() {
 
   const defaultOg = languageCode === 'fr-FR' ? DEFAULT_OG_FR : DEFAULT_OG;
   
-  const seoTitle = post.meta_title || post.title;
-  const seoDescription = post.meta_description || post.description || post.excerpt || "";
-  const seoKeywords = post.meta_keywords;
+  const seoTitle = post.metaTitle || post.title;
+  const seoDescription = post.metaDescription || post.description || post.excerpt || "";
+  const seoKeywords = post.metaKeywords;
   
   function resolveHero(raw?: string | null, _width?: number) {
     if (!raw) return null;
@@ -313,19 +313,19 @@ export default function BlogPostPage() {
   }
 
   const heroUrl =
-    resolveHero(post.featured_image_url) ??
-    resolveHero(post.og_image_url) ??
+    resolveHero(post.featuredImageUrl) ??
+    resolveHero(post.ogImageUrl) ??
     defaultOg.url;
 
-  const heroSrcSet = post.featured_image_url || post.og_image_url
+  const heroSrcSet = post.featuredImageUrl || post.ogImageUrl
     ? [640, 828, 1200, 1920]
-        .map(w => `${resolveHero(post.featured_image_url || post.og_image_url, w)} ${w}w`)
+        .map(w => `${resolveHero(post.featuredImageUrl || post.ogImageUrl, w)} ${w}w`)
         .join(', ')
     : undefined;
 
   const ogUrl =
-    resolveHero(post.og_image_url) ??
-    resolveHero(post.featured_image_url) ??
+    resolveHero(post.ogImageUrl) ??
+    resolveHero(post.featuredImageUrl) ??
     defaultOg.url;
 
   return (
@@ -334,19 +334,19 @@ export default function BlogPostPage() {
         <title>{seoTitle} | MEMOPYK</title>
         <meta name="description" content={seoDescription} />
         {seoKeywords && <meta name="keywords" content={seoKeywords} />}
-        {post.canonical_url && <link rel="canonical" href={post.canonical_url} />}
+        {post.canonicalUrl && <link rel="canonical" href={post.canonicalUrl} />}
         
         <meta property="og:title" content={seoTitle} />
-        <meta property="og:description" content={post.og_description || seoDescription} />
+        <meta property="og:description" content={post.ogDescription || seoDescription} />
         <meta property="og:image" content={ogUrl} />
         <meta property="og:image:width" content={String(defaultOg.width)} />
         <meta property="og:image:height" content={String(defaultOg.height)} />
         <meta property="og:type" content="article" />
-        <meta property="article:published_time" content={post.publish_date} />
+        <meta property="article:published_time" content={post.publishDate} />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={seoTitle} />
-        <meta name="twitter:description" content={post.og_description || seoDescription} />
+        <meta name="twitter:description" content={post.ogDescription || seoDescription} />
         <meta name="twitter:image" content={ogUrl} />
       </Helmet>
 
@@ -366,7 +366,7 @@ export default function BlogPostPage() {
               src={heroUrl}
               srcSet={heroSrcSet}
               sizes="100vw"
-              alt={post.featured_image_alt || post.title}
+              alt={post.featuredImageAlt || post.title}
               loading="eager"
               decoding="async"
               className="w-full h-full object-contain"
@@ -407,20 +407,20 @@ export default function BlogPostPage() {
               <div className="flex flex-wrap items-center gap-4 text-gray-600 mb-4">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-[#D67C4A]" />
-                  <time dateTime={post.publish_date} data-testid="text-post-date" className="text-sm">
-                    {new Date(post.publish_date).toLocaleDateString(
+                  <time dateTime={post.publishDate} data-testid="text-post-date" className="text-sm">
+                    {new Date(post.publishDate).toLocaleDateString(
                       languageCode === 'fr-FR' ? 'fr-FR' : 'en-US',
                       { year: 'numeric', month: 'long', day: 'numeric' }
                     )}
                   </time>
                 </div>
-                {(post.reading_time_minutes || post.read_time_minutes) && (
+                {(post.readingTimeMinutes || post.readTimeMinutes) && (
                   <>
                     <span className="text-gray-300">•</span>
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-[#D67C4A]" />
                       <span data-testid="text-reading-time" className="text-sm">
-                        {post.reading_time_minutes || post.read_time_minutes} {t.readingTime}
+                        {post.readingTimeMinutes || post.readTimeMinutes} {t.readingTime}
                       </span>
                     </div>
                   </>
@@ -450,9 +450,9 @@ export default function BlogPostPage() {
               )}
 
               {/* Hero Caption */}
-              {post.hero_caption && (
+              {post.heroCaption && (
                 <p className="text-lg text-gray-600 italic border-l-4 border-[#D67C4A] pl-4 mb-4" data-testid="text-hero-caption">
-                  {post.hero_caption}
+                  {post.heroCaption}
                 </p>
               )}
             </header>

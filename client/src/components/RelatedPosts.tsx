@@ -9,10 +9,10 @@ interface RelatedPost {
   slug: string;
   description?: string;
   excerpt?: string;
-  featured_image_url?: string;
-  featured_image_alt?: string;
-  publish_date: string;
-  reading_time_minutes?: number;
+  featuredImageUrl?: string;
+  featuredImageAlt?: string;
+  publishDate: string;
+  readingTimeMinutes?: number;
 }
 
 interface RelatedPostsProps {
@@ -85,11 +85,11 @@ export function RelatedPosts({ currentPostSlug, language, blogRoute }: RelatedPo
             data-testid={`card-related-post-${post.slug}`}
           >
             <Card className="group h-full overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 bg-white">
-              {post.featured_image_url && (
+              {post.featuredImageUrl && (
                 <div className="relative h-48 overflow-hidden">
                   <img
-                    src={post.featured_image_url}
-                    alt={post.featured_image_alt || post.title}
+                    src={post.featuredImageUrl}
+                    alt={post.featuredImageAlt || post.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     data-testid={`img-related-post-${post.slug}`}
                   />
@@ -112,13 +112,13 @@ export function RelatedPosts({ currentPostSlug, language, blogRoute }: RelatedPo
                   <div className="flex items-center gap-1">
                     <Calendar className="w-3 h-3 text-[#D67C4A]" />
                     <span data-testid={`text-related-post-date-${post.slug}`}>
-                      {formatDate(post.publish_date)}
+                      {formatDate(post.publishDate)}
                     </span>
                   </div>
-                  {post.reading_time_minutes && (
+                  {post.readingTimeMinutes && (
                     <div className="flex items-center gap-1">
                       <Clock className="w-3 h-3 text-[#D67C4A]" />
-                      <span>{post.reading_time_minutes} {t.minRead}</span>
+                      <span>{post.readingTimeMinutes} {t.minRead}</span>
                     </div>
                   )}
                 </div>

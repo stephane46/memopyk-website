@@ -6,20 +6,20 @@ import { htmlSanitizer } from '@/lib/sanitize-html';
 
 interface FAQ {
   id: string;
-  question_en: string;
-  question_fr: string;
-  answer_en: string;
-  answer_fr: string;
-  order_index: number;
-  is_active: boolean;
-  section_id?: string;
+  questionEn: string;
+  questionFr: string;
+  answerEn: string;
+  answerFr: string;
+  orderIndex: number;
+  isActive: boolean;
+  sectionId?: string;
 }
 
 interface FAQSection {
   id: string;
-  title_en: string;
-  title_fr: string;
-  order_index: number;
+  nameEn: string;
+  nameFr: string;
+  orderIndex: number;
 }
 
 export default function FAQSection() {
@@ -44,16 +44,16 @@ export default function FAQSection() {
 
   // Filter active FAQs and sort by order - with safety checks
   const activeFAQs = Array.isArray(faqs) 
-    ? faqs.filter(faq => faq && faq.is_active)
-           .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
+    ? faqs.filter(faq => faq && faq.isActive)
+           .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0))
     : [];
 
   // Group FAQs by section with safety checks
   const faqsBySection = activeFAQs.reduce((groups, faq) => {
     if (!faq) return groups;
     
-    // Handle FAQs with no section or section_id of "0" - assign to "general"
-    let sectionId = faq.section_id;
+    // Handle FAQs with no section or sectionId of "0" - assign to "general"
+    let sectionId = faq.sectionId;
     if (!sectionId || String(sectionId) === "0") {
       sectionId = "general";
     }
@@ -74,7 +74,7 @@ export default function FAQSection() {
         const sectionFAQs = faqsBySection[sectionKey] || [];
         return sectionFAQs.length > 0; // Only show sections that have FAQs
       })
-      .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
+      .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0))
     : [];
   
   // Sections are now displaying properly - debug confirmed all 5 sections load!
@@ -205,7 +205,7 @@ export default function FAQSection() {
                     className="w-full text-left flex items-center justify-between hover:bg-gray-50 transition-colors p-2 sm:p-2 rounded touch-manipulation min-h-[44px]"
                   >
                     <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 pr-2">
-                      {language === 'fr-FR' ? section.title_fr : section.title_en}
+                      {language === 'fr-FR' ? section.nameFr : section.nameEn}
                     </h3>
                     {openSection === sectionKey ? (
                       <ChevronUp className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500 flex-shrink-0" />
@@ -245,7 +245,7 @@ export default function FAQSection() {
                                 ? 'text-memopyk-navy' 
                                 : 'text-gray-900'
                             }`}>
-                              {language === 'fr-FR' ? faq.question_fr : faq.question_en}
+                              {language === 'fr-FR' ? faq.questionFr : faq.questionEn}
                             </h4>
                             {openQuestions.has(faq.id) ? (
                               <ChevronUp className="h-4 w-4 sm:h-5 sm:w-5 text-memopyk-navy flex-shrink-0" />
@@ -260,7 +260,7 @@ export default function FAQSection() {
                               <div 
                                 className="text-memopyk-navy leading-relaxed prose prose-sm max-w-none text-sm sm:text-base"
                                 dangerouslySetInnerHTML={{
-                                  __html: htmlSanitizer.sanitize(language === 'fr-FR' ? faq.answer_fr : faq.answer_en)
+                                  __html: htmlSanitizer.sanitize(language === 'fr-FR' ? faq.answerFr : faq.answerEn)
                                 }}
                               />
                             </div>

@@ -17,26 +17,26 @@ interface ContentTopic {
   category: string;
   type: string;
   market: string;
-  target_word_count: number;
-  primary_keyword: string;
-  secondary_keywords: string[];
-  search_volume: number | null;
+  targetWordCount: number;
+  primaryKeyword: string;
+  secondaryKeywords: string[];
+  searchVolume: number | null;
   competition: string | null;
-  search_intent: string;
-  content_angle: string;
+  searchIntent: string;
+  contentAngle: string;
   description: string;
-  hero_image_concept: string | null;
-  body_image_concepts: string[] | null;
-  memopyk_link_opportunities: string | null;
-  times_generated: number;
-  last_generated_at: string | null;
+  heroImageConcept: string | null;
+  bodyImageConcepts: string[] | null;
+  memopykLinkOpportunities: string | null;
+  timesGenerated: number;
+  lastGeneratedAt: string | null;
   priority: number;
   status: string;
   role: string;
-  parent_topic_id: string | null;
+  parentTopicId: string | null;
   cluster: string | null;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface TopicFormModalProps {
@@ -160,20 +160,20 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
       setMarket(topic.market || 'fr');
       setStatus(topic.status || 'backlog');
       setPriority(topic.priority?.toString() || '3');
-      setTargetWordCount(topic.target_word_count?.toString() || '900');
-      setPrimaryKeyword(topic.primary_keyword || '');
-      setSecondaryKeywords(topic.secondary_keywords?.join(', ') || '');
-      setSearchVolume(topic.search_volume?.toString() || '');
+      setTargetWordCount(topic.targetWordCount?.toString() || '900');
+      setPrimaryKeyword(topic.primaryKeyword || '');
+      setSecondaryKeywords(topic.secondaryKeywords?.join(', ') || '');
+      setSearchVolume(topic.searchVolume?.toString() || '');
       setCompetition(topic.competition || '');
-      setSearchIntent(topic.search_intent || '');
-      setContentAngle(topic.content_angle || '');
+      setSearchIntent(topic.searchIntent || '');
+      setContentAngle(topic.contentAngle || '');
       setDescription(topic.description || '');
-      setHeroImageConcept(topic.hero_image_concept || '');
-      setBodyImageConcepts(topic.body_image_concepts?.join(', ') || '');
-      setMemopykLinkOpportunities(topic.memopyk_link_opportunities || '');
+      setHeroImageConcept(topic.heroImageConcept || '');
+      setBodyImageConcepts(topic.bodyImageConcepts?.join(', ') || '');
+      setMemopykLinkOpportunities(topic.memopykLinkOpportunities || '');
       setRole(topic.role || 'spoke');
       setCluster(topic.cluster ? formatCluster(topic.cluster) : '');
-      setParentTopicId(topic.parent_topic_id || '');
+      setParentTopicId(topic.parentTopicId || '');
     } else {
       // Reset form for create mode
       setTitle('');
@@ -232,24 +232,24 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
         market,
         status,
         priority: parseInt(priority),
-        target_word_count: parseInt(targetWordCount) || 900,
-        primary_keyword: primaryKeyword.trim(),
-        secondary_keywords: secondaryKeywords
+        targetWordCount: parseInt(targetWordCount) || 900,
+        primaryKeyword: primaryKeyword.trim(),
+        secondaryKeywords: secondaryKeywords
           ? secondaryKeywords.split(',').map(kw => kw.trim()).filter(Boolean)
           : [],
-        search_volume: searchVolume ? parseInt(searchVolume) : null,
+        searchVolume: searchVolume ? parseInt(searchVolume) : null,
         competition: competition.trim() || null,
-        search_intent: searchIntent.trim() || '',
-        content_angle: contentAngle.trim() || '',
+        searchIntent: searchIntent.trim() || '',
+        contentAngle: contentAngle.trim() || '',
         description: description.trim() || '',
-        hero_image_concept: heroImageConcept.trim() || null,
-        body_image_concepts: bodyImageConcepts
+        heroImageConcept: heroImageConcept.trim() || null,
+        bodyImageConcepts: bodyImageConcepts
           ? bodyImageConcepts.split(',').map(c => c.trim()).filter(Boolean)
           : null,
-        memopyk_link_opportunities: memopykLinkOpportunities.trim() || null,
+        memopykLinkOpportunities: memopykLinkOpportunities.trim() || null,
         role,
         cluster: cluster.trim() ? toSnakeCase(cluster.trim()) : null,
-        parent_topic_id: role === 'spoke' && parentTopicId ? parentTopicId : null,
+        parentTopicId: role === 'spoke' && parentTopicId ? parentTopicId : null,
       };
 
       if (isEditMode && topic) {

@@ -13,16 +13,16 @@ import { apiRequest, queryClient } from '@/lib/queryClient';
 interface ContentKeyword {
   id: string;
   keyword: string;
-  monthly_searches: number;
+  monthlySearches: number;
   competition: string;
   intent: string;
   tier: number;
   market: string;
   seasonal?: boolean;
-  seasonal_months?: string[];
+  seasonalMonths?: string[];
   cluster?: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface KeywordFormModalProps {
@@ -57,13 +57,13 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
   useEffect(() => {
     if (keyword) {
       setKeywordText(keyword.keyword || '');
-      setMonthlySearches(keyword.monthly_searches?.toString() || '');
+      setMonthlySearches(keyword.monthlySearches?.toString() || '');
       setCompetition(keyword.competition || '');
       setIntent(keyword.intent || '');
       setTier(keyword.tier?.toString() || '');
       setMarket(keyword.market || 'fr');
       setSeasonal(keyword.seasonal || false);
-      setSeasonalMonths(keyword.seasonal_months || []);
+      setSeasonalMonths(keyword.seasonalMonths || []);
       setCluster(keyword.cluster || '');
     } else {
       // Reset form for create mode
@@ -91,13 +91,13 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
     try {
       const keywordData = {
         keyword: keywordText.trim(),
-        monthly_searches: monthlySearches ? parseInt(monthlySearches) : null,
+        monthlySearches: monthlySearches ? parseInt(monthlySearches) : null,
         competition: competition || null,
         intent: intent || 'medium',
         tier: tier ? parseInt(tier) : 3,
         market: market || 'fr',
         seasonal,
-        seasonal_months: seasonal && seasonalMonths.length > 0 ? seasonalMonths : null,
+        seasonalMonths: seasonal && seasonalMonths.length > 0 ? seasonalMonths : null,
         cluster: cluster.trim() || null,
       };
 

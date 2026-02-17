@@ -4,19 +4,19 @@ import { useLanguage } from '../../contexts/LanguageContext';
 
 interface HeroText {
   id: number;
-  title_fr: string;
-  title_en: string;
-  title_mobile_fr?: string;
-  title_mobile_en?: string;
-  title_desktop_fr?: string;
-  title_desktop_en?: string;
-  subtitle_fr: string;
-  subtitle_en: string;
-  font_size: number;
-  font_size_desktop?: number;
-  font_size_tablet?: number;
-  font_size_mobile?: number;
-  is_active: boolean;
+  titleFr: string;
+  titleEn: string;
+  titleMobileFr?: string;
+  titleMobileEn?: string;
+  titleDesktopFr?: string;
+  titleDesktopEn?: string;
+  subtitleFr: string;
+  subtitleEn: string;
+  fontSize: number;
+  fontSizeDesktop?: number;
+  fontSizeTablet?: number;
+  fontSizeMobile?: number;
+  isActive: boolean;
 }
 
 export function SimpleHeroVideoSection() {
@@ -41,7 +41,7 @@ export function SimpleHeroVideoSection() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const activeHeroText = heroTextData.find(text => text.is_active);
+  const activeHeroText = heroTextData.find(text => text.isActive);
   
   // Prevent flicker by not showing content until data is loaded
   const [isTextReady, setIsTextReady] = useState(false);
@@ -105,13 +105,13 @@ export function SimpleHeroVideoSection() {
       if (!activeHeroText) return "";
       
       if (isMobileSize) {
-        return language === 'fr-FR' 
-          ? (activeHeroText.title_mobile_fr || activeHeroText.title_fr || "")
-          : (activeHeroText.title_mobile_en || activeHeroText.title_en || "");
+        return language === 'fr-FR'
+          ? (activeHeroText.titleMobileFr || activeHeroText.titleFr || "")
+          : (activeHeroText.titleMobileEn || activeHeroText.titleEn || "");
       } else {
-        return language === 'fr-FR' 
-          ? (activeHeroText.title_desktop_fr || activeHeroText.title_fr || "")
-          : (activeHeroText.title_desktop_en || activeHeroText.title_en || "");
+        return language === 'fr-FR'
+          ? (activeHeroText.titleDesktopFr || activeHeroText.titleFr || "")
+          : (activeHeroText.titleDesktopEn || activeHeroText.titleEn || "");
       }
     };
     
@@ -152,9 +152,9 @@ export function SimpleHeroVideoSection() {
                 textShadow: '1px 1px 2px rgba(0,0,0,0.8)'
               }}
             >
-              {language === 'fr-FR' 
-                ? activeHeroText.subtitle_fr 
-                : activeHeroText.subtitle_en
+              {language === 'fr-FR'
+                ? activeHeroText.subtitleFr
+                : activeHeroText.subtitleEn
               }
             </p>
           )}

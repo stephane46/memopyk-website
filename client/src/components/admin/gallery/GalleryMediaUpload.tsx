@@ -119,12 +119,12 @@ export default function GalleryMediaUpload({
                         imageUrlFr: result.url
                       } as GalleryFormData;
 
-                      if (result.static_image_url) {
-                        updatedFormData.staticImageUrl = result.static_image_url;
-                        updatedFormData.static_imageUrlEn = result.static_image_url;
-                        updatedFormData.static_imageUrlFr = result.static_image_url;
-                        if (result.auto_crop_settings) {
-                          updatedFormData.cropSettings = result.auto_crop_settings;
+                      if (result.staticImageUrl) {
+                        updatedFormData.staticImageUrl = result.staticImageUrl;
+                        updatedFormData.static_imageUrlEn = result.staticImageUrl;
+                        updatedFormData.static_imageUrlFr = result.staticImageUrl;
+                        if (result.autoCropSettings) {
+                          updatedFormData.cropSettings = result.autoCropSettings;
                         }
                       }
 
@@ -132,22 +132,22 @@ export default function GalleryMediaUpload({
                         ...prev,
                         imageUrlEn: result.url,
                         imageUrlFr: result.url,
-                        staticImageUrl: result.static_image_url || prev.staticImageUrl,
-                        static_imageUrlEn: result.static_image_url || prev.static_imageUrlEn,
-                        static_imageUrlFr: result.static_image_url || prev.static_imageUrlFr
+                        staticImageUrl: result.staticImageUrl || prev.staticImageUrl,
+                        static_imageUrlEn: result.staticImageUrl || prev.static_imageUrlEn,
+                        static_imageUrlFr: result.staticImageUrl || prev.static_imageUrlFr
                       }));
 
                       setFormData(updatedFormData);
                       persistentUploadState.imageUrlEn = result.url;
                       persistentUploadState.imageUrlFr = result.url;
-                      if (result.static_image_url) {
-                        persistentUploadState.staticImageUrl = result.static_image_url;
+                      if (result.staticImageUrl) {
+                        persistentUploadState.staticImageUrl = result.staticImageUrl;
                       }
 
                       setForceRefreshKey(prev => prev + 1);
 
-                      const badgeInfo = result.auto_crop_settings ?
-                        (result.auto_crop_settings.cropped ? " (Auto-crop applied)" : " (No crop needed)") : "";
+                      const badgeInfo = result.autoCropSettings ?
+                        (result.autoCropSettings.cropped ? " (Auto-crop applied)" : " (No crop needed)") : "";
 
                       toast({
                         title: "📸 Aperçu instantané",
@@ -312,13 +312,13 @@ export default function GalleryMediaUpload({
                           imageUrlEn: result.url
                         }));
 
-                        if (result.auto_crop_settings && result.static_image_url) {
+                        if (result.autoCropSettings && result.staticImageUrl) {
                           setFormData(prev => ({
                             ...prev,
                             imageUrlEn: result.url,
-                            static_imageUrlEn: result.static_image_url || null,
-                            static_imageUrlFr: formData.useSameVideo ? result.static_image_url || null : prev.static_imageUrlFr,
-                            cropSettings: result.auto_crop_settings
+                            static_imageUrlEn: result.staticImageUrl || null,
+                            static_imageUrlFr: formData.useSameVideo ? result.staticImageUrl || null : prev.static_imageUrlFr,
+                            cropSettings: result.autoCropSettings
                           }));
                         } else {
                           setFormData(prev => ({

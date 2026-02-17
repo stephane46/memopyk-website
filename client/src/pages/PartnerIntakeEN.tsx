@@ -53,35 +53,35 @@ export default function PartnerIntakeEN() {
   const form = useForm<PartnerIntake>({
     resolver: zodResolver(PartnerIntakeSchema),
     defaultValues: {
-      partner_name: "",
+      partnerName: "",
       email: "",
-      email_public: true,
+      emailPublic: true,
       phone: "",
       website: "",
       address: {
         street: "",
         line2: "",
         city: "",
-        postal_code: "",
+        postalCode: "",
         country: "FR",
       },
       services: [],
-      photo_formats: [],
-      video_formats: [],
-      film_formats: [],
-      audio_formats: [],
-      video_cassettes: [],
-      other_photo_formats: "",
-      other_film_formats: "",
-      other_video_formats: "",
+      photoFormats: [],
+      videoFormats: [],
+      filmFormats: [],
+      audioFormats: [],
+      videoCassettes: [],
+      otherPhotoFormats: "",
+      otherFilmFormats: "",
+      otherVideoFormats: "",
       delivery: [],
-      other_delivery: "",
+      otherDelivery: "",
       output: [],
       turnaround: "",
       rush: false,
       languages: [],
-      consent_listed: false,
-      public_description: "",
+      consentListed: false,
+      publicDescription: "",
       locale: "en",
       csrfToken: "",
     },
@@ -211,7 +211,7 @@ export default function PartnerIntakeEN() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
                       control={form.control}
-                      name="partner_name"
+                      name="partnerName"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Company Name *</FormLabel>
@@ -275,7 +275,7 @@ export default function PartnerIntakeEN() {
 
                     <FormField
                       control={form.control}
-                      name="email_public"
+                      name="emailPublic"
                       render={({ field }) => (
                         <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-gray-300 p-4">
                           <FormControl>
@@ -388,7 +388,7 @@ export default function PartnerIntakeEN() {
 
                     <FormField
                       control={form.control}
-                      name="address.postal_code"
+                      name="address.postalCode"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Postal Code</FormLabel>
@@ -493,7 +493,7 @@ export default function PartnerIntakeEN() {
                     </h3>
                     <FormField
                       control={form.control}
-                      name="photo_formats"
+                      name="photoFormats"
                       render={() => (
                         <FormItem className="space-y-4">
                           <FormDescription>Select everything you support:</FormDescription>
@@ -504,7 +504,7 @@ export default function PartnerIntakeEN() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-6">
                               <FormField
                                 control={form.control}
-                                name="photo_formats"
+                                name="photoFormats"
                                 render={({ field }) => (
                                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                                     <FormControl>
@@ -527,7 +527,7 @@ export default function PartnerIntakeEN() {
                               />
                               <FormField
                                 control={form.control}
-                                name="photo_formats"
+                                name="photoFormats"
                                 render={({ field }) => (
                                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                                     <FormControl>
@@ -557,7 +557,7 @@ export default function PartnerIntakeEN() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-6">
                               <FormField
                                 control={form.control}
-                                name="photo_formats"
+                                name="photoFormats"
                                 render={({ field }) => (
                                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                                     <FormControl>
@@ -580,7 +580,7 @@ export default function PartnerIntakeEN() {
                               />
                               <FormField
                                 control={form.control}
-                                name="photo_formats"
+                                name="photoFormats"
                                 render={({ field }) => (
                                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                                     <FormControl>
@@ -603,7 +603,7 @@ export default function PartnerIntakeEN() {
                               />
                               <FormField
                                 control={form.control}
-                                name="photo_formats"
+                                name="photoFormats"
                                 render={({ field }) => (
                                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                                     <FormControl>
@@ -626,7 +626,7 @@ export default function PartnerIntakeEN() {
                               />
                               <FormField
                                 control={form.control}
-                                name="photo_formats"
+                                name="photoFormats"
                                 render={({ field }) => (
                                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                                     <FormControl>
@@ -656,7 +656,7 @@ export default function PartnerIntakeEN() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-6">
                               <FormField
                                 control={form.control}
-                                name="photo_formats"
+                                name="photoFormats"
                                 render={({ field }) => (
                                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                                     <FormControl>
@@ -686,7 +686,7 @@ export default function PartnerIntakeEN() {
                     />
                     <FormField
                       control={form.control}
-                      name="other_photo_formats"
+                      name="otherPhotoFormats"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Other supported formats</FormLabel>
@@ -715,7 +715,7 @@ export default function PartnerIntakeEN() {
                     </h3>
                     <FormField
                       control={form.control}
-                      name="film_formats"
+                      name="filmFormats"
                       render={() => (
                         <FormItem className="space-y-3">
                           <FormDescription>Select everything you support.</FormDescription>
@@ -724,7 +724,7 @@ export default function PartnerIntakeEN() {
                               <FormField
                                 key={format.v}
                                 control={form.control}
-                                name="film_formats"
+                                name="filmFormats"
                                 render={({ field }) => (
                                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                                     <FormControl>
@@ -753,7 +753,7 @@ export default function PartnerIntakeEN() {
                     />
                     <FormField
                       control={form.control}
-                      name="other_film_formats"
+                      name="otherFilmFormats"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Other supported formats</FormLabel>
@@ -782,7 +782,7 @@ export default function PartnerIntakeEN() {
                     </h3>
                     <FormField
                       control={form.control}
-                      name="video_cassettes"
+                      name="videoCassettes"
                       render={() => (
                         <FormItem className="space-y-3">
                           <FormDescription>Select everything you support.</FormDescription>
@@ -791,7 +791,7 @@ export default function PartnerIntakeEN() {
                               <FormField
                                 key={format.v}
                                 control={form.control}
-                                name="video_cassettes"
+                                name="videoCassettes"
                                 render={({ field }) => (
                                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                                     <FormControl>
@@ -820,7 +820,7 @@ export default function PartnerIntakeEN() {
                     />
                     <FormField
                       control={form.control}
-                      name="other_video_formats"
+                      name="otherVideoFormats"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Other supported formats</FormLabel>
@@ -886,7 +886,7 @@ export default function PartnerIntakeEN() {
                     />
                     <FormField
                       control={form.control}
-                      name="other_delivery"
+                      name="otherDelivery"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Other delivery / Output types</FormLabel>
@@ -910,7 +910,7 @@ export default function PartnerIntakeEN() {
                 {/* Description */}
                 <FormField
                   control={form.control}
-                  name="public_description"
+                  name="publicDescription"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Description</FormLabel>
@@ -931,7 +931,7 @@ export default function PartnerIntakeEN() {
                 {/* Consent */}
                 <FormField
                   control={form.control}
-                  name="consent_listed"
+                  name="consentListed"
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-gray-300 p-4">

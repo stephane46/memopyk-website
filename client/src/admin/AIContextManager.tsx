@@ -15,7 +15,7 @@ interface AIContextEntry {
   content: string;
   category: string;
   sort_order: number;
-  updated_at: string;
+  updatedAt: string;
   updated_by: string | null;
 }
 
@@ -164,9 +164,9 @@ export function AIContextManager() {
                       <CardTitle className="text-lg">{entry.title}</CardTitle>
                       <CardDescription className="text-xs mt-1">
                         Key: <code className="bg-gray-100 px-1 rounded">{entry.key}</code>
-                        {entry.updated_at && (
+                        {entry.updatedAt && (
                           <span className="ml-3">
-                            Updated: {formatDate(entry.updated_at)}
+                            Updated: {formatDate(entry.updatedAt)}
                             {entry.updated_by && ` by ${entry.updated_by}`}
                           </span>
                         )}

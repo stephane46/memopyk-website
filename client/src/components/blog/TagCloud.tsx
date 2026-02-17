@@ -92,8 +92,8 @@ export default function TagCloud({
   }
 
   // Calculate font sizes for cloud view based on post count
-  const maxCount = Math.max(...tags.map(t => t.post_count || 0));
-  const minCount = Math.min(...tags.map(t => t.post_count || 0));
+  const maxCount = Math.max(...tags.map(t => t.postCount || 0));
+  const minCount = Math.min(...tags.map(t => t.postCount || 0));
   
   const getTagSize = (count: number = 0) => {
     if (maxCount === minCount) return 'text-base';
@@ -118,7 +118,7 @@ export default function TagCloud({
             <Badge
               variant="outline"
               className={`
-                ${getTagSize(tag.post_count)}
+                ${getTagSize(tag.postCount)}
                 cursor-pointer hover:shadow-md transition-all duration-200
                 border-2 hover:scale-105
                 bg-white hover:bg-gray-50
@@ -130,9 +130,9 @@ export default function TagCloud({
             >
               {tag.icon && <Hash className="h-3 w-3 mr-1" />}
               {tag.name}
-              {tag.post_count !== undefined && (
+              {tag.postCount !== undefined && (
                 <span className="ml-1.5 text-xs opacity-70">
-                  ({tag.post_count})
+                  ({tag.postCount})
                 </span>
               )}
             </Badge>
@@ -177,7 +177,7 @@ export default function TagCloud({
                 variant="secondary"
                 className="bg-gray-100 text-gray-700"
               >
-                {tag.post_count || 0}
+                {tag.postCount || 0}
               </Badge>
             </div>
           </Link>
@@ -219,7 +219,7 @@ export default function TagCloud({
                 {tag.name}
               </div>
               <div className="text-xs text-gray-500">
-                {tag.post_count || 0} {language === 'fr-FR' ? 'articles' : 'posts'}
+                {tag.postCount || 0} {language === 'fr-FR' ? 'articles' : 'posts'}
               </div>
             </div>
           </Link>

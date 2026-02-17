@@ -122,12 +122,12 @@ export function BlogManagePosts() {
   // Apply client-side filtering (topic and keyword)
   let posts: BlogPost[] = postsData?.data || [];
   if (filterTopic) {
-    posts = posts.filter(post => post.source_topic_id === filterTopic);
+    posts = posts.filter(post => post.sourceTopicId === filterTopic);
   }
   if (filterKeyword) {
     posts = posts.filter(post => 
-      post.primary_keyword === filterKeyword || 
-      (post.secondary_keywords && post.secondary_keywords.includes(filterKeyword))
+      post.primaryKeyword === filterKeyword || 
+      (post.secondaryKeywords && post.secondaryKeywords.includes(filterKeyword))
     );
   }
   const totalCount = posts.length;
@@ -158,7 +158,7 @@ export function BlogManagePosts() {
               ? { 
                   ...post, 
                   status: newStatus,
-                  published_at: newStatus === 'published' ? new Date().toISOString() : null
+                  publishedAt: newStatus === 'published' ? new Date().toISOString() : null
                 }
               : post
           )
@@ -502,9 +502,9 @@ export function BlogManagePosts() {
                         </h3>
                         
                         {/* Source Topic Link - Next to title */}
-                        {post.source_topic_id && (
+                        {post.sourceTopicId && (
                           <button
-                            onClick={() => navigateToTopic(post.source_topic_id!)}
+                            onClick={() => navigateToTopic(post.sourceTopicId!)}
                             className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-medium rounded-md border border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 transition-colors group"
                             data-testid="link-view-source-topic"
                           >
@@ -514,7 +514,7 @@ export function BlogManagePosts() {
                           </button>
                         )}
 
-                        {post.is_featured && (
+                        {post.isFeatured && (
                           <Badge variant="secondary" className="bg-purple-100 text-purple-800">
                             Featured
                           </Badge>
@@ -545,7 +545,7 @@ export function BlogManagePosts() {
                         >
                           <Calendar className="h-3 w-3 mr-1 inline" />
                           {post.status === 'published'
-                            ? formatDate(post.published_at)
+                            ? formatDate(post.publishedAt)
                             : post.status === 'in_review'
                             ? 'In Review'
                             : post.status === 'archived'
@@ -555,13 +555,13 @@ export function BlogManagePosts() {
                         </Badge>
 
                         {/* Primary Keyword Badge - Muted fill, non-interactive */}
-                        {post.primary_keyword && (
+                        {post.primaryKeyword && (
                           <Badge
                             className="bg-emerald-50 text-emerald-700 border-emerald-200 px-2.5 py-0.5 text-xs font-medium"
                             data-testid="badge-primary-keyword"
                           >
                             <TagIcon className="h-3 w-3 mr-1 inline" />
-                            {post.primary_keyword}
+                            {post.primaryKeyword}
                           </Badge>
                         )}
                       </div>

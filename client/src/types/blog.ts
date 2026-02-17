@@ -5,24 +5,24 @@ export interface Tag {
   description?: string;
   color?: string;
   icon?: string;
-  post_count?: number;
+  postCount?: number;
 }
 
 export interface GalleryImage {
   id: string;
   caption?: string;
-  alt_text?: string;
+  altText?: string;
   image: { id: string; url: string };
-  display_order: number;
+  displayOrder: number;
 }
 
 export interface Gallery {
   id: string;
   title: string;
   description?: string;
-  layout_type: 'single' | 'side-by-side' | 'grid-2' | 'grid-3' | 'carousel';
-  display_order: number;
-  gallery_images: GalleryImage[];
+  layoutType: 'single' | 'side-by-side' | 'grid-2' | 'grid-3' | 'carousel';
+  displayOrder: number;
+  galleryImages: GalleryImage[];
 }
 
 export interface BlogPost {
@@ -31,21 +31,40 @@ export interface BlogPost {
   slug: string;
   language: string;
   content: string;
+  contentHtml?: string;
   description: string;
   image?: { id: string; url: string } | null;
   author?: string;
-  is_featured: boolean;
-  featured_order?: number;
-  hero_caption?: string;
-  read_time_minutes?: number;
-  comments_enabled?: boolean;
-  disqus_thread_id?: string;
-  published_at: string;
+  isFeatured: boolean;
+  featuredOrder?: number;
+  heroUrl?: string;
+  heroCaption?: string;
+  readTimeMinutes?: number;
+  commentsEnabled?: boolean;
+  disqusThreadId?: string;
+  publishedAt: string;
   status: string;
   tags?: Tag[];
   galleries?: Gallery[];
-  relevance_score?: number;
-  matching_tags?: number;
+  relevanceScore?: number;
+  matchingTags?: number;
+  primaryKeyword?: string;
+  secondaryKeywords?: string;
+  includeInSitemap?: boolean;
+  enableFaqSchema?: boolean;
+  sourceTopicTitle?: string;
+  featuredImageUrl?: string;
+  featuredImageAlt?: string;
+  ogImageUrl?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string;
+  canonicalUrl?: string;
+  ogDescription?: string;
+  readingTimeMinutes?: number;
+  publishDate?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ApiResponse<T> {

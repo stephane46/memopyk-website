@@ -16,7 +16,7 @@ type BlogImage = {
   name: string;
   url: string;
   size: number;
-  created_at: string;
+  createdAt: string;
 };
 
 export function BlogHeroImageUpload({ currentImageUrl, onImageSelect }: BlogHeroImageUploadProps) {
