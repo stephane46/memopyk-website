@@ -9,10 +9,10 @@
 
 | Metric | Count |
 |--------|-------|
-| **Total tables (public schema)** | 36 |
+| **Total tables (public schema)** | 35 |
 | **Tables in Drizzle ORM** | 34 |
-| **DB-only tables** | 3 |
-| **Tables with data (rows > 0)** | 18 |
+| **DB-only tables** | 2 |
+| **Tables with data (rows > 0)** | 17 |
 | **Empty tables** | 18 |
 | **Views** | 2 (PostGIS) |
 | **Custom functions** | 21 |
@@ -25,12 +25,12 @@
 |----------|--------|------------|---------|-----------|
 | Website Core | 9 | 9 | 0 | 3 |
 | Blog & Content | 12 | 12 | 0 | 5 |
-| Analytics | 7 | 6 | 1 | 6 |
+| Analytics | 6 | 6 | 0 | 5 |
 | SEO | 2 | 2 | 0 | 1 |
 | Partners | 1 | 1 | 0 | 0 |
 | Travel | 2 | 2 | 0 | 2 |
 | Admin/System | 2 | 2 | 0 | 2 |
-| **Total** | **36** | **34** | **1** | **19** |
+| **Total** | **35** | **34** | **0** | **18** |
 
 > **Legacy cleanup (Feb 17, 2026):** 50 empty, unreferenced legacy tables dropped (Payload CMS, quoting system, misc). 102,299 test contact rows truncated. See commit for details.
 
@@ -106,7 +106,7 @@ Custom analytics tracking (sessions, views, events, performance, conversions).
 | `analytics_views` | 21 | 147 | 176 KB | Yes | Page views and video events per session |
 | `analytics_events` | 33 | 8,555 | 5.0 MB | Yes | CTA click events. Added to Drizzle Feb 17. Still accessed via raw SQL in `analytics.routes.ts` |
 | `analytics_exclusions` | 6 | 1 | 64 KB | Yes | IP/CIDR exclusion rules for filtering admin traffic |
-| `analytics_conversions` | 13 | 10 | 152 KB | **No** | Conversion tracking by type and date |
+| ~~`analytics_conversions`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (orphaned duplicate of analytics_events, 121 rows, 0 code refs)* |
 | `performance_metrics` | 30 | 13,669 | 4.7 MB | Yes | Core Web Vitals (LCP, CLS, INP, FID, TTFB) and page load metrics |
 | `realtime_visitors` | 11 | 0 | 16 KB | Yes | Active visitor tracking (session, page, location, last_seen) |
 | ~~`conversion_funnel`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (empty, unused)* |
@@ -178,7 +178,7 @@ content_daily_assignments.post_id --> blog_posts.id
 **Logical FKs (no DB constraint):**
 - `blog_posts.source_topic_id` references `content_topics.id`
 - `faqs.section_id` references `faq_sections.id`
-- `analytics_conversions.event_id` references `analytics_events` (no target column resolved)
+- ~~`analytics_conversions.event_id`~~ *table dropped Feb 17, 2026*
 
 *31 legacy FKs were dropped with the legacy tables on Feb 17, 2026.*
 
@@ -351,7 +351,6 @@ Some routes also use raw SQL via `pool` (e.g., `analytics.routes.ts` for `analyt
 | help_screens | 31 | Feb 2026 | Admin help content for all screens |
 | content_topics | 28 | Feb 2026 | Blog content pipeline topics |
 | blog_posts | 18 | Feb 2026 | Published articles (13 FR + 5 EN) |
-| analytics_conversions | 10 | Feb 2026 | Conversion tracking |
 | ai_context | 6 | Feb 2026 | Brand Brain entries |
 | gallery_items | 6 | Feb 2026 | Homepage portfolio items |
 | hero_videos | 3 | Feb 2026 | Background video carousel |
@@ -364,9 +363,7 @@ Some routes also use raw SQL via `pool` (e.g., `analytics.routes.ts` for `analyt
 
 ### Tables with Data but No Drizzle Schema
 
-| Table | Rows | Concern | Recommendation |
-|-------|------|---------|----------------|
-| `analytics_conversions` | 10 | Has data (10 "card_interaction" rows from Jan 30), no code references | Verify if still needed or drop |
+None. All application tables with data are in the Drizzle schema. The only DB-only table is `spatial_ref_sys` (PostGIS system table).
 
 ---
 
@@ -383,7 +380,7 @@ Some routes also use raw SQL via `pool` (e.g., `analytics.routes.ts` for `analyt
 **Feb 17, 2026 (phase 2):** DB-only table resolution — 4 tables investigated, 2 dropped, 1 added to Drizzle.
 
 - **`analytics_events`** → Classification A: ACTIVELY USED (8,555 rows, 4 code refs in analytics.routes.ts). Added to Drizzle schema.
-- **`analytics_conversions`** → Classification D: UNREFERENCED BUT HAS DATA (10 rows of "card_interaction" from Jan 30, 0 code refs). Flagged for Stéphane.
+- **`analytics_conversions`** → Classification D → DROPPED: orphaned duplicate of `analytics_events` (121 rows of video_interaction/card_interaction/scroll_engagement, same event types already in analytics_events). Frontend code lost during Replit migration.
 - **`blog_post_views`** → Classification C: UNREFERENCED AND EMPTY. Dropped.
 - **`seo_redirects`** → Classification C: UNREFERENCED AND EMPTY. Dropped.
 
@@ -410,7 +407,7 @@ The automated schema audit (`tests/e2e/schema-audit.ts`) compares Drizzle defini
 - **0 CRITICAL** mismatches
 - **15 WARNING** -- text vs varchar type differences in `travel_agency_codes` (4) and `travel_upload_submissions` (11). Functionally identical in PostgreSQL.
 - **4 INFO** -- nullable column mismatches in `content_keywords.market` and `travel_upload_submissions` share fields
-- **3 DB-only tables** -- `analytics_conversions` (flagged for review), `spatial_ref_sys` (PostGIS), `geography_columns` (PostGIS)
+- **2 DB-only tables** -- `spatial_ref_sys` (PostGIS), `geography_columns` (PostGIS view)
 
 Run the audit: `npx tsx tests/e2e/schema-audit.ts`
 
