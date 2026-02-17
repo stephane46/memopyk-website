@@ -489,16 +489,12 @@ export const blogTags = pgTable("blog_tags", {
   slug: text("slug").notNull().unique(),
   color: text("color"),
   icon: text("icon"),
-  usageCount: integer("usage_count").default(0),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
+  usageCount: integer("usage_count").default(0)
 });
 
 export const insertBlogTagSchema = createInsertSchema(blogTags).omit({
   id: true,
-  usageCount: true,
-  createdAt: true,
-  updatedAt: true
+  usageCount: true
 });
 
 export type BlogTag = typeof blogTags.$inferSelect;

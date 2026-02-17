@@ -21,6 +21,7 @@ import PartnerIntakeEN from './pages/PartnerIntakeEN';
 import React, { Suspense } from 'react';
 const PartnerDirectoryFR = React.lazy(() => import('./pages/PartnerDirectoryFR'));
 const PartnerDirectoryEN = React.lazy(() => import('./pages/PartnerDirectoryEN'));
+const ContactPage = React.lazy(() => import('./pages/ContactPage'));
 import TravelUploadPortalPage from './pages/TravelUploadPortalPage';
 import { queryClient } from './lib/queryClient';
 import { Toaster } from '@/components/ui/toaster';
@@ -80,8 +81,20 @@ function AnalyticsRouter() {
           <Route path="/en-US/gallery" component={GallerySectionWrapper} />
 
           {/* Contact Routes */}
-          <Route path="/fr-FR/contact" component={() => <div className="min-h-screen flex items-center justify-center"><div className="text-2xl text-gray-500">Contact Bientôt Disponible</div></div>} />
-          <Route path="/en-US/contact" component={() => <div className="min-h-screen flex items-center justify-center"><div className="text-2xl text-gray-500">Contact Coming Soon</div></div>} />
+          <Route path="/fr-FR/contact">
+            {() => (
+              <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500" /></div>}>
+                <ContactPage />
+              </Suspense>
+            )}
+          </Route>
+          <Route path="/en-US/contact">
+            {() => (
+              <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500" /></div>}>
+                <ContactPage />
+              </Suspense>
+            )}
+          </Route>
 
           {/* Test Routes - Localized versions */}
           <Route path="/fr-FR/gv" component={SimpleVideoPlayer} />

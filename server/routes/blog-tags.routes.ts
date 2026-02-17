@@ -60,8 +60,6 @@ router.get('/blog-tags', async (req: Request, res: Response) => {
       name: tag.name,
       color: tag.color,
       usageCount: tagUsageMap.get(tag.id) || 0,
-      createdAt: tag.createdAt,
-      updatedAt: tag.updatedAt,
     }))
     .sort((a, b) => b.usageCount - a.usageCount);
 
