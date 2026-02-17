@@ -14,16 +14,16 @@ import { formatFrenchDateTime } from '@/utils/date-format';
 import { useToast } from '@/hooks/use-toast';
 
 interface HeroVideo {
-  id: number;
-  title_en: string;
-  title_fr: string;
-  url_en: string;
-  url_fr: string;
+  id: string;
+  titleEn: string;
+  titleFr: string;
+  urlEn: string;
+  urlFr: string;
   useSameVideo: boolean;
-  order_index: number;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  orderIndex: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default function HeroManagement() {
@@ -34,17 +34,17 @@ export default function HeroManagement() {
   const [previewVideo, setPreviewVideo] = useState<{ url: string; title: string } | null>(null);
   const [editingVideo, setEditingVideo] = useState<any | null>(null);
   const [editVideoData, setEditVideoData] = useState({
-    url_en: '',
-    url_fr: '',
+    urlEn: '',
+    urlFr: '',
     useSameVideo: true
   });
   const [uploadingFile, setUploadingFile] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [selectedTextId, setSelectedTextId] = useState<number | null>(null);
   const [editingTextId, setEditingTextId] = useState<number | null>(null);
-  const [editFormData, setEditFormData] = useState({ title_mobile_fr: '', title_mobile_en: '', title_desktop_fr: '', title_desktop_en: '' });
+  const [editFormData, setEditFormData] = useState({ titleMobileFr: '', titleMobileEn: '', titleDesktopFr: '', titleDesktopEn: '' });
   const [showNewTextForm, setShowNewTextForm] = useState(false);
-  const [newTextData, setNewTextData] = useState({ title_mobile_fr: '', title_mobile_en: '', title_desktop_fr: '', title_desktop_en: '', font_size_desktop: 60, font_size_tablet: 45, font_size_mobile: 32 });
+  const [newTextData, setNewTextData] = useState({ titleMobileFr: '', titleMobileEn: '', titleDesktopFr: '', titleDesktopEn: '', fontSizeDesktop: 60, fontSizeTablet: 45, fontSizeMobile: 32 });
   const [currentPreviewLanguage, setCurrentPreviewLanguage] = useState<'fr' | 'en'>('fr');
 
   // Fetch hero videos
@@ -86,12 +86,12 @@ export default function HeroManagement() {
         const filename = result.filename;
 
         if (editVideoData.useSameVideo) {
-          setEditVideoData(prev => ({ ...prev, url_en: filename, url_fr: filename }));
+          setEditVideoData(prev => ({ ...prev, urlEn: filename, urlFr: filename }));
         } else {
           if (isEnglish) {
-            setEditVideoData(prev => ({ ...prev, url_en: filename }));
+            setEditVideoData(prev => ({ ...prev, urlEn: filename }));
           } else {
-            setEditVideoData(prev => ({ ...prev, url_fr: filename }));
+            setEditVideoData(prev => ({ ...prev, urlFr: filename }));
           }
         }
 
@@ -132,12 +132,12 @@ export default function HeroManagement() {
 
   // Video reordering mutation
   const reorderMutation = useMutation({
-    mutationFn: async ({ videoId, newOrder }: { videoId: number; newOrder: number }) => {
+    mutationFn: async ({ videoId, newOrder }: { videoId: string; newOrder: number }) => {
       console.log('=== MUTATION STARTED ===');
       console.log('Sending PATCH to:', `/api/hero-videos/${videoId}/reorder`);
-      console.log('Payload:', { order_index: newOrder });
+      console.log('Payload:', { orderIndex: newOrder });
 
-      const response = await apiRequest(`/api/hero-videos/${videoId}/reorder`, 'PATCH', { order_index: newOrder });
+      const response = await apiRequest(`/api/hero-videos/${videoId}/reorder`, 'PATCH', { orderIndex: newOrder });
       const result = await response.json();
       console.log('=== MUTATION RESPONSE ===', result);
       return result;
@@ -155,8 +155,8 @@ export default function HeroManagement() {
 
   // Video toggle mutation
   const toggleMutation = useMutation({
-    mutationFn: async ({ videoId, isActive }: { videoId: number; isActive: boolean }) => {
-      const response = await apiRequest(`/api/hero-videos/${videoId}/toggle`, 'PATCH', { is_active: isActive });
+    mutationFn: async ({ videoId, isActive }: { videoId: string; isActive: boolean }) => {
+      const response = await apiRequest(`/api/hero-videos/${videoId}/toggle`, 'PATCH', { isActive });
       return await response.json();
     },
     onSuccess: () => {
@@ -197,11 +197,11 @@ export default function HeroManagement() {
       }
     }) => {
       const response = await apiRequest(`/api/hero-text/${textId}/apply`, 'PATCH', {
-        font_size: fontSizes.legacy || fontSizes.desktop,
-        font_size_desktop: fontSizes.desktop,
-        font_size_tablet: fontSizes.tablet,
-        font_size_mobile: fontSizes.mobile,
-        is_active: true
+        fontSize: fontSizes.legacy || fontSizes.desktop,
+        fontSizeDesktop: fontSizes.desktop,
+        fontSizeTablet: fontSizes.tablet,
+        fontSizeMobile: fontSizes.mobile,
+        isActive: true
       });
       return await response.json();
     },
@@ -231,7 +231,7 @@ export default function HeroManagement() {
       queryClient.invalidateQueries({ queryKey: ['/api/hero-text', 'fr-FR'] });
       queryClient.invalidateQueries({ queryKey: ['/api/hero-text', 'en-US'] });
       setShowNewTextForm(false);
-      setNewTextData({ title_mobile_fr: '', title_mobile_en: '', title_desktop_fr: '', title_desktop_en: '', font_size_desktop: 60, font_size_tablet: 45, font_size_mobile: 36 });
+      setNewTextData({ titleMobileFr: '', titleMobileEn: '', titleDesktopFr: '', titleDesktopEn: '', fontSizeDesktop: 60, fontSizeTablet: 45, fontSizeMobile: 36 });
       toast({ title: "Succès", description: "Nouveau texte créé avec succès" });
     },
     onError: () => {
@@ -362,13 +362,13 @@ export default function HeroManagement() {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({
-                                      title_en: `New Video - ${file.name}`,
-                                      title_fr: `Nouvelle Vidéo - ${file.name}`,
-                                      url_en: filename,
-                                      url_fr: filename,
-                                      use_same_video: true,
-                                      is_active: true,
-                                      order_index: heroVideos.length + 1
+                                      titleEn: `New Video - ${file.name}`,
+                                      titleFr: `Nouvelle Vidéo - ${file.name}`,
+                                      urlEn: filename,
+                                      urlFr: filename,
+                                      useSameVideo: true,
+                                      isActive: true,
+                                      orderIndex: heroVideos.length + 1
                                     })
                                   });
 
@@ -405,7 +405,7 @@ export default function HeroManagement() {
 
                 {/* Existing Videos */}
                 {heroVideos
-                  .sort((a, b) => a.order_index - b.order_index)
+                  .sort((a, b) => a.orderIndex - b.orderIndex)
                   .map((video) => (
                     <Card key={video.id} className="border-l-4 border-l-blue-500">
                       <CardContent className="p-6">
@@ -414,7 +414,7 @@ export default function HeroManagement() {
                           <div className="space-y-4">
                             <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg relative overflow-hidden border-2 border-gray-200 dark:border-gray-700">
                               <video
-                                src={`/api/video-proxy?filename=${encodeURIComponent(video.url_en)}`}
+                                src={`/api/video-proxy?filename=${encodeURIComponent(video.urlEn)}`}
                                 className="w-full h-full object-cover cursor-pointer"
                                 muted
                                 preload="metadata"
@@ -434,7 +434,7 @@ export default function HeroManagement() {
                             <div className="space-y-3">
                               <div className="flex items-center justify-center">
                                 <div className="bg-blue-600 text-white px-4 py-2 rounded-full font-bold text-lg">
-                                  Plays {!video.order_index ? '1st' : video.order_index === 1 ? '1st' : video.order_index === 2 ? '2nd' : video.order_index === 3 ? '3rd' : `${video.order_index}th`}
+                                  Plays {!video.orderIndex ? '1st' : video.orderIndex === 1 ? '1st' : video.orderIndex === 2 ? '2nd' : video.orderIndex === 3 ? '3rd' : `${video.orderIndex}th`}
                                 </div>
                               </div>
                               <p className="text-center text-sm text-gray-600 dark:text-gray-700">
@@ -443,11 +443,11 @@ export default function HeroManagement() {
 
                               <div className="flex items-center justify-center">
                                 <div className={`px-6 py-3 rounded-lg font-bold text-lg border-2 ${
-                                  video.is_active
+                                  video.isActive
                                     ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border-green-500'
                                     : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border-red-500'
                                 }`}>
-                                  {video.is_active ? '🟢 VISIBLE ON WEBSITE' : '🔴 HIDDEN FROM WEBSITE'}
+                                  {video.isActive ? '🟢 VISIBLE ON WEBSITE' : '🔴 HIDDEN FROM WEBSITE'}
                                 </div>
                               </div>
 
@@ -456,7 +456,7 @@ export default function HeroManagement() {
                               <div className="flex items-center justify-center space-x-3">
                                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Hidden</span>
                                 <Switch
-                                  checked={video.is_active}
+                                  checked={video.isActive}
                                   onCheckedChange={(checked) =>
                                     toggleMutation.mutate({ videoId: video.id, isActive: checked })
                                   }
@@ -476,14 +476,14 @@ export default function HeroManagement() {
                                 className="mt-1 text-xs font-mono p-3 rounded-md"
                                 style={{ backgroundColor: '#F2EBDC', color: '#2A4759' }}
                               >
-                                {video.useSameVideo || video.url_en === video.url_fr ? (
+                                {video.useSameVideo || video.urlEn === video.urlFr ? (
                                   <div className="font-medium text-sm">
-                                    {video.url_en}
+                                    {video.urlEn}
                                   </div>
                                 ) : (
                                   <div className="space-y-1">
-                                    <div className="font-medium">EN: {video.url_en}</div>
-                                    <div className="font-medium">FR: {video.url_fr}</div>
+                                    <div className="font-medium">EN: {video.urlEn}</div>
+                                    <div className="font-medium">FR: {video.urlFr}</div>
                                   </div>
                                 )}
                               </div>
@@ -501,12 +501,12 @@ export default function HeroManagement() {
                                   onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    const newOrder = video.order_index - 1;
+                                    const newOrder = video.orderIndex - 1;
                                     if (newOrder >= 1) {
                                       reorderMutation.mutate({ videoId: video.id, newOrder });
                                     }
                                   }}
-                                  disabled={video.order_index <= 1 || reorderMutation.isPending}
+                                  disabled={video.orderIndex <= 1 || reorderMutation.isPending}
                                   className="px-6 py-3"
                                 >
                                   <ArrowUp className="h-5 w-5 mr-2" />
@@ -518,13 +518,13 @@ export default function HeroManagement() {
                                   onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    const maxOrder = Math.max(...heroVideos.map(v => v.order_index));
-                                    const newOrder = video.order_index + 1;
+                                    const maxOrder = Math.max(...heroVideos.map(v => v.orderIndex));
+                                    const newOrder = video.orderIndex + 1;
                                     if (newOrder <= maxOrder) {
                                       reorderMutation.mutate({ videoId: video.id, newOrder });
                                     }
                                   }}
-                                  disabled={video.order_index >= Math.max(...heroVideos.map(v => v.order_index)) || reorderMutation.isPending}
+                                  disabled={video.orderIndex >= Math.max(...heroVideos.map(v => v.orderIndex)) || reorderMutation.isPending}
                                   className="px-6 py-3"
                                 >
                                   <ArrowDown className="h-5 w-5 mr-2" />
@@ -540,8 +540,8 @@ export default function HeroManagement() {
                                 onClick={() => {
                                   setEditingVideo(video);
                                   setEditVideoData({
-                                    url_en: video.url_en,
-                                    url_fr: video.url_fr,
+                                    urlEn: video.urlEn,
+                                    urlFr: video.urlFr,
                                     useSameVideo: video.useSameVideo ?? true
                                   });
                                 }}
@@ -552,7 +552,7 @@ export default function HeroManagement() {
                                 size="sm"
                                 variant="destructive"
                                 onClick={() => {
-                                  if (confirm(`Are you sure you want to delete "${video.title_en}"? This will permanently remove the video from Supabase storage, database, and cache.`)) {
+                                  if (confirm(`Are you sure you want to delete "${video.titleEn}"? This will permanently remove the video from Supabase storage, database, and cache.`)) {
                                     fetch(`/api/hero-videos/${video.id}`, { method: 'DELETE' })
                                       .then(async (response) => {
                                         if (response.ok) {
@@ -629,8 +629,8 @@ export default function HeroManagement() {
                                   <Label>Titre Desktop (Français) - 2 lignes</Label>
                                   <small className="text-green-600 block mb-1">≥768px - Version desktop - Entrée = saut de ligne</small>
                                   <Textarea
-                                    value={newTextData.title_desktop_fr}
-                                    onChange={(e) => setNewTextData({ ...newTextData, title_desktop_fr: e.target.value })}
+                                    value={newTextData.titleDesktopFr}
+                                    onChange={(e) => setNewTextData({ ...newTextData, titleDesktopFr: e.target.value })}
                                     placeholder="Ex: Transformez vos souvenirs&#10;en films cinématographiques"
                                     rows={2}
                                     className="resize-none"
@@ -640,8 +640,8 @@ export default function HeroManagement() {
                                   <Label>Titre Desktop (Anglais) - 2 lignes</Label>
                                   <small className="text-green-600 block mb-1">≥768px - Desktop version - Enter = line break</small>
                                   <Textarea
-                                    value={newTextData.title_desktop_en}
-                                    onChange={(e) => setNewTextData({ ...newTextData, title_desktop_en: e.target.value })}
+                                    value={newTextData.titleDesktopEn}
+                                    onChange={(e) => setNewTextData({ ...newTextData, titleDesktopEn: e.target.value })}
                                     placeholder="Ex: Transform your memories&#10;into cinematic films"
                                     rows={2}
                                     className="resize-none"
@@ -651,8 +651,8 @@ export default function HeroManagement() {
                                   <Label>Titre Mobile (Français) - 3 lignes</Label>
                                   <small className="text-blue-600 block mb-1">&lt;768px - Version mobile - Entrée = saut de ligne</small>
                                   <Textarea
-                                    value={newTextData.title_mobile_fr}
-                                    onChange={(e) => setNewTextData({ ...newTextData, title_mobile_fr: e.target.value })}
+                                    value={newTextData.titleMobileFr}
+                                    onChange={(e) => setNewTextData({ ...newTextData, titleMobileFr: e.target.value })}
                                     placeholder="Ex: Transformez vos&#10;souvenirs en films&#10;cinématographiques"
                                     rows={3}
                                     className="resize-none"
@@ -662,8 +662,8 @@ export default function HeroManagement() {
                                   <Label>Titre Mobile (Anglais) - 3 lignes</Label>
                                   <small className="text-blue-600 block mb-1">&lt;768px - Mobile version - Enter = line break</small>
                                   <Textarea
-                                    value={newTextData.title_mobile_en}
-                                    onChange={(e) => setNewTextData({ ...newTextData, title_mobile_en: e.target.value })}
+                                    value={newTextData.titleMobileEn}
+                                    onChange={(e) => setNewTextData({ ...newTextData, titleMobileEn: e.target.value })}
                                     placeholder="Ex: Transform your&#10;memories into&#10;cinematic films"
                                     rows={3}
                                     className="resize-none"
@@ -673,20 +673,20 @@ export default function HeroManagement() {
                             </div>
 
                             <div>
-                              <Label>Taille de Police Desktop: {newTextData.font_size_desktop}px</Label>
+                              <Label>Taille de Police Desktop: {newTextData.fontSizeDesktop}px</Label>
                               <input
                                 type="range"
                                 min="20"
                                 max="120"
-                                value={newTextData.font_size_desktop}
-                                onChange={(e) => setNewTextData({ ...newTextData, font_size_desktop: Number(e.target.value) })}
+                                value={newTextData.fontSizeDesktop}
+                                onChange={(e) => setNewTextData({ ...newTextData, fontSizeDesktop: Number(e.target.value) })}
                                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                               />
                             </div>
                             <div className="flex gap-3">
                               <Button
                                 onClick={() => createTextMutation.mutate(newTextData)}
-                                disabled={createTextMutation.isPending || !newTextData.title_mobile_fr || !newTextData.title_mobile_en || !newTextData.title_desktop_fr || !newTextData.title_desktop_en}
+                                disabled={createTextMutation.isPending || !newTextData.titleMobileFr || !newTextData.titleMobileEn || !newTextData.titleDesktopFr || !newTextData.titleDesktopEn}
                                 className="bg-green-600 hover:bg-green-700"
                               >
                                 Créer le Texte
@@ -695,7 +695,7 @@ export default function HeroManagement() {
                                 variant="outline"
                                 onClick={() => {
                                   setShowNewTextForm(false);
-                                  setNewTextData({ title_mobile_fr: '', title_mobile_en: '', title_desktop_fr: '', title_desktop_en: '', font_size_desktop: 60, font_size_tablet: 45, font_size_mobile: 36 });
+                                  setNewTextData({ titleMobileFr: '', titleMobileEn: '', titleDesktopFr: '', titleDesktopEn: '', fontSizeDesktop: 60, fontSizeTablet: 45, fontSizeMobile: 36 });
                                 }}
                               >
                                 Annuler
@@ -709,7 +709,7 @@ export default function HeroManagement() {
                         {heroTexts.map((text: any) => (
                           <Card key={text.id} className={`transition-all ${
                             selectedTextId === text.id ? 'ring-2 ring-orange-500' : ''
-                          } ${text.is_active ? 'border-green-500 bg-green-50' : ''}`}>
+                          } ${text.isActive ? 'border-green-500 bg-green-50' : ''}`}>
                             <CardContent className="p-4">
                               <div className="space-y-3">
                                   <div className="flex items-start justify-between">
@@ -718,14 +718,14 @@ export default function HeroManagement() {
                                       onClick={() => setSelectedTextId(text.id)}
                                     >
                                       <div className="flex items-center gap-2">
-                                        <h4 className="font-medium">{text.title_fr}</h4>
-                                        {text.is_active && (
+                                        <h4 className="font-medium">{text.titleFr}</h4>
+                                        {text.isActive && (
                                           <Badge className="bg-green-500">Actif sur le site</Badge>
                                         )}
                                       </div>
-                                      <p className="text-sm text-gray-600">{text.subtitle_fr}</p>
+                                      <p className="text-sm text-gray-600">{text.subtitleFr}</p>
                                       <div className="text-xs text-gray-500">
-                                        Taille: {text.font_size}px | Créé: {formatFrenchDateTime(text.created_at)}
+                                        Taille: {text.fontSize}px | Créé: {formatFrenchDateTime(text.createdAt)}
                                       </div>
                                     </div>
                                   </div>
@@ -737,18 +737,18 @@ export default function HeroManagement() {
                                         <Label className="text-xs">Titre Desktop (Français) - 2 lignes</Label>
                                         <small className="text-green-600 block text-xs">≥768px - Version desktop - Entrée = saut de ligne</small>
                                         <Textarea
-                                          value={editingTextId === text.id ? editFormData.title_desktop_fr : (text.title_desktop_fr || '')}
+                                          value={editingTextId === text.id ? editFormData.titleDesktopFr : (text.titleDesktopFr || '')}
                                           onChange={(e) => {
                                             if (editingTextId !== text.id) {
                                               setEditingTextId(text.id);
                                               setEditFormData({
-                                                title_mobile_fr: text.title_mobile_fr || '',
-                                                title_mobile_en: text.title_mobile_en || '',
-                                                title_desktop_fr: e.target.value,
-                                                title_desktop_en: text.title_desktop_en || ''
+                                                titleMobileFr: text.titleMobileFr || '',
+                                                titleMobileEn: text.titleMobileEn || '',
+                                                titleDesktopFr: e.target.value,
+                                                titleDesktopEn: text.titleDesktopEn || ''
                                               });
                                             } else {
-                                              setEditFormData({ ...editFormData, title_desktop_fr: e.target.value });
+                                              setEditFormData({ ...editFormData, titleDesktopFr: e.target.value });
                                             }
                                           }}
                                           className="text-sm resize-none"
@@ -759,18 +759,18 @@ export default function HeroManagement() {
                                         <Label className="text-xs">Titre Desktop (Anglais) - 2 lignes</Label>
                                         <small className="text-green-600 block text-xs">≥768px - Desktop version - Enter = line break</small>
                                         <Textarea
-                                          value={editingTextId === text.id ? editFormData.title_desktop_en : (text.title_desktop_en || '')}
+                                          value={editingTextId === text.id ? editFormData.titleDesktopEn : (text.titleDesktopEn || '')}
                                           onChange={(e) => {
                                             if (editingTextId !== text.id) {
                                               setEditingTextId(text.id);
                                               setEditFormData({
-                                                title_mobile_fr: text.title_mobile_fr || '',
-                                                title_mobile_en: text.title_mobile_en || '',
-                                                title_desktop_fr: text.title_desktop_fr || '',
-                                                title_desktop_en: e.target.value
+                                                titleMobileFr: text.titleMobileFr || '',
+                                                titleMobileEn: text.titleMobileEn || '',
+                                                titleDesktopFr: text.titleDesktopFr || '',
+                                                titleDesktopEn: e.target.value
                                               });
                                             } else {
-                                              setEditFormData({ ...editFormData, title_desktop_en: e.target.value });
+                                              setEditFormData({ ...editFormData, titleDesktopEn: e.target.value });
                                             }
                                           }}
                                           className="text-sm resize-none"
@@ -781,18 +781,18 @@ export default function HeroManagement() {
                                         <Label className="text-xs">Titre Mobile (Français) - 3 lignes</Label>
                                         <small className="text-blue-600 block text-xs">&lt;768px - Version mobile - Entrée = saut de ligne</small>
                                         <Textarea
-                                          value={editingTextId === text.id ? editFormData.title_mobile_fr : (text.title_mobile_fr || '')}
+                                          value={editingTextId === text.id ? editFormData.titleMobileFr : (text.titleMobileFr || '')}
                                           onChange={(e) => {
                                             if (editingTextId !== text.id) {
                                               setEditingTextId(text.id);
                                               setEditFormData({
-                                                title_mobile_fr: e.target.value,
-                                                title_mobile_en: text.title_mobile_en || '',
-                                                title_desktop_fr: text.title_desktop_fr || '',
-                                                title_desktop_en: text.title_desktop_en || ''
+                                                titleMobileFr: e.target.value,
+                                                titleMobileEn: text.titleMobileEn || '',
+                                                titleDesktopFr: text.titleDesktopFr || '',
+                                                titleDesktopEn: text.titleDesktopEn || ''
                                               });
                                             } else {
-                                              setEditFormData({ ...editFormData, title_mobile_fr: e.target.value });
+                                              setEditFormData({ ...editFormData, titleMobileFr: e.target.value });
                                             }
                                           }}
                                           className="text-sm resize-none"
@@ -803,18 +803,18 @@ export default function HeroManagement() {
                                         <Label className="text-xs">Titre Mobile (Anglais) - 3 lignes</Label>
                                         <small className="text-blue-600 block text-xs">&lt;768px - Mobile version - Enter = line break</small>
                                         <Textarea
-                                          value={editingTextId === text.id ? editFormData.title_mobile_en : (text.title_mobile_en || '')}
+                                          value={editingTextId === text.id ? editFormData.titleMobileEn : (text.titleMobileEn || '')}
                                           onChange={(e) => {
                                             if (editingTextId !== text.id) {
                                               setEditingTextId(text.id);
                                               setEditFormData({
-                                                title_mobile_fr: text.title_mobile_fr || '',
-                                                title_mobile_en: e.target.value,
-                                                title_desktop_fr: text.title_desktop_fr || '',
-                                                title_desktop_en: text.title_desktop_en || ''
+                                                titleMobileFr: text.titleMobileFr || '',
+                                                titleMobileEn: e.target.value,
+                                                titleDesktopFr: text.titleDesktopFr || '',
+                                                titleDesktopEn: text.titleDesktopEn || ''
                                               });
                                             } else {
-                                              setEditFormData({ ...editFormData, title_mobile_en: e.target.value });
+                                              setEditFormData({ ...editFormData, titleMobileEn: e.target.value });
                                             }
                                           }}
                                           className="text-sm resize-none"
@@ -868,10 +868,10 @@ export default function HeroManagement() {
                                         applyTextMutation.mutate({
                                           textId: text.id,
                                           fontSizes: {
-                                            desktop: text.font_size_desktop || text.font_size || 60,
-                                            tablet: text.font_size_tablet || Math.round((text.font_size || 60) * 0.75),
-                                            mobile: text.font_size_mobile || Math.round((text.font_size || 60) * 0.53),
-                                            legacy: text.font_size
+                                            desktop: text.fontSize_desktop || text.fontSize || 60,
+                                            tablet: text.fontSize_tablet || Math.round((text.fontSize || 60) * 0.75),
+                                            mobile: text.fontSize_mobile || Math.round((text.fontSize || 60) * 0.53),
+                                            legacy: text.fontSize
                                           }
                                         });
                                       }}
@@ -883,7 +883,7 @@ export default function HeroManagement() {
                                       size="sm"
                                       variant="destructive"
                                       onClick={() => {
-                                        if (confirm(`Êtes-vous sûr de vouloir supprimer "${text.title_mobile_fr || text.title_desktop_fr || 'ce texte'}" ?`)) {
+                                        if (confirm(`Êtes-vous sûr de vouloir supprimer "${text.titleMobileFr || text.titleDesktopFr || 'ce texte'}" ?`)) {
                                           deleteTextMutation.mutate(text.id);
                                         }
                                       }}
@@ -970,11 +970,11 @@ export default function HeroManagement() {
                 }`}
                 onClick={() => {
                   const newValue = !editVideoData.useSameVideo;
-                  if (newValue && editVideoData.url_en) {
+                  if (newValue && editVideoData.urlEn) {
                     setEditVideoData(prev => ({
                       ...prev,
                       useSameVideo: newValue,
-                      url_fr: prev.url_en
+                      urlFr: prev.urlEn
                     }));
                   } else {
                     setEditVideoData(prev => ({
@@ -989,11 +989,11 @@ export default function HeroManagement() {
                     <Switch
                       checked={editVideoData.useSameVideo}
                       onCheckedChange={(checked) => {
-                        if (checked && editVideoData.url_en) {
+                        if (checked && editVideoData.urlEn) {
                           setEditVideoData(prev => ({
                             ...prev,
                             useSameVideo: checked,
-                            url_fr: prev.url_en
+                            urlFr: prev.urlEn
                           }));
                         } else {
                           setEditVideoData(prev => ({
@@ -1060,10 +1060,10 @@ export default function HeroManagement() {
                       <FileVideo className="mx-auto h-12 w-12 text-gray-700 mb-4" />
                       <div className="space-y-2">
                         <p className="text-lg font-medium text-gray-900 dark:text-white">
-                          {editVideoData.url_en ? 'Remplacer la vidéo' : 'Drop your video here'}
+                          {editVideoData.urlEn ? 'Remplacer la vidéo' : 'Drop your video here'}
                         </p>
                         <p className="text-sm text-gray-500 dark:text-gray-700">
-                          {editVideoData.url_en ? 'ou cliquez pour parcourir les fichiers' : 'or click to browse files'}
+                          {editVideoData.urlEn ? 'ou cliquez pour parcourir les fichiers' : 'or click to browse files'}
                         </p>
                         <input
                           type="file"
@@ -1082,18 +1082,18 @@ export default function HeroManagement() {
                       </div>
                     </div>
 
-                    {editVideoData.url_en && (
+                    {editVideoData.urlEn && (
                       <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800">
                         <div className="flex items-center gap-2 mb-2">
                           <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                           <Label className="text-sm font-medium text-green-800 dark:text-green-200">Vidéo actuelle téléchargée ✓</Label>
                         </div>
                         <p className="text-xs font-mono text-green-700 dark:text-green-300 break-all mb-3">
-                          {editVideoData.url_en}
+                          {editVideoData.urlEn}
                         </p>
                         <div className="flex items-center gap-3">
                           <video
-                            src={`/api/video-proxy?filename=${encodeURIComponent(editVideoData.url_en)}`}
+                            src={`/api/video-proxy?filename=${encodeURIComponent(editVideoData.urlEn)}`}
                             className="w-20 h-12 object-cover rounded border"
                             muted
                           />
@@ -1110,10 +1110,10 @@ export default function HeroManagement() {
                         Or enter filename manually:
                       </Label>
                       <Input
-                        value={editVideoData.url_en}
+                        value={editVideoData.urlEn}
                         onChange={(e) => {
                           const url = e.target.value;
-                          setEditVideoData({ ...editVideoData, url_en: url, url_fr: url });
+                          setEditVideoData({ ...editVideoData, urlEn: url, urlFr: url });
                         }}
                         placeholder="VideoHero1.mp4"
                         className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 font-mono text-sm"
@@ -1153,21 +1153,21 @@ export default function HeroManagement() {
                           htmlFor="video-upload-en"
                           className="text-sm text-blue-600 hover:text-blue-800 cursor-pointer font-medium"
                         >
-                          {editVideoData.url_en ? 'Remplacer vidéo EN' : 'Upload EN Video'}
+                          {editVideoData.urlEn ? 'Remplacer vidéo EN' : 'Upload EN Video'}
                         </label>
                       </div>
-                      {editVideoData.url_en && (
+                      {editVideoData.urlEn && (
                         <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800 h-auto">
                           <div className="flex items-center gap-2 mb-2">
                             <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
                             <Label className="text-xs font-medium text-green-800 dark:text-green-200">Vidéo EN téléchargée ✓</Label>
                           </div>
                           <p className="text-xs font-mono text-green-700 dark:text-green-300 break-all mb-2 min-h-[1.5rem]">
-                            {editVideoData.url_en}
+                            {editVideoData.urlEn}
                           </p>
                           <div className="flex items-start gap-2">
                             <video
-                              src={`/api/video-proxy?filename=${encodeURIComponent(editVideoData.url_en)}`}
+                              src={`/api/video-proxy?filename=${encodeURIComponent(editVideoData.urlEn)}`}
                               className="w-16 h-10 object-cover rounded border flex-shrink-0"
                               muted
                             />
@@ -1176,8 +1176,8 @@ export default function HeroManagement() {
                         </div>
                       )}
                       <Input
-                        value={editVideoData.url_en}
-                        onChange={(e) => setEditVideoData({ ...editVideoData, url_en: e.target.value })}
+                        value={editVideoData.urlEn}
+                        onChange={(e) => setEditVideoData({ ...editVideoData, urlEn: e.target.value })}
                         placeholder="VideoHeroEN.mp4"
                         className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 font-mono text-sm"
                       />
@@ -1213,21 +1213,21 @@ export default function HeroManagement() {
                           htmlFor="video-upload-fr"
                           className="text-sm text-blue-600 hover:text-blue-800 cursor-pointer font-medium"
                         >
-                          {editVideoData.url_fr ? 'Remplacer vidéo FR' : 'Upload FR Video'}
+                          {editVideoData.urlFr ? 'Remplacer vidéo FR' : 'Upload FR Video'}
                         </label>
                       </div>
-                      {editVideoData.url_fr && (
+                      {editVideoData.urlFr && (
                         <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800 h-auto">
                           <div className="flex items-center gap-2 mb-2">
                             <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
                             <Label className="text-xs font-medium text-green-800 dark:text-green-200">Vidéo FR téléchargée ✓</Label>
                           </div>
                           <p className="text-xs font-mono text-green-700 dark:text-green-300 break-all mb-2 min-h-[1.5rem]">
-                            {editVideoData.url_fr}
+                            {editVideoData.urlFr}
                           </p>
                           <div className="flex items-start gap-2">
                             <video
-                              src={`/api/video-proxy?filename=${encodeURIComponent(editVideoData.url_fr)}`}
+                              src={`/api/video-proxy?filename=${encodeURIComponent(editVideoData.urlFr)}`}
                               className="w-16 h-10 object-cover rounded border flex-shrink-0"
                               muted
                             />
@@ -1236,8 +1236,8 @@ export default function HeroManagement() {
                         </div>
                       )}
                       <Input
-                        value={editVideoData.url_fr}
-                        onChange={(e) => setEditVideoData({ ...editVideoData, url_fr: e.target.value })}
+                        value={editVideoData.urlFr}
+                        onChange={(e) => setEditVideoData({ ...editVideoData, urlFr: e.target.value })}
                         placeholder="VideoHeroFR.mp4"
                         className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 font-mono text-sm"
                       />
@@ -1254,9 +1254,9 @@ export default function HeroManagement() {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                          url_en: editVideoData.url_en,
-                          url_fr: editVideoData.url_fr,
-                          use_same_video: editVideoData.useSameVideo
+                          urlEn: editVideoData.urlEn,
+                          urlFr: editVideoData.urlFr,
+                          useSameVideo: editVideoData.useSameVideo
                         })
                       });
 

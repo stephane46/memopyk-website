@@ -137,25 +137,24 @@ router.post('/upload', requireAdmin, upload.single('video'), async (req: Request
  */
 router.post('/', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const { title_en, title_fr, url_en, url_fr, use_same_video, is_active, order_index } = req.body;
+    const { titleEn, titleFr, urlEn, urlFr, useSameVideo, isActive, orderIndex } = req.body;
 
     // Validate required fields
-    if (!title_en || !title_fr || !url_en) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: title_en, title_fr, url_en' 
+    if (!titleEn || !titleFr || !urlEn) {
+      return res.status(400).json({
+        error: 'Missing required fields: titleEn, titleFr, urlEn'
       });
     }
 
-    // TODO: Replace with storage.createHeroVideo()
     const { storage } = await import('../services/storage.service');
     const newVideo = await storage.createHeroVideo({
-      title_en,
-      title_fr,
-      url_en,
-      url_fr: url_fr || url_en,
-      use_same_video: use_same_video ?? true,
-      is_active: is_active ?? false,
-      order_index: order_index ?? 1
+      titleEn,
+      titleFr,
+      urlEn,
+      urlFr: urlFr || urlEn,
+      useSameVideo: useSameVideo ?? true,
+      isActive: isActive ?? false,
+      orderIndex: orderIndex ?? 1
     });
 
     res.json(newVideo);
@@ -171,15 +170,14 @@ router.post('/', requireAdmin, async (req: Request, res: Response) => {
 router.patch('/:id/reorder', requireAdmin, async (req: Request, res: Response) => {
   try {
     const videoId = req.params.id;
-    const { order_index } = req.body;
+    const { orderIndex } = req.body;
 
-    if (!order_index || order_index < 1) {
-      return res.status(400).json({ error: 'Valid order_index is required' });
+    if (!orderIndex || orderIndex < 1) {
+      return res.status(400).json({ error: 'Valid orderIndex is required' });
     }
 
-    // TODO: Replace with storage.updateHeroVideoOrder()
     const { storage } = await import('../services/storage.service');
-    const result = await storage.updateHeroVideoOrder(videoId, order_index);
+    const result = await storage.updateHeroVideoOrder(videoId, orderIndex);
     res.json({ success: true, video: result });
   } catch (error) {
     console.error('Reorder hero video error:', error);
@@ -193,13 +191,12 @@ router.patch('/:id/reorder', requireAdmin, async (req: Request, res: Response) =
 router.patch('/:id/toggle', requireAdmin, async (req: Request, res: Response) => {
   try {
     const videoId = req.params.id;
-    const { is_active } = req.body;
+    const { isActive } = req.body;
 
-    // TODO: Replace with storage.updateHeroVideo()
     const { storage } = await import('../services/storage.service');
     const result = await storage.updateHeroVideo(videoId, {
-      is_active,
-      updated_at: new Date().toISOString()
+      isActive,
+      updatedAt: new Date().toISOString()
     });
 
     res.json(result);
@@ -215,19 +212,18 @@ router.patch('/:id/toggle', requireAdmin, async (req: Request, res: Response) =>
 router.patch('/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const videoId = req.params.id;
-    const { title_en, title_fr, is_active, order_index, url_en, url_fr, use_same_video } = req.body;
+    const { titleEn, titleFr, isActive, orderIndex, urlEn, urlFr, useSameVideo } = req.body;
 
-    // TODO: Replace with storage.updateHeroVideo()
     const { storage } = await import('../services/storage.service');
     const result = await storage.updateHeroVideo(videoId, {
-      title_en,
-      title_fr,
-      is_active,
-      order_index,
-      url_en,
-      url_fr,
-      use_same_video,
-      updated_at: new Date().toISOString()
+      titleEn,
+      titleFr,
+      isActive,
+      orderIndex,
+      urlEn,
+      urlFr,
+      useSameVideo,
+      updatedAt: new Date().toISOString()
     });
 
     res.json(result);
@@ -286,37 +282,36 @@ router.get('/text', async (req: Request, res: Response) => {
 router.post('/text', requireAdmin, async (req: Request, res: Response) => {
   try {
     const {
-      title_mobile_fr,
-      title_mobile_en,
-      title_desktop_fr,
-      title_desktop_en,
-      font_size_desktop,
-      font_size_tablet,
-      font_size_mobile
+      titleMobileFr,
+      titleMobileEn,
+      titleDesktopFr,
+      titleDesktopEn,
+      fontSizeDesktop,
+      fontSizeTablet,
+      fontSizeMobile
     } = req.body;
 
-    if (!title_desktop_fr || !title_desktop_en || !title_mobile_fr || !title_mobile_en) {
-      return res.status(400).json({ 
-        error: 'Desktop and mobile titles are required in both languages' 
+    if (!titleDesktopFr || !titleDesktopEn || !titleMobileFr || !titleMobileEn) {
+      return res.status(400).json({
+        error: 'Desktop and mobile titles are required in both languages'
       });
     }
 
-    // TODO: Replace with storage.createHeroText()
     const { storage } = await import('../services/storage.service');
     const newText = await storage.createHeroText({
-      title_fr: title_desktop_fr,
-      title_en: title_desktop_en,
-      subtitle_fr: '',
-      subtitle_en: '',
-      title_mobile_fr,
-      title_mobile_en,
-      title_desktop_fr,
-      title_desktop_en,
-      font_size: font_size_desktop || 48,
-      font_size_desktop: font_size_desktop || 60,
-      font_size_tablet: font_size_tablet || 45,
-      font_size_mobile: font_size_mobile || 32,
-      is_active: false
+      titleFr: titleDesktopFr,
+      titleEn: titleDesktopEn,
+      subtitleFr: '',
+      subtitleEn: '',
+      titleMobileFr,
+      titleMobileEn,
+      titleDesktopFr,
+      titleDesktopEn,
+      fontSize: fontSizeDesktop || 48,
+      fontSizeDesktop: fontSizeDesktop || 60,
+      fontSizeTablet: fontSizeTablet || 45,
+      fontSizeMobile: fontSizeMobile || 32,
+      isActive: false
     });
 
     res.status(201).json({ success: true, text: newText });
@@ -332,9 +327,9 @@ router.post('/text', requireAdmin, async (req: Request, res: Response) => {
 router.patch('/text/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const textId = parseInt(req.params.id);
+    // Frontend sends camelCase keys matching Drizzle schema
     const updateData = req.body;
 
-    // TODO: Replace with storage.updateHeroText()
     const { storage } = await import('../services/storage.service');
     const updatedText = await storage.updateHeroText(String(textId), updateData);
     res.json({ success: true, text: updatedText });
@@ -350,23 +345,22 @@ router.patch('/text/:id', requireAdmin, async (req: Request, res: Response) => {
 router.patch('/text/:id/apply', requireAdmin, async (req: Request, res: Response) => {
   try {
     const textId = req.params.id;
-    const { font_size, font_size_desktop, font_size_tablet, font_size_mobile } = req.body;
+    const { fontSize, fontSizeDesktop, fontSizeTablet, fontSizeMobile } = req.body;
 
-    // TODO: Replace with storage methods
     const { storage } = await import('../services/storage.service');
-    
+
     // Deactivate all other hero texts first
     await storage.deactivateAllHeroTexts();
 
     const updateData: Record<string, any> = {
-      is_active: true,
-      font_size: font_size || font_size_desktop || 48
+      isActive: true,
+      fontSize: fontSize || fontSizeDesktop || 48
     };
 
     // Add responsive font sizes if provided
-    if (font_size_desktop) updateData.font_size_desktop = Number(font_size_desktop);
-    if (font_size_tablet) updateData.font_size_tablet = Number(font_size_tablet);
-    if (font_size_mobile) updateData.font_size_mobile = Number(font_size_mobile);
+    if (fontSizeDesktop) updateData.fontSizeDesktop = Number(fontSizeDesktop);
+    if (fontSizeTablet) updateData.fontSizeTablet = Number(fontSizeTablet);
+    if (fontSizeMobile) updateData.fontSizeMobile = Number(fontSizeMobile);
 
     const appliedText = await storage.updateHeroText(textId, updateData);
     res.json({ success: true, text: appliedText });
