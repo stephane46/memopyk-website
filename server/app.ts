@@ -37,6 +37,15 @@ app.use(cookieParser());
 app.use(corsMiddleware);
 app.use(requestLogger);
 
+// Non-www → www redirect (production only)
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const host = req.hostname || req.headers.host;
+  if (host === 'memopyk.com') {
+    return res.redirect(301, `https://www.memopyk.com${req.originalUrl}`);
+  }
+  next();
+});
+
 // Rate-limit API routes only (not static assets)
 app.use('/api', apiRateLimit);
 
