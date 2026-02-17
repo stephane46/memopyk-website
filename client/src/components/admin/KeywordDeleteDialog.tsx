@@ -17,7 +17,7 @@ import { Loader2 } from 'lucide-react';
 interface ContentKeyword {
   id: string;
   keyword: string;
-  monthly_searches?: number;
+  monthlySearches?: number;
   tier?: number;
 }
 
@@ -68,9 +68,9 @@ export function KeywordDeleteDialog({ isOpen, onClose, keyword }: KeywordDeleteD
                 Are you sure you want to delete <strong>"{keyword.keyword}"</strong>?
               </p>
 
-              {keyword.monthly_searches && keyword.monthly_searches > 0 && (
+              {keyword.monthlySearches && keyword.monthlySearches > 0 && (
                 <p className="text-sm text-muted-foreground">
-                  This keyword has {keyword.monthly_searches.toLocaleString()} monthly searches.
+                  This keyword has {keyword.monthlySearches.toLocaleString()} monthly searches.
                 </p>
               )}
 
