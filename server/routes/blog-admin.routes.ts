@@ -32,6 +32,9 @@ import {
   extractImagesFromContent,
   reinsertImages
 } from './translation-service';
+import { db } from '../db';
+import { blogPosts, blogGalleries, contentTopics, contentDailyAssignments } from '@shared/schema';
+import { eq, and, desc, sql } from 'drizzle-orm';
 
 const router = Router();
 
@@ -54,41 +57,31 @@ router.use((req, _res, next) => {
 router.post('/admin/blog/posts', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { language = 'en-US' } = req.body;
-    const supabase = getSupabase();
 
     // Generate a unique slug
     const timestamp = Date.now();
     const slug = `untitled-post-${timestamp}`;
 
     // Create minimal post
-    const { data: post, error } = await supabase
-      .from('blog_posts')
-      .insert({
-        title: 'Untitled Post',
-        slug,
-        description: '',
-        content_html: '<p>Start writing your post here...</p>',
-        language,
-        status: 'draft',
-        is_featured: false,
-        seo: { title: 'Untitled Post', description: '' }
-      })
-      .select()
-      .single();
+    const [post] = await db.insert(blogPosts).values({
+      title: 'Untitled Post',
+      slug,
+      description: '',
+      contentHtml: '<p>Start writing your post here...</p>',
+      language,
+      status: 'draft',
+      isFeatured: false,
+      seo: { title: 'Untitled Post', description: '' }
+    }).returning();
 
-    if (error) {
-      console.error('❌ Error creating blank blog post:', error);
-      throw error;
-    }
-
-    console.log(`✅ Blank blog post created: ${post.id}`);
+    console.log(`Blank blog post created: ${post.id}`);
 
     res.json({
       success: true,
       data: post
     });
   } catch (error: any) {
-    console.error('❌ Error in POST /admin/blog/posts:', error);
+    console.error('Error in POST /admin/blog/posts:', error);
     res.status(500).json({
       success: false,
       error: error?.message || 'Failed to create blog post'
@@ -119,9 +112,8 @@ router.post('/admin/blog/generate-content', requireAdmin, async (req: Request, r
       });
     }
 
+    // fetchAIContext still uses Supabase client (migrated by another agent)
     const supabase = getSupabase();
-
-    // Fetch Brand Brain context
     const aiContext = await fetchAIContext(supabase);
     const brandIdentity = aiContext.brand?.brand_identity || '';
     const toneVoice = aiContext.brand?.tone_voice || '';
@@ -274,15 +266,12 @@ router.post('/admin/blog/create-from-ai', requireAdmin, async (req: Request, res
       description: meta_description || description || ''
     };
 
-    const supabase = getSupabase();
-
     // Validate source_topic_id if provided
     if (source_topic_id) {
-      const { data: topicExists } = await supabase
-        .from('content_topics')
-        .select('id')
-        .eq('id', source_topic_id)
-        .single();
+      const [topicExists] = await db.select({ id: contentTopics.id })
+        .from(contentTopics)
+        .where(eq(contentTopics.id, source_topic_id))
+        .limit(1);
 
       if (!topicExists) {
         return res.status(400).json({
@@ -293,66 +282,57 @@ router.post('/admin/blog/create-from-ai', requireAdmin, async (req: Request, res
     }
 
     // Create post
-    const { data: post, error } = await supabase
-      .from('blog_posts')
-      .insert({
-        title,
-        slug,
-        description: description || '',
-        content_html: content,
-        hero_url: hero_url || null,
-        language,
-        status: status || 'draft',
-        published_at: published_at || null,
-        is_featured: is_featured || false,
-        seo,
-        source_topic_id: source_topic_id || null,
-        primary_keyword: primary_keyword || null,
-        secondary_keywords: secondary_keywords || []
-      })
-      .select()
-      .single();
+    const [post] = await db.insert(blogPosts).values({
+      title,
+      slug,
+      description: description || '',
+      contentHtml: content,
+      heroUrl: hero_url || null,
+      language,
+      status: status || 'draft',
+      publishedAt: published_at ? new Date(published_at) : null,
+      isFeatured: is_featured || false,
+      seo,
+      sourceTopicId: source_topic_id || null,
+      primaryKeyword: primary_keyword || null,
+      secondaryKeywords: secondary_keywords || []
+    }).returning();
 
-    if (error) {
-      console.error('❌ Error creating blog post:', error);
-      throw error;
-    }
-
-    console.log(`✅ Blog post created: ${post.id} - ${post.title}`);
+    console.log(`Blog post created: ${post.id} - ${post.title}`);
 
     // Status Synchronization with content topics and assignments
-    // Uses manual rollback since Supabase JS doesn't support transactions
     if (source_topic_id) {
       const rollbackPost = async () => {
-        await supabase.from('blog_posts').delete().eq('id', post.id);
-        console.log(`🔄 Rolled back post ${post.id} due to sync failure`);
+        await db.delete(blogPosts).where(eq(blogPosts.id, post.id));
+        console.log(`Rolled back post ${post.id} due to sync failure`);
       };
 
       try {
         const topicStatus = post.status === 'published' ? 'published' : 'in_progress';
 
         // Get current topic state for potential rollback
-        const { data: currentTopic } = await supabase
-          .from('content_topics')
-          .select('status, times_generated')
-          .eq('id', source_topic_id)
-          .single();
+        const [currentTopic] = await db.select({
+          status: contentTopics.status,
+          timesGenerated: contentTopics.timesGenerated
+        })
+          .from(contentTopics)
+          .where(eq(contentTopics.id, source_topic_id))
+          .limit(1);
 
         if (!currentTopic) {
-          console.warn(`⚠️ Topic ${source_topic_id} not found, skipping sync`);
+          console.warn(`Topic ${source_topic_id} not found, skipping sync`);
         } else {
           // Update topic
-          const { error: topicError } = await supabase
-            .from('content_topics')
-            .update({
-              status: topicStatus,
-              times_generated: (currentTopic.times_generated || 0) + 1,
-              last_generated_at: new Date().toISOString()
-            })
-            .eq('id', source_topic_id);
+          const [updatedTopic] = await db.update(contentTopics).set({
+            status: topicStatus,
+            timesGenerated: (currentTopic.timesGenerated || 0) + 1,
+            lastGeneratedAt: new Date()
+          })
+            .where(eq(contentTopics.id, source_topic_id))
+            .returning();
 
-          if (topicError) {
-            console.error('❌ Topic update failed, rolling back post:', topicError);
+          if (!updatedTopic) {
+            console.error('Topic update failed, rolling back post');
             await rollbackPost();
             return res.status(500).json({
               success: false,
@@ -362,36 +342,35 @@ router.post('/admin/blog/create-from-ai', requireAdmin, async (req: Request, res
             });
           }
 
-          console.log(`✅ Topic ${source_topic_id} updated to ${topicStatus}`);
+          console.log(`Topic ${source_topic_id} updated to ${topicStatus}`);
 
           // Find and update assignment
-          const { data: assignment } = await supabase
-            .from('content_daily_assignments')
-            .select('id, status')
-            .eq('topic_id', source_topic_id)
-            .single();
+          const [assignment] = await db.select({
+            id: contentDailyAssignments.id,
+            status: contentDailyAssignments.status
+          })
+            .from(contentDailyAssignments)
+            .where(eq(contentDailyAssignments.topicId, source_topic_id))
+            .limit(1);
 
           if (assignment) {
             const assignmentStatus = post.status === 'published' ? 'published' : 'in_progress';
 
-            const { error: assignmentError } = await supabase
-              .from('content_daily_assignments')
-              .update({
-                post_id: post.id,
-                status: assignmentStatus
-              })
-              .eq('id', assignment.id);
+            const [updatedAssignment] = await db.update(contentDailyAssignments).set({
+              postId: post.id,
+              status: assignmentStatus
+            })
+              .where(eq(contentDailyAssignments.id, assignment.id))
+              .returning();
 
-            if (assignmentError) {
-              console.error('❌ Assignment update failed, rolling back:', assignmentError);
+            if (!updatedAssignment) {
+              console.error('Assignment update failed, rolling back');
               // Revert topic to original state
-              await supabase
-                .from('content_topics')
-                .update({
-                  status: currentTopic.status,
-                  times_generated: currentTopic.times_generated
-                })
-                .eq('id', source_topic_id);
+              await db.update(contentTopics).set({
+                status: currentTopic.status,
+                timesGenerated: currentTopic.timesGenerated
+              })
+                .where(eq(contentTopics.id, source_topic_id));
               await rollbackPost();
               return res.status(500).json({
                 success: false,
@@ -401,11 +380,11 @@ router.post('/admin/blog/create-from-ai', requireAdmin, async (req: Request, res
               });
             }
 
-            console.log(`✅ Assignment ${assignment.id} linked to post ${post.id}`);
+            console.log(`Assignment ${assignment.id} linked to post ${post.id}`);
           }
         }
       } catch (syncError) {
-        console.error('❌ Status synchronization error:', syncError);
+        console.error('Status synchronization error:', syncError);
         await rollbackPost();
         return res.status(500).json({
           success: false,
@@ -421,7 +400,7 @@ router.post('/admin/blog/create-from-ai', requireAdmin, async (req: Request, res
       data: post
     });
   } catch (error: any) {
-    console.error('❌ Error creating blog post from AI:', error);
+    console.error('Error creating blog post from AI:', error);
 
     if (error?.code === '23505') {
       if (error.details?.includes('slug')) {
@@ -453,17 +432,13 @@ router.post('/admin/blog/posts/:id/translate', requireAdmin, async (req: Request
     const { id } = req.params;
     const { method = 'manual' } = req.body;
 
-    console.log(`📋 Duplicating post for translation: ${id} (method: ${method})`);
+    console.log(`Duplicating post for translation: ${id} (method: ${method})`);
 
-    const supabase = getSupabase();
+    const [sourcePost] = await db.select().from(blogPosts)
+      .where(eq(blogPosts.id, id))
+      .limit(1);
 
-    const { data: sourcePost, error: fetchError } = await supabase
-      .from('blog_posts')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (fetchError || !sourcePost) {
+    if (!sourcePost) {
       return res.status(404).json({
         success: false,
         error: 'Source post not found'
@@ -478,39 +453,29 @@ router.post('/admin/blog/posts/:id/translate', requireAdmin, async (req: Request
     let newSlug = sourcePost.slug.replace(/-(en|fr)$/, '') + languageSuffix;
 
     // Check if slug already exists
-    const { data: existingPost } = await supabase
-      .from('blog_posts')
-      .select('id')
-      .eq('slug', newSlug)
-      .single();
+    const [existingPost] = await db.select({ id: blogPosts.id })
+      .from(blogPosts)
+      .where(eq(blogPosts.slug, newSlug))
+      .limit(1);
 
     if (existingPost) {
       newSlug = `${newSlug}-${Date.now()}`;
     }
 
     // Create the duplicate post (with [TRANSLATE TO...] prefix for now)
-    const { data: duplicatedPost, error: createError } = await supabase
-      .from('blog_posts')
-      .insert({
-        title: `[TRANSLATE TO ${languageLabel.toUpperCase()}] ${sourcePost.title}`,
-        slug: newSlug,
-        description: sourcePost.description,
-        content_html: sourcePost.content_html,
-        hero_url: sourcePost.hero_url,
-        language: targetLanguage,
-        status: 'draft',
-        is_featured: false,
-        seo: sourcePost.seo
-      })
-      .select()
-      .single();
+    const [duplicatedPost] = await db.insert(blogPosts).values({
+      title: `[TRANSLATE TO ${languageLabel.toUpperCase()}] ${sourcePost.title}`,
+      slug: newSlug,
+      description: sourcePost.description,
+      contentHtml: sourcePost.contentHtml,
+      heroUrl: sourcePost.heroUrl,
+      language: targetLanguage,
+      status: 'draft',
+      isFeatured: false,
+      seo: sourcePost.seo
+    }).returning();
 
-    if (createError) {
-      console.error('❌ Error duplicating post:', createError);
-      throw createError;
-    }
-
-    console.log(`✅ Post duplicated for translation: ${sourcePost.language} → ${targetLanguage} (ID: ${duplicatedPost.id})`);
+    console.log(`Post duplicated for translation: ${sourcePost.language} -> ${targetLanguage} (ID: ${duplicatedPost.id})`);
 
     // If method is 'manual', return the duplicate as-is
     if (method !== 'ai') {
@@ -522,14 +487,15 @@ router.post('/admin/blog/posts/:id/translate', requireAdmin, async (req: Request
     }
 
     // AI translation: Extract images, translate, and update the post
-    console.log(`🤖 Starting AI translation for post ${duplicatedPost.id}`);
+    console.log(`Starting AI translation for post ${duplicatedPost.id}`);
 
     try {
       // Extract images from content
-      const { textWithPlaceholders, images } = extractImagesFromContent(sourcePost.content_html || '');
-      console.log(`📷 Extracted ${images.length} image(s) from content`);
+      const { textWithPlaceholders, images } = extractImagesFromContent(sourcePost.contentHtml || '');
+      console.log(`Extracted ${images.length} image(s) from content`);
 
-      // Fetch AI context
+      // Fetch AI context (still uses Supabase client)
+      const supabase = getSupabase();
       const aiContext = await fetchAIContext(supabase);
 
       // Translate content
@@ -549,24 +515,16 @@ router.post('/admin/blog/posts/:id/translate', requireAdmin, async (req: Request
       const translatedContentWithImages = reinsertImages(translationResult.content, images);
 
       // Update the duplicate post with translated content (remove [TRANSLATE TO...] prefix)
-      const { data: updatedPost, error: updateError } = await supabase
-        .from('blog_posts')
-        .update({
-          title: translationResult.title,
-          slug: translationResult.slug,
-          description: translationResult.description,
-          content_html: translatedContentWithImages
-        })
-        .eq('id', duplicatedPost.id)
-        .select()
-        .single();
+      const [updatedPost] = await db.update(blogPosts).set({
+        title: translationResult.title,
+        slug: translationResult.slug,
+        description: translationResult.description,
+        contentHtml: translatedContentWithImages
+      })
+        .where(eq(blogPosts.id, duplicatedPost.id))
+        .returning();
 
-      if (updateError) {
-        console.error('❌ Error updating post with translation:', updateError);
-        throw updateError;
-      }
-
-      console.log(`✅ AI translation applied to post ${updatedPost.id}`);
+      console.log(`AI translation applied to post ${updatedPost.id}`);
 
       return res.json({
         success: true,
@@ -578,7 +536,7 @@ router.post('/admin/blog/posts/:id/translate', requireAdmin, async (req: Request
     } catch (translationError) {
       // AI translation failed - keep the duplicate as manual
       const errorMessage = translationError instanceof Error ? translationError.message : 'Translation failed';
-      console.error(`⚠️ AI translation failed for post ${duplicatedPost.id}:`, errorMessage);
+      console.error(`AI translation failed for post ${duplicatedPost.id}:`, errorMessage);
 
       return res.json({
         success: true,
@@ -589,7 +547,7 @@ router.post('/admin/blog/posts/:id/translate', requireAdmin, async (req: Request
     }
 
   } catch (error) {
-    console.error('❌ Error duplicating post:', error);
+    console.error('Error duplicating post:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Failed to duplicate post'
@@ -605,30 +563,35 @@ router.get('/admin/blog/posts', requireAdmin, async (req: Request, res: Response
   try {
     const { language, status, limit = 50, offset = 0 } = req.query;
 
-    const supabase = getSupabase();
-
-    let query = supabase
-      .from('blog_posts')
-      .select('*', { count: 'exact' })
-      .order('created_at', { ascending: false });
-
+    const conditions = [];
     if (language) {
-      query = query.eq('language', language);
+      conditions.push(eq(blogPosts.language, language as string));
     }
-
     if (status) {
-      query = query.eq('status', status);
+      conditions.push(eq(blogPosts.status, status as any));
     }
 
-    const { data: posts, error, count } = await query
-      .range(parseInt(offset as string), parseInt(offset as string) + parseInt(limit as string) - 1);
+    const where = conditions.length > 0
+      ? conditions.length === 1 ? conditions[0] : and(...conditions)
+      : undefined;
 
-    if (error) throw error;
+    const limitNum = parseInt(limit as string);
+    const offsetNum = parseInt(offset as string);
+
+    const [posts, countResult] = await Promise.all([
+      db.select().from(blogPosts)
+        .where(where)
+        .orderBy(desc(blogPosts.createdAt))
+        .limit(limitNum)
+        .offset(offsetNum),
+      db.select({ count: sql<number>`count(*)::int` }).from(blogPosts)
+        .where(where)
+    ]);
 
     res.json({
       success: true,
       data: posts,
-      total: count || 0
+      total: countResult[0]?.count || 0
     });
   } catch (error) {
     console.error('Error fetching admin posts:', error);
@@ -644,40 +607,49 @@ router.get('/admin/blog/posts-by-date', requireAdmin, async (req: Request, res: 
   try {
     const { startDate, endDate } = req.query;
 
-    const supabase = getSupabase();
-
-    const { data: posts, error } = await supabase
-      .from('blog_posts')
-      .select('id, title, slug, status, language, published_at, source_topic_id, created_at')
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
+    const posts = await db.select({
+      id: blogPosts.id,
+      title: blogPosts.title,
+      slug: blogPosts.slug,
+      status: blogPosts.status,
+      language: blogPosts.language,
+      publishedAt: blogPosts.publishedAt,
+      sourceTopicId: blogPosts.sourceTopicId,
+      createdAt: blogPosts.createdAt
+    })
+      .from(blogPosts)
+      .orderBy(desc(blogPosts.createdAt));
 
     // Fetch assignments to map draft posts to their assignment dates
-    const { data: assignments, error: assignmentsError } = await supabase
-      .from('content_daily_assignments')
-      .select('topic_id, date');
-
-    if (assignmentsError) throw assignmentsError;
+    const assignments = await db.select({
+      topicId: contentDailyAssignments.topicId,
+      date: contentDailyAssignments.date
+    }).from(contentDailyAssignments);
 
     const topicAssignmentMap = new Map<string, string>();
-    assignments?.forEach((assignment: any) => {
-      topicAssignmentMap.set(assignment.topic_id, assignment.date);
+    assignments.forEach((assignment: any) => {
+      const dateStr = assignment.date instanceof Date
+        ? assignment.date.toISOString()
+        : assignment.date;
+      topicAssignmentMap.set(assignment.topicId, dateStr);
     });
 
     // Group posts by date
     const groupedByDate: Record<string, any[]> = {};
     const unscheduledDrafts: any[] = [];
 
-    posts?.forEach((post: any) => {
+    posts.forEach((post: any) => {
       let dateStr: string | null = null;
 
-      if (post.published_at) {
-        const parisDate = DateTime.fromISO(post.published_at, { zone: 'utc' })
+      if (post.publishedAt) {
+        const publishedAtStr = post.publishedAt instanceof Date
+          ? post.publishedAt.toISOString()
+          : post.publishedAt;
+        const parisDate = DateTime.fromISO(publishedAtStr, { zone: 'utc' })
           .setZone('Europe/Paris');
         dateStr = parisDate.toFormat('yyyy-MM-dd');
-      } else if (post.status !== 'published' && post.source_topic_id) {
-        const assignmentDate = topicAssignmentMap.get(post.source_topic_id);
+      } else if (post.status !== 'published' && post.sourceTopicId) {
+        const assignmentDate = topicAssignmentMap.get(post.sourceTopicId);
         if (assignmentDate) {
           dateStr = assignmentDate.split('T')[0];
         }
@@ -717,15 +689,9 @@ router.get('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Resp
   try {
     const { id } = req.params;
 
-    const supabase = getSupabase();
-
-    const { data: post, error } = await supabase
-      .from('blog_posts')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (error) throw error;
+    const [post] = await db.select().from(blogPosts)
+      .where(eq(blogPosts.id, id))
+      .limit(1);
 
     if (!post) {
       return res.status(404).json({ success: false, error: 'Post not found' });
@@ -750,61 +716,55 @@ router.put('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Resp
     const { id } = req.params;
     const updates = req.body;
 
-    const supabase = getSupabase();
-
     // Get current post to check if status actually changes
-    const { data: oldPost } = await supabase
-      .from('blog_posts')
-      .select('status, source_topic_id')
-      .eq('id', id)
-      .single();
+    const [oldPost] = await db.select({
+      status: blogPosts.status,
+      sourceTopicId: blogPosts.sourceTopicId
+    })
+      .from(blogPosts)
+      .where(eq(blogPosts.id, id))
+      .limit(1);
 
     // If publishing, set published_at
-    if (updates.status === 'published' && !updates.published_at) {
-      updates.published_at = new Date().toISOString();
+    if (updates.status === 'published' && !updates.published_at && !updates.publishedAt) {
+      updates.publishedAt = new Date();
     }
 
-    const { data: post, error } = await supabase
-      .from('blog_posts')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
+    // Convert snake_case keys from client to camelCase for Drizzle
+    const drizzleUpdates: Record<string, any> = {};
+    for (const [key, value] of Object.entries(updates)) {
+      const camelKey = key.replace(/_([a-z])/g, (_: string, c: string) => c.toUpperCase());
+      drizzleUpdates[camelKey] = value;
+    }
 
-    if (error) throw error;
+    const [post] = await db.update(blogPosts).set(drizzleUpdates)
+      .where(eq(blogPosts.id, id))
+      .returning();
 
-    console.log(`✅ Blog post updated: ${id}`);
+    if (!post) {
+      return res.status(404).json({ success: false, error: 'Post not found' });
+    }
+
+    console.log(`Blog post updated: ${id}`);
 
     // Sync topic and assignment status ONLY when status actually changes
-    if (post.source_topic_id && updates.status && oldPost?.status !== updates.status) {
+    if (post.sourceTopicId && updates.status && oldPost?.status !== updates.status) {
       try {
         const topicStatus = updates.status === 'published' ? 'published' : 'in_progress';
 
-        const { error: topicError } = await supabase
-          .from('content_topics')
-          .update({ status: topicStatus })
-          .eq('id', post.source_topic_id);
+        await db.update(contentTopics).set({ status: topicStatus })
+          .where(eq(contentTopics.id, post.sourceTopicId));
 
-        if (topicError) {
-          console.error('⚠️ Failed to sync topic status:', topicError);
-        } else {
-          console.log(`✅ Topic ${post.source_topic_id} synced to ${topicStatus}`);
-        }
+        console.log(`Topic ${post.sourceTopicId} synced to ${topicStatus}`);
 
         const assignmentStatus = updates.status === 'published' ? 'published' : 'in_progress';
 
-        const { error: assignmentError } = await supabase
-          .from('content_daily_assignments')
-          .update({ status: assignmentStatus })
-          .eq('topic_id', post.source_topic_id);
+        await db.update(contentDailyAssignments).set({ status: assignmentStatus })
+          .where(eq(contentDailyAssignments.topicId, post.sourceTopicId));
 
-        if (assignmentError) {
-          console.error('⚠️ Failed to sync assignment status:', assignmentError);
-        } else {
-          console.log(`✅ Assignment synced to ${assignmentStatus}`);
-        }
+        console.log(`Assignment synced to ${assignmentStatus}`);
       } catch (syncError) {
-        console.error('⚠️ Status synchronization error:', syncError);
+        console.error('Status synchronization error:', syncError);
       }
     }
 
@@ -827,48 +787,48 @@ router.patch('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Re
     const { id } = req.params;
     const updates = req.body;
 
-    const supabase = getSupabase();
+    const [oldPost] = await db.select({
+      status: blogPosts.status,
+      sourceTopicId: blogPosts.sourceTopicId
+    })
+      .from(blogPosts)
+      .where(eq(blogPosts.id, id))
+      .limit(1);
 
-    const { data: oldPost } = await supabase
-      .from('blog_posts')
-      .select('status, source_topic_id')
-      .eq('id', id)
-      .single();
-
-    if (updates.status === 'published' && !updates.published_at) {
-      updates.published_at = new Date().toISOString();
+    if (updates.status === 'published' && !updates.published_at && !updates.publishedAt) {
+      updates.publishedAt = new Date();
     }
 
-    const { data: post, error } = await supabase
-      .from('blog_posts')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
+    // Convert snake_case keys from client to camelCase for Drizzle
+    const drizzleUpdates: Record<string, any> = {};
+    for (const [key, value] of Object.entries(updates)) {
+      const camelKey = key.replace(/_([a-z])/g, (_: string, c: string) => c.toUpperCase());
+      drizzleUpdates[camelKey] = value;
+    }
 
-    if (error) throw error;
+    const [post] = await db.update(blogPosts).set(drizzleUpdates)
+      .where(eq(blogPosts.id, id))
+      .returning();
 
-    console.log(`✅ Blog post patched: ${id}`);
+    if (!post) {
+      return res.status(404).json({ success: false, error: 'Post not found' });
+    }
 
-    if (post.source_topic_id && updates.status && oldPost?.status !== updates.status) {
+    console.log(`Blog post patched: ${id}`);
+
+    if (post.sourceTopicId && updates.status && oldPost?.status !== updates.status) {
       try {
         const topicStatus = updates.status === 'published' ? 'published' : 'in_progress';
 
-        const { error: topicError } = await supabase
-          .from('content_topics')
-          .update({ status: topicStatus })
-          .eq('id', post.source_topic_id);
+        await db.update(contentTopics).set({ status: topicStatus })
+          .where(eq(contentTopics.id, post.sourceTopicId));
 
-        if (topicError) console.error('⚠️ Failed to sync topic status:', topicError);
+        const assignmentStatus = updates.status === 'published' ? 'published' : 'in_progress';
 
-        const { error: assignmentError } = await supabase
-          .from('content_daily_assignments')
-          .update({ status: updates.status === 'published' ? 'published' : 'in_progress' })
-          .eq('topic_id', post.source_topic_id);
-
-        if (assignmentError) console.error('⚠️ Failed to sync assignment status:', assignmentError);
+        await db.update(contentDailyAssignments).set({ status: assignmentStatus })
+          .where(eq(contentDailyAssignments.topicId, post.sourceTopicId));
       } catch (syncError) {
-        console.error('⚠️ Status synchronization error:', syncError);
+        console.error('Status synchronization error:', syncError);
       }
     }
 
@@ -887,62 +847,41 @@ router.delete('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: R
   try {
     const { id } = req.params;
 
-    const supabase = getSupabase();
-
     // Get post before deleting
-    const { data: postToDelete } = await supabase
-      .from('blog_posts')
-      .select('source_topic_id')
-      .eq('id', id)
-      .single();
+    const [postToDelete] = await db.select({ sourceTopicId: blogPosts.sourceTopicId })
+      .from(blogPosts)
+      .where(eq(blogPosts.id, id))
+      .limit(1);
 
-    const { error } = await supabase
-      .from('blog_posts')
-      .delete()
-      .eq('id', id);
+    await db.delete(blogPosts).where(eq(blogPosts.id, id));
 
-    if (error) throw error;
-
-    console.log(`✅ Blog post deleted: ${id}`);
+    console.log(`Blog post deleted: ${id}`);
 
     // Revert topic status if no other posts exist
-    if (postToDelete?.source_topic_id) {
+    if (postToDelete?.sourceTopicId) {
       try {
-        const { data: otherPosts } = await supabase
-          .from('blog_posts')
-          .select('id')
-          .eq('source_topic_id', postToDelete.source_topic_id);
+        const otherPosts = await db.select({ id: blogPosts.id })
+          .from(blogPosts)
+          .where(eq(blogPosts.sourceTopicId, postToDelete.sourceTopicId));
 
-        if (!otherPosts || otherPosts.length === 0) {
-          const { error: topicError } = await supabase
-            .from('content_topics')
-            .update({ status: 'planned' })
-            .eq('id', postToDelete.source_topic_id);
+        if (otherPosts.length === 0) {
+          await db.update(contentTopics).set({ status: 'planned' })
+            .where(eq(contentTopics.id, postToDelete.sourceTopicId));
 
-          if (topicError) {
-            console.error('⚠️ Failed to revert topic status:', topicError);
-          } else {
-            console.log(`✅ Topic ${postToDelete.source_topic_id} reverted to 'planned'`);
-          }
+          console.log(`Topic ${postToDelete.sourceTopicId} reverted to 'planned'`);
 
-          const { error: assignmentError } = await supabase
-            .from('content_daily_assignments')
-            .update({
-              post_id: null,
-              status: 'planned'
-            })
-            .eq('topic_id', postToDelete.source_topic_id);
+          await db.update(contentDailyAssignments).set({
+            postId: null,
+            status: 'planned'
+          })
+            .where(eq(contentDailyAssignments.topicId, postToDelete.sourceTopicId));
 
-          if (assignmentError) {
-            console.error('⚠️ Failed to clear assignment post_id:', assignmentError);
-          } else {
-            console.log(`✅ Assignment cleared for topic ${postToDelete.source_topic_id}`);
-          }
+          console.log(`Assignment cleared for topic ${postToDelete.sourceTopicId}`);
         } else {
-          console.log(`ℹ️ Topic ${postToDelete.source_topic_id} has ${otherPosts.length} other post(s), status unchanged`);
+          console.log(`Topic ${postToDelete.sourceTopicId} has ${otherPosts.length} other post(s), status unchanged`);
         }
       } catch (syncError) {
-        console.error('⚠️ Status synchronization error:', syncError);
+        console.error('Status synchronization error:', syncError);
       }
     }
 
@@ -968,20 +907,14 @@ router.get('/admin/blog/posts/:id/gallery', requireAdmin, async (req: Request, r
   try {
     const { id } = req.params;
 
-    const supabase = getSupabase();
-
-    const { data: images, error } = await supabase
-      .from('blog_galleries')
-      .select('*')
-      .eq('post_id', id)
-      .order('sort', { ascending: true, nullsFirst: false });
-
-    if (error) throw error;
+    const images = await db.select().from(blogGalleries)
+      .where(eq(blogGalleries.postId, id))
+      .orderBy(blogGalleries.sort);
 
     res.json({
       success: true,
-      data: images || [],
-      total: images?.length || 0
+      data: images,
+      total: images.length
     });
   } catch (error) {
     console.error('Error fetching gallery images:', error);
@@ -1002,33 +935,24 @@ router.post('/admin/blog/posts/:id/gallery', requireAdmin, async (req: Request, 
       return res.status(400).json({ success: false, error: 'Image URL is required' });
     }
 
-    const supabase = getSupabase();
-
     // Get max sort order for this post
-    const { data: existing } = await supabase
-      .from('blog_galleries')
-      .select('sort')
-      .eq('post_id', id)
-      .order('sort', { ascending: false })
+    const existing = await db.select({ sort: blogGalleries.sort })
+      .from(blogGalleries)
+      .where(eq(blogGalleries.postId, id))
+      .orderBy(desc(blogGalleries.sort))
       .limit(1);
 
-    const nextSort = sort ?? ((existing?.[0]?.sort ?? -1) + 1);
+    const nextSort = sort ?? ((existing[0]?.sort ?? -1) + 1);
 
-    const { data: image, error } = await supabase
-      .from('blog_galleries')
-      .insert({
-        post_id: id,
-        url,
-        title: title || null,
-        alt: alt || null,
-        sort: nextSort
-      })
-      .select()
-      .single();
+    const [image] = await db.insert(blogGalleries).values({
+      postId: id,
+      url,
+      title: title || null,
+      alt: alt || null,
+      sort: nextSort
+    }).returning();
 
-    if (error) throw error;
-
-    console.log(`✅ Gallery image added to post ${id}`);
+    console.log(`Gallery image added to post ${id}`);
 
     res.json({
       success: true,
@@ -1049,25 +973,21 @@ router.put('/admin/blog/posts/:id/gallery/:imageId', requireAdmin, async (req: R
     const { id, imageId } = req.params;
     const { url, title, alt, sort } = req.body;
 
-    const updates: any = {};
+    const updates: Record<string, any> = {};
     if (url !== undefined) updates.url = url;
     if (title !== undefined) updates.title = title;
     if (alt !== undefined) updates.alt = alt;
     if (sort !== undefined) updates.sort = sort;
 
-    const supabase = getSupabase();
+    const [image] = await db.update(blogGalleries).set(updates)
+      .where(and(eq(blogGalleries.id, imageId), eq(blogGalleries.postId, id)))
+      .returning();
 
-    const { data: image, error } = await supabase
-      .from('blog_galleries')
-      .update(updates)
-      .eq('id', imageId)
-      .eq('post_id', id)
-      .select()
-      .single();
+    if (!image) {
+      return res.status(404).json({ success: false, error: 'Gallery image not found' });
+    }
 
-    if (error) throw error;
-
-    console.log(`✅ Gallery image ${imageId} updated`);
+    console.log(`Gallery image ${imageId} updated`);
 
     res.json({
       success: true,
@@ -1087,17 +1007,10 @@ router.delete('/admin/blog/posts/:id/gallery/:imageId', requireAdmin, async (req
   try {
     const { id, imageId } = req.params;
 
-    const supabase = getSupabase();
+    await db.delete(blogGalleries)
+      .where(and(eq(blogGalleries.id, imageId), eq(blogGalleries.postId, id)));
 
-    const { error } = await supabase
-      .from('blog_galleries')
-      .delete()
-      .eq('id', imageId)
-      .eq('post_id', id);
-
-    if (error) throw error;
-
-    console.log(`✅ Gallery image ${imageId} deleted from post ${id}`);
+    console.log(`Gallery image ${imageId} deleted from post ${id}`);
 
     res.json({
       success: true,
@@ -1122,22 +1035,13 @@ router.put('/admin/blog/posts/:id/gallery/reorder', requireAdmin, async (req: Re
       return res.status(400).json({ success: false, error: 'imageIds must be an array' });
     }
 
-    const supabase = getSupabase();
-
     // Update sort order for each image
     for (let i = 0; i < imageIds.length; i++) {
-      const { error } = await supabase
-        .from('blog_galleries')
-        .update({ sort: i })
-        .eq('id', imageIds[i])
-        .eq('post_id', id);
-
-      if (error) {
-        console.error(`Error updating sort for image ${imageIds[i]}:`, error);
-      }
+      await db.update(blogGalleries).set({ sort: i })
+        .where(and(eq(blogGalleries.id, imageIds[i]), eq(blogGalleries.postId, id)));
     }
 
-    console.log(`✅ Gallery images reordered for post ${id}`);
+    console.log(`Gallery images reordered for post ${id}`);
 
     res.json({
       success: true,
