@@ -17,7 +17,10 @@
 
 import { Router, Request, Response } from 'express';
 import { requireAdmin } from '../middleware/auth.middleware';
-import { getSupabase, blogCacheGet, blogCacheSet, blogCacheClear } from './blog-shared';
+import { blogCacheGet, blogCacheSet, blogCacheClear } from './blog-shared';
+import { db } from '../db';
+import { blogTags, blogPostTags } from '@shared/schema';
+import { eq, or, asc, desc, ilike, sql } from 'drizzle-orm';
 
 const router = Router();
 
@@ -35,43 +38,32 @@ router.get('/blog-tags', async (req: Request, res: Response) => {
     const cached = blogCacheGet(cacheKey);
     if (cached) return res.json(cached);
 
-    const supabase = getSupabase();
+    const tags = await db.select().from(blogTags);
 
-    const { data: tags, error } = await supabase
-      .from('blog_tags')
-      .select('*');
+    // Get usage counts via aggregation
+    const usageCounts = await db
+      .select({
+        tagId: blogPostTags.tagId,
+        count: sql<number>`count(*)::int`
+      })
+      .from(blogPostTags)
+      .groupBy(blogPostTags.tagId);
 
-    if (error) {
-      console.error('❌ Error fetching tags:', error);
-      throw error;
-    }
-
-    // Fetch all post-tag relationships from junction table
-    const { data: postTags, error: postTagsError } = await supabase
-      .from('blog_post_tags')
-      .select('tag_id');
-
-    if (postTagsError) {
-      console.error('❌ Error fetching post tags for counts:', postTagsError);
-      throw postTagsError;
-    }
-
-    // Calculate actual usage count for each tag
     const tagUsageMap = new Map<string, number>();
-    (postTags || []).forEach((pt: any) => {
-      tagUsageMap.set(pt.tag_id, (tagUsageMap.get(pt.tag_id) || 0) + 1);
+    usageCounts.forEach(row => {
+      tagUsageMap.set(row.tagId, row.count);
     });
 
-    // Transform to camelCase with real usage counts
-    const transformedData = (tags || []).map((tag: any) => ({
+    // Drizzle already returns camelCase; add computed usageCount
+    const transformedData = tags.map(tag => ({
       id: tag.id,
       name: tag.name,
       color: tag.color,
       usageCount: tagUsageMap.get(tag.id) || 0,
-      createdAt: tag.created_at,
-      updatedAt: tag.updated_at,
+      createdAt: tag.createdAt,
+      updatedAt: tag.updatedAt,
     }))
-    .sort((a: any, b: any) => b.usageCount - a.usageCount);
+    .sort((a, b) => b.usageCount - a.usageCount);
 
     const result = { data: transformedData };
     blogCacheSet(cacheKey, result);
@@ -94,27 +86,29 @@ router.get('/admin/blog/tags', requireAdmin, async (req: Request, res: Response)
   try {
     const { suggest } = req.query;
 
-    const supabase = getSupabase();
-
-    let query = supabase
-      .from('blog_tags')
-      .select('*');
-
+    let tags;
     if (suggest) {
-      query = query.or(`name.ilike.%${suggest}%,slug.ilike.%${suggest}%`);
-      query = query.order('usage_count', { ascending: false }).limit(20);
+      const pattern = `%${suggest}%`;
+      tags = await db
+        .select()
+        .from(blogTags)
+        .where(or(
+          ilike(blogTags.name, pattern),
+          ilike(blogTags.slug, pattern)
+        ))
+        .orderBy(desc(blogTags.usageCount))
+        .limit(20);
     } else {
-      query = query.order('name', { ascending: true });
+      tags = await db
+        .select()
+        .from(blogTags)
+        .orderBy(asc(blogTags.name));
     }
-
-    const { data: tags, error } = await query;
-
-    if (error) throw error;
 
     res.json({
       success: true,
-      data: tags || [],
-      total: tags?.length || 0
+      data: tags,
+      total: tags.length
     });
   } catch (error) {
     console.error('Error fetching tags:', error);
@@ -134,18 +128,13 @@ router.post('/admin/blog/tags', requireAdmin, async (req: Request, res: Response
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
 
-    const supabase = getSupabase();
-
-    const { data: tag, error } = await supabase
-      .from('blog_tags')
-      .insert({ name, slug, color, icon })
-      .select()
-      .single();
-
-    if (error) throw error;
+    const [tag] = await db
+      .insert(blogTags)
+      .values({ name, slug, color, icon })
+      .returning();
 
     blogCacheClear();
-    console.log(`✅ Tag created: ${name}`);
+    console.log(`Tag created: ${name}`);
 
     res.json({
       success: true,
@@ -166,7 +155,7 @@ router.put('/admin/blog/tags/:id', requireAdmin, async (req: Request, res: Respo
     const { id } = req.params;
     const { name, color, icon } = req.body;
 
-    const updates: any = {};
+    const updates: Record<string, any> = {};
     if (name !== undefined) {
       updates.name = name;
       updates.slug = name.toLowerCase()
@@ -176,16 +165,11 @@ router.put('/admin/blog/tags/:id', requireAdmin, async (req: Request, res: Respo
     if (color !== undefined) updates.color = color;
     if (icon !== undefined) updates.icon = icon;
 
-    const supabase = getSupabase();
-
-    const { data: tag, error } = await supabase
-      .from('blog_tags')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
+    const [tag] = await db
+      .update(blogTags)
+      .set(updates)
+      .where(eq(blogTags.id, id))
+      .returning();
 
     blogCacheClear();
 
@@ -207,17 +191,12 @@ router.delete('/admin/blog/tags/:id', requireAdmin, async (req: Request, res: Re
   try {
     const { id } = req.params;
 
-    const supabase = getSupabase();
-
-    const { error } = await supabase
-      .from('blog_tags')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
+    await db
+      .delete(blogTags)
+      .where(eq(blogTags.id, id));
 
     blogCacheClear();
-    console.log(`✅ Tag deleted: ${id}`);
+    console.log(`Tag deleted: ${id}`);
 
     res.json({
       success: true,
@@ -238,57 +217,50 @@ router.post('/admin/blog/posts/:id/tags', requireAdmin, async (req: Request, res
     const { id } = req.params;
     const { tagIds } = req.body;
 
-    const supabase = getSupabase();
-
     // Get existing tags for potential rollback
-    const { data: existingTags } = await supabase
-      .from('blog_post_tags')
-      .select('tag_id')
-      .eq('post_id', id);
+    const existingTags = await db
+      .select({ tagId: blogPostTags.tagId })
+      .from(blogPostTags)
+      .where(eq(blogPostTags.postId, id));
 
-    const originalTagIds = existingTags?.map((t: any) => t.tag_id) || [];
+    const originalTagIds = existingTags.map(t => t.tagId);
 
     // Delete existing tag associations
-    const { error: deleteError } = await supabase
-      .from('blog_post_tags')
-      .delete()
-      .eq('post_id', id);
-
-    if (deleteError) throw deleteError;
+    await db
+      .delete(blogPostTags)
+      .where(eq(blogPostTags.postId, id));
 
     // Insert new associations
     if (tagIds && tagIds.length > 0) {
-      const associations = tagIds.map((tagId: string) => ({
-        post_id: id,
-        tag_id: tagId
-      }));
+      try {
+        const associations = tagIds.map((tagId: string) => ({
+          postId: id,
+          tagId
+        }));
 
-      const { error: insertError } = await supabase
-        .from('blog_post_tags')
-        .insert(associations);
-
-      if (insertError) {
+        await db.insert(blogPostTags).values(associations);
+      } catch (insertError) {
         // Rollback: restore original tags
-        console.error('❌ Tag insert failed, rolling back:', insertError);
+        console.error('Tag insert failed, rolling back:', insertError);
         if (originalTagIds.length > 0) {
-          const rollbackAssociations = originalTagIds.map((tagId: string) => ({
-            post_id: id,
-            tag_id: tagId
+          const rollbackAssociations = originalTagIds.map(tagId => ({
+            postId: id,
+            tagId
           }));
-          await supabase.from('blog_post_tags').insert(rollbackAssociations);
-          console.log(`🔄 Rolled back to original ${originalTagIds.length} tags`);
+          await db.insert(blogPostTags).values(rollbackAssociations);
+          console.log(`Rolled back to original ${originalTagIds.length} tags`);
         }
         return res.status(500).json({
           success: false,
           error: 'Failed to assign tags',
           code: 'TAG_INSERT_FAILED',
-          rolled_back: true
+          rolledBack: true
         });
       }
     }
 
     blogCacheClear();
-    console.log(`✅ Post ${id} tags updated: ${tagIds?.length || 0} tags`);
+    console.log(`Post ${id} tags updated: ${tagIds?.length || 0} tags`);
 
     res.json({
       success: true,
@@ -308,16 +280,13 @@ router.get('/admin/blog/posts/:id/tags', requireAdmin, async (req: Request, res:
   try {
     const { id } = req.params;
 
-    const supabase = getSupabase();
+    const postTagRows = await db
+      .select({ tag: blogTags })
+      .from(blogPostTags)
+      .innerJoin(blogTags, eq(blogPostTags.tagId, blogTags.id))
+      .where(eq(blogPostTags.postId, id));
 
-    const { data: postTags, error } = await supabase
-      .from('blog_post_tags')
-      .select('tag_id, blog_tags(*)')
-      .eq('post_id', id);
-
-    if (error) throw error;
-
-    const tags = postTags?.map((pt: any) => pt.blog_tags).filter(Boolean) || [];
+    const tags = postTagRows.map(row => row.tag);
 
     res.json({
       success: true,

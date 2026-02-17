@@ -14,7 +14,10 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { getSupabase, blogCacheGet, blogCacheSet } from './blog-shared';
+import { blogCacheGet, blogCacheSet } from './blog-shared';
+import { db } from '../db';
+import { blogPosts, blogTags, blogPostTags, blogGalleries } from '@shared/schema';
+import { eq, and, or, desc, asc, ne, lte, ilike, inArray, notInArray, sql } from 'drizzle-orm';
 
 const router = Router();
 
@@ -39,45 +42,52 @@ router.get('/blog/posts', async (req: Request, res: Response) => {
     const cached = blogCacheGet(cacheKey);
     if (cached) return res.json(cached);
 
-    const supabase = getSupabase();
+    const parsedLimit = parseInt(limit as string);
+    const parsedOffset = parseInt(offset as string);
 
     // Query published posts only
-    const { data: posts, error, count } = await supabase
-      .from('blog_posts')
-      .select('*', { count: 'exact' })
-      .eq('language', language)
-      .eq('status', 'published')
-      .lte('published_at', new Date().toISOString())
-      .order('is_featured', { ascending: false })
-      .order('featured_order', { ascending: true, nullsFirst: false })
-      .order('published_at', { ascending: false })
-      .range(parseInt(offset as string), parseInt(offset as string) + parseInt(limit as string) - 1);
+    const posts = await db
+      .select()
+      .from(blogPosts)
+      .where(and(
+        eq(blogPosts.language, language as 'en-US' | 'fr-FR'),
+        eq(blogPosts.status, 'published'),
+        lte(blogPosts.publishedAt, new Date())
+      ))
+      .orderBy(desc(blogPosts.isFeatured), asc(blogPosts.featuredOrder), desc(blogPosts.publishedAt))
+      .limit(parsedLimit)
+      .offset(parsedOffset);
 
-    if (error) {
-      console.error('❌ Error fetching posts:', error);
-      throw error;
-    }
+    // Get total count
+    const [{ total }] = await db
+      .select({ total: sql<number>`count(*)::int` })
+      .from(blogPosts)
+      .where(and(
+        eq(blogPosts.language, language as 'en-US' | 'fr-FR'),
+        eq(blogPosts.status, 'published'),
+        lte(blogPosts.publishedAt, new Date())
+      ));
 
     // Transform database fields to match frontend expectations
-    const transformedPosts = (posts || []).map((post: any) => ({
+    const transformedPosts = posts.map((post) => ({
       ...post,
-      publish_date: post.published_at || post.created_at,
-      featured_image_url: post.hero_url,
+      publishDate: post.publishedAt || post.createdAt,
+      featuredImageUrl: post.heroUrl,
       excerpt: post.description
     }));
 
     const result = {
       success: true,
       data: transformedPosts,
-      total: count || 0,
-      limit: parseInt(limit as string),
-      offset: parseInt(offset as string)
+      total: total || 0,
+      limit: parsedLimit,
+      offset: parsedOffset
     };
 
     blogCacheSet(cacheKey, result);
     res.json(result);
   } catch (error) {
-    console.error('❌ Error fetching blog posts:', error);
+    console.error('Error fetching blog posts:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch blog posts' });
   }
 });
@@ -98,30 +108,24 @@ router.get('/blog/featured', async (req: Request, res: Response) => {
     const cached = blogCacheGet(cacheKey);
     if (cached) return res.json(cached);
 
-    const supabase = getSupabase();
-
-    const { data: posts, error } = await supabase
-      .from('blog_posts')
-      .select('*')
-      .eq('language', language)
-      .eq('status', 'published')
-      .eq('is_featured', true)
-      .lte('published_at', new Date().toISOString())
-      .order('featured_order', { ascending: true, nullsFirst: false })
-      .order('published_at', { ascending: false })
+    const posts = await db
+      .select()
+      .from(blogPosts)
+      .where(and(
+        eq(blogPosts.language, language as 'en-US' | 'fr-FR'),
+        eq(blogPosts.status, 'published'),
+        eq(blogPosts.isFeatured, true),
+        lte(blogPosts.publishedAt, new Date())
+      ))
+      .orderBy(asc(blogPosts.featuredOrder), desc(blogPosts.publishedAt))
       .limit(parseInt(limit as string));
 
-    if (error) {
-      console.error('❌ Error fetching featured posts:', error);
-      throw error;
-    }
-
-    const transformedPosts = (posts || []).map((post: any) => ({
+    const transformedPosts = posts.map((post) => ({
       ...post,
-      publish_date: post.published_at || post.created_at,
-      featured_image_url: post.hero_url,
+      publishDate: post.publishedAt || post.createdAt,
+      featuredImageUrl: post.heroUrl,
       excerpt: post.description,
-      image: post.hero_url ? { url: post.hero_url } : null
+      image: post.heroUrl ? { url: post.heroUrl } : null
     }));
 
     const result = {
@@ -132,7 +136,7 @@ router.get('/blog/featured', async (req: Request, res: Response) => {
     blogCacheSet(cacheKey, result);
     res.json(result);
   } catch (error) {
-    console.error('❌ Error fetching featured blog posts:', error);
+    console.error('Error fetching featured blog posts:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch featured posts' });
   }
 });
@@ -150,26 +154,39 @@ router.get('/blog/posts/search', async (req: Request, res: Response) => {
     }
 
     const searchTerm = `%${q}%`;
-    const supabase = getSupabase();
+    const parsedLimit = parseInt(limit as string);
+    const parsedOffset = parseInt(offset as string);
 
-    const { data: posts, error, count } = await supabase
-      .from('blog_posts')
-      .select('*', { count: 'exact' })
-      .eq('language', language)
-      .eq('status', 'published')
-      .lte('published_at', new Date().toISOString())
-      .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},content_html.ilike.${searchTerm}`)
-      .order('published_at', { ascending: false })
-      .range(parseInt(offset as string), parseInt(offset as string) + parseInt(limit as string) - 1);
+    const whereCondition = and(
+      eq(blogPosts.language, language as string),
+      eq(blogPosts.status, 'published'),
+      lte(blogPosts.publishedAt, new Date()),
+      or(
+        ilike(blogPosts.title, searchTerm),
+        ilike(blogPosts.description, searchTerm),
+        ilike(blogPosts.contentHtml, searchTerm)
+      )
+    );
 
-    if (error) throw error;
+    const posts = await db
+      .select()
+      .from(blogPosts)
+      .where(whereCondition)
+      .orderBy(desc(blogPosts.publishedAt))
+      .limit(parsedLimit)
+      .offset(parsedOffset);
+
+    const [{ total }] = await db
+      .select({ total: sql<number>`count(*)::int` })
+      .from(blogPosts)
+      .where(whereCondition);
 
     res.json({
       success: true,
       data: posts,
-      total: count || 0,
-      limit: parseInt(limit as string),
-      offset: parseInt(offset as string)
+      total: total || 0,
+      limit: parsedLimit,
+      offset: parsedOffset
     });
   } catch (error) {
     console.error('Error searching posts:', error);
@@ -186,81 +203,106 @@ router.get('/blog/posts/:slug/related', async (req: Request, res: Response) => {
     const { slug } = req.params;
     const limit = parseInt(req.query.limit as string) || 3;
 
-    const supabase = getSupabase();
+    // Get the current post
+    const [currentPost] = await db
+      .select({
+        id: blogPosts.id,
+        language: blogPosts.language,
+        primaryKeyword: blogPosts.primaryKeyword,
+        secondaryKeywords: blogPosts.secondaryKeywords
+      })
+      .from(blogPosts)
+      .where(and(
+        eq(blogPosts.slug, slug),
+        eq(blogPosts.status, 'published')
+      ))
+      .limit(1);
 
-    // Get the current post with keywords for fallback matching
-    const { data: currentPost, error: postError } = await supabase
-      .from('blog_posts')
-      .select('id, language, primary_keyword, secondary_keywords')
-      .eq('slug', slug)
-      .eq('status', 'published')
-      .single();
-
-    if (postError || !currentPost) {
+    if (!currentPost) {
       return res.json({ success: true, data: [], total: 0 });
     }
 
     // Strategy 1: Match by shared tags
     let relatedPosts: any[] = [];
 
-    const { data: currentTags } = await supabase
-      .from('blog_post_tags')
-      .select('tag_id')
-      .eq('post_id', currentPost.id);
+    const currentTags = await db
+      .select({ tagId: blogPostTags.tagId })
+      .from(blogPostTags)
+      .where(eq(blogPostTags.postId, currentPost.id));
 
-    if (currentTags && currentTags.length > 0) {
-      const tagIds = currentTags.map((t: any) => t.tag_id);
+    if (currentTags.length > 0) {
+      const tagIds = currentTags.map(t => t.tagId);
 
-      const { data: relatedPostTags, error: relatedError } = await supabase
-        .from('blog_post_tags')
-        .select('post_id, blog_posts(*)')
-        .in('tag_id', tagIds)
-        .neq('post_id', currentPost.id);
+      // Get all post-tag associations for those tags, excluding the current post
+      const relatedPostTagRows = await db
+        .select({
+          postId: blogPostTags.postId,
+          tagId: blogPostTags.tagId
+        })
+        .from(blogPostTags)
+        .where(and(
+          inArray(blogPostTags.tagId, tagIds),
+          ne(blogPostTags.postId, currentPost.id)
+        ));
 
-      if (relatedError) throw relatedError;
+      // Get unique post IDs that share tags
+      const relatedPostIds = [...new Set(relatedPostTagRows.map(r => r.postId))];
 
-      // Group by post and count shared tags
-      const postScores: { [key: string]: { post: any; score: number } } = {};
+      if (relatedPostIds.length > 0) {
+        // Fetch those posts
+        const candidatePosts = await db
+          .select()
+          .from(blogPosts)
+          .where(and(
+            inArray(blogPosts.id, relatedPostIds),
+            eq(blogPosts.status, 'published'),
+            eq(blogPosts.language, currentPost.language)
+          ));
 
-      relatedPostTags?.forEach((item: any) => {
-        const post = item.blog_posts;
-        if (post && post.status === 'published' && post.language === currentPost.language) {
-          if (!postScores[post.id]) {
-            postScores[post.id] = { post, score: 0 };
+        // Score by number of shared tags
+        const postScores: { [key: string]: { post: any; score: number } } = {};
+        relatedPostTagRows.forEach(row => {
+          const post = candidatePosts.find(p => p.id === row.postId);
+          if (post) {
+            if (!postScores[post.id]) {
+              postScores[post.id] = { post, score: 0 };
+            }
+            postScores[post.id].score++;
           }
-          postScores[post.id].score++;
-        }
-      });
+        });
 
-      relatedPosts = Object.values(postScores)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, limit)
-        .map(item => ({
-          ...item.post,
-          featured_image_url: item.post.hero_url,
-          publish_date: item.post.published_at
-        }));
+        relatedPosts = Object.values(postScores)
+          .sort((a, b) => b.score - a.score)
+          .slice(0, limit)
+          .map(item => ({
+            ...item.post,
+            featuredImageUrl: item.post.heroUrl,
+            publishDate: item.post.publishedAt
+          }));
+      }
     }
 
     // Strategy 2: Fallback to same-language posts when tags return insufficient results
     if (relatedPosts.length < limit) {
       const excludeIds = [currentPost.id, ...relatedPosts.map((p: any) => p.id)];
 
-      const { data: fallbackPosts } = await supabase
-        .from('blog_posts')
-        .select('*')
-        .eq('language', currentPost.language)
-        .eq('status', 'published')
-        .not('id', 'in', `(${excludeIds.join(',')})`)
-        .lte('published_at', new Date().toISOString())
-        .order('published_at', { ascending: false })
+      const fallbackPosts = await db
+        .select()
+        .from(blogPosts)
+        .where(and(
+          eq(blogPosts.language, currentPost.language),
+          eq(blogPosts.status, 'published'),
+          notInArray(blogPosts.id, excludeIds),
+          lte(blogPosts.publishedAt, new Date())
+        ))
+        .orderBy(desc(blogPosts.publishedAt))
         .limit(limit - relatedPosts.length);
 
-      if (fallbackPosts && fallbackPosts.length > 0) {
-        const transformed = fallbackPosts.map((post: any) => ({
+      if (fallbackPosts.length > 0) {
+        const transformed = fallbackPosts.map((post) => ({
           ...post,
-          featured_image_url: post.hero_url,
-          publish_date: post.published_at
+          featuredImageUrl: post.heroUrl,
+          publishDate: post.publishedAt
         }));
         relatedPosts = [...relatedPosts, ...transformed];
       }
@@ -289,33 +331,26 @@ router.get('/blog/posts/:slug/gallery', async (req: Request, res: Response) => {
     const cached = blogCacheGet(cacheKey);
     if (cached) return res.json(cached);
 
-    const supabase = getSupabase();
-
     // Get post by slug to get the post_id
-    const { data: post, error: postError } = await supabase
-      .from('blog_posts')
-      .select('id, title')
-      .eq('slug', slug)
-      .single();
+    const [post] = await db
+      .select({ id: blogPosts.id, title: blogPosts.title })
+      .from(blogPosts)
+      .where(eq(blogPosts.slug, slug))
+      .limit(1);
 
-    if (postError || !post) {
+    if (!post) {
       return res.json({ success: true, data: [], total: 0 });
     }
 
     // Get all gallery images for this post
-    const { data: images, error: imagesError } = await supabase
-      .from('blog_galleries')
-      .select('*')
-      .eq('post_id', post.id)
-      .order('sort', { ascending: true, nullsFirst: false });
-
-    if (imagesError) {
-      console.error('Error fetching gallery images:', imagesError);
-      throw imagesError;
-    }
+    const images = await db
+      .select()
+      .from(blogGalleries)
+      .where(eq(blogGalleries.postId, post.id))
+      .orderBy(asc(blogGalleries.sort));
 
     // If no images, return empty
-    if (!images || images.length === 0) {
+    if (images.length === 0) {
       const empty = { success: true, data: [], total: 0 };
       blogCacheSet(cacheKey, empty);
       return res.json(empty);
@@ -332,14 +367,14 @@ router.get('/blog/posts/:slug/gallery', async (req: Request, res: Response) => {
       id: `gallery-${post.id}`,
       title: '',
       description: '',
-      layout_type: layoutType,
-      display_order: 0,
-      gallery_images: images.map((img: any, idx: number) => ({
+      layoutType,
+      displayOrder: 0,
+      galleryImages: images.map((img, idx) => ({
         id: img.id,
         caption: img.title || '',
-        alt_text: img.alt || '',
+        altText: img.alt || '',
         image: { id: img.id, url: img.url },
-        display_order: img.sort ?? idx
+        displayOrder: img.sort ?? idx
       }))
     };
 
@@ -367,36 +402,34 @@ router.get('/blog/tags', async (req: Request, res: Response) => {
     const cached = blogCacheGet(cacheKey);
     if (cached) return res.json(cached);
 
-    const supabase = getSupabase();
-
     // Get all tags
-    const { data: tags, error: tagsError } = await supabase
-      .from('blog_tags')
-      .select('*')
-      .order('name', { ascending: true });
+    const tags = await db
+      .select()
+      .from(blogTags)
+      .orderBy(asc(blogTags.name));
 
-    if (tagsError) throw tagsError;
+    // Get post counts: join post_tags with posts, filter published
+    const tagCounts = await db
+      .select({
+        tagId: blogPostTags.tagId,
+        count: sql<number>`count(*)::int`
+      })
+      .from(blogPostTags)
+      .innerJoin(blogPosts, eq(blogPostTags.postId, blogPosts.id))
+      .where(eq(blogPosts.status, 'published'))
+      .groupBy(blogPostTags.tagId);
 
-    // Get post counts for each tag
-    const { data: tagCounts, error: countsError } = await supabase
-      .from('blog_post_tags')
-      .select('tag_id, blog_posts!inner(status)');
-
-    if (countsError) throw countsError;
-
-    // Calculate published post count per tag
+    // Build count map
     const counts: { [key: string]: number } = {};
-    tagCounts?.forEach((item: any) => {
-      if ((item.blog_posts as any).status === 'published') {
-        counts[item.tag_id] = (counts[item.tag_id] || 0) + 1;
-      }
+    tagCounts.forEach(row => {
+      counts[row.tagId] = row.count;
     });
 
     // Add counts to tags
-    const tagsWithCounts = tags?.map((tag: any) => ({
+    const tagsWithCounts = tags.map(tag => ({
       ...tag,
-      post_count: counts[tag.id] || 0
-    })) || [];
+      postCount: counts[tag.id] || 0
+    }));
 
     const result = {
       success: true,
@@ -426,51 +459,53 @@ router.get('/blog/posts/:slug', async (req: Request, res: Response) => {
     const cached = blogCacheGet(cacheKey);
     if (cached) return res.json(cached);
 
-    const supabase = getSupabase();
-
-    // Query for published post
-    let query = supabase
-      .from('blog_posts')
-      .select('*')
-      .eq('slug', slug)
-      .eq('status', 'published')
-      .lte('published_at', new Date().toISOString())
-      .single();
-
+    // Build where conditions
+    const conditions = [
+      eq(blogPosts.slug, slug),
+      eq(blogPosts.status, 'published'),
+      lte(blogPosts.publishedAt, new Date())
+    ];
     if (language) {
-      query = query.eq('language', language);
+      conditions.push(eq(blogPosts.language, language as string));
     }
 
-    const { data: post, error } = await query;
+    const [post] = await db
+      .select()
+      .from(blogPosts)
+      .where(and(...conditions))
+      .limit(1);
 
-    if (error || !post) {
+    if (!post) {
       return res.status(404).json({
         success: false,
         error: 'Post not found or not published'
       });
     }
 
-    // Fetch tags for this post
-    const { data: postTags, error: tagsError } = await supabase
-      .from('blog_post_tags')
-      .select('blog_tags(*)')
-      .eq('post_id', post.id);
+    // Fetch tags for this post via join
+    const postTagRows = await db
+      .select({
+        tag: blogTags
+      })
+      .from(blogPostTags)
+      .innerJoin(blogTags, eq(blogPostTags.tagId, blogTags.id))
+      .where(eq(blogPostTags.postId, post.id));
 
-    const tags = postTags?.map((pt: any) => pt.blog_tags).filter(Boolean) || [];
+    const tags = postTagRows.map(row => row.tag);
 
     // Transform database fields to match frontend expectations
     const transformedPost = {
       ...post,
-      publish_date: post.published_at || post.created_at,
-      featured_image_url: post.hero_url,
-      content: post.content_html,
-      tags: tags
+      publishDate: post.publishedAt || post.createdAt,
+      featuredImageUrl: post.heroUrl,
+      content: post.contentHtml,
+      tags
     };
 
     blogCacheSet(cacheKey, transformedPost);
     res.json(transformedPost);
   } catch (error) {
-    console.error('❌ Error fetching blog post:', error);
+    console.error('Error fetching blog post:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch blog post' });
   }
 });
