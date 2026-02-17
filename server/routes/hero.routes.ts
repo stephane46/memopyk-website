@@ -196,7 +196,7 @@ router.patch('/:id/toggle', requireAdmin, async (req: Request, res: Response) =>
     const { storage } = await import('../services/storage.service');
     const result = await storage.updateHeroVideo(videoId, {
       isActive,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date()
     });
 
     res.json(result);
@@ -223,7 +223,7 @@ router.patch('/:id', requireAdmin, async (req: Request, res: Response) => {
       urlEn,
       urlFr,
       useSameVideo,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date()
     });
 
     res.json(result);
