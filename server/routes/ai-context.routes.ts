@@ -13,7 +13,9 @@
 
 import { Router, Request, Response } from 'express';
 import { requireAdmin } from '../middleware/auth.middleware';
-import { getSupabase } from './blog-shared';
+import { db } from '../db';
+import { aiContext, blogPosts, blogPostTags, blogTags } from '@shared/schema';
+import { eq, desc, asc } from 'drizzle-orm';
 import Anthropic from '@anthropic-ai/sdk';
 
 const router = Router();
@@ -24,18 +26,8 @@ const router = Router();
  */
 router.get('/admin/ai-context', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const supabase = getSupabase();
-
-    const { data, error } = await supabase
-      .from('ai_context')
-      .select('*')
-      .order('category', { ascending: true })
-      .order('sort_order', { ascending: true });
-
-    if (error) {
-      console.error('Error fetching AI context:', error);
-      return res.status(500).json({ success: false, error: error.message });
-    }
+    const data = await db.select().from(aiContext)
+      .orderBy(asc(aiContext.category), asc(aiContext.sortOrder));
 
     res.json({ success: true, data });
   } catch (error) {
@@ -54,20 +46,12 @@ router.get('/admin/ai-context', requireAdmin, async (req: Request, res: Response
 router.get('/admin/ai-context/:key', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { key } = req.params;
-    const supabase = getSupabase();
 
-    const { data, error } = await supabase
-      .from('ai_context')
-      .select('*')
-      .eq('key', key)
-      .single();
+    const [data] = await db.select().from(aiContext)
+      .where(eq(aiContext.key, key)).limit(1);
 
-    if (error) {
-      if (error.code === 'PGRST116') {
-        return res.status(404).json({ success: false, error: 'Entry not found' });
-      }
-      console.error('Error fetching AI context entry:', error);
-      return res.status(500).json({ success: false, error: error.message });
+    if (!data) {
+      return res.status(404).json({ success: false, error: 'Entry not found' });
     }
 
     res.json({ success: true, data });
@@ -93,28 +77,20 @@ router.put('/admin/ai-context/:key', requireAdmin, async (req: Request, res: Res
       return res.status(400).json({ success: false, error: 'Content must be a string' });
     }
 
-    const supabase = getSupabase();
-
-    const { data, error } = await supabase
-      .from('ai_context')
-      .update({
+    const [data] = await db.update(aiContext)
+      .set({
         content,
-        updated_at: new Date().toISOString(),
-        updated_by: 'admin' // Could be enhanced to track actual user
+        updatedAt: new Date(),
+        updatedBy: 'admin'
       })
-      .eq('key', key)
-      .select()
-      .single();
+      .where(eq(aiContext.key, key))
+      .returning();
 
-    if (error) {
-      if (error.code === 'PGRST116') {
-        return res.status(404).json({ success: false, error: 'Entry not found' });
-      }
-      console.error('Error updating AI context entry:', error);
-      return res.status(500).json({ success: false, error: error.message });
+    if (!data) {
+      return res.status(404).json({ success: false, error: 'Entry not found' });
     }
 
-    console.log(`✅ AI context updated: ${key}`);
+    console.log(`AI context updated: ${key}`);
     res.json({ success: true, data });
   } catch (error) {
     console.error('Error in PUT /api/admin/ai-context/:key:', error);
@@ -139,46 +115,50 @@ router.get('/internal/ai-context/full', async (req: Request, res: Response) => {
   }
 
   try {
-    const supabase = getSupabase();
-
     // Fetch all AI context entries
-    const { data: contextEntries, error: contextError } = await supabase
-      .from('ai_context')
-      .select('key, content, category')
-      .order('category')
-      .order('sort_order');
-
-    if (contextError) {
-      console.error('Error fetching AI context:', contextError);
-      return res.status(500).json({ success: false, error: contextError.message });
-    }
+    const contextEntries = await db.select({
+      key: aiContext.key,
+      content: aiContext.content,
+      category: aiContext.category
+    })
+      .from(aiContext)
+      .orderBy(asc(aiContext.category), asc(aiContext.sortOrder));
 
     // Fetch published posts for content awareness
-    const { data: posts, error: postsError } = await supabase
-      .from('blog_posts')
-      .select(`
-        title,
-        slug,
-        language,
-        content_html,
-        blog_post_tags (
-          blog_tags (
-            name
-          )
-        )
-      `)
-      .eq('status', 'published')
-      .order('published_at', { ascending: false })
-      .limit(50); // Limit to recent 50 posts for context size
+    const posts = await db.select({
+      id: blogPosts.id,
+      title: blogPosts.title,
+      slug: blogPosts.slug,
+      language: blogPosts.language,
+      contentHtml: blogPosts.contentHtml
+    })
+      .from(blogPosts)
+      .where(eq(blogPosts.status, 'published'))
+      .orderBy(desc(blogPosts.publishedAt))
+      .limit(50);
 
-    if (postsError) {
-      console.error('Error fetching posts:', postsError);
-      return res.status(500).json({ success: false, error: postsError.message });
+    // Fetch tags for the posts
+    const postIds = posts.map(p => p.id);
+    let postTagMap: Record<string, string[]> = {};
+    if (postIds.length > 0) {
+      const tagRows = await db.select({
+        postId: blogPostTags.postId,
+        tagName: blogTags.name
+      })
+        .from(blogPostTags)
+        .innerJoin(blogTags, eq(blogPostTags.tagId, blogTags.id));
+
+      for (const row of tagRows) {
+        if (postIds.includes(row.postId)) {
+          if (!postTagMap[row.postId]) postTagMap[row.postId] = [];
+          postTagMap[row.postId].push(row.tagName);
+        }
+      }
     }
 
     // Group context entries by category
     const grouped: Record<string, Record<string, string>> = {};
-    for (const entry of contextEntries || []) {
+    for (const entry of contextEntries) {
       if (!grouped[entry.category]) {
         grouped[entry.category] = {};
       }
@@ -186,24 +166,19 @@ router.get('/internal/ai-context/full', async (req: Request, res: Response) => {
     }
 
     // Format posts with summary (first 200 chars of content, stripped of HTML)
-    const publishedPosts = (posts || []).map((post: any) => {
+    const publishedPosts = posts.map((post) => {
       // Strip HTML and get first 200 characters
-      const plainText = (post.content_html || '')
+      const plainText = (post.contentHtml || '')
         .replace(/<[^>]*>/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
       const summary = plainText.substring(0, 200) + (plainText.length > 200 ? '...' : '');
 
-      // Extract tag names
-      const tags = (post.blog_post_tags || [])
-        .map((pt: any) => pt.blog_tags?.name)
-        .filter(Boolean);
-
       return {
         title: post.title,
         slug: post.slug,
         language: post.language,
-        tags,
+        tags: postTagMap[post.id] || [],
         summary
       };
     });
@@ -259,8 +234,7 @@ router.post('/admin/translate', requireAdmin, async (req: Request, res: Response
     const { translateContent, fetchAIContext } = await import('./translation-service');
 
     // Fetch AI context
-    const supabase = getSupabase();
-    const aiContext = await fetchAIContext(supabase);
+    const aiCtx = await fetchAIContext();
 
     // Translate content using shared service
     const result = await translateContent(
@@ -272,7 +246,7 @@ router.post('/admin/translate', requireAdmin, async (req: Request, res: Response
         sourceLanguage,
         targetLanguage
       },
-      aiContext
+      aiCtx
     );
 
     // Return the raw response for the Translation Assistant UI to parse

@@ -6,7 +6,9 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { getSupabase } from './blog-shared';
+import { db } from '../db';
+import { blogPosts } from '@shared/schema';
+import { eq, desc } from 'drizzle-orm';
 
 const router = Router();
 
@@ -39,18 +41,17 @@ router.get('/sitemap.xml', async (_req: Request, res: Response) => {
     ];
 
     // Fetch published blog posts
-    const supabase = getSupabase();
-    const { data: posts, error } = await supabase
-      .from('blog_posts')
-      .select('slug, updated_at, published_at, include_in_sitemap')
-      .eq('status', 'published')
-      .order('published_at', { ascending: false });
+    const posts = await db.select({
+      slug: blogPosts.slug,
+      updatedAt: blogPosts.updatedAt,
+      publishedAt: blogPosts.publishedAt,
+      includeInSitemap: blogPosts.includeInSitemap
+    })
+      .from(blogPosts)
+      .where(eq(blogPosts.status, 'published'))
+      .orderBy(desc(blogPosts.publishedAt));
 
-    if (error) {
-      console.error('Sitemap: error fetching blog posts:', error);
-    }
-
-    const blogPosts = (posts || []).filter((p: any) => p.include_in_sitemap !== false);
+    const sitemapPosts = posts.filter((p) => p.includeInSitemap !== false);
 
     // Build XML
     const urls: string[] = [];
@@ -63,8 +64,8 @@ router.get('/sitemap.xml', async (_req: Request, res: Response) => {
   </url>`);
     }
 
-    for (const post of blogPosts) {
-      const lastmod = post.updated_at || post.published_at;
+    for (const post of sitemapPosts) {
+      const lastmod = post.updatedAt || post.publishedAt;
       urls.push(`  <url>
     <loc>${baseUrl}/blog/${post.slug}</loc>
     <lastmod>${new Date(lastmod).toISOString().split('T')[0]}</lastmod>

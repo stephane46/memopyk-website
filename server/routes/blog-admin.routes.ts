@@ -25,7 +25,7 @@ import { Router, Request, Response } from 'express';
 import { DateTime } from 'luxon';
 import Anthropic from '@anthropic-ai/sdk';
 import { requireAdmin } from '../middleware/auth.middleware';
-import { getSupabase, blogCacheClear } from './blog-shared';
+import { blogCacheClear } from './blog-shared';
 import {
   translateContent,
   fetchAIContext,
@@ -112,9 +112,7 @@ router.post('/admin/blog/generate-content', requireAdmin, async (req: Request, r
       });
     }
 
-    // fetchAIContext still uses Supabase client (migrated by another agent)
-    const supabase = getSupabase();
-    const aiContext = await fetchAIContext(supabase);
+    const aiContext = await fetchAIContext();
     const brandIdentity = aiContext.brand?.brand_identity || '';
     const toneVoice = aiContext.brand?.tone_voice || '';
     const writingRules = aiContext.brand?.writing_rules || '';
@@ -494,9 +492,8 @@ router.post('/admin/blog/posts/:id/translate', requireAdmin, async (req: Request
       const { textWithPlaceholders, images } = extractImagesFromContent(sourcePost.contentHtml || '');
       console.log(`Extracted ${images.length} image(s) from content`);
 
-      // Fetch AI context (still uses Supabase client)
-      const supabase = getSupabase();
-      const aiContext = await fetchAIContext(supabase);
+      // Fetch AI context
+      const aiContext = await fetchAIContext();
 
       // Translate content
       const translationResult = await translateContent(

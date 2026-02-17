@@ -8,6 +8,9 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk';
+import { db } from '../db';
+import { aiContext as aiContextTable, blogPosts } from '@shared/schema';
+import { eq, desc, asc } from 'drizzle-orm';
 
 export interface TranslationInput {
   text: string;
@@ -149,24 +152,21 @@ ${text}`;
 }
 
 /**
- * Fetch AI context from Supabase
+ * Fetch AI context from database
  */
-export async function fetchAIContext(supabase: any): Promise<AIContext> {
+export async function fetchAIContext(): Promise<AIContext> {
   // Fetch AI context entries
-  const { data: contextEntries, error: contextError } = await supabase
-    .from('ai_context')
-    .select('key, content, category')
-    .order('category')
-    .order('sort_order');
-
-  if (contextError) {
-    console.error('Error fetching AI context:', contextError);
-    throw new Error('Failed to fetch AI context');
-  }
+  const contextEntries = await db.select({
+    key: aiContextTable.key,
+    content: aiContextTable.content,
+    category: aiContextTable.category
+  })
+    .from(aiContextTable)
+    .orderBy(asc(aiContextTable.category), asc(aiContextTable.sortOrder));
 
   // Group context entries by category
   const grouped: Record<string, Record<string, string>> = {};
-  for (const entry of contextEntries || []) {
+  for (const entry of contextEntries) {
     if (!grouped[entry.category]) {
       grouped[entry.category] = {};
     }
@@ -174,15 +174,18 @@ export async function fetchAIContext(supabase: any): Promise<AIContext> {
   }
 
   // Fetch published posts for reference
-  const { data: posts } = await supabase
-    .from('blog_posts')
-    .select('title, slug, language')
-    .eq('status', 'published')
-    .order('published_at', { ascending: false })
+  const posts = await db.select({
+    title: blogPosts.title,
+    slug: blogPosts.slug,
+    language: blogPosts.language
+  })
+    .from(blogPosts)
+    .where(eq(blogPosts.status, 'published'))
+    .orderBy(desc(blogPosts.publishedAt))
     .limit(20);
 
-  const publishedPostsList = (posts || [])
-    .map((p: any) => `- ${p.title} (/${p.language}/blog/${p.slug})`)
+  const publishedPostsList = posts
+    .map((p) => `- ${p.title} (/${p.language}/blog/${p.slug})`)
     .join('\n');
 
   return {
