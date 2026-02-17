@@ -91,13 +91,13 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
     try {
       const keywordData = {
         keyword: keywordText.trim(),
-        monthlySearches: monthlySearches ? parseInt(monthlySearches) : null,
+        monthly_searches: monthlySearches ? parseInt(monthlySearches) : null,
         competition: competition || null,
         intent: intent || 'medium',
         tier: tier ? parseInt(tier) : 3,
         market: market || 'fr',
         seasonal,
-        seasonalMonths: seasonal && seasonalMonths.length > 0 ? seasonalMonths : null,
+        seasonal_months: seasonal && seasonalMonths.length > 0 ? seasonalMonths : null,
         cluster: cluster.trim() || null,
       };
 

@@ -29,8 +29,8 @@ interface Submission {
   status: string;
   agency_email_sent: boolean;
   ngoc_email_sent: boolean;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface FolderStats {
@@ -91,13 +91,13 @@ export default function TravelUploadsAdmin() {
     }
     
     if (dateRange.start) {
-      filtered = filtered.filter(s => new Date(s.createdAt) >= new Date(dateRange.start));
+      filtered = filtered.filter(s => new Date(s.created_at) >= new Date(dateRange.start));
     }
     
     if (dateRange.end) {
       const endDate = new Date(dateRange.end);
       endDate.setHours(23, 59, 59, 999);
-      filtered = filtered.filter(s => new Date(s.createdAt) <= endDate);
+      filtered = filtered.filter(s => new Date(s.created_at) <= endDate);
     }
     
     filtered.sort((a, b) => {
@@ -113,7 +113,7 @@ export default function TravelUploadsAdmin() {
           comparison = sizeA - sizeB;
           break;
         case 'date':
-          comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
           break;
         case 'agency':
           comparison = a.agency_code.localeCompare(b.agency_code);
@@ -348,7 +348,7 @@ export default function TravelUploadsAdmin() {
                     return (
                       <tr key={submission.id} className="border-b hover:bg-gray-50">
                         <td className="p-3 whitespace-nowrap">
-                          <div className="text-gray-900">{formatFrenchDateTime(submission.createdAt)}</div>
+                          <div className="text-gray-900">{formatFrenchDateTime(submission.created_at)}</div>
                         </td>
                         <td className="p-3">
                           <div className="font-medium text-gray-900">

@@ -14,9 +14,9 @@ interface AIContextEntry {
   title: string;
   content: string;
   category: string;
-  sort_order: number;
+  sortOrder: number;
   updatedAt: string;
-  updated_by: string | null;
+  updatedBy: string | null;
 }
 
 export function AIContextManager() {
@@ -167,7 +167,7 @@ export function AIContextManager() {
                         {entry.updatedAt && (
                           <span className="ml-3">
                             Updated: {formatDate(entry.updatedAt)}
-                            {entry.updated_by && ` by ${entry.updated_by}`}
+                            {entry.updatedBy && ` by ${entry.updatedBy}`}
                           </span>
                         )}
                       </CardDescription>

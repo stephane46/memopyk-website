@@ -46,7 +46,7 @@ interface ContentTopic {
   cluster: string | null;
   createdAt: string;
   updatedAt: string;
-  postCount?: number; // Number of actual blog posts linked to this topic
+  post_count?: number; // Number of actual blog posts linked to this topic
 }
 
 const formatRole = (role: string): string => {
@@ -583,7 +583,7 @@ export function ContentProductionTopics() {
                   data-testid={`button-view-posts-${topic.id}`}
                 >
                   <BookOpen className="h-4 w-4 mr-1" />
-                  View Posts ({topic.postCount || 0})
+                  View Posts ({topic.post_count || 0})
                 </Button>
               )}
             </div>

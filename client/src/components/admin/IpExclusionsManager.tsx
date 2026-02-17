@@ -31,12 +31,11 @@ import { useAnalyticsNewFilters } from '@/admin/analyticsNew/analyticsNewFilters
 
 interface IpExclusion {
   id: string;
-  ip_cidr: string;
+  ipCidr: string;
   label: string;
-  user_agent?: string;
   active: boolean;
   createdAt: string;
-  updatedAt: string;
+  appliesFrom: string;
 }
 
 interface IpExclusionsManagerProps {
@@ -83,7 +82,7 @@ export const IpExclusionsManager: React.FC<IpExclusionsManagerProps> = ({
 
   // Create exclusion mutation
   const createMutation = useMutation({
-    mutationFn: async (data: Omit<IpExclusion, 'id' | 'createdAt' | 'updatedAt'>) => {
+    mutationFn: async (data: { ip_cidr: string; label: string; active: boolean }) => {
       const response = await adminFetch('/api/admin/analytics/exclusions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -234,9 +233,9 @@ export const IpExclusionsManager: React.FC<IpExclusionsManagerProps> = ({
   const handleEdit = (exclusion: IpExclusion) => {
     setSelectedExclusion(exclusion);
     setFormData({
-      ip_cidr: exclusion.ip_cidr,
+      ip_cidr: exclusion.ipCidr,
       label: exclusion.label,
-      user_agent: exclusion.user_agent || '',
+      user_agent: '',
       active: exclusion.active,
     });
     setIsEditDialogOpen(true);
@@ -469,18 +468,12 @@ export const IpExclusionsManager: React.FC<IpExclusionsManagerProps> = ({
                     <div className="space-y-1">
                       <div className="font-medium text-gray-900">{exclusion.label}</div>
                       <code className="text-sm bg-gray-100 px-2 py-1 rounded text-gray-600">
-                        {exclusion.ip_cidr}
+                        {exclusion.ipCidr}
                       </code>
                     </div>
                   </TableCell>
                   <TableCell>
-                    {exclusion.user_agent ? (
-                      <code className="text-xs bg-gray-100 px-2 py-1 rounded">
-                        {exclusion.user_agent}
-                      </code>
-                    ) : (
-                      <span className="text-gray-400">None</span>
-                    )}
+                    <span className="text-gray-400">None</span>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-3">

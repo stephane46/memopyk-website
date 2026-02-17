@@ -19,9 +19,9 @@ interface AgencyCode {
   contact_email: string | null;
   contact_phone: string | null;
   notes: string | null;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string | null;
 }
 
 interface FormData {
@@ -128,7 +128,7 @@ export default function TravelAgencyCodesAdmin() {
       contactEmail: code.contact_email || '',
       contactPhone: code.contact_phone || '',
       notes: code.notes || '',
-      isActive: code.isActive
+      isActive: code.is_active
     });
     setEditDialogOpen(true);
   };
@@ -184,7 +184,7 @@ export default function TravelAgencyCodesAdmin() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredCodes.map((code) => (
-            <Card key={code.id} className={`${!code.isActive ? 'opacity-60' : ''}`}>
+            <Card key={code.id} className={`${!code.is_active ? 'opacity-60' : ''}`}>
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
                   <div>
@@ -193,8 +193,8 @@ export default function TravelAgencyCodesAdmin() {
                       {code.agency_code}
                     </CardDescription>
                   </div>
-                  <Badge variant={code.isActive ? 'default' : 'secondary'}>
-                    {code.isActive ? 'Active' : 'Inactive'}
+                  <Badge variant={code.is_active ? 'default' : 'secondary'}>
+                    {code.is_active ? 'Active' : 'Inactive'}
                   </Badge>
                 </div>
               </CardHeader>
@@ -210,7 +210,7 @@ export default function TravelAgencyCodesAdmin() {
                     <p className="text-gray-500 italic truncate">{code.notes}</p>
                   )}
                   <p className="text-xs text-gray-400">
-                    Created: {new Date(code.createdAt).toLocaleDateString()}
+                    Created: {new Date(code.created_at).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex gap-2 mt-4">

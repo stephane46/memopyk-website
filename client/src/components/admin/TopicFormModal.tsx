@@ -232,24 +232,24 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
         market,
         status,
         priority: parseInt(priority),
-        targetWordCount: parseInt(targetWordCount) || 900,
-        primaryKeyword: primaryKeyword.trim(),
-        secondaryKeywords: secondaryKeywords
+        target_word_count: parseInt(targetWordCount) || 900,
+        primary_keyword: primaryKeyword.trim(),
+        secondary_keywords: secondaryKeywords
           ? secondaryKeywords.split(',').map(kw => kw.trim()).filter(Boolean)
           : [],
-        searchVolume: searchVolume ? parseInt(searchVolume) : null,
+        search_volume: searchVolume ? parseInt(searchVolume) : null,
         competition: competition.trim() || null,
-        searchIntent: searchIntent.trim() || '',
-        contentAngle: contentAngle.trim() || '',
+        search_intent: searchIntent.trim() || '',
+        content_angle: contentAngle.trim() || '',
         description: description.trim() || '',
-        heroImageConcept: heroImageConcept.trim() || null,
-        bodyImageConcepts: bodyImageConcepts
+        hero_image_concept: heroImageConcept.trim() || null,
+        body_image_concepts: bodyImageConcepts
           ? bodyImageConcepts.split(',').map(c => c.trim()).filter(Boolean)
           : null,
-        memopykLinkOpportunities: memopykLinkOpportunities.trim() || null,
+        memopyk_link_opportunities: memopykLinkOpportunities.trim() || null,
         role,
         cluster: cluster.trim() ? toSnakeCase(cluster.trim()) : null,
-        parentTopicId: role === 'spoke' && parentTopicId ? parentTopicId : null,
+        parent_topic_id: role === 'spoke' && parentTopicId ? parentTopicId : null,
       };
 
       if (isEditMode && topic) {
