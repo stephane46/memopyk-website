@@ -44,19 +44,9 @@ function mapToCamelCase(obj: Record<string, unknown>): Record<string, unknown> {
   return result;
 }
 
-/** Map FAQ section keys — handles title_en/fr → nameEn/Fr alias */
+/** Map FAQ section keys from snake_case request body to camelCase */
 function mapSectionToCamelCase(obj: Record<string, unknown>): Record<string, unknown> {
-  const mapped = mapToCamelCase(obj);
-  // Frontend sends title_en/title_fr but Drizzle schema uses nameEn/nameFr
-  if ('titleEn' in mapped && !('nameEn' in mapped)) {
-    mapped.nameEn = mapped.titleEn;
-    delete mapped.titleEn;
-  }
-  if ('titleFr' in mapped && !('nameFr' in mapped)) {
-    mapped.nameFr = mapped.titleFr;
-    delete mapped.titleFr;
-  }
-  return mapped;
+  return mapToCamelCase(obj);
 }
 
 // =============================================================================
@@ -83,16 +73,18 @@ router.get('/faq-sections', async (req: Request, res: Response) => {
  */
 router.post('/faq-sections', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const { title_fr, title_en, order_index } = req.body;
-    
-    if (!title_fr || !title_en) {
+    const { nameFr, nameEn, orderIndex, title_fr, title_en, order_index } = req.body;
+    const fr = nameFr || title_fr;
+    const en = nameEn || title_en;
+
+    if (!fr || !en) {
       return res.status(400).json({ error: 'French and English titles are required' });
     }
-    
+
     const newSection = await storage.createFAQSection({
-      nameFr: title_fr,
-      nameEn: title_en,
-      orderIndex: order_index || 0
+      nameFr: fr,
+      nameEn: en,
+      orderIndex: orderIndex ?? order_index ?? 0
     });
     
     res.status(201).json({ success: true, section: newSection });

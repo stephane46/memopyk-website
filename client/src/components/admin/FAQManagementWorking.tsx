@@ -29,8 +29,8 @@ interface FAQ {
 
 interface FAQSection {
   id: string;
-  titleEn: string;
-  titleFr: string;
+  nameEn: string;
+  nameFr: string;
   orderIndex: number;
 }
 
@@ -46,8 +46,8 @@ const faqSchema = z.object({
 });
 
 const sectionSchema = z.object({
-  titleEn: z.string().min(1, 'Titre en anglais requis'),
-  titleFr: z.string().min(1, 'Titre en français requis'),
+  nameEn: z.string().min(1, 'Titre en anglais requis'),
+  nameFr: z.string().min(1, 'Titre en français requis'),
   orderIndex: z.number()
 });
 
@@ -90,8 +90,8 @@ export default function FAQManagementWorking() {
   const sectionForm = useForm<SectionFormData>({
     resolver: zodResolver(sectionSchema),
     defaultValues: {
-      titleEn: '',
-      titleFr: '',
+      nameEn: '',
+      nameFr: '',
       orderIndex: 1
     }
   });
@@ -287,8 +287,8 @@ export default function FAQManagementWorking() {
   const startEditingSection = (section: FAQSection) => {
     setEditingSection(section);
     sectionForm.reset({
-      titleEn: section.titleEn,
-      titleFr: section.titleFr,
+      nameEn: section.nameEn,
+      nameFr: section.nameFr,
       orderIndex: section.orderIndex
     });
     setShowSectionForm(true);
@@ -457,14 +457,14 @@ export default function FAQManagementWorking() {
       if (!section) {
         section = {
           id: faq.sectionId || "orphaned",
-          titleEn: `Orphaned Section (${faq.sectionId})`,
-          titleFr: `Section Orpheline (${faq.sectionId})`,
+          nameEn: `Orphaned Section (${faq.sectionId})`,
+          nameFr: `Section Orpheline (${faq.sectionId})`,
           orderIndex: 999
         };
       }
     }
     
-    const sectionKey = `${section.titleEn}|${section.titleFr}`;
+    const sectionKey = `${section.nameEn}|${section.nameFr}`;
     if (!acc[sectionKey]) {
       acc[sectionKey] = [];
     }
@@ -476,7 +476,7 @@ export default function FAQManagementWorking() {
 
   // Create complete section list
   const allSections = sections.sort((a, b) => a.orderIndex - b.orderIndex);
-  const allSectionKeys = allSections.map(section => `${section.titleEn}|${section.titleFr}`);
+  const allSectionKeys = allSections.map(section => `${section.nameEn}|${section.nameFr}`);
 
   // Ensure all sections have an entry in groupedFaqs
   allSectionKeys.forEach(sectionKey => {
@@ -504,8 +504,8 @@ export default function FAQManagementWorking() {
           onClick={() => {
             const maxOrder = sections.length > 0 ? Math.max(...sections.map(s => s.orderIndex)) : 0;
             sectionForm.reset({
-              titleEn: '',
-              titleFr: '',
+              nameEn: '',
+              nameFr: '',
               orderIndex: maxOrder + 1
             });
             setEditingSection(null);
@@ -563,7 +563,7 @@ export default function FAQManagementWorking() {
                         >
                           {sections.map((section) => (
                             <option key={section.id} value={section.id}>
-                              {section.titleFr} - {section.titleEn}
+                              {section.nameFr} - {section.nameEn}
                             </option>
                           ))}
                         </select>
@@ -681,7 +681,7 @@ export default function FAQManagementWorking() {
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={sectionForm.control}
-                    name="titleFr"
+                    name="nameFr"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Nom (Français)</FormLabel>
@@ -695,7 +695,7 @@ export default function FAQManagementWorking() {
                   
                   <FormField
                     control={sectionForm.control}
-                    name="titleEn"
+                    name="nameEn"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Nom (Anglais)</FormLabel>
@@ -742,7 +742,7 @@ export default function FAQManagementWorking() {
           const [sectionNameEn, sectionNameFr] = sectionKey.split('|');
           const sectionFaqs = (groupedFaqs[sectionKey] || []).sort((a, b) => a.orderIndex - b.orderIndex);
           const isExpanded = expandedSections.has(sectionKey);
-          const section = allSections.find(s => `${s.titleEn}|${s.titleFr}` === sectionKey);
+          const section = allSections.find(s => `${s.nameEn}|${s.nameFr}` === sectionKey);
 
           return (
             <Card key={sectionKey}>
