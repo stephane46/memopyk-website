@@ -6,7 +6,7 @@ MEMOPYK creates professional "Films Souvenirs" (souvenir/memory films) from clie
 
 ## Current Status
 
-**Last updated:** February 16, 2026
+**Last updated:** February 17, 2026
 **Staging:** https://memopyk.memopyk.com (auto-deploys on push to `staging`)
 **Production:** https://memopyk.com (auto-deploys on push to `main`)
 
@@ -14,7 +14,7 @@ MEMOPYK creates professional "Films Souvenirs" (souvenir/memory films) from clie
 |-----------|--------|
 | Server | ✅ Express.js (port 5000) |
 | Client | ✅ React 18 + Vite |
-| Database | ✅ Supabase PostgreSQL (85 tables) |
+| Database | ✅ Supabase PostgreSQL (35 tables, 33 in Drizzle) |
 | Analytics | ✅ GA4 + custom Supabase (blog analytics endpoints added Feb 11) |
 | Partner Directory | ✅ Mapbox GL JS with clustering (migrated Feb 14) |
 | Auto-deploy | ✅ Push → GitHub webhook → Coolify |
@@ -64,13 +64,21 @@ READ THESE FIRST:
 |-------|------|-----------|
 | Frontend | React 18, TypeScript, Vite, Tailwind, shadcn/ui | `client/src/` |
 | Backend | Express.js, TypeScript | `server/routes/` (23 route modules) |
-| Database | Supabase PostgreSQL, Drizzle ORM | `shared/schema.ts` (85 app tables, 35 in Drizzle schema) |
+| Database | Supabase PostgreSQL, Drizzle ORM | `shared/schema.ts` (34 tables), `docs/architecture/DATABASE.md` |
 | Deployment | Docker, Coolify | `Dockerfile`, `docker-compose.yml` |
 | Email | Resend | Contact form, notifications |
 | Storage | Supabase Storage CDN | Images, videos |
 
 ## Recent Work
 
+- 2026-02-17: Overnight hardening — Contact form rate limiting (3/hr per IP + honeypot), schema alignment (19 warnings → 0), Web Vitals collection removed (unnecessary DB writes, no UI), production smoke test (49 screens), schema audit now 0 CRITICAL / 0 WARNING
+- 2026-02-17: Database cleanup — 88→35 tables. Dropped 50 empty legacy tables (Payload CMS + quoting system), dropped 2 empty unreferenced tables, truncated 102K test contacts (28 MB), added analytics_events to Drizzle. All application tables now in Drizzle schema.
+- 2026-02-17: Schema audit automation — `tests/e2e/schema-audit.ts` (654 lines), compares 34 Drizzle tables (482 cols) vs actual DB. Found 19 issues manual audit missed.
+- 2026-02-17: Schema vs DB fixes — 5 Replit migration ghosts fixed (performance_metrics wrong table, country_names phantom, gallery_items missing cols, blog_tags phantom timestamps, FAQ field names)
+- 2026-02-17: Smoke test infrastructure — 51-screen automated smoke test (29 admin + 22 public), reusable for staging→production validation
+- 2026-02-17: Contact page wired up, blog tags 500 error fixed, keywords help content gap fixed
+- 2026-02-17: DATABASE.md created — complete schema documentation for all 35 tables with categories, relationships, indexes
+- 2026-02-17: CLAUDE_WORKING_CONSTRAINTS.md v4.0 — Rule 11 added (verify deliverables before accepting completion)
 - 2026-02-16: Help content enrichment — 5 screens updated in Supabase (CTA Buttons rewrite, Analytics Overview, Planner, FAQ Management, Travel Agencies). QC screenshots in tests/e2e/screenshots/help-qc/
 - 2026-02-15: V8 naive user test — strict UI-only, 28/28 CLEAR, 14/15 flow steps CLEAR, Blog Editor 11/11, 2 final fixes (Agences heading, Flow 2 Step 6 wording)
 - 2026-02-14: CSP fix — added Mapbox domains to Content-Security-Policy (script-src blob:, worker-src, connect-src api.mapbox.com)

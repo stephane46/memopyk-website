@@ -34,6 +34,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onSuccess, className =
   const { language } = useLanguage();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [honeypot, setHoneypot] = React.useState('');
 
   const form = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
@@ -47,7 +48,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onSuccess, className =
   });
 
   const createContactMutation = useMutation({
-    mutationFn: (data: ContactFormData) => apiRequest('/api/contacts', 'POST', data),
+    mutationFn: (data: ContactFormData & { website: string }) => apiRequest('/api/contacts', 'POST', data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['/api/contacts'] });
       
@@ -82,7 +83,8 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onSuccess, className =
   });
 
   const onSubmit = (data: ContactFormData) => {
-    createContactMutation.mutate(data);
+    // Include honeypot field in submission
+    createContactMutation.mutate({ ...data, website: honeypot });
   };
 
   const getText = (fr: string, en: string) => language === 'fr-FR' ? fr : en;
@@ -103,6 +105,18 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onSuccess, className =
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* Honeypot field - hidden from users, catches bots */}
+          <input
+            type="text"
+            name="website"
+            style={{ display: 'none' }}
+            tabIndex={-1}
+            autoComplete="off"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+            aria-hidden="true"
+          />
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}

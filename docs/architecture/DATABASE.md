@@ -10,8 +10,8 @@
 | Metric | Count |
 |--------|-------|
 | **Total tables (public schema)** | 35 |
-| **Tables in Drizzle ORM** | 34 |
-| **DB-only tables** | 2 |
+| **Tables in Drizzle ORM** | 33 |
+| **DB-only tables** | 3 |
 | **Tables with data (rows > 0)** | 17 |
 | **Empty tables** | 18 |
 | **Views** | 2 (PostGIS) |
@@ -25,12 +25,12 @@
 |----------|--------|------------|---------|-----------|
 | Website Core | 9 | 9 | 0 | 3 |
 | Blog & Content | 12 | 12 | 0 | 5 |
-| Analytics | 6 | 6 | 0 | 5 |
+| Analytics | 6 | 5 | 1 | 5 |
 | SEO | 2 | 2 | 0 | 1 |
 | Partners | 1 | 1 | 0 | 0 |
 | Travel | 2 | 2 | 0 | 2 |
 | Admin/System | 2 | 2 | 0 | 2 |
-| **Total** | **35** | **34** | **0** | **18** |
+| **Total** | **35** | **33** | **1** | **18** |
 
 > **Legacy cleanup (Feb 17, 2026):** 50 empty, unreferenced legacy tables dropped (Payload CMS, quoting system, misc). 102,299 test contact rows truncated. See commit for details.
 
@@ -68,7 +68,7 @@ Homepage, contact form, FAQ, legal pages, gallery, CTA configuration.
 | `gallery_items` | 39 | 6 | 80 KB | Yes | Portfolio items with video/image URLs, format badges, bilingual content, crop settings |
 | `faq_sections` | 8 | 0 | 16 KB | Yes | FAQ section groupings (bilingual names) |
 | `faqs` | 13 | 0 | 120 KB | Yes | FAQ items with bilingual Q&A, section ordering, JSON-LD schema |
-| `contacts` | 11 | 0 | 16 KB | Yes | Contact form submissions (name, email, phone, message, status). Truncated Feb 17, 2026 (102K test rows purged) |
+| `contacts` | 10 | 0 | 16 KB | Yes | Contact form submissions (name, email, phone, message, status). Rate-limited: 3/hr per IP, 10/day, honeypot protection. Truncated Feb 17 (102K test rows purged) |
 | `legal_documents` | 8 | 0 | 88 KB | Yes | Legal page content (privacy, terms) -- bilingual |
 | `cta_settings` | 8 | 0 | 16 KB | Yes | Call-to-action button configuration (bilingual text + URLs) |
 | `why_memopyk_cards` | 11 | 0 | 16 KB | Yes | "Why MEMOPYK" benefit cards (icon, gradient, bilingual title/description) |
@@ -96,7 +96,7 @@ Blog articles, content planning, keyword management, image bank, AI context.
 | ~~`content_prompt_templates`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (empty, superseded by ai_context)* |
 | `ai_context` | 8 | 6 | 160 KB | Yes | Brand Brain entries for Claude API context (key, title, content, category) |
 
-### 3. Analytics (7 tables)
+### 3. Analytics (6 tables)
 
 Custom analytics tracking (sessions, views, events, performance, conversions).
 
@@ -107,7 +107,7 @@ Custom analytics tracking (sessions, views, events, performance, conversions).
 | `analytics_events` | 33 | 8,555 | 5.0 MB | Yes | CTA click events. Added to Drizzle Feb 17. Still accessed via raw SQL in `analytics.routes.ts` |
 | `analytics_exclusions` | 6 | 1 | 64 KB | Yes | IP/CIDR exclusion rules for filtering admin traffic |
 | ~~`analytics_conversions`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (orphaned duplicate of analytics_events, 121 rows, 0 code refs)* |
-| `performance_metrics` | 30 | 13,669 | 4.7 MB | Yes | Core Web Vitals (LCP, CLS, INP, FID, TTFB) and page load metrics |
+| `performance_metrics` | 30 | 13,669 | 4.7 MB | **No** | Core Web Vitals (LCP, CLS, INP, FID, TTFB). Collection code removed Feb 17 (no admin UI). Table retained for historical data. |
 | `realtime_visitors` | 11 | 0 | 16 KB | Yes | Active visitor tracking (session, page, location, last_seen) |
 | ~~`conversion_funnel`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (empty, unused)* |
 | ~~`engagement_heatmap`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (empty, unused)* |
@@ -306,7 +306,7 @@ content_daily_assignments.post_id --> blog_posts.id
 
 ### Schema Definition
 
-All 34 active tables are defined in `shared/schema.ts` using `pgTable()`. Each table export includes:
+All 33 active tables are defined in `shared/schema.ts` using `pgTable()`. Each table export includes:
 - Table definition: `export const blogPosts = pgTable("blog_posts", { ... })`
 - Insert schema: `createInsertSchema()` from `drizzle-zod` (omitting auto-generated fields)
 - TypeScript types: `$inferSelect` and `z.infer<>`
@@ -363,7 +363,9 @@ Some routes also use raw SQL via `pool` (e.g., `analytics.routes.ts` for `analyt
 
 ### Tables with Data but No Drizzle Schema
 
-None. All application tables with data are in the Drizzle schema. The only DB-only table is `spatial_ref_sys` (PostGIS system table).
+| Table | Rows | Notes |
+|-------|------|-------|
+| `performance_metrics` | 13,669 | Historical Web Vitals data. Collection code removed Feb 17 (no admin UI). Table retained for potential future use. |
 
 ---
 
@@ -384,6 +386,12 @@ None. All application tables with data are in the Drizzle schema. The only DB-on
 - **`blog_post_views`** → Classification C: UNREFERENCED AND EMPTY. Dropped.
 - **`seo_redirects`** → Classification C: UNREFERENCED AND EMPTY. Dropped.
 
+**Feb 17, 2026 (phase 3):** Overnight hardening — schema alignment + Web Vitals removal.
+
+- **Schema alignment:** 15 text→varchar fixes (travel_agency_codes 4, travel_upload_submissions 11), 4 nullable fixes (content_keywords.market, travel_upload_submissions share_url/share_id/share_token). Audit now 0 CRITICAL / 0 WARNING.
+- **Web Vitals removal:** `performanceMetrics` Drizzle definition removed (collection code had no admin UI). Table retained in DB (13,669 historical rows).
+- **Contact form hardening:** Rate limiting (3/hr per IP, 10/day, 50/hr global) + honeypot field. Middleware at `server/middleware/rate-limit.ts`.
+
 ---
 
 ## Storage Architecture
@@ -402,12 +410,12 @@ Server caches Supabase Storage videos to local disk (`/app/cache/` in Docker) vi
 
 ## Schema vs Database Mismatches
 
-The automated schema audit (`tests/e2e/schema-audit.ts`) compares Drizzle definitions against the live database. Last run (Feb 17, 2026, after DB-only table resolution):
+The automated schema audit (`tests/e2e/schema-audit.ts`) compares Drizzle definitions against the live database. Last run (Feb 17, 2026, after overnight hardening):
 
 - **0 CRITICAL** mismatches
-- **15 WARNING** -- text vs varchar type differences in `travel_agency_codes` (4) and `travel_upload_submissions` (11). Functionally identical in PostgreSQL.
-- **4 INFO** -- nullable column mismatches in `content_keywords.market` and `travel_upload_submissions` share fields
-- **2 DB-only tables** -- `spatial_ref_sys` (PostGIS), `geography_columns` (PostGIS view)
+- **0 WARNING** — all 19 previous warnings resolved (15 text→varchar, 4 nullable fixes)
+- **0 INFO**
+- **2 DB-only tables** — `spatial_ref_sys` (PostGIS system), `performance_metrics` (historical data, collection code removed)
 
 Run the audit: `npx tsx tests/e2e/schema-audit.ts`
 

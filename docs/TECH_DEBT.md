@@ -1,25 +1,31 @@
 # Technical Debt & Deferred Work
 
 **Purpose**: Track technical improvements, skipped tests, and deferred tasks
-**Last Updated**: 2026-02-14
+**Last Updated**: 2026-02-17
 
 ---
 
 ## Active Items
 
-### Analytics Dashboard Strategic Decision
-**Date Added**: 2026-02-11
-**Severity**: Medium
-**Location**: Admin analytics section
-**Details**: 8,000+ lines of analytics code. Decision needed: fix existing code vs. clean rebuild with custom business metrics that GA4 can't provide. Blog analytics endpoints (5 new) already built Feb 11.
-**To Fix**: Strategic decision from Stéphane, then execute.
+No active tech debt items.
 
 ---
 
 ## Resolved (Feb 2026)
 
 | Date | Item | Solution |
+| Feb 17 | Schema alignment — 19 warnings → 0 | 15 text→varchar fixes + 4 nullable fixes in Drizzle schema. Audit now 0 CRITICAL / 0 WARNING / 0 INFO. |
+| Feb 17 | Contact form rate limiting | Per-IP: 3/hr, 10/day. Global: 50/hr. Honeypot field catches bots silently. Middleware at `server/middleware/rate-limit.ts`. |
+| Feb 17 | Web Vitals collection removed | Collection code removed (unnecessary DB writes with no UI). performance_metrics table retained (13,669 historical rows). |
+| Feb 17 | Schema audit script | Automated script at `tests/e2e/schema-audit.ts` — compares 33 Drizzle tables (485 columns) against actual DB. Run with `npx tsx tests/e2e/schema-audit.ts`. |
+| Feb 17 | Schema vs DB mismatches (Replit ghosts) | 5 total found and fixed: FAQ `titleEn`/`titleFr`→`nameEn`/`nameFr`, blog_tags phantom `createdAt`/`updatedAt`, performance_metrics completely wrong table, country_names table doesn't exist, gallery_items 3 missing columns |
+| Feb 17 | Blog tags 500 error | Phantom `createdAt`/`updatedAt` columns in Drizzle schema — removed to match actual DB |
+| Feb 17 | Contact page placeholder | Created ContactPage.tsx wrapping existing ContactForm, replaced "Coming Soon" divs in App.tsx |
+| Feb 17 | Smoke test infrastructure | 51-screen automated smoke test (29 admin + 22 public). Reusable before staging→production merges. |
+| Feb 17 | Smoke test false positives | Word-boundary regex for 500/404/NaN/null, font CORS filtering, resilient selectors |
 |------|------|----------|
+| Feb 15 | V8 naive user test 28/28 CLEAR | Strict UI-only retest, Blog Editor 11/11, 2 final fixes (Agences heading, Flow 2 Step 6) |
+| Feb 14 | Analytics dashboard — not a rebuild | Audited: 9,379 lines all active, only 516 orphan lines deleted. Working code, no rebuild needed. |
 | Feb 14 | Mapbox GL JS migration | Replaced Leaflet with Mapbox GL JS + GeoJSON clustering in PartnerMapbox.tsx, updated EN/FR directories |
 | Feb 14 | 7 skipped E2E tests | Unskipped and fixed 4 AI Creator + 3 Post Actions tests in admin-blog.spec.ts |
 | Feb 14 | 5 orphan analytics files (516 lines) | Deleted: useLocationEnrichment, ga4Report, mockReport (x2), phase3.json |

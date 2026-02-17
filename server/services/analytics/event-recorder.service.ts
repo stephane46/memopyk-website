@@ -1,13 +1,13 @@
 /**
  * Event Recorder Service
  *
- * Core analytics tracking: records page views, video events, and performance metrics.
+ * Core analytics tracking: records page views and video events.
  * All events are checked against IP exclusions before recording.
  * Includes deduplication to prevent spam within 30-second windows.
  */
 
 import { db } from "../../db";
-import { analyticsViews, analyticsSessions, performanceMetrics } from "@shared/schema";
+import { analyticsViews, analyticsSessions } from "@shared/schema";
 import { eq, and, gte } from "drizzle-orm";
 import { isExcludedIP } from "./ip-exclusion.service";
 import { getOrCreateSession } from "./session.service";
@@ -95,17 +95,6 @@ export interface VideoEventData {
   action: "play" | "progress" | "complete" | "pause";
   progress?: number; // 0-100 for progress events
   watchTime?: number; // seconds watched
-  ipAddress: string;
-  userAgent?: string;
-}
-
-export interface PerformanceData {
-  sessionId?: string;
-  lcp?: number; // Largest Contentful Paint (ms)
-  fid?: number; // First Input Delay (ms)
-  cls?: number; // Cumulative Layout Shift (score)
-  ttfb?: number; // Time to First Byte (ms)
-  pageUrl?: string;
   ipAddress: string;
   userAgent?: string;
 }
@@ -243,50 +232,6 @@ export async function recordVideoEvent(data: VideoEventData): Promise<RecordResu
 }
 
 /**
- * Record Core Web Vitals performance metrics
- * Inserts one row per page with all metric values as columns (matches DB schema)
- */
-export async function recordPerformanceMetrics(data: PerformanceData): Promise<RecordResult> {
-  try {
-    // Check IP exclusion
-    if (await isExcludedIP(data.ipAddress)) {
-      return { success: false, reason: "ip_excluded" };
-    }
-
-    // Deduplicate: same IP + same page within window
-    const dedupKey = `perf:${data.ipAddress}:${data.pageUrl || "unknown"}`;
-    if (isDuplicate(dedupKey)) {
-      return { success: false, reason: "duplicate" };
-    }
-
-    // Check if we have any metrics to record
-    if (data.lcp === undefined && data.fid === undefined && data.cls === undefined && data.ttfb === undefined) {
-      return { success: false, reason: "no_metrics" };
-    }
-
-    await db.insert(performanceMetrics).values({
-      pagePath: data.pageUrl || null,
-      lcpValue: data.lcp !== undefined ? String(data.lcp) : null,
-      clsValue: data.cls !== undefined ? String(data.cls) : null,
-      fidValue: data.fid !== undefined ? String(data.fid) : null,
-      ttfb: data.ttfb !== undefined ? Math.round(data.ttfb) : null,
-    });
-
-    const metricNames: string[] = [];
-    if (data.lcp !== undefined) metricNames.push("LCP");
-    if (data.fid !== undefined) metricNames.push("FID");
-    if (data.cls !== undefined) metricNames.push("CLS");
-    if (data.ttfb !== undefined) metricNames.push("TTFB");
-
-    console.log(`⚡ Performance metrics recorded: ${metricNames.join(", ")}`);
-    return { success: true };
-  } catch (error) {
-    console.error("Error recording performance metrics:", error);
-    return { success: false, reason: "database_error" };
-  }
-}
-
-/**
  * Helper: Detect if IP is likely test/development data
  */
 function isTestDataIP(ip: string): boolean {
@@ -309,6 +254,5 @@ function isTestDataIP(ip: string): boolean {
 export default {
   recordPageView,
   recordVideoEvent,
-  recordPerformanceMetrics,
   extractClientIP,
 };

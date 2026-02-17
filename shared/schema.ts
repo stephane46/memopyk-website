@@ -347,39 +347,8 @@ export const realtimeVisitors = pgTable("realtime_visitors", {
   isTestData: boolean("is_test_data").default(false) // Flag to distinguish test data from real data
 });
 
-// Performance metrics table — Core Web Vitals (matches actual DB structure)
-export const performanceMetrics = pgTable("performance_metrics", {
-  id: bigserial("id", { mode: "number" }).primaryKey(),
-  metricId: uuid("metric_id").defaultRandom().notNull(),
-  pageName: varchar("page_name"),
-  pagePath: varchar("page_path"),
-  lcpValue: numeric("lcp_value"), // Largest Contentful Paint (ms)
-  lcpRating: varchar("lcp_rating"), // 'good', 'needs-improvement', 'poor'
-  clsValue: numeric("cls_value"), // Cumulative Layout Shift (score)
-  clsRating: varchar("cls_rating"),
-  inpValue: numeric("inp_value"), // Interaction to Next Paint (ms)
-  inpRating: varchar("inp_rating"),
-  fidValue: numeric("fid_value"), // First Input Delay (ms)
-  fidRating: varchar("fid_rating"),
-  dnsTime: integer("dns_time"),
-  tcpTime: integer("tcp_time"),
-  ttfb: integer("ttfb"), // Time to First Byte (ms)
-  domInteractive: integer("dom_interactive"),
-  domComplete: integer("dom_complete"),
-  pageLoadTime: integer("page_load_time"),
-  resourceCount: integer("resource_count"),
-  transferSize: integer("transfer_size"),
-  performanceScore: numeric("performance_score"),
-  accessibilityScore: numeric("accessibility_score"),
-  bestPracticesScore: numeric("best_practices_score"),
-  seoScore: numeric("seo_score"),
-  pwaScore: numeric("pwa_score"),
-  deviceType: varchar("device_type"),
-  browserName: varchar("browser_name"),
-  connectionType: varchar("connection_type"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
-});
+// NOTE: performance_metrics table exists in DB with 13,669 historical rows but has no admin UI.
+// Collection code removed Feb 17, 2026. Drizzle schema definition removed to prevent unnecessary queries.
 
 // NOTE: country_names table does NOT exist in DB — all usage is via raw SQL in admin.routes.ts
 // Drizzle schema definition removed to prevent misleading type generation.
@@ -411,7 +380,6 @@ export const insertAnalyticsSessionSchema = createInsertSchema(analyticsSessions
 export const insertAnalyticsViewSchema = createInsertSchema(analyticsViews).omit({ id: true, createdAt: true });
 export const insertAnalyticsEventSchema = createInsertSchema(analyticsEvents).omit({ id: true, eventId: true, createdAt: true, updatedAt: true });
 export const insertRealtimeVisitorSchema = createInsertSchema(realtimeVisitors).omit({ id: true, createdAt: true, lastSeen: true });
-export const insertPerformanceMetricSchema = createInsertSchema(performanceMetrics).omit({ id: true, metricId: true, createdAt: true, updatedAt: true });
 
 // Select types for all tables
 export type HeroVideo = typeof heroVideos.$inferSelect;
@@ -428,7 +396,6 @@ export type AnalyticsSession = typeof analyticsSessions.$inferSelect;
 export type AnalyticsView = typeof analyticsViews.$inferSelect;
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 export type RealtimeVisitor = typeof realtimeVisitors.$inferSelect;
-export type PerformanceMetric = typeof performanceMetrics.$inferSelect;
 export type WhyMemopykCards = typeof whyMemopykCards.$inferSelect;
 export type AnalyticsExclusion = typeof analyticsExclusions.$inferSelect;
 
@@ -735,7 +702,7 @@ export const contentKeywords = pgTable("content_keywords", {
   difficultyScore: integer("difficulty_score"),
   intent: text("intent"),
   tier: integer("tier"),
-  market: text("market").default("fr").notNull(), // 'fr' | 'en'
+  market: text("market").default("fr"), // 'fr' | 'en' — nullable in DB
   seasonal: boolean("seasonal").default(false),
   seasonalMonths: text("seasonal_months").array(),
   cluster: text("cluster"), // Content grouping (e.g., gift_retirement, vhs_legacy)
@@ -823,7 +790,6 @@ export type InsertSeoAuditLog = z.infer<typeof insertSeoAuditLogSchema>;
 export type InsertAnalyticsSession = z.infer<typeof insertAnalyticsSessionSchema>;
 export type InsertAnalyticsView = z.infer<typeof insertAnalyticsViewSchema>;
 export type InsertRealtimeVisitor = z.infer<typeof insertRealtimeVisitorSchema>;
-export type InsertPerformanceMetric = z.infer<typeof insertPerformanceMetricSchema>;
 export type InsertWhyMemopykCards = z.infer<typeof insertWhyMemopykCardsSchema>;
 export type InsertAnalyticsExclusion = z.infer<typeof insertAnalyticsExclusionSchema>;
 
@@ -832,10 +798,10 @@ export type InsertAnalyticsExclusion = z.infer<typeof insertAnalyticsExclusionSc
 export const travelAgencyCodes = pgTable("travel_agency_codes", {
   id: serial("id").primaryKey(),
 
-  agencyName: text("agency_name").notNull(),
-  agencyCode: text("agency_code").notNull().unique(), // Stored uppercase for case-insensitive matching
-  contactEmail: text("contact_email"),
-  contactPhone: text("contact_phone"),
+  agencyName: varchar("agency_name").notNull(),
+  agencyCode: varchar("agency_code").notNull().unique(), // Stored uppercase for case-insensitive matching
+  contactEmail: varchar("contact_email"),
+  contactPhone: varchar("contact_phone"),
   notes: text("notes"),
   isActive: boolean("is_active").default(true),
 
@@ -855,20 +821,20 @@ export type InsertTravelAgencyCode = z.infer<typeof insertTravelAgencyCodeSchema
 export const travelUploadSubmissions = pgTable("travel_upload_submissions", {
   id: serial("id").primaryKey(),
 
-  firstName: text("first_name").notNull(),
-  lastName: text("last_name").notNull(),
-  email: text("email").notNull(),
-  phone: text("phone"),
-  agencyCode: text("agency_code").notNull(),
+  firstName: varchar("first_name").notNull(),
+  lastName: varchar("last_name").notNull(),
+  email: varchar("email").notNull(),
+  phone: varchar("phone"),
+  agencyCode: varchar("agency_code").notNull(),
   agencyName: text("agency_name"),
-  language: text("language").notNull(),
+  language: varchar("language").notNull(),
 
-  folderPath: text("folder_path").notNull(),
-  shareUrl: text("share_url").notNull(),
-  shareId: text("share_id").notNull(),
-  shareToken: text("share_token").notNull(),
+  folderPath: varchar("folder_path").notNull(),
+  shareUrl: varchar("share_url"), // nullable in DB
+  shareId: varchar("share_id"), // nullable in DB
+  shareToken: varchar("share_token"), // nullable in DB
 
-  status: text("status").default("active"),
+  status: varchar("status").default("active"),
   agencyEmailSent: boolean("agency_email_sent").default(false),
   ngocEmailSent: boolean("ngoc_email_sent").default(false),
 

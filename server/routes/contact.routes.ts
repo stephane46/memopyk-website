@@ -13,8 +13,29 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { storage } from '../services/storage.service';
 import { requireAdmin } from '../middleware/auth.middleware';
+import { createRateLimiter } from '../middleware/rate-limit';
 
 const router = Router();
+
+// =============================================================================
+// Rate Limiters
+// =============================================================================
+
+// Hourly limiter: 3 requests per hour per IP, 50 total per hour
+const hourlyLimiter = createRateLimiter({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  maxRequests: 3,
+  globalMax: 50,
+  message: "Too many contact form submissions. Please try again later."
+});
+
+// Daily limiter: 10 requests per day per IP
+const dailyLimiter = createRateLimiter({
+  windowMs: 24 * 60 * 60 * 1000, // 24 hours
+  maxRequests: 10,
+  globalMax: 500, // Generous global limit for daily window
+  message: "Daily contact form submission limit exceeded. Please try again tomorrow."
+});
 
 // =============================================================================
 // Validation Schemas
@@ -52,14 +73,22 @@ router.get('/contact', async (req: Request, res: Response) => {
  * POST /api/contacts
  * Submit contact form (public)
  */
-router.post('/contacts', async (req: Request, res: Response) => {
+router.post('/contacts', hourlyLimiter, dailyLimiter, async (req: Request, res: Response) => {
   try {
+    // Honeypot check - if 'website' field is filled, it's a bot
+    if (req.body.website) {
+      const ip = req.ip || req.headers['x-forwarded-for']?.toString().split(',')[0].trim() || 'unknown';
+      console.warn(`[Honeypot] Bot detected from IP ${ip} - website field filled: "${req.body.website}"`);
+      // Silently accept to avoid tipping off bots
+      return res.json({ success: true, message: "Message sent successfully" });
+    }
+
     const result = contactFormSchema.parse(req.body);
     console.log("📧 Contact form submission:", result);
-    
+
     // Store contact in hybrid storage
     const contact = await storage.createContact(result);
-    
+
     res.json({ success: true, message: "Message sent successfully", contact });
   } catch (error) {
     if (error instanceof z.ZodError) {
