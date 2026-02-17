@@ -25,6 +25,10 @@ export function HelpButton({ className }: HelpButtonProps) {
       if (tab === 'analytics-new' && anTab) {
         return `${pathname}?tab=${tab}&an_tab=${anTab}`;
       }
+      // Show "New Post" help when editing a just-created post
+      if (tab === 'blog-edit' && searchParams.get('new') === 'true') {
+        return '/admin?tab=new-post';
+      }
       return `${pathname}?tab=${tab}`;
     }
     return pathname;

@@ -196,6 +196,13 @@ export function BlogEditor({ postId }: BlogEditorProps) {
 
     // Save tags
     await saveTagsMutation.mutateAsync(selectedTagIds);
+
+    // After first save, remove "new" flag so help reverts to Blog Editor help
+    const currentUrl = new URL(window.location.href);
+    if (currentUrl.searchParams.has('new')) {
+      currentUrl.searchParams.delete('new');
+      window.history.replaceState({}, '', currentUrl.toString());
+    }
   };
 
   const handlePreview = () => {

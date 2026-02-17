@@ -82,7 +82,7 @@ export function BlogManagePosts() {
       if (result.success && result.data?.id) {
         const currentPath = window.location.pathname;
         const langPrefix = currentPath.match(/^\/(en-US|fr-FR)/)?.[0] || '';
-        window.location.href = `${langPrefix}/admin?tab=blog-edit&id=${result.data.id}`;
+        window.location.href = `${langPrefix}/admin?tab=blog-edit&id=${result.data.id}&new=true`;
       }
     } catch (error) {
       toast({
