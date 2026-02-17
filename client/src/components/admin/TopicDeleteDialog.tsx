@@ -18,7 +18,7 @@ interface ContentTopic {
   id: string;
   title: string;
   post_count?: number;
-  times_generated?: number;
+  timesGenerated?: number;
 }
 
 interface TopicDeleteDialogProps {
@@ -58,7 +58,7 @@ export function TopicDeleteDialog({ isOpen, onClose, topic }: TopicDeleteDialogP
   };
 
   const postCount = topic.post_count || 0;
-  const timesGenerated = topic.times_generated || 0;
+  const timesGenerated = topic.timesGenerated || 0;
 
   return (
     <AlertDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>

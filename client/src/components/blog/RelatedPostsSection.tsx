@@ -94,17 +94,17 @@ export default function RelatedPostsSection({
               >
                 <img
                   src={assetUrl(post.image?.id)}
-                  alt={post.hero_caption || post.title}
+                  alt={post.heroCaption || post.title}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
                   loading="lazy"
                 />
               </Link>
-              {post.matching_tags && post.matching_tags > 0 && (
+              {post.matchingTags && post.matchingTags > 0 && (
                 <Badge 
                   className="absolute top-3 right-3 bg-[#D67C4A] hover:bg-[#D67C4A]/90"
                   data-testid={`matching-tags-badge-${post.slug}`}
                 >
-                  {post.matching_tags} {language === 'fr-FR' ? 'tags communs' : 'matching tags'}
+                  {post.matchingTags} {language === 'fr-FR' ? 'tags communs' : 'matching tags'}
                 </Badge>
               )}
             </div>
@@ -121,10 +121,10 @@ export default function RelatedPostsSection({
               
               {/* Metadata */}
               <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 pt-2">
-                {post.published_at && (
+                {post.publishedAt && (
                   <span className="flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" />
-                    {new Date(post.published_at).toLocaleDateString(
+                    {new Date(post.publishedAt).toLocaleDateString(
                       language === 'fr-FR' ? 'fr-FR' : 'en-US',
                       { year: 'numeric', month: 'short', day: 'numeric' }
                     )}
@@ -135,7 +135,7 @@ export default function RelatedPostsSection({
 
             <CardContent>
               <CardDescription className="text-gray-700 line-clamp-3">
-                {post.description || post.hero_caption}
+                {post.description || post.heroCaption}
               </CardDescription>
             </CardContent>
 

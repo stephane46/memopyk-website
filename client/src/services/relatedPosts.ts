@@ -3,11 +3,11 @@ export interface PostCard {
   slug: string;
   title: string;
   description?: string;
-  hero_caption?: string;
-  published_at?: string;
+  heroCaption?: string;
+  publishedAt?: string;
   language?: string;
   image?: { id: string };
-  matching_tags?: number;
+  matchingTags?: number;
 }
 
 export async function fetchRelatedPosts(
@@ -22,8 +22,8 @@ export async function fetchRelatedPosts(
   const json = await res.json();
   return (json.data || []).map((post: any) => ({
     ...post,
-    image: post.hero_url ? { id: post.hero_url } : undefined,
-    matching_tags: post.score || 0,
+    image: post.heroUrl ? { id: post.heroUrl } : undefined,
+    matchingTags: post.score || 0,
   }));
 }
 

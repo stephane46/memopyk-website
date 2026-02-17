@@ -137,7 +137,7 @@ export function BlogManagePosts() {
     mutationFn: async ({ id, newStatus }: { id: string; newStatus: 'draft' | 'in_review' | 'published' | 'archived' }) => {
       const updates: any = { status: newStatus };
       if (newStatus === 'published') {
-        updates.published_at = new Date().toISOString();
+        updates.publishedAt = new Date().toISOString();
       }
       return apiRequest(`/api/admin/blog/posts/${id}`, 'PATCH', updates);
     },

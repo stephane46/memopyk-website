@@ -868,9 +868,9 @@ export default function HeroManagement() {
                                         applyTextMutation.mutate({
                                           textId: text.id,
                                           fontSizes: {
-                                            desktop: text.fontSize_desktop || text.fontSize || 60,
-                                            tablet: text.fontSize_tablet || Math.round((text.fontSize || 60) * 0.75),
-                                            mobile: text.fontSize_mobile || Math.round((text.fontSize || 60) * 0.53),
+                                            desktop: text.fontSizeDesktop || text.fontSize || 60,
+                                            tablet: text.fontSizeTablet || Math.round((text.fontSize || 60) * 0.75),
+                                            mobile: text.fontSizeMobile || Math.round((text.fontSize || 60) * 0.53),
                                             legacy: text.fontSize
                                           }
                                         });
