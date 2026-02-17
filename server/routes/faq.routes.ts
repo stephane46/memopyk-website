@@ -69,6 +69,40 @@ function transformSectionToSnakeCase(section: Record<string, unknown>) {
 }
 
 // =============================================================================
+// HELPER: Map snake_case request keys to Drizzle camelCase
+// =============================================================================
+
+/** Convert a single snake_case key to camelCase */
+function snakeToCamel(key: string): string {
+  return key.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase());
+}
+
+/** Map all object keys from snake_case to camelCase for Drizzle */
+function mapToCamelCase(obj: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value === undefined) continue;
+    result[snakeToCamel(key)] = value;
+  }
+  return result;
+}
+
+/** Map FAQ section keys — handles title_en/fr → nameEn/Fr alias */
+function mapSectionToCamelCase(obj: Record<string, unknown>): Record<string, unknown> {
+  const mapped = mapToCamelCase(obj);
+  // Frontend sends title_en/title_fr but Drizzle schema uses nameEn/nameFr
+  if ('titleEn' in mapped && !('nameEn' in mapped)) {
+    mapped.nameEn = mapped.titleEn;
+    delete mapped.titleEn;
+  }
+  if ('titleFr' in mapped && !('nameFr' in mapped)) {
+    mapped.nameFr = mapped.titleFr;
+    delete mapped.titleFr;
+  }
+  return mapped;
+}
+
+// =============================================================================
 // FAQ SECTIONS ROUTES
 // =============================================================================
 
@@ -101,9 +135,9 @@ router.post('/faq-sections', requireAdmin, async (req: Request, res: Response) =
     }
     
     const newSection = await storage.createFAQSection({
-      title_fr,
-      title_en,
-      order_index: order_index || 0
+      nameFr: title_fr,
+      nameEn: title_en,
+      orderIndex: order_index || 0
     });
     
     res.status(201).json({ success: true, section: newSection });
@@ -120,8 +154,8 @@ router.post('/faq-sections', requireAdmin, async (req: Request, res: Response) =
 router.patch('/faq-sections/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const sectionId = req.params.id;
-    const updates = req.body;
-    
+    const updates = mapSectionToCamelCase(req.body);
+
     const section = await storage.updateFAQSection(sectionId, updates);
     res.json(section);
   } catch (error) {
@@ -160,7 +194,7 @@ router.patch('/faq-sections/:id/reorder', requireAdmin, async (req: Request, res
     }
     
     console.log(`🔄 Reordering FAQ section: ${sectionId} to order ${order_index}`);
-    const updatedSection = await storage.updateFAQSection(sectionId, { order_index });
+    const updatedSection = await storage.updateFAQSection(sectionId, { orderIndex: order_index });
     res.json({ success: true, section: updatedSection });
   } catch (error) {
     console.error('Reorder FAQ section error:', error);
@@ -201,13 +235,13 @@ router.post('/faqs', requireAdmin, async (req: Request, res: Response) => {
     }
     
     const newFaq = await storage.createFAQ({
-      section_id,
-      question_en,
-      question_fr,
-      answer_en,
-      answer_fr,
-      order_index: order_index || 0,
-      is_active: is_active !== undefined ? is_active : true
+      sectionId: section_id,
+      questionEn: question_en,
+      questionFr: question_fr,
+      answerEn: answer_en,
+      answerFr: answer_fr,
+      orderIndex: order_index || 0,
+      isActive: is_active !== undefined ? is_active : true
     });
     
     res.status(201).json({ success: true, faq: newFaq });
@@ -228,8 +262,8 @@ router.patch('/faqs/:id', requireAdmin, async (req: Request, res: Response) => {
     console.log('🔧 PATCH /faqs/:id - Body:', req.body);
     
     const faqId = req.params.id;
-    const updates = req.body;
-    
+    const updates = mapToCamelCase(req.body);
+
     const faq = await storage.updateFAQ(faqId, updates);
     
     console.log('✅ FAQ update completed successfully:', faq);
@@ -271,7 +305,7 @@ router.patch('/faqs/:id/reorder', requireAdmin, async (req: Request, res: Respon
     }
     
     console.log(`🔄 Reordering FAQ: ${faqId} to order ${order_index}`);
-    const updatedFaq = await storage.updateFAQ(faqId, { order_index });
+    const updatedFaq = await storage.updateFAQ(faqId, { orderIndex: order_index });
     res.json({ success: true, faq: updatedFaq });
   } catch (error) {
     console.error('Reorder FAQ error:', error);

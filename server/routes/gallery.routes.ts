@@ -97,6 +97,25 @@ function clearGalleryCache() {
 }
 
 
+// =============================================================================
+// HELPER: Map snake_case request keys to Drizzle camelCase
+// =============================================================================
+
+/** Convert a single snake_case key to camelCase */
+function snakeToCamel(key: string): string {
+  return key.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase());
+}
+
+/** Map all object keys from snake_case to camelCase for Drizzle */
+function mapToCamelCase(obj: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value === undefined) continue;
+    result[snakeToCamel(key)] = value;
+  }
+  return result;
+}
+
 /**
  * GET / - List all gallery items (with caching)
  */
@@ -141,7 +160,7 @@ router.get('/', async (req: Request, res: Response) => {
  */
 router.post('/', requireAdmin, async (req: Request, res: Response) => {
   try {
-    const item = await storage.createGalleryItem(req.body);
+    const item = await storage.createGalleryItem(mapToCamelCase(req.body));
     clearGalleryCache();
     res.json(item);
   } catch (error) {
@@ -183,7 +202,7 @@ router.patch('/:id', requireAdmin, async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Gallery item ID is required' });
     }
     
-    const item = await storage.updateGalleryItem(itemId, updates);
+    const item = await storage.updateGalleryItem(itemId, mapToCamelCase(updates));
     clearGalleryCache();
     
     res.json(item);
@@ -329,9 +348,9 @@ router.post('/upload-static-image', requireAdmin, uploadImage.single('image'), a
     
     // Update database with new static image URL
     try {
-      const updateData = language === 'fr' 
-        ? { static_image_url_fr: staticImageUrl, cropSettings }
-        : { static_image_url_en: staticImageUrl, cropSettings };
+      const updateData = language === 'fr'
+        ? { staticImageUrlFr: staticImageUrl, cropSettings }
+        : { staticImageUrlEn: staticImageUrl, cropSettings };
       
       await storage.updateGalleryItem(itemId, updateData);
       clearGalleryCache();
