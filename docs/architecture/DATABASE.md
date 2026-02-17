@@ -9,11 +9,11 @@
 
 | Metric | Count |
 |--------|-------|
-| **Total tables (public schema)** | 38 |
-| **Tables in Drizzle ORM** | 33 |
-| **DB-only tables** | 5 |
+| **Total tables (public schema)** | 36 |
+| **Tables in Drizzle ORM** | 34 |
+| **DB-only tables** | 3 |
 | **Tables with data (rows > 0)** | 18 |
-| **Empty tables** | 20 |
+| **Empty tables** | 18 |
 | **Views** | 2 (PostGIS) |
 | **Custom functions** | 21 |
 | **Foreign key constraints** | 8 |
@@ -24,13 +24,13 @@
 | Category | Tables | In Drizzle | DB-Only | With Data |
 |----------|--------|------------|---------|-----------|
 | Website Core | 9 | 9 | 0 | 3 |
-| Blog & Content | 13 | 12 | 1 | 5 |
-| Analytics | 7 | 5 | 2 | 6 |
-| SEO | 4 | 2 | 2 | 1 |
+| Blog & Content | 12 | 12 | 0 | 5 |
+| Analytics | 7 | 6 | 1 | 6 |
+| SEO | 2 | 2 | 0 | 1 |
 | Partners | 1 | 1 | 0 | 0 |
 | Travel | 2 | 2 | 0 | 2 |
 | Admin/System | 2 | 2 | 0 | 2 |
-| **Total** | **38** | **33** | **5** | **19** |
+| **Total** | **36** | **34** | **1** | **19** |
 
 > **Legacy cleanup (Feb 17, 2026):** 50 empty, unreferenced legacy tables dropped (Payload CMS, quoting system, misc). 102,299 test contact rows truncated. See commit for details.
 
@@ -73,7 +73,7 @@ Homepage, contact form, FAQ, legal pages, gallery, CTA configuration.
 | `cta_settings` | 8 | 0 | 16 KB | Yes | Call-to-action button configuration (bilingual text + URLs) |
 | `why_memopyk_cards` | 11 | 0 | 16 KB | Yes | "Why MEMOPYK" benefit cards (icon, gradient, bilingual title/description) |
 
-### 2. Blog & Content Pipeline (13 tables)
+### 2. Blog & Content Pipeline (12 tables)
 
 Blog articles, content planning, keyword management, image bank, AI context.
 
@@ -83,7 +83,7 @@ Blog articles, content planning, keyword management, image bank, AI context.
 | `blog_tags` | 6 | 0 | 64 KB | Yes | Tag catalog with unique name/slug, color, icon |
 | `blog_post_tags` | 2 | 0 | 56 KB | Yes | Post-tag junction (composite PK, cascade deletes) |
 | `blog_galleries` | 6 | 0 | 16 KB | Yes | Per-post image galleries (sort order, URL, title, alt) |
-| `blog_post_views` | 10 | 0 | 56 KB | **No** | Per-post view tracking (slug, IP, user agent, referrer) |
+| ~~`blog_post_views`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (empty, unreferenced)* |
 | `image_bank` | 26 | 1 | 120 KB | Yes | Centralized image library with metadata, categorization, usage tracking |
 | `image_labels` | 7 | 0 | 16 KB | Yes | Image classification label catalog with color codes |
 | `image_label_links` | 4 | 0 | 16 KB | Yes | Image-label many-to-many junction (cascade deletes) |
@@ -104,7 +104,7 @@ Custom analytics tracking (sessions, views, events, performance, conversions).
 |-------|------|------|------|------------|-------------|
 | `analytics_sessions` | 29 | 9,108 | 8.6 MB | Yes | Visitor sessions with geo (country, city), device, bounce/returning flags, duration |
 | `analytics_views` | 21 | 147 | 176 KB | Yes | Page views and video events per session |
-| `analytics_events` | 33 | 8,555 | 5.0 MB | **No** | CTA click events. Accessed via raw SQL in `analytics.routes.ts` |
+| `analytics_events` | 33 | 8,555 | 5.0 MB | Yes | CTA click events. Added to Drizzle Feb 17. Still accessed via raw SQL in `analytics.routes.ts` |
 | `analytics_exclusions` | 6 | 1 | 64 KB | Yes | IP/CIDR exclusion rules for filtering admin traffic |
 | `analytics_conversions` | 13 | 10 | 152 KB | **No** | Conversion tracking by type and date |
 | `performance_metrics` | 30 | 13,669 | 4.7 MB | Yes | Core Web Vitals (LCP, CLS, INP, FID, TTFB) and page load metrics |
@@ -112,11 +112,11 @@ Custom analytics tracking (sessions, views, events, performance, conversions).
 | ~~`conversion_funnel`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (empty, unused)* |
 | ~~`engagement_heatmap`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (empty, unused)* |
 
-> **analytics_events note:** This table has 8,555 rows and is actively used via raw SQL (`INSERT INTO analytics_events` and `SELECT FROM analytics_events`) in `server/routes/analytics.routes.ts` for CTA click tracking. It should be added to the Drizzle schema.
+> **analytics_events:** Added to Drizzle schema Feb 17, 2026. Still accessed via raw SQL in `analytics.routes.ts` for CTA click tracking (not yet migrated to Drizzle query builder).
 
-### 4. SEO (4 tables)
+### 4. SEO (2 tables)
 
-Search engine optimization configuration, redirects, audit trail.
+Search engine optimization configuration and audit trail.
 
 | Table | Cols | Rows | Size | In Drizzle | Description |
 |-------|------|------|------|------------|-------------|
@@ -125,7 +125,7 @@ Search engine optimization configuration, redirects, audit trail.
 | ~~`seo_global_config`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (empty, unused)* |
 | ~~`seo_global_settings`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (empty, unused)* |
 | ~~`seo_image_meta`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (empty, unused)* |
-| `seo_redirects` | 10 | 0 | 64 KB | **No** | 301/302 redirect rules with hit counting (unused) |
+| ~~`seo_redirects`~~ | -- | -- | -- | -- | *Dropped Feb 17, 2026 (empty, unreferenced)* |
 
 ### 5. Partners (1 table)
 
@@ -252,7 +252,7 @@ content_daily_assignments.post_id --> blog_posts.id
 | `help_screens` | `idx_help_screens_route` | btree | |
 | `blog_post_tags` | `idx_blog_post_tags_post_id` | btree | Both sides indexed |
 | `blog_post_tags` | `idx_blog_post_tags_tag_id` | btree | |
-| `blog_post_views` | `idx_blog_post_views_post_slug` | btree | |
+| ~~`blog_post_views`~~ | ~~`idx_blog_post_views_post_slug`~~ | -- | *Dropped Feb 17, 2026* |
 | `travel_agency_codes` | `idx_travel_agency_codes_code` | btree | upper(agency_code) unique |
 | ~~`posts`~~ | ~~`idx_posts_*_search`~~ | ~~GIN~~ | *Dropped with legacy tables Feb 17, 2026* |
 
@@ -306,7 +306,7 @@ content_daily_assignments.post_id --> blog_posts.id
 
 ### Schema Definition
 
-All 33 active tables are defined in `shared/schema.ts` using `pgTable()`. Each table export includes:
+All 34 active tables are defined in `shared/schema.ts` using `pgTable()`. Each table export includes:
 - Table definition: `export const blogPosts = pgTable("blog_posts", { ... })`
 - Insert schema: `createInsertSchema()` from `drizzle-zod` (omitting auto-generated fields)
 - TypeScript types: `$inferSelect` and `z.infer<>`
@@ -366,20 +366,26 @@ Some routes also use raw SQL via `pool` (e.g., `analytics.routes.ts` for `analyt
 
 | Table | Rows | Concern | Recommendation |
 |-------|------|---------|----------------|
-| `analytics_events` | 8,555 | Actively used via raw SQL | Add to Drizzle schema |
-| `analytics_conversions` | 10 | Has data, has indexes | Add to Drizzle schema or verify if still needed |
+| `analytics_conversions` | 10 | Has data (10 "card_interaction" rows from Jan 30), no code references | Verify if still needed or drop |
 
 ---
 
 ## Legacy Cleanup History
 
-**Feb 17, 2026:** 50 legacy tables dropped, 102,299 test contacts truncated.
+**Feb 17, 2026 (phase 1):** 50 legacy tables dropped, 102,299 test contacts truncated.
 
 - **Safety verified:** grep confirmed zero code references to any legacy table
 - **contacts:** All 102,299 rows were test data (4 test emails: test@example.com, integration.test@memopyk.com, test@memopyk.com, test@test.com)
 - **50 tables dropped:** Payload CMS (25), Quote/Invoice (6), Business/Commerce (7), Miscellaneous (12)
 - **Space freed:** ~30 MB (contacts 28 MB + legacy table overhead)
 - **Kept:** `spatial_ref_sys` (PostGIS system table, required by extension)
+
+**Feb 17, 2026 (phase 2):** DB-only table resolution — 4 tables investigated, 2 dropped, 1 added to Drizzle.
+
+- **`analytics_events`** → Classification A: ACTIVELY USED (8,555 rows, 4 code refs in analytics.routes.ts). Added to Drizzle schema.
+- **`analytics_conversions`** → Classification D: UNREFERENCED BUT HAS DATA (10 rows of "card_interaction" from Jan 30, 0 code refs). Flagged for Stéphane.
+- **`blog_post_views`** → Classification C: UNREFERENCED AND EMPTY. Dropped.
+- **`seo_redirects`** → Classification C: UNREFERENCED AND EMPTY. Dropped.
 
 ---
 
@@ -399,11 +405,12 @@ Server caches Supabase Storage videos to local disk (`/app/cache/` in Docker) vi
 
 ## Schema vs Database Mismatches
 
-The automated schema audit (`tests/e2e/schema-audit.ts`) compares Drizzle definitions against the live database. Last run (Feb 17, 2026):
+The automated schema audit (`tests/e2e/schema-audit.ts`) compares Drizzle definitions against the live database. Last run (Feb 17, 2026, after DB-only table resolution):
 
-- **0 CRITICAL** mismatches (all fixed in commit d28caa9)
+- **0 CRITICAL** mismatches
 - **15 WARNING** -- text vs varchar type differences in `travel_agency_codes` (4) and `travel_upload_submissions` (11). Functionally identical in PostgreSQL.
 - **4 INFO** -- nullable column mismatches in `content_keywords.market` and `travel_upload_submissions` share fields
+- **3 DB-only tables** -- `analytics_conversions` (flagged for review), `spatial_ref_sys` (PostGIS), `geography_columns` (PostGIS)
 
 Run the audit: `npx tsx tests/e2e/schema-audit.ts`
 

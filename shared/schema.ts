@@ -295,6 +295,43 @@ export const analyticsViews = pgTable("analytics_views", {
   createdAt: timestamp("created_at").defaultNow()
 });
 
+// Analytics events table - CTA clicks, web vitals, form submissions, etc.
+export const analyticsEvents = pgTable("analytics_events", {
+  id: bigserial("id", { mode: "number" }).primaryKey(),
+  eventId: uuid("event_id").defaultRandom().notNull(),
+  eventName: varchar("event_name").notNull(),
+  eventValue: numeric("event_value"),
+  currency: varchar("currency").default("EUR"),
+  userId: varchar("user_id"),
+  sessionId: varchar("session_id"),
+  pageName: varchar("page_name"),
+  pagePath: varchar("page_path"),
+  pageTitle: varchar("page_title"),
+  formName: varchar("form_name"),
+  formType: varchar("form_type"),
+  formLanguage: varchar("form_language"),
+  sharePlatform: varchar("share_platform"),
+  scrollPercent: integer("scroll_percent"),
+  videoTitle: varchar("video_title"),
+  videoIndex: integer("video_index"),
+  galleryItemTitle: varchar("gallery_item_title"),
+  itemIndex: integer("item_index"),
+  partnerCountry: varchar("partner_country"),
+  servicesSelected: text("services_selected").array(),
+  action: varchar("action"),
+  pageLocation: varchar("page_location"),
+  ctaId: varchar("cta_id"),
+  packageName: varchar("package"),
+  language: varchar("language"),
+  userLanguage: varchar("user_language"),
+  userTimezone: varchar("user_timezone"),
+  userMarketSegment: varchar("user_market_segment"),
+  referrer: text("referrer"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Real-time visitor tracking table
 export const realtimeVisitors = pgTable("realtime_visitors", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -372,6 +409,7 @@ export const insertWhyMemopykCardsSchema = createInsertSchema(whyMemopykCards).o
 export const insertAnalyticsExclusionSchema = createInsertSchema(analyticsExclusions).omit({ id: true, createdAt: true, appliesFrom: true });
 export const insertAnalyticsSessionSchema = createInsertSchema(analyticsSessions).omit({ id: true, createdAt: true });
 export const insertAnalyticsViewSchema = createInsertSchema(analyticsViews).omit({ id: true, createdAt: true });
+export const insertAnalyticsEventSchema = createInsertSchema(analyticsEvents).omit({ id: true, eventId: true, createdAt: true, updatedAt: true });
 export const insertRealtimeVisitorSchema = createInsertSchema(realtimeVisitors).omit({ id: true, createdAt: true, lastSeen: true });
 export const insertPerformanceMetricSchema = createInsertSchema(performanceMetrics).omit({ id: true, metricId: true, createdAt: true, updatedAt: true });
 
@@ -388,6 +426,7 @@ export type SeoSettings = typeof seoSettings.$inferSelect;
 export type SeoAuditLog = typeof seoAuditLogs.$inferSelect;
 export type AnalyticsSession = typeof analyticsSessions.$inferSelect;
 export type AnalyticsView = typeof analyticsViews.$inferSelect;
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 export type RealtimeVisitor = typeof realtimeVisitors.$inferSelect;
 export type PerformanceMetric = typeof performanceMetrics.$inferSelect;
 export type WhyMemopykCards = typeof whyMemopykCards.$inferSelect;
