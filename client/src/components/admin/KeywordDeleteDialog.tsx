@@ -38,6 +38,7 @@ export function KeywordDeleteDialog({ isOpen, onClose, keyword }: KeywordDeleteD
       await apiRequest(`/api/admin/content/keywords/${keyword.id}`, 'DELETE');
 
       queryClient.invalidateQueries({ queryKey: ['/api/admin/content/keywords'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/content/keywords/stats'] });
 
       toast({
         title: 'Keyword deleted',

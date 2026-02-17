@@ -237,9 +237,9 @@ export function ContentProductionKeywords() {
 
   // Fetch initial page of keywords
   const { data: initialData, isLoading: initialLoading, refetch } = useQuery<PaginatedResponse>({
-    queryKey: ['/api/admin/content/keywords', marketKey, tierKey, intentKey, competitionKey, volumeKey, clusterKey, debouncedSearch, currentPage],
+    queryKey: ['/api/admin/content/keywords', marketKey, tierKey, intentKey, competitionKey, volumeKey, clusterKey, debouncedSearch],
     queryFn: async () => {
-      const params = buildQueryParams(currentPage, PAGE_SIZE);
+      const params = buildQueryParams(1, PAGE_SIZE);
       const res = await adminFetch(`/api/admin/content/keywords?${params}`);
       if (!res.ok) throw new Error('Failed to fetch keywords');
       return res.json();
@@ -346,7 +346,7 @@ export function ContentProductionKeywords() {
   const totalPages = Math.ceil(totalFromServer / PAGE_SIZE);
   const paginatedKeywords = sortedKeywords.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
   const showingStart = loadedCount > 0 ? (currentPage - 1) * PAGE_SIZE + 1 : 0;
-  const showingEnd = Math.min(currentPage * PAGE_SIZE, loadedCount);
+  const showingEnd = Math.min(currentPage * PAGE_SIZE, totalFromServer);
 
   // Intent colors: High intent (ready to buy) = green, Medium = blue, Low = gray
   const getIntentColor = (intent: string) => {

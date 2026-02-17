@@ -111,8 +111,9 @@ export function KeywordFormModal({ isOpen, onClose, keyword }: KeywordFormModalP
         toast({ title: 'Keyword created successfully' });
       }
 
-      // Invalidate queries to refresh the list
+      // Invalidate queries to refresh the list and stats
       await queryClient.invalidateQueries({ queryKey: ['/api/admin/content/keywords'] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/admin/content/keywords/stats'] });
       onClose();
     } catch (error: any) {
       console.error('Error saving keyword:', error);
