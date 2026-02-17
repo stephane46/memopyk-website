@@ -150,12 +150,12 @@ export const AnalyticsNewCta: React.FC<{ className?: string }> = ({ className = 
   const defaultCtaData = {
     totalClicks: 0,
     ctas: {
-      book_call: {
+      bookCall: {
         totalClicks: 0,
         languageBreakdown: { 'fr-FR': 0, 'en-US': 0 },
         sectionBreakdown: {}
       },
-      quick_quote: {
+      quickQuote: {
         totalClicks: 0,
         languageBreakdown: { 'fr-FR': 0, 'en-US': 0 },
         sectionBreakdown: {}
@@ -183,15 +183,15 @@ export const AnalyticsNewCta: React.FC<{ className?: string }> = ({ className = 
     const ctaComparisonData = [
       {
         name: 'Free Consultation',
-        clicks: ctas.book_call.totalClicks,
-        'fr-FR': ctas.book_call.languageBreakdown['fr-FR'],
-        'en-US': ctas.book_call.languageBreakdown['en-US']
+        clicks: ctas.bookCall.totalClicks,
+        'fr-FR': ctas.bookCall.languageBreakdown['fr-FR'],
+        'en-US': ctas.bookCall.languageBreakdown['en-US']
       },
       {
         name: 'Free Quote', 
-        clicks: ctas.quick_quote.totalClicks,
-        'fr-FR': ctas.quick_quote.languageBreakdown['fr-FR'],
-        'en-US': ctas.quick_quote.languageBreakdown['en-US']
+        clicks: ctas.quickQuote.totalClicks,
+        'fr-FR': ctas.quickQuote.languageBreakdown['fr-FR'],
+        'en-US': ctas.quickQuote.languageBreakdown['en-US']
       }
     ];
 
@@ -201,7 +201,7 @@ export const AnalyticsNewCta: React.FC<{ className?: string }> = ({ className = 
       dailyTrend: dailyTotals,
       sections: topSections,
       insights: {
-        topCta: ctas.book_call.totalClicks > ctas.quick_quote.totalClicks ? 'book_call' : 'quick_quote',
+        topCta: ctas.bookCall.totalClicks > ctas.quickQuote.totalClicks ? 'book_call' : 'quick_quote',
         dominantLanguage: languageTotals['fr-FR'] > languageTotals['en-US'] ? 'French' : 'English',
         averageDaily: dailyTotals.length > 0 ? Math.round(displayData.totalClicks / dailyTotals.length) : 0
       }
@@ -326,7 +326,7 @@ export const AnalyticsNewCta: React.FC<{ className?: string }> = ({ className = 
         />
         <CtaKpiCard
           title="Free Consultation"
-          value={ctas.book_call.totalClicks.toLocaleString()}
+          value={ctas.bookCall.totalClicks.toLocaleString()}
           subtitle="Book call button clicks"
           icon={Target}
           color="text-blue-600"
@@ -334,7 +334,7 @@ export const AnalyticsNewCta: React.FC<{ className?: string }> = ({ className = 
         />
         <CtaKpiCard
           title="Free Quote"
-          value={ctas.quick_quote.totalClicks.toLocaleString()}
+          value={ctas.quickQuote.totalClicks.toLocaleString()}
           subtitle="Quick quote button clicks"
           icon={BarChart3}
           color="text-green-600"
@@ -505,20 +505,20 @@ export const AnalyticsNewCta: React.FC<{ className?: string }> = ({ className = 
             <CtaBreakdownRow
               ctaName="Free Consultation"
               ctaId="book_call"
-              totalClicks={ctas.book_call.totalClicks}
-              frClicks={ctas.book_call.languageBreakdown['fr-FR']}
-              enClicks={ctas.book_call.languageBreakdown['en-US']}
+              totalClicks={ctas.bookCall.totalClicks}
+              frClicks={ctas.bookCall.languageBreakdown['fr-FR']}
+              enClicks={ctas.bookCall.languageBreakdown['en-US']}
               rank={1}
-              sections={ctas.book_call.sectionBreakdown}
+              sections={ctas.bookCall.sectionBreakdown}
             />
             <CtaBreakdownRow
               ctaName="Free Quote"
               ctaId="quick_quote"
-              totalClicks={ctas.quick_quote.totalClicks}
-              frClicks={ctas.quick_quote.languageBreakdown['fr-FR']}
-              enClicks={ctas.quick_quote.languageBreakdown['en-US']}
+              totalClicks={ctas.quickQuote.totalClicks}
+              frClicks={ctas.quickQuote.languageBreakdown['fr-FR']}
+              enClicks={ctas.quickQuote.languageBreakdown['en-US']}
               rank={2}
-              sections={ctas.quick_quote.sectionBreakdown}
+              sections={ctas.quickQuote.sectionBreakdown}
             />
           </div>
         </CardContent>

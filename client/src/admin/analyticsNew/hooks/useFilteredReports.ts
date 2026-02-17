@@ -581,7 +581,7 @@ export function useFilteredCta(): FilteredAnalyticsResult<import('../data/types'
         totalClicks: 0,
         timeRange: { start, end },
         ctas: {
-          book_call: {
+          bookCall: {
             ctaId: 'book_call',
             ctaName: 'Free Consultation',
             totalClicks: 0,
@@ -589,9 +589,9 @@ export function useFilteredCta(): FilteredAnalyticsResult<import('../data/types'
             sectionBreakdown: {},
             dailyTrend: []
           },
-          quick_quote: {
+          quickQuote: {
             ctaId: 'quick_quote',
-            ctaName: 'Free Quote', 
+            ctaName: 'Free Quote',
             totalClicks: 0,
             languageBreakdown: { 'fr-FR': 0, 'en-US': 0 },
             sectionBreakdown: {},

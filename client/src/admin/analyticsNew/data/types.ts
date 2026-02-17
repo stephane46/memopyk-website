@@ -102,8 +102,8 @@ export interface CtaAnalyticsData {
     end: string;
   };
   ctas: {
-    book_call: CtaBreakdown;
-    quick_quote: CtaBreakdown;
+    bookCall: CtaBreakdown;
+    quickQuote: CtaBreakdown;
   };
   languageTotals: {
     'fr-FR': number;
@@ -112,8 +112,8 @@ export interface CtaAnalyticsData {
   dailyTotals: Array<{
     date: string;
     formattedDate: string;
-    book_call: number;
-    quick_quote: number;
+    bookCall: number;
+    quickQuote: number;
     total: number;
   }>;
   topSections: Array<{

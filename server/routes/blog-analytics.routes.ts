@@ -66,11 +66,11 @@ router.get('/analytics/blog/popular', async (req: Request, res: Response) => {
 
     const rows = await db
       .select({
-        post_slug: blogPosts.slug,
-        post_title: blogPosts.title,
+        postSlug: blogPosts.slug,
+        postTitle: blogPosts.title,
         language: blogPosts.language,
-        view_count: sql<number>`count(${analyticsViews.id})::int`,
-        last_viewed: sql<string>`max(${analyticsViews.createdAt})`,
+        viewCount: sql<number>`count(${analyticsViews.id})::int`,
+        lastViewed: sql<string>`max(${analyticsViews.createdAt})`,
       })
       .from(analyticsViews)
       .innerJoin(
@@ -83,11 +83,11 @@ router.get('/analytics/blog/popular', async (req: Request, res: Response) => {
       .limit(20);
 
     res.json(rows.map(r => ({
-      post_slug: r.post_slug,
-      post_title: r.post_title,
+      postSlug: r.postSlug,
+      postTitle: r.postTitle,
       language: r.language,
-      view_count: r.view_count,
-      last_viewed: r.last_viewed || new Date().toISOString(),
+      viewCount: r.viewCount,
+      lastViewed: r.lastViewed || new Date().toISOString(),
     })));
   } catch (error: any) {
     console.error('[Blog Analytics] /popular error:', error);
@@ -176,11 +176,11 @@ router.get('/analytics/blog/topics', async (req: Request, res: Response) => {
 
     const rows = await db
       .select({
-        topic_id: contentTopics.id,
-        topic_title: contentTopics.title,
+        topicId: contentTopics.id,
+        topicTitle: contentTopics.title,
         category: contentTopics.category,
-        view_count: sql<number>`count(${analyticsViews.id})::int`,
-        post_count: sql<number>`count(DISTINCT ${blogPosts.id})::int`,
+        viewCount: sql<number>`count(${analyticsViews.id})::int`,
+        postCount: sql<number>`count(DISTINCT ${blogPosts.id})::int`,
       })
       .from(contentTopics)
       .innerJoin(blogPosts, eq(blogPosts.sourceTopicId, contentTopics.id))
@@ -194,11 +194,11 @@ router.get('/analytics/blog/topics', async (req: Request, res: Response) => {
       .limit(10);
 
     res.json(rows.map(r => ({
-      topic_id: r.topic_id,
-      topic_title: r.topic_title,
+      topicId: r.topicId,
+      topicTitle: r.topicTitle,
       category: r.category || 'Uncategorized',
-      view_count: r.view_count,
-      post_count: r.post_count,
+      viewCount: r.viewCount,
+      postCount: r.postCount,
     })));
   } catch (error: any) {
     console.error('[Blog Analytics] /topics error:', error);
@@ -238,8 +238,8 @@ router.get('/analytics/blog/keywords', async (req: Request, res: Response) => {
     const rows = await db
       .select({
         keyword: blogPosts.primaryKeyword,
-        view_count: sql<number>`count(${analyticsViews.id})::int`,
-        post_count: sql<number>`count(DISTINCT ${blogPosts.id})::int`,
+        viewCount: sql<number>`count(${analyticsViews.id})::int`,
+        postCount: sql<number>`count(DISTINCT ${blogPosts.id})::int`,
       })
       .from(blogPosts)
       .innerJoin(
@@ -253,8 +253,8 @@ router.get('/analytics/blog/keywords', async (req: Request, res: Response) => {
 
     res.json(rows.map(r => ({
       keyword: r.keyword,
-      view_count: r.view_count,
-      post_count: r.post_count,
+      viewCount: r.viewCount,
+      postCount: r.postCount,
     })));
   } catch (error: any) {
     console.error('[Blog Analytics] /keywords error:', error);
@@ -293,8 +293,8 @@ router.get('/analytics/blog/categories', async (req: Request, res: Response) => 
     const rows = await db
       .select({
         category: sql<string>`COALESCE(${contentTopics.category}, 'Uncategorized')`,
-        view_count: sql<number>`count(${analyticsViews.id})::int`,
-        post_count: sql<number>`count(DISTINCT ${blogPosts.id})::int`,
+        viewCount: sql<number>`count(${analyticsViews.id})::int`,
+        postCount: sql<number>`count(DISTINCT ${blogPosts.id})::int`,
       })
       .from(blogPosts)
       .leftJoin(contentTopics, eq(blogPosts.sourceTopicId, contentTopics.id))
@@ -306,13 +306,13 @@ router.get('/analytics/blog/categories', async (req: Request, res: Response) => 
       .groupBy(contentTopics.category)
       .orderBy(desc(sql`count(${analyticsViews.id})`));
 
-    const totalViews = rows.reduce((sum, r) => sum + r.view_count, 0);
+    const totalViews = rows.reduce((sum, r) => sum + r.viewCount, 0);
 
     res.json(rows.map(r => ({
       category: r.category,
-      view_count: r.view_count,
-      post_count: r.post_count,
-      percentage: totalViews > 0 ? Math.round((r.view_count / totalViews) * 100) : 0,
+      viewCount: r.viewCount,
+      postCount: r.postCount,
+      percentage: totalViews > 0 ? Math.round((r.viewCount / totalViews) * 100) : 0,
     })));
   } catch (error: any) {
     console.error('[Blog Analytics] /categories error:', error);

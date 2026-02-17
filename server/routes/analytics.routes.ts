@@ -217,8 +217,7 @@ router.get('/ga4/report', async (req: Request, res: Response) => {
             averageWatchTime: v.averageWatchTime,
             completionRate: v.completionRate,
             engagement: v.engagement,
-            // Legacy aliases
-            video_id: v.videoId,
+            // Legacy aliases for backward compatibility
             plays: v.views,
             avgWatchSeconds: v.averageWatchTime,
             reach50Pct: v.reach50Pct,
@@ -1341,16 +1340,16 @@ router.get('/ga4/cta', async (req: Request, res: Response) => {
 
     res.json({
       ctaClicks: rows.slice(0, 100).map(r => ({
-        cta_id: r.cta_id,
+        ctaId: r.cta_id,
         language: r.language,
-        page_path: r.page_path,
-        created_at: r.created_at,
+        pagePath: r.page_path,
+        createdAt: r.created_at,
       })),
       topCTAs: Array.from(ctaMap.entries())
         .map(([id, data]) => ({ ctaId: id, clicks: data.totalClicks }))
         .sort((a, b) => b.clicks - a.clicks),
-      book_call: buildCtaData('book_call'),
-      quick_quote: buildCtaData('quick_quote'),
+      bookCall: buildCtaData('book_call'),
+      quickQuote: buildCtaData('quick_quote'),
       totalClicks,
       conversionRate: 0,
       byLocation: {},
@@ -1723,8 +1722,8 @@ router.get('/health', (req: Request, res: Response) => {
 
   res.json({
     success: true,
-    analytics_db_enabled: isReady,
-    ga4_configured: !!GA4_MID,
+    analyticsDbEnabled: isReady,
+    ga4Configured: !!GA4_MID,
     message: isReady ? 'Analytics service operational' : 'Analytics service disabled'
   });
 });

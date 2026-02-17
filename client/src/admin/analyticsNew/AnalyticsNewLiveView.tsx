@@ -18,16 +18,16 @@ interface PrivateTrackingData {
 }
 
 interface RecentVisitor {
-  ip_address: string;
+  ipAddress: string;
   country: string;
   region: string;
   city: string;
   language: string;
-  last_visit: string;
-  user_agent: string;
-  visit_count: number;
-  session_duration: number;
-  previous_visit: string | null;
+  lastVisit: string;
+  userAgent: string;
+  visitCount: number;
+  sessionDuration: number;
+  previousVisit: string | null;
 }
 
 interface CurrentlyWatchingSession {
@@ -414,7 +414,7 @@ export const AnalyticsNewLiveView: React.FC = () => {
                 };
                 
                 return (
-                  <TooltipPrimitive.Root key={`${visitor.ip_address}-${index}`}>
+                  <TooltipPrimitive.Root key={`${visitor.ipAddress}-${index}`}>
                     <TooltipPrimitive.Trigger asChild>
                       <div 
                         className="bg-gray-50 rounded-lg p-3 border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors relative group"
@@ -428,7 +428,7 @@ export const AnalyticsNewLiveView: React.FC = () => {
                                 {visitor.country || 'Unknown'}
                               </div>
                               <div className="text-xs text-gray-600">
-                                {getRelativeTime(visitor.last_visit)}
+                                {getRelativeTime(visitor.lastVisit)}
                               </div>
                             </div>
                           </div>
@@ -489,7 +489,7 @@ export const AnalyticsNewLiveView: React.FC = () => {
                               <div className="flex-1">
                                 <div className="font-medium text-gray-900 mb-1">Visit Time</div>
                                 <div className="text-xs text-gray-600">
-                                  {getRelativeTime(visitor.last_visit)}
+                                  {getRelativeTime(visitor.lastVisit)}
                                 </div>
                               </div>
                             </div>

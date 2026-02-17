@@ -123,7 +123,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
         const now = new Date();
         const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
         const last24Hours = visitors.filter((v: any) => {
-          const visitDate = new Date(v.last_visit || v.created_at);
+          const visitDate = new Date(v.lastVisit || v.createdAt);
           return visitDate >= yesterday;
         }).length;
         
@@ -298,12 +298,12 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
       
       // For unique visitors, ensure we only show the latest visit per IP
       const uniqueByIP = uniqueVisitors.reduce((acc: any[], visitor: any) => {
-        const existingIndex = acc.findIndex(v => v.ip_address === visitor.ip_address);
+        const existingIndex = acc.findIndex(v => v.ipAddress === visitor.ipAddress);
         if (existingIndex === -1) {
           acc.push(visitor);
         } else {
           // Keep the most recent visit
-          if (new Date(visitor.last_visit) > new Date(acc[existingIndex].last_visit)) {
+          if (new Date(visitor.lastVisit) > new Date(acc[existingIndex].lastVisit)) {
             acc[existingIndex] = visitor;
           }
         }
@@ -353,7 +353,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
       
       // Filter to show returning visitors only (server already deduplicates and tracks visit counts)
       const returningData = allVisitors.filter((visitor: any) => 
-        visitor.visit_count > 1
+        visitor.visitCount > 1
       );
       
       setReturningVisitors(returningData);
@@ -732,7 +732,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                 <div className="space-y-4">
                   {totalViewsData.slice(0, 50).map((visitor, index) => (
                     <div 
-                      key={`${visitor.ip_address}-${index}`}
+                      key={`${visitor.ipAddress}-${index}`}
                       className="bg-gray-50 rounded-lg p-4 border border-gray-200"
                     >
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -742,7 +742,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                             <span className="text-xs text-gray-600">Location</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <CountryFlag country={visitor.country_code || visitor.country} size={20} />
+                            <CountryFlag country={visitor.countryCode || visitor.country} size={20} />
                             <div>
                               <div className="text-base font-semibold text-gray-900">{visitor.country || 'Unknown'}</div>
                               {visitor.city && visitor.region && (
@@ -770,7 +770,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                             <span className="text-xs text-gray-600">Visit Time</span>
                           </div>
                           <div className="text-base font-semibold text-gray-900">
-                            {getRelativeTime(visitor.last_visit || visitor.created_at)}
+                            {getRelativeTime(visitor.lastVisit || visitor.createdAt)}
                           </div>
                         </div>
 
@@ -780,7 +780,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                             <span className="text-xs text-gray-600">IP Address</span>
                           </div>
                           <div className="text-base font-semibold text-gray-900">
-                            {visitor.ip_address || 'Unknown'}
+                            {visitor.ipAddress || 'Unknown'}
                           </div>
                         </div>
 
@@ -790,7 +790,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                             <span className="text-xs text-gray-600">Duration</span>
                           </div>
                           <div className="text-base font-semibold text-gray-900">
-                            {formatDuration(visitor.session_duration)}
+                            {formatDuration(visitor.sessionDuration)}
                           </div>
                         </div>
                       </div>
@@ -860,7 +860,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                 <div className="space-y-4">
                   {uniqueVisitorsData.slice(0, 50).map((visitor, index) => (
                     <div 
-                      key={`${visitor.ip_address}-${index}`}
+                      key={`${visitor.ipAddress}-${index}`}
                       className="bg-gray-50 rounded-lg p-4 border border-gray-200"
                     >
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -870,7 +870,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                             <span className="text-xs text-gray-600">Location</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <CountryFlag country={visitor.country_code || visitor.country} size={20} />
+                            <CountryFlag country={visitor.countryCode || visitor.country} size={20} />
                             <div>
                               <div className="text-base font-semibold text-gray-900">{visitor.country || 'Unknown'}</div>
                               {visitor.city && visitor.region && (
@@ -898,7 +898,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                             <span className="text-xs text-gray-600">First Visit</span>
                           </div>
                           <div className="text-base font-semibold text-gray-900">
-                            {getRelativeTime(visitor.last_visit || visitor.created_at)}
+                            {getRelativeTime(visitor.lastVisit || visitor.createdAt)}
                           </div>
                         </div>
 
@@ -908,7 +908,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                             <span className="text-xs text-gray-600">IP Address</span>
                           </div>
                           <div className="text-base font-semibold text-gray-900">
-                            {visitor.ip_address || 'Unknown'}
+                            {visitor.ipAddress || 'Unknown'}
                           </div>
                         </div>
 
@@ -918,7 +918,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                             <span className="text-xs text-gray-600">Duration</span>
                           </div>
                           <div className="text-base font-semibold text-gray-900">
-                            {formatDuration(visitor.session_duration)}
+                            {formatDuration(visitor.sessionDuration)}
                           </div>
                         </div>
                       </div>
@@ -988,7 +988,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                 <div className="space-y-4">
                   {returningVisitors.map((visitor, index) => (
                     <div 
-                      key={`${visitor.ip_address}-${index}`}
+                      key={`${visitor.ipAddress}-${index}`}
                       className="bg-gray-50 rounded-lg p-4 border border-gray-200"
                     >
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -998,7 +998,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                             <span className="text-xs text-gray-600">Location</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <CountryFlag country={visitor.country_code || visitor.country} size={20} />
+                            <CountryFlag country={visitor.countryCode || visitor.country} size={20} />
                             <div>
                               <div className="text-base font-semibold text-gray-900">{visitor.country || 'Unknown'}</div>
                               {visitor.city && visitor.region && (
@@ -1026,10 +1026,10 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                             <span className="text-xs text-gray-600">Last Visit</span>
                           </div>
                           <div className="text-sm text-gray-600">
-                            {getRelativeTime(visitor.last_visit)}
+                            {getRelativeTime(visitor.lastVisit)}
                           </div>
                           <div className="text-xs text-gray-500 mt-1">
-                            {visitor.visit_count} visits total
+                            {visitor.visitCount} visits total
                           </div>
                         </div>
 
@@ -1039,7 +1039,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                             <span className="text-xs text-gray-600">IP Address</span>
                           </div>
                           <div className="text-base font-semibold text-gray-900">
-                            {visitor.ip_address || 'Unknown'}
+                            {visitor.ipAddress || 'Unknown'}
                           </div>
                         </div>
 
@@ -1049,7 +1049,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                             <span className="text-xs text-gray-600">Duration</span>
                           </div>
                           <div className="text-base font-semibold text-gray-900">
-                            {formatDuration(visitor.session_duration)}
+                            {formatDuration(visitor.sessionDuration)}
                           </div>
                         </div>
                       </div>

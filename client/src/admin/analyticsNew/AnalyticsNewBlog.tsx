@@ -12,11 +12,11 @@ import { Badge } from '@/components/ui/badge';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
 
 interface PopularBlogPost {
-  post_slug: string;
-  post_title: string;
+  postSlug: string;
+  postTitle: string;
   language: string;
-  view_count: number;
-  last_viewed: string;
+  viewCount: number;
+  lastViewed: string;
 }
 
 interface BlogTrendData {
@@ -25,23 +25,23 @@ interface BlogTrendData {
 }
 
 interface TopTopic {
-  topic_id: string;
-  topic_title: string;
+  topicId: string;
+  topicTitle: string;
   category: string;
-  view_count: number;
-  post_count: number;
+  viewCount: number;
+  postCount: number;
 }
 
 interface TopKeyword {
   keyword: string;
-  view_count: number;
-  post_count: number;
+  viewCount: number;
+  postCount: number;
 }
 
 interface CategoryPerformance {
   category: string;
-  view_count: number;
-  post_count: number;
+  viewCount: number;
+  postCount: number;
   percentage: number;
 }
 
@@ -229,7 +229,7 @@ export const AnalyticsNewBlog: React.FC = () => {
     );
   }
 
-  const totalViews = popularPosts?.reduce((sum, post) => sum + post.view_count, 0) || 0;
+  const totalViews = popularPosts?.reduce((sum, post) => sum + post.viewCount, 0) || 0;
 
   if (!popularPosts || popularPosts.length === 0) {
     const emptyTitle = dataSource === 'ga4'
@@ -432,10 +432,10 @@ export const AnalyticsNewBlog: React.FC = () => {
             <tbody className="divide-y divide-gray-200">
               {popularPosts.map((post, index) => (
                 <tr 
-                  key={post.post_slug}
+                  key={post.postSlug}
                   className="hover:bg-gray-50 transition-colors cursor-pointer"
-                  data-testid={`blog-post-${post.post_slug}`}
-                  onClick={() => navigateToPostsTab(post.post_slug)}
+                  data-testid={`blog-post-${post.postSlug}`}
+                  onClick={() => navigateToPostsTab(post.postSlug)}
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -454,10 +454,10 @@ export const AnalyticsNewBlog: React.FC = () => {
                     <div className="flex items-start">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate hover:text-[#D67C4A]">
-                          {post.post_title}
+                          {post.postTitle}
                         </p>
                         <p className="text-xs text-gray-500 truncate mt-1">
-                          /{post.language}/blog/{post.post_slug}
+                          /{post.language}/blog/{post.postSlug}
                         </p>
                       </div>
                     </div>
@@ -471,12 +471,12 @@ export const AnalyticsNewBlog: React.FC = () => {
                     <div className="flex items-center justify-end gap-2">
                       <Eye className="h-4 w-4 text-gray-400" />
                       <span className="text-sm font-semibold text-gray-900">
-                        {post.view_count}
+                        {post.viewCount}
                       </span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-600">
-                    {formatLastViewed(post.last_viewed)}
+                    {formatLastViewed(post.lastViewed)}
                   </td>
                 </tr>
               ))}
@@ -529,10 +529,10 @@ export const AnalyticsNewBlog: React.FC = () => {
             {topTopics && topTopics.length > 0 ? (
               topTopics.map((topic, index) => (
                 <div
-                  key={topic.topic_id}
+                  key={topic.topicId}
                   className="px-6 py-4 hover:bg-gray-50 transition-colors cursor-pointer"
-                  data-testid={`topic-${topic.topic_id}`}
-                  onClick={() => navigateToTopicsTab(topic.topic_id)}
+                  data-testid={`topic-${topic.topicId}`}
+                  onClick={() => navigateToTopicsTab(topic.topicId)}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
@@ -548,10 +548,10 @@ export const AnalyticsNewBlog: React.FC = () => {
                         </span>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-gray-900 truncate hover:text-[#D67C4A]">
-                            {topic.topic_title}
+                            {topic.topicTitle}
                           </p>
                           <p className="text-xs text-gray-500 mt-1">
-                            {topic.category} • {topic.post_count} post{topic.post_count !== 1 ? 's' : ''}
+                            {topic.category} • {topic.postCount} post{topic.postCount !== 1 ? 's' : ''}
                           </p>
                         </div>
                       </div>
@@ -559,7 +559,7 @@ export const AnalyticsNewBlog: React.FC = () => {
                     <div className="ml-4 flex items-center gap-2">
                       <Eye className="h-4 w-4 text-gray-400" />
                       <span className="text-sm font-semibold text-gray-900">
-                        {topic.view_count}
+                        {topic.viewCount}
                       </span>
                     </div>
                   </div>
@@ -623,7 +623,7 @@ export const AnalyticsNewBlog: React.FC = () => {
                             {keyword.keyword}
                           </p>
                           <p className="text-xs text-gray-500 mt-1">
-                            {keyword.post_count} post{keyword.post_count !== 1 ? 's' : ''}
+                            {keyword.postCount} post{keyword.postCount !== 1 ? 's' : ''}
                           </p>
                         </div>
                       </div>
@@ -631,7 +631,7 @@ export const AnalyticsNewBlog: React.FC = () => {
                     <div className="ml-4 flex items-center gap-2">
                       <Eye className="h-4 w-4 text-gray-400" />
                       <span className="text-sm font-semibold text-gray-900">
-                        {keyword.view_count}
+                        {keyword.viewCount}
                       </span>
                     </div>
                   </div>
@@ -693,7 +693,7 @@ export const AnalyticsNewBlog: React.FC = () => {
                       contentStyle={{ backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '8px' }}
                       formatter={(value: any) => [`${value} views`, 'Views']}
                     />
-                    <Bar dataKey="view_count" radius={[8, 8, 0, 0]}>
+                    <Bar dataKey="viewCount" radius={[8, 8, 0, 0]}>
                       {categories.map((entry, index) => (
                         <Cell 
                           key={`cell-${index}`} 
@@ -716,12 +716,12 @@ export const AnalyticsNewBlog: React.FC = () => {
                       <div>
                         <p className="text-sm font-medium text-gray-900">{cat.category}</p>
                         <p className="text-xs text-gray-500 mt-1">
-                          {cat.post_count} post{cat.post_count !== 1 ? 's' : ''}
+                          {cat.postCount} post{cat.postCount !== 1 ? 's' : ''}
                         </p>
                       </div>
                       <div className="text-right">
                         <p className="text-lg font-bold text-gray-900">{cat.percentage}%</p>
-                        <p className="text-xs text-gray-500">{cat.view_count} views</p>
+                        <p className="text-xs text-gray-500">{cat.viewCount} views</p>
                       </div>
                     </div>
                   ))}

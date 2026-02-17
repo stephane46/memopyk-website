@@ -144,19 +144,19 @@ interface VisitorModalProps {
   frontContent: React.ReactNode;
   className?: string;
   visitors?: Array<{
-    ip_address: string;
+    ipAddress: string;
     country: string;
     region?: string;
     city?: string;
-    country_code?: string;
+    countryCode?: string;
     timezone?: string;
     organization?: string;
     language: string;
-    last_visit: string;
-    user_agent: string;
-    visit_count?: number;
-    session_duration?: number;
-    previous_visit?: string;
+    lastVisit: string;
+    userAgent: string;
+    visitCount?: number;
+    sessionDuration?: number;
+    previousVisit?: string;
   }>;
 }
 
@@ -338,7 +338,7 @@ export function FlipCard({ frontContent, className = "", visitors = [] }: Visito
                 {visitors.length > 0 ? (
                   visitors.map((visitor, index) => (
                     <div 
-                      key={visitor.ip_address || `visitor-${index}`}
+                      key={visitor.ipAddress || `visitor-${index}`}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -358,7 +358,7 @@ export function FlipCard({ frontContent, className = "", visitors = [] }: Visito
                             alignItems: 'center',
                             justifyContent: 'center'
                           }}>
-                            <CountryFlag country={visitor.country_code || visitor.country} size={32} />
+                            <CountryFlag country={visitor.countryCode || visitor.country} size={32} />
                           </div>
                         </div>
                         <div style={{ flex: 1 }}>
@@ -370,7 +370,7 @@ export function FlipCard({ frontContent, className = "", visitors = [] }: Visito
                           }}>
                             {visitor.city && visitor.region 
                               ? `${visitor.city} (${visitor.region})` 
-                              : visitor.city || visitor.region || visitor.ip_address || 'Unknown'}
+                              : visitor.city || visitor.region || visitor.ipAddress || 'Unknown'}
                           </div>
                           <div style={{
                             fontSize: '12px',
@@ -390,18 +390,18 @@ export function FlipCard({ frontContent, className = "", visitors = [] }: Visito
                               )}
                             </span>
                             <span style={{ 
-                              backgroundColor: visitor.previous_visit ? '#dcfce7' : '#fef3c7',
-                              color: visitor.previous_visit ? '#166534' : '#92400e',
+                              backgroundColor: visitor.previousVisit ? '#dcfce7' : '#fef3c7',
+                              color: visitor.previousVisit ? '#166534' : '#92400e',
                               padding: '2px 6px',
                               borderRadius: '4px',
                               fontSize: '11px',
                               fontWeight: '500'
                             }}>
-                              {visitor.previous_visit ? 'Returning' : 'New'}
+                              {visitor.previousVisit ? 'Returning' : 'New'}
                             </span>
-                            {visitor.previous_visit && (visitor.visit_count || 1) > 1 && (
+                            {visitor.previousVisit && (visitor.visitCount || 1) > 1 && (
                               <span style={{ fontSize: '11px', color: '#9ca3af' }}>
-                                {visitor.visit_count} visits
+                                {visitor.visitCount} visits
                               </span>
                             )}
                           </div>
@@ -411,7 +411,7 @@ export function FlipCard({ frontContent, className = "", visitors = [] }: Visito
                             marginTop: '2px',
                             fontFamily: 'monospace'
                           }}>
-                            {visitor.ip_address}
+                            {visitor.ipAddress}
                           </div>
                         </div>
                       </div>
@@ -430,9 +430,9 @@ export function FlipCard({ frontContent, className = "", visitors = [] }: Visito
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                           <Clock style={{ width: '14px', height: '14px' }} />
-                          {formatDate(visitor.last_visit)}
+                          {formatDate(visitor.lastVisit)}
                         </div>
-                        {visitor.session_duration && (
+                        {visitor.sessionDuration && (
                           <div style={{ 
                             fontSize: '11px', 
                             color: '#9ca3af',
@@ -441,16 +441,16 @@ export function FlipCard({ frontContent, className = "", visitors = [] }: Visito
                             gap: '2px'
                           }}>
                             <span>⏱</span>
-                            {formatDuration(visitor.session_duration)}
+                            {formatDuration(visitor.sessionDuration)}
                           </div>
                         )}
-                        {visitor.previous_visit && (
+                        {visitor.previousVisit && (
                           <div style={{ 
                             fontSize: '10px', 
                             color: '#9ca3af',
                             textAlign: 'center'
                           }}>
-                            Prev: {formatDate(visitor.previous_visit)}
+                            Prev: {formatDate(visitor.previousVisit)}
                           </div>
                         )}
                       </div>

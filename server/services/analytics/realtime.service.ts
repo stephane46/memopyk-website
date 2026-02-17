@@ -22,16 +22,16 @@ export interface LiveTrackingData {
 }
 
 export interface RecentVisitor {
-  ip_address: string;
+  ipAddress: string;
   country: string;
   region: string;
   city: string;
   language: string;
-  last_visit: string;
-  user_agent: string;
-  visit_count: number;
-  session_duration: number;
-  previous_visit: string | null;
+  lastVisit: string;
+  userAgent: string;
+  visitCount: number;
+  sessionDuration: number;
+  previousVisit: string | null;
 }
 
 export interface CurrentlyWatchingSession {
@@ -231,16 +231,16 @@ export async function getRecentVisitors(
       }
 
       visitors.push({
-        ip_address: session.ipAddress || "unknown",
+        ipAddress: session.ipAddress || "unknown",
         country: session.countryName || session.country || "Unknown",
         region: "", // Not stored in current schema
         city: session.city || "",
         language: session.language || "Unknown",
-        last_visit: (session.lastSeenAt || session.createdAt || new Date()).toISOString(),
-        user_agent: session.userAgent || "",
-        visit_count: 1, // Would need aggregation for accurate count
-        session_duration: session.sessionDuration || 0,
-        previous_visit: null,
+        lastVisit: (session.lastSeenAt || session.createdAt || new Date()).toISOString(),
+        userAgent: session.userAgent || "",
+        visitCount: 1, // Would need aggregation for accurate count
+        sessionDuration: session.sessionDuration || 0,
+        previousVisit: null,
       });
     }
 
