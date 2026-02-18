@@ -229,16 +229,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
       const calcStartDate = dateRange.startDate;
       const calcEndDate = dateRange.endDate;
       console.log('📊 TOTAL VIEWS: Using global store dates (with exclusion filter):', calcStartDate, 'to', calcEndDate);
-      
-      // Trigger location enrichment in background (don't wait for it)
-      fetch(`/api/analytics/enrich-locations?startDate=${calcStartDate}&endDate=${calcEndDate}`, {
-        method: 'POST'
-      }).then(() => {
-        console.log('🌍 Location enrichment completed in background');
-      }).catch((enrichError) => {
-        console.warn('Location enrichment failed:', enrichError);
-      });
-      
+
       // Build URL with country filter if one is selected
       const url = new URL('/api/analytics/recent-visitors', window.location.origin);
       url.searchParams.set('dateFrom', calcStartDate);
@@ -271,16 +262,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
       const calcStartDate = dateRange.startDate;
       const calcEndDate = dateRange.endDate;
       console.log('👥 UNIQUE VISITORS: Using global store dates (with exclusion filter):', calcStartDate, 'to', calcEndDate);
-      
-      // Trigger location enrichment in background (don't wait for it)
-      fetch(`/api/analytics/enrich-locations?startDate=${calcStartDate}&endDate=${calcEndDate}`, {
-        method: 'POST'
-      }).then(() => {
-        console.log('🌍 Location enrichment completed in background');
-      }).catch((enrichError) => {
-        console.warn('Location enrichment failed:', enrichError);
-      });
-      
+
       // Build URL with country filter if one is selected
       const url = new URL('/api/analytics/recent-visitors', window.location.origin);
       url.searchParams.set('dateFrom', calcStartDate);
@@ -328,16 +310,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
       const calcStartDate = dateRange.startDate;
       const calcEndDate = dateRange.endDate;
       console.log('🔄 RETURN VISITORS: Using global store dates (with exclusion filter):', calcStartDate, 'to', calcEndDate);
-      
-      // Trigger location enrichment in background (don't wait for it)
-      fetch(`/api/analytics/enrich-locations?startDate=${calcStartDate}&endDate=${calcEndDate}`, {
-        method: 'POST'
-      }).then(() => {
-        console.log('🌍 Location enrichment completed in background');
-      }).catch((enrichError) => {
-        console.warn('Location enrichment failed:', enrichError);
-      });
-      
+
       // Build URL with country filter if one is selected
       const url = new URL('/api/analytics/recent-visitors', window.location.origin);
       url.searchParams.set('dateFrom', calcStartDate);
@@ -444,7 +417,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
           description={
             dataSource === 'memopyk'
               ? 'Distinct IP-filtered visitors from MEMOPYK'
-              : 'Distinct visitors (IP-based)'
+              : 'Distinct visitors (GA4 cookie-based)'
           }
           data-testid="kpi-unique-visitors"
         />
@@ -620,8 +593,11 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
               {/* Key Insight */}
               <div className="pt-2 border-t border-blue-200">
                 <div className="text-gray-700">
-                  <span className="font-medium">💡 Key Insight:</span> These {totalViews?.value || 0} sessions are tracked by Google Analytics 4.
-                  Each session can include multiple page views, so your total pageview count in GA4 will be higher.
+                  <span className="font-medium">💡 Key Insight:</span>{' '}
+                  {dataSource === 'memopyk'
+                    ? <>These {totalViews?.value || 0} sessions are from MEMOPYK local tracking logs (IP-filtered).</>
+                    : <>These {totalViews?.value || 0} sessions are tracked by Google Analytics 4. Each session can include multiple page views, so your total pageview count in GA4 will be higher.</>
+                  }
                   {country !== 'all' && (
                     <span className="block mt-1 text-blue-700">
                       📍 Filtered by country: {country}
@@ -653,18 +629,28 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
             
             <div className="space-y-1.5">
               <div>
-                <span className="font-medium text-gray-700">GA4 (Google Analytics):</span> Raw, unfiltered data from Google's tracking system. Includes all visitors, bots, and traffic. IP filters configured in your GA4 settings only apply to new data going forward, not historical data. Capdenac home network was excluded from GA4 starting November 4, 2025.
+                <span className="font-medium text-gray-700">GA4 (Google Analytics):</span> Raw data from Google's tracking system. Includes all visitor traffic. Known bots are automatically filtered by GA4, but some unrecognized automated traffic may still appear. IP filters configured in your GA4 settings only apply to new data going forward, not historical data.
+                {(() => {
+                  const activeExclusion = ipExclusions?.find((e: any) => e.active && e.label && e.appliesFrom);
+                  if (activeExclusion) {
+                    const appliesDate = new Date(activeExclusion.appliesFrom).toLocaleDateString('fr-FR', {
+                      day: 'numeric', month: 'long', year: 'numeric'
+                    });
+                    return <span> {activeExclusion.label} was excluded from GA4 starting {appliesDate}.</span>;
+                  }
+                  return null;
+                })()}
               </div>
-              
+
               <div>
                 <span className="font-medium text-gray-700">MEMOPYK (Local Logs):</span> Your website's local tracking logs with IP exclusions applied. Only counts sessions with valid IP addresses and filters out traffic from your excluded IPs{ipExclusions && ipExclusions.length > 0 && ` (currently ${ipExclusions.filter((e: any) => e.active).length} IP ${ipExclusions.filter((e: any) => e.active).length === 1 ? 'address' : 'addresses'} excluded)`}.
               </div>
-              
+
               <div className="pt-1 border-t border-gray-300">
                 <span className="font-medium text-gray-700">💡 Why the difference?</span> MEMOPYK typically shows fewer sessions because it:
                 <ul className="ml-4 mt-1 space-y-0.5 list-disc">
                   <li>Excludes your configured IP addresses (your office, home, etc.)</li>
-                  <li>Filters out sessions with invalid/missing IP addresses (often bot traffic)</li>
+                  <li>Filters out sessions with invalid/missing IP addresses from unique visitor counts. Session totals may include some null-IP entries.</li>
                   <li>Only counts legitimate production traffic with valid IPs</li>
                 </ul>
               </div>
@@ -696,7 +682,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                   variant="outline"
                   className={dataSource === 'ga4' ? 'bg-blue-50 text-blue-700 border-blue-200 text-xs' : 'bg-orange-50 text-orange-700 border-orange-200 text-xs'}
                 >
-                  {dataSource === 'ga4' ? '📊 Google Analytics Data' : '🟠 MEMOPYK Logs'}
+                  {dataSource === 'ga4' ? '📊 GA4 Data' : '🟠 MEMOPYK Filtered'}
                 </Badge>
               </div>
             </div>
@@ -830,7 +816,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                   <span className="font-bold">Unique Visitors Details</span>
                 </div>
                 <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 text-xs">
-                  🟠 IP Filtered
+                  🟠 MEMOPYK Filtered
                 </Badge>
               </div>
             </div>
@@ -843,7 +829,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                     📊 Showing {uniqueVisitorsData?.length || 0} detailed records from MEMOPYK logs
                   </div>
                   <div className="text-gray-900">
-                    ⚠️ GA4 reports {uniqueVisitors?.value || 0} total (includes cross-device returns)
+                    ⚠️ GA4 reports {uniqueVisitors?.value || 0} total
                   </div>
                 </div>
               </div>
@@ -895,7 +881,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                         <div>
                           <div className="flex items-center gap-2 mb-2">
                             <Clock className="h-4 w-4 text-orange-600" />
-                            <span className="text-xs text-gray-600">First Visit</span>
+                            <span className="text-xs text-gray-600">Last Seen</span>
                           </div>
                           <div className="text-base font-semibold text-gray-900">
                             {getRelativeTime(visitor.lastVisit || visitor.createdAt)}
@@ -958,7 +944,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                   <span className="font-bold">Return Visitors Details</span>
                 </div>
                 <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 text-xs">
-                  🟠 IP Filtered
+                  🟠 MEMOPYK Filtered
                 </Badge>
               </div>
             </div>
@@ -971,7 +957,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                     📊 Showing {returningVisitors?.length || 0} detailed records from MEMOPYK logs
                   </div>
                   <div className="text-gray-900">
-                    ⚠️ GA4 reports {returnVisitors?.value || 0} total (includes cross-device returns)
+                    ⚠️ GA4 reports {returnVisitors?.value || 0} total
                   </div>
                 </div>
               </div>
@@ -1156,9 +1142,10 @@ function VisitorKpiCard({
 
       {/* Percentage change */}
       <div className={`text-xs flex items-center gap-1 mt-1 ${
-        change >= 0 ? "text-green-600" : "text-red-600"
+        change > 0 ? "text-green-600" : change < 0 ? "text-red-600" : "text-gray-400"
       }`}>
-        {change >= 0 ? "▲" : "▼"} {Math.abs(change)}% vs previous period
+        {change > 0 ? "▲" : change < 0 ? "▼" : "—"}{' '}
+        {change === 0 ? "No change vs previous period" : `${Math.abs(change)}% vs previous period`}
       </div>
 
       {/* Description */}

@@ -335,7 +335,7 @@ export const AnalyticsNewOverview: React.FC<AnalyticsNewOverviewProps> = ({
               variant="outline" 
               className={dataSource === 'memopyk' ? 'bg-orange-50 text-orange-700 border-orange-200 text-xs' : 'bg-blue-50 text-blue-700 border-blue-200 text-xs'}
             >
-              {dataSource === 'memopyk' ? '🟠 IP Filtered' : '📊 Unfiltered'}
+              {dataSource === 'memopyk' ? '🟠 MEMOPYK Filtered' : '📊 GA4 Data'}
             </Badge>
           </div>
           

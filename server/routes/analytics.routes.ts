@@ -858,7 +858,7 @@ router.get('/ga4/kpis', async (req: Request, res: Response) => {
 
     const totalViews = sessions.length;
     const uniqueVisitors = new Set(sessions.map(s => s.ipAddress).filter(Boolean)).size;
-    const returnVisitors = sessions.filter(s => s.isReturning).length;
+    const returnVisitors = new Set(sessions.filter(s => s.isReturning).map(s => s.ipAddress).filter(Boolean)).size;
     const totalDuration = sessions.reduce((sum, s) => sum + (s.sessionDuration || 0), 0);
     const bounces = sessions.filter(s => s.isBounce).length;
 
@@ -888,7 +888,7 @@ router.get('/ga4/kpis', async (req: Request, res: Response) => {
 
     const prevTotalViews = prevSessions.length;
     const prevUniqueVisitors = new Set(prevSessions.map(s => s.ipAddress).filter(Boolean)).size;
-    const prevReturnVisitors = prevSessions.filter(s => s.isReturning).length;
+    const prevReturnVisitors = new Set(prevSessions.filter(s => s.isReturning).map(s => s.ipAddress).filter(Boolean)).size;
 
     const kpis = {
       totalViews: { value: totalViews, trend: [], change: calculateChange(totalViews, prevTotalViews) },
@@ -1427,7 +1427,17 @@ router.get('/analytics/recent-visitors', async (req: Request, res: Response) => 
   try {
     const datePreset = String(req.query.datePreset || 'today');
     const limit = parseInt(String(req.query.limit || '50'), 10);
-    const visitors = await realtimeService.getRecentVisitors(datePreset, limit);
+    const dateFrom = req.query.dateFrom ? String(req.query.dateFrom) : undefined;
+    const dateTo = req.query.dateTo ? String(req.query.dateTo) : undefined;
+    const country = req.query.country ? String(req.query.country) : undefined;
+
+    const visitors = await realtimeService.getRecentVisitors(
+      datePreset,
+      limit,
+      dateFrom,
+      dateTo,
+      country
+    );
     res.json(visitors);
   } catch (error: any) {
     console.error('❌ [Recent Visitors] Error:', error);

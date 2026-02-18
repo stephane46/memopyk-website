@@ -447,8 +447,8 @@ export const AnalyticsNewGlobalFilters: React.FC<AnalyticsNewGlobalFiltersProps>
                       <TooltipContent className="max-w-xs">
                         <div className="text-sm space-y-1">
                           <div className="font-medium">Data Source Legend:</div>
-                          <div>🟠 IP Filtered = Data that respects your IP exclusions (Supabase analytics)</div>
-                          <div>No badge = Raw GA4 data that cannot be filtered by IP</div>
+                          <div>📊 GA4 Data = Raw Google Analytics data (cannot be filtered by IP)</div>
+                          <div>🟠 MEMOPYK Filtered = Local tracking data with your IP exclusions applied</div>
                         </div>
                       </TooltipContent>
                     </Tooltip>

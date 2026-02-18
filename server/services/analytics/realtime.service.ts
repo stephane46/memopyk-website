@@ -7,7 +7,7 @@
 
 import { db } from "../../db";
 import { analyticsSessions, analyticsViews, realtimeVisitors } from "@shared/schema";
-import { eq, and, gte, desc, isNotNull, sql } from "drizzle-orm";
+import { eq, and, gte, lte, desc, isNotNull, sql, inArray } from "drizzle-orm";
 import ipExclusionService from "./ip-exclusion.service";
 
 // ============================================================================
@@ -174,44 +174,95 @@ export async function getLiveTracking(timeWindowMinutes: number = 30): Promise<L
  */
 export async function getRecentVisitors(
   datePreset: string = "today",
-  limit: number = 50
+  limit: number = 50,
+  dateFrom?: Date | string,
+  dateTo?: Date | string,
+  country?: string
 ): Promise<RecentVisitor[]> {
   try {
     let startDate: Date;
+    let endDate: Date | undefined;
     const now = new Date();
 
-    switch (datePreset) {
-      case "today":
-        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        break;
-      case "7d":
-        startDate = new Date(now);
-        startDate.setDate(startDate.getDate() - 7);
-        break;
-      case "30d":
-        startDate = new Date(now);
-        startDate.setDate(startDate.getDate() - 30);
-        break;
-      default:
-        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (dateFrom) {
+      // Explicit date range takes priority over preset
+      startDate = dateFrom instanceof Date ? dateFrom : new Date(dateFrom);
+      endDate = dateTo
+        ? (dateTo instanceof Date ? dateTo : new Date(dateTo))
+        : now;
+      // Include full end day
+      endDate = new Date(endDate);
+      endDate.setHours(23, 59, 59, 999);
+    } else {
+      switch (datePreset) {
+        case "today":
+          startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          break;
+        case "7d":
+          startDate = new Date(now);
+          startDate.setDate(startDate.getDate() - 7);
+          break;
+        case "30d":
+          startDate = new Date(now);
+          startDate.setDate(startDate.getDate() - 30);
+          break;
+        default:
+          startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      }
     }
 
-    console.log(`📊 [Realtime] Fetching recent visitors since ${startDate.toISOString()}`);
+    console.log(`📊 [Realtime] Fetching recent visitors since ${startDate.toISOString()}${endDate ? ` to ${endDate.toISOString()}` : ''}`);
+
+    // Build where conditions
+    const conditions = [
+      gte(analyticsSessions.createdAt, startDate),
+      eq(analyticsSessions.isTestData, false),
+    ];
+
+    if (endDate) {
+      conditions.push(lte(analyticsSessions.createdAt, endDate) as any);
+    }
+
+    if (country && country !== 'all' && country !== 'ALL') {
+      conditions.push(eq(analyticsSessions.countryCode, country) as any);
+    }
 
     // Query recent sessions ordered by most recent
     const sessions = await db
       .select()
       .from(analyticsSessions)
-      .where(
-        and(
-          gte(analyticsSessions.createdAt, startDate),
-          eq(analyticsSessions.isTestData, false)
-        )
-      )
+      .where(and(...conditions))
       .orderBy(desc(analyticsSessions.createdAt))
       .limit(limit * 2); // Get more to account for exclusions
 
     console.log(`📊 [Realtime] Found ${sessions.length} sessions in DB`);
+
+    // Get per-IP session counts in one grouped query to avoid N+1
+    const ipCounts = new Map<string, number>();
+    if (sessions.length > 0) {
+      const ipAddresses = [...new Set(sessions.map(s => s.ipAddress).filter(Boolean))] as string[];
+      if (ipAddresses.length > 0) {
+        const countRows = await db
+          .select({
+            ipAddress: analyticsSessions.ipAddress,
+            count: sql<number>`count(*)::int`,
+          })
+          .from(analyticsSessions)
+          .where(
+            and(
+              inArray(analyticsSessions.ipAddress, ipAddresses),
+              eq(analyticsSessions.isTestData, false)
+            )
+          )
+          .groupBy(analyticsSessions.ipAddress);
+
+        for (const row of countRows) {
+          if (row.ipAddress) {
+            ipCounts.set(row.ipAddress, row.count);
+          }
+        }
+      }
+    }
 
     // Filter out excluded IPs and build visitor list
     const visitors: RecentVisitor[] = [];
@@ -238,7 +289,7 @@ export async function getRecentVisitors(
         language: session.language || "Unknown",
         lastVisit: (session.lastSeenAt || session.createdAt || new Date()).toISOString(),
         userAgent: session.userAgent || "",
-        visitCount: 1, // Would need aggregation for accurate count
+        visitCount: (session.ipAddress ? ipCounts.get(session.ipAddress) : undefined) ?? 1,
         sessionDuration: session.sessionDuration || 0,
         previousVisit: null,
       });
