@@ -451,7 +451,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
             <div className="space-y-2">
               <div className="text-gray-800">
                 <span className="font-medium">Your site received</span>{' '}
-                <span className="font-bold text-blue-600">{totalViews?.value || 0} visitor sessions</span>{' '}
+                <span className="font-bold text-blue-600">{totalViews?.value || 0} visitor {(totalViews?.value || 0) === 1 ? 'session' : 'sessions'}</span>{' '}
                 {datePreset === '7d' && 'in the last 7 days'}
                 {datePreset === '30d' && 'in the last 30 days'}
                 {datePreset === '90d' && 'in the last 90 days'}
@@ -459,7 +459,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                 {datePreset === 'yesterday' && 'yesterday'}
                 {datePreset === 'custom' && 'in the selected period'}
                 , with{' '}
-                <span className="font-bold text-green-600">{uniqueVisitors?.value || 0} unique visitors</span>
+                <span className="font-bold text-green-600">{uniqueVisitors?.value || 0} unique {(uniqueVisitors?.value || 0) === 1 ? 'visitor' : 'visitors'}</span>
                 {uniqueVisitors?.value > 0 && returnVisitors?.value > 0 && (
                   <span>
                     {' '}({Math.round((returnVisitors.value / uniqueVisitors.value) * 100)}% returning visitors)
@@ -513,6 +513,15 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
               {/* Visitor Details from Eye Icon Data */}
               {!visitorInsights.loading && visitorInsights.recentVisitors > 0 && (
                 <>
+                  {/* Data source note when GA4 is selected but breakdowns use MEMOPYK */}
+                  {dataSource === 'ga4' && (
+                    <div className="pt-2 border-t border-blue-200">
+                      <div className="text-gray-600 text-xs bg-amber-50 border border-amber-200 rounded p-2">
+                        <span className="font-medium text-amber-700">Note:</span> Geographic, language, and behavioral breakdowns below are from MEMOPYK local tracking logs ({visitorInsights.recentVisitors} {visitorInsights.recentVisitors === 1 ? 'session' : 'sessions'}) and may show different totals than the GA4 figures above.
+                      </div>
+                    </div>
+                  )}
+
                   {/* Top Countries */}
                   {visitorInsights.topCountries.length > 0 && (
                     <div className="pt-2 border-t border-blue-200">
@@ -595,8 +604,8 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                 <div className="text-gray-700">
                   <span className="font-medium">💡 Key Insight:</span>{' '}
                   {dataSource === 'memopyk'
-                    ? <>These {totalViews?.value || 0} sessions are from MEMOPYK local tracking logs (IP-filtered).</>
-                    : <>These {totalViews?.value || 0} sessions are tracked by Google Analytics 4. Each session can include multiple page views, so your total pageview count in GA4 will be higher.</>
+                    ? <>{(totalViews?.value || 0) === 1 ? 'This' : 'These'} {totalViews?.value || 0} {(totalViews?.value || 0) === 1 ? 'session is' : 'sessions are'} from MEMOPYK local tracking logs (IP-filtered).</>
+                    : <>{(totalViews?.value || 0) === 1 ? 'This' : 'These'} {totalViews?.value || 0} {(totalViews?.value || 0) === 1 ? 'session is' : 'sessions are'} tracked by Google Analytics 4. Each session can include multiple page views, so your total pageview count in GA4 will be higher.</>
                   }
                   {country !== 'all' && (
                     <span className="block mt-1 text-blue-700">
@@ -629,7 +638,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
             
             <div className="space-y-1.5">
               <div>
-                <span className="font-medium text-gray-700">GA4 (Google Analytics):</span> Raw data from Google's tracking system. Includes all visitor traffic. Known bots are automatically filtered by GA4, but some unrecognized automated traffic may still appear. IP filters configured in your GA4 settings only apply to new data going forward, not historical data.
+                <span className="font-medium text-gray-700">GA4 (Google Analytics):</span> Data from Google's tracking system. Known bots are automatically filtered by GA4, but some unrecognized automated traffic may still appear. IP filters configured in your GA4 settings only apply to new data going forward, not historical data.
                 {(() => {
                   const activeExclusion = ipExclusions?.find((e: any) => e.active && e.label && e.appliesFrom);
                   if (activeExclusion) {
@@ -643,7 +652,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
               </div>
 
               <div>
-                <span className="font-medium text-gray-700">MEMOPYK (Local Logs):</span> Your website's local tracking logs with IP exclusions applied. Only counts sessions with valid IP addresses and filters out traffic from your excluded IPs{ipExclusions && ipExclusions.length > 0 && ` (currently ${ipExclusions.filter((e: any) => e.active).length} IP ${ipExclusions.filter((e: any) => e.active).length === 1 ? 'address' : 'addresses'} excluded)`}.
+                <span className="font-medium text-gray-700">MEMOPYK (Local Logs):</span> Tracks sessions on your website with IP exclusions applied. Filters out traffic from your excluded IPs{ipExclusions && ipExclusions.length > 0 && ` (currently ${ipExclusions.filter((e: any) => e.active).length} IP ${ipExclusions.filter((e: any) => e.active).length === 1 ? 'address' : 'addresses'} excluded)`}.
               </div>
 
               <div className="pt-1 border-t border-gray-300">
@@ -651,12 +660,12 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                 <ul className="ml-4 mt-1 space-y-0.5 list-disc">
                   <li>Excludes your configured IP addresses (your office, home, etc.)</li>
                   <li>Filters out sessions with invalid/missing IP addresses from unique visitor counts. Session totals may include some null-IP entries.</li>
-                  <li>Only counts legitimate production traffic with valid IPs</li>
+                  <li>Focuses on production traffic — excludes your own visits and invalid IPs, but cannot detect all automated traffic</li>
                 </ul>
               </div>
               
               <div className="text-gray-500 italic">
-                Toggle the data source switch above to compare GA4 (all traffic) vs MEMOPYK (filtered, valid IPs only).
+                Toggle the data source switch above to compare GA4 (Google's tracking) vs MEMOPYK (your local filtered logs).
               </div>
             </div>
           </div>
