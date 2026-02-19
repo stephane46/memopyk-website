@@ -608,7 +608,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                 <div className="text-gray-700">
                   <span className="font-medium">💡 Key Insight:</span>{' '}
                   {dataSource === 'memopyk'
-                    ? <>{(totalViews?.value || 0) === 1 ? 'This' : 'These'} {totalViews?.value || 0} {(totalViews?.value || 0) === 1 ? 'session is' : 'sessions are'} from MEMOPYK local tracking logs (IP-filtered).</>
+                    ? <>{(totalViews?.value || 0) === 1 ? 'This' : 'These'} {totalViews?.value || 0} {(totalViews?.value || 0) === 1 ? 'session represents a' : 'sessions represent'} real human {(totalViews?.value || 0) === 1 ? 'visitor' : 'visitors'} recorded by MEMOPYK.</>
                     : <>{(totalViews?.value || 0) === 1 ? 'This' : 'These'} {totalViews?.value || 0} {(totalViews?.value || 0) === 1 ? 'session is' : 'sessions are'} tracked by Google Analytics 4. Each session can include multiple page views, so your total pageview count in GA4 will be higher.</>
                   }
                   {country !== 'all' && (
