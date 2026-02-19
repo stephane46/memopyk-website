@@ -9,13 +9,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Save, Eye, Upload, Search, Languages, Star, Tag, X, Sparkles, Globe, Trash2 } from 'lucide-react';
+import { Loader2, Save, Eye, Upload, Search, Languages, Star, Tag, Sparkles, Globe, Trash2 } from 'lucide-react';
 import { Editor } from '@tinymce/tinymce-react';
 import DOMPurify from 'dompurify';
 import { StatusSelector } from './StatusSelector';
 import { PublishedAtPicker } from './PublishedAtPicker';
 import { BlogHeroImageUpload } from './BlogHeroImageUpload';
 import { BlogTagSelector } from './BlogTagSelector';
+import { KeywordCombobox, MultiKeywordCombobox } from './KeywordCombobox';
 import { createTinyMCEConfig, getAdminToken } from './tinymce/config';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -41,7 +42,6 @@ export function BlogEditor({ postId }: BlogEditorProps) {
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [primaryKeyword, setPrimaryKeyword] = useState('');
   const [secondaryKeywords, setSecondaryKeywords] = useState<string[]>([]);
-  const [secondaryKeywordInput, setSecondaryKeywordInput] = useState('');
   const [language, setLanguage] = useState<'fr-FR' | 'en-US'>('fr-FR');
   const [includeInSitemap, setIncludeInSitemap] = useState(true);
   const [enableFaqSchema, setEnableFaqSchema] = useState(true);
@@ -79,27 +79,30 @@ export function BlogEditor({ postId }: BlogEditorProps) {
 
   const post: BlogPost | undefined = postData?.data;
 
-  // Fetch existing blog images for the picker modal
+  // Fetch existing blog images from Image Bank
   const { data: imagesData, isLoading: imagesLoading, refetch: refetchImages } = useQuery({
-    queryKey: ['/api/admin/blog/images'],
+    queryKey: ['/api/image-bank'],
     queryFn: async () => {
-      const response = await adminFetch('/api/admin/blog/images');
+      const response = await adminFetch('/api/image-bank');
       if (!response.ok) throw new Error('Failed to fetch images');
       return response.json();
     },
     enabled: isImagePickerOpen
   });
 
-  type BlogImage = {
-    name: string;
-    url: string;
-    size: number;
+  type ImageBankItem = {
+    id: string;
+    filename: string;
+    originalFilename: string;
+    publicUrl: string;
+    fileSizeBytes: number;
+    altText: string | null;
     createdAt: string;
   };
 
-  const allImages: BlogImage[] = imagesData?.data || [];
+  const allImages: ImageBankItem[] = Array.isArray(imagesData) ? imagesData : [];
   const filteredImages = searchTerm
-    ? allImages.filter(img => img.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    ? allImages.filter(img => img.originalFilename.toLowerCase().includes(searchTerm.toLowerCase()) || img.filename.toLowerCase().includes(searchTerm.toLowerCase()))
     : allImages;
 
   // Fetch tags for this post
@@ -262,7 +265,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await adminFetch('/api/admin/blog/images', {
+      const response = await adminFetch('/api/image-bank/upload', {
         method: 'POST',
         body: formData
       });
@@ -273,16 +276,16 @@ export function BlogEditor({ postId }: BlogEditorProps) {
       }
 
       const result = await response.json();
-      
+
       toast({
         title: "Success!",
         description: "Image uploaded successfully"
       });
 
       refetchImages();
-      
+
       if (imagePickerCallbackRef.current) {
-        handleImageSelect(result.data.url);
+        handleImageSelect(result.publicUrl);
       }
     } catch (error) {
       toast({
@@ -514,14 +517,12 @@ export function BlogEditor({ postId }: BlogEditorProps) {
 
             {/* Primary Keyword */}
             <div>
-              <Label htmlFor="primary-keyword" className="text-sm text-gray-700">Primary Keyword</Label>
+              <Label className="text-sm text-gray-700">Primary Keyword</Label>
               <div className="flex items-center gap-3 mt-1">
-                <Input
-                  id="primary-keyword"
+                <KeywordCombobox
                   value={primaryKeyword}
-                  onChange={(e) => setPrimaryKeyword(e.target.value)}
-                  placeholder="e.g. photos chiots smartphone"
-                  className="max-w-md"
+                  onChange={setPrimaryKeyword}
+                  placeholder="Search keywords..."
                   data-testid="input-primary-keyword"
                 />
                 {primaryKeyword && (
@@ -535,39 +536,16 @@ export function BlogEditor({ postId }: BlogEditorProps) {
 
             {/* Secondary Keywords */}
             <div>
-              <Label htmlFor="secondary-keywords" className="text-sm text-gray-700">Secondary Keywords</Label>
-              <div className="flex flex-wrap gap-2 mt-1 mb-2">
-                {secondaryKeywords.map((kw, i) => (
-                  <Badge key={i} variant="secondary" className="bg-gray-100 text-gray-700 border-gray-300 px-2.5 py-0.5 text-xs font-medium">
-                    {kw}
-                    <button
-                      type="button"
-                      onClick={() => setSecondaryKeywords(secondaryKeywords.filter((_, idx) => idx !== i))}
-                      className="ml-1.5 hover:text-red-600"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
+              <Label className="text-sm text-gray-700">Secondary Keywords</Label>
+              <div className="mt-1">
+                <MultiKeywordCombobox
+                  values={secondaryKeywords}
+                  onChange={setSecondaryKeywords}
+                  excludeKeyword={primaryKeyword}
+                  placeholder="Add keyword..."
+                  data-testid="input-secondary-keywords"
+                />
               </div>
-              <Input
-                id="secondary-keywords"
-                value={secondaryKeywordInput}
-                onChange={(e) => setSecondaryKeywordInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ',') {
-                    e.preventDefault();
-                    const value = secondaryKeywordInput.trim().replace(/,$/, '');
-                    if (value && !secondaryKeywords.includes(value)) {
-                      setSecondaryKeywords([...secondaryKeywords, value]);
-                    }
-                    setSecondaryKeywordInput('');
-                  }
-                }}
-                placeholder="Type keyword and press Enter or comma to add"
-                className="max-w-md"
-                data-testid="input-secondary-keywords"
-              />
             </div>
           </div>
 
@@ -759,14 +737,14 @@ export function BlogEditor({ postId }: BlogEditorProps) {
               <div className="grid grid-cols-3 gap-4">
                 {filteredImages.map((image) => (
                   <button
-                    key={image.name}
-                    onClick={() => handleImageSelect(image.url)}
+                    key={image.id}
+                    onClick={() => handleImageSelect(image.publicUrl)}
                     className="relative aspect-square border rounded-lg overflow-hidden hover:ring-2 hover:ring-[#D67C4A] transition-all group"
-                    data-testid={`button-select-image-${image.name}`}
+                    data-testid={`button-select-image-${image.filename}`}
                   >
-                    <img 
-                      src={image.url} 
-                      alt={image.name}
+                    <img
+                      src={image.publicUrl}
+                      alt={image.altText || image.originalFilename}
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
@@ -775,7 +753,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                       </span>
                     </div>
                     <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white text-xs p-1 truncate">
-                      {image.name}
+                      {image.originalFilename}
                     </div>
                   </button>
                 ))}

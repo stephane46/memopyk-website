@@ -12,10 +12,13 @@ interface BlogHeroImageUploadProps {
   onImageSelect: (url: string) => void;
 }
 
-type BlogImage = {
-  name: string;
-  url: string;
-  size: number;
+type ImageBankItem = {
+  id: string;
+  filename: string;
+  originalFilename: string;
+  publicUrl: string;
+  fileSizeBytes: number;
+  altText: string | null;
   createdAt: string;
 };
 
@@ -24,18 +27,18 @@ export function BlogHeroImageUpload({ currentImageUrl, onImageSelect }: BlogHero
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  // Fetch existing images
+  // Fetch existing images from Image Bank
   const { data: imagesData, isLoading, refetch } = useQuery({
-    queryKey: ['/api/admin/blog/images'],
+    queryKey: ['/api/image-bank'],
     queryFn: async () => {
-      const response = await adminFetch('/api/admin/blog/images');
+      const response = await adminFetch('/api/image-bank');
       if (!response.ok) throw new Error('Failed to fetch images');
       return response.json();
     },
     enabled: isDialogOpen
   });
 
-  const images: BlogImage[] = imagesData?.data || [];
+  const images: ImageBankItem[] = Array.isArray(imagesData) ? imagesData : [];
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -65,9 +68,9 @@ export function BlogHeroImageUpload({ currentImageUrl, onImageSelect }: BlogHero
 
     try {
       const formData = new FormData();
-      formData.append('image', file);
+      formData.append('file', file);
 
-      const response = await adminFetch('/api/admin/blog/images', {
+      const response = await adminFetch('/api/image-bank/upload', {
         method: 'POST',
         body: formData
       });
@@ -84,7 +87,7 @@ export function BlogHeroImageUpload({ currentImageUrl, onImageSelect }: BlogHero
       });
 
       // Select the newly uploaded image
-      onImageSelect(result.data.url);
+      onImageSelect(result.publicUrl);
       
       // Refresh the images list
       refetch();
@@ -202,15 +205,15 @@ export function BlogHeroImageUpload({ currentImageUrl, onImageSelect }: BlogHero
                 <div className="grid grid-cols-3 gap-4">
                   {images.map((image) => (
                     <button
-                      key={image.url}
+                      key={image.id}
                       type="button"
-                      onClick={() => handleImageSelect(image.url)}
+                      onClick={() => handleImageSelect(image.publicUrl)}
                       className="relative aspect-video rounded-lg overflow-hidden border-2 border-gray-200 hover:border-[#D67C4A] transition-colors group"
-                      data-testid={`button-select-image-${image.name}`}
+                      data-testid={`button-select-image-${image.filename}`}
                     >
-                      <img 
-                        src={image.url} 
-                        alt={image.name}
+                      <img
+                        src={image.publicUrl}
+                        alt={image.altText || image.originalFilename}
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity flex items-center justify-center">
