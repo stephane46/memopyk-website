@@ -38,6 +38,46 @@ import { eq, and, desc, sql } from 'drizzle-orm';
 
 const router = Router();
 
+/**
+ * Recompute topic status from ALL linked blog posts ("highest status wins").
+ * - Any post 'published' → topic 'published'
+ * - No published, but any 'in_review' → topic 'in_progress'
+ * - Only 'draft' posts → topic 'in_progress'
+ * - No linked posts remain → do not change topic status
+ */
+async function recomputeTopicStatus(topicId: string): Promise<void> {
+  const linkedPosts = await db.select({ status: blogPosts.status })
+    .from(blogPosts)
+    .where(eq(blogPosts.sourceTopicId, topicId));
+
+  if (linkedPosts.length === 0) {
+    // No linked posts — leave topic status unchanged
+    return;
+  }
+
+  const statuses = linkedPosts.map(p => p.status);
+  let topicStatus: string;
+
+  if (statuses.includes('published')) {
+    topicStatus = 'published';
+  } else if (statuses.includes('in_review')) {
+    topicStatus = 'in_progress';
+  } else {
+    // Only draft/archived posts
+    topicStatus = 'in_progress';
+  }
+
+  await db.update(contentTopics).set({ status: topicStatus })
+    .where(eq(contentTopics.id, topicId));
+
+  // Also sync the daily assignment if one exists
+  const assignmentStatus = topicStatus === 'published' ? 'published' : 'in_progress';
+  await db.update(contentDailyAssignments).set({ status: assignmentStatus })
+    .where(eq(contentDailyAssignments.topicId, topicId));
+
+  console.log(`Topic ${topicId} status recomputed to '${topicStatus}' from ${linkedPosts.length} linked post(s) [${statuses.join(', ')}]`);
+}
+
 // Clear public blog cache on any admin mutation
 router.use((req, _res, next) => {
   if (req.method !== 'GET') {
@@ -795,22 +835,10 @@ router.put('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Resp
       }
     }
 
-    // Sync topic and assignment status ONLY when status actually changes
+    // Recompute topic status using "highest status wins" across all linked posts
     if (post.sourceTopicId && updates.status && oldPost?.status !== updates.status) {
       try {
-        const topicStatus = updates.status === 'published' ? 'published' : 'in_progress';
-
-        await db.update(contentTopics).set({ status: topicStatus })
-          .where(eq(contentTopics.id, post.sourceTopicId));
-
-        console.log(`Topic ${post.sourceTopicId} synced to ${topicStatus}`);
-
-        const assignmentStatus = updates.status === 'published' ? 'published' : 'in_progress';
-
-        await db.update(contentDailyAssignments).set({ status: assignmentStatus })
-          .where(eq(contentDailyAssignments.topicId, post.sourceTopicId));
-
-        console.log(`Assignment synced to ${assignmentStatus}`);
+        await recomputeTopicStatus(post.sourceTopicId);
       } catch (syncError) {
         console.error('Status synchronization error:', syncError);
       }
@@ -913,17 +941,10 @@ router.patch('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Re
       }
     }
 
+    // Recompute topic status using "highest status wins" across all linked posts
     if (post.sourceTopicId && updates.status && oldPost?.status !== updates.status) {
       try {
-        const topicStatus = updates.status === 'published' ? 'published' : 'in_progress';
-
-        await db.update(contentTopics).set({ status: topicStatus })
-          .where(eq(contentTopics.id, post.sourceTopicId));
-
-        const assignmentStatus = updates.status === 'published' ? 'published' : 'in_progress';
-
-        await db.update(contentDailyAssignments).set({ status: assignmentStatus })
-          .where(eq(contentDailyAssignments.topicId, post.sourceTopicId));
+        await recomputeTopicStatus(post.sourceTopicId);
       } catch (syncError) {
         console.error('Status synchronization error:', syncError);
       }
@@ -968,29 +989,10 @@ router.delete('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: R
       }
     }
 
-    // Revert topic status if no other posts exist
+    // Recompute topic status from remaining linked posts
     if (postToDelete?.sourceTopicId) {
       try {
-        const otherPosts = await db.select({ id: blogPosts.id })
-          .from(blogPosts)
-          .where(eq(blogPosts.sourceTopicId, postToDelete.sourceTopicId));
-
-        if (otherPosts.length === 0) {
-          await db.update(contentTopics).set({ status: 'planned' })
-            .where(eq(contentTopics.id, postToDelete.sourceTopicId));
-
-          console.log(`Topic ${postToDelete.sourceTopicId} reverted to 'planned'`);
-
-          await db.update(contentDailyAssignments).set({
-            postId: null,
-            status: 'planned'
-          })
-            .where(eq(contentDailyAssignments.topicId, postToDelete.sourceTopicId));
-
-          console.log(`Assignment cleared for topic ${postToDelete.sourceTopicId}`);
-        } else {
-          console.log(`Topic ${postToDelete.sourceTopicId} has ${otherPosts.length} other post(s), status unchanged`);
-        }
+        await recomputeTopicStatus(postToDelete.sourceTopicId);
       } catch (syncError) {
         console.error('Status synchronization error:', syncError);
       }

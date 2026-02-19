@@ -15,6 +15,26 @@ type TopicSuggestion = {
   market: string;
 };
 
+function formatStatus(status: string): string {
+  switch (status) {
+    case 'backlog': return 'Backlog';
+    case 'planned': return 'Planned';
+    case 'in_progress': return 'In Progress';
+    case 'published': return 'Published';
+    default: return status;
+  }
+}
+
+function statusBadgeClass(status: string): string {
+  switch (status) {
+    case 'backlog': return 'bg-gray-100 text-gray-600 border-gray-200';
+    case 'planned': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+    case 'in_progress': return 'bg-blue-100 text-blue-700 border-blue-200';
+    case 'published': return 'bg-green-100 text-green-700 border-green-200';
+    default: return '';
+  }
+}
+
 interface TopicComboboxProps {
   value: string | null;
   onChange: (value: string | null) => void;
@@ -133,8 +153,8 @@ export function TopicCombobox({ value, onChange, placeholder = 'Link to a planne
                           {topic.category}
                         </Badge>
                       )}
-                      <Badge variant="outline" className="ml-1 text-[10px] px-1.5 py-0">
-                        {topic.status}
+                      <Badge className={cn('ml-1 text-[10px] px-1.5 py-0 border', statusBadgeClass(topic.status))}>
+                        {formatStatus(topic.status)}
                       </Badge>
                     </CommandItem>
                   ))}
