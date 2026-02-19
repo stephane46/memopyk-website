@@ -11,6 +11,7 @@ import { KeywordDeleteDialog } from './KeywordDeleteDialog';
 import { MultiSelectFilter, FilterOption } from './MultiSelectFilter';
 import { adminFetch } from '@/lib/queryClient';
 import { formatCluster } from '@/lib/utils';
+import { VOLUME_RANGES } from '@shared/blogTypes';
 
 interface ContentKeyword {
   id: string;
@@ -174,13 +175,11 @@ export function ContentProductionKeywords() {
 
   const volumeOptions: FilterOption[] = useMemo(() => {
     if (!stats?.byVolume) return [];
-    return [
-      { value: 'mega', label: '50,000+', count: stats.byVolume.mega || 0 },
-      { value: 'high', label: '5,000 - 49,999', count: stats.byVolume.high || 0 },
-      { value: 'medium', label: '500 - 4,999', count: stats.byVolume.medium || 0 },
-      { value: 'low', label: '50 - 499', count: stats.byVolume.low || 0 },
-      { value: 'minimal', label: '0 - 49', count: stats.byVolume.minimal || 0 },
-    ];
+    return Object.entries(VOLUME_RANGES).map(([key, range]) => ({
+      value: key,
+      label: range.label,
+      count: stats.byVolume[key] || 0,
+    }));
   }, [stats?.byVolume]);
 
   const competitionOptions: FilterOption[] = useMemo(() => {
@@ -782,7 +781,13 @@ export function ContentProductionKeywords() {
                     <td className="p-3 text-center">
                       {keyword.postsCount ? (
                         <button
-                          onClick={() => navigateToTab('planner', keyword.keyword)}
+                          onClick={() => {
+                            const params = new URLSearchParams(window.location.search);
+                            params.set('tab', 'posts');
+                            params.set('filterKeyword', keyword.keyword);
+                            params.delete('highlight');
+                            window.location.href = `${window.location.pathname}?${params.toString()}`;
+                          }}
                           className="text-sm font-medium text-[#D67C4A] hover:underline"
                           title={`View ${keyword.postsCount} post(s)`}
                         >

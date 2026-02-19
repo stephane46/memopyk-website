@@ -15,6 +15,7 @@ import { requireAdmin } from '../middleware/auth.middleware';
 import { z } from 'zod';
 import { db } from '../db';
 import { contentKeywords, contentTopics, contentDailyAssignments, contentWeeklyPlans, blogPosts } from '@shared/schema';
+import { VOLUME_RANGES } from '@shared/blogTypes';
 import { eq, and, or, desc, asc, ilike, inArray, sql, not, isNull, gte, lte } from 'drizzle-orm';
 
 const router = Router();
@@ -206,11 +207,11 @@ router.get('/keywords/stats', requireAdmin, async (req: Request, res: Response) 
       const vol = k.monthlySearches || 0;
       stats.totalVolume += vol;
 
-      // Volume range counts
-      if (vol >= 50000) stats.byVolume.mega++;
-      else if (vol >= 5000) stats.byVolume.high++;
-      else if (vol >= 500) stats.byVolume.medium++;
-      else if (vol >= 50) stats.byVolume.low++;
+      // Volume range counts (using shared VOLUME_RANGES)
+      if (vol >= VOLUME_RANGES.mega.min) stats.byVolume.mega++;
+      else if (vol >= VOLUME_RANGES.high.min) stats.byVolume.high++;
+      else if (vol >= VOLUME_RANGES.medium.min) stats.byVolume.medium++;
+      else if (vol >= VOLUME_RANGES.low.min) stats.byVolume.low++;
       else stats.byVolume.minimal++;
 
       // Tier counts
@@ -310,18 +311,11 @@ router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
     }
     if (volume_range) {
       const ranges = (volume_range as string).split(',').map(r => r.trim());
-      const rangeBounds: Record<string, [number, number]> = {
-        mega: [50000, 999999999],
-        high: [5000, 49999],
-        medium: [500, 4999],
-        low: [50, 499],
-        minimal: [0, 49],
-      };
       const rangeConditions = ranges
-        .filter(r => rangeBounds[r])
+        .filter(r => VOLUME_RANGES[r])
         .map(r => and(
-          gte(contentKeywords.monthlySearches, rangeBounds[r][0]),
-          lte(contentKeywords.monthlySearches, rangeBounds[r][1])
+          gte(contentKeywords.monthlySearches, VOLUME_RANGES[r].min),
+          lte(contentKeywords.monthlySearches, VOLUME_RANGES[r].max)
         ));
       if (rangeConditions.length > 0) {
         conditions.push(or(...rangeConditions));

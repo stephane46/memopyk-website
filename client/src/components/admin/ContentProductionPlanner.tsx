@@ -110,7 +110,7 @@ export function ContentProductionPlanner() {
   const { data: blogPostsData } = useQuery({
     queryKey: ['/api/admin/blog/posts'],
     queryFn: async () => {
-      const response = await adminFetch('/api/admin/blog/posts');
+      const response = await adminFetch('/api/admin/blog/posts?limit=200');
       if (!response.ok) throw new Error('Failed to fetch blog posts');
       return response.json();
     }
@@ -300,9 +300,22 @@ export function ContentProductionPlanner() {
 
   // Get assigned topic IDs
   const assignedTopicIds = new Set(assignments.map(a => a.topicId));
-  
+
   // Get unassigned topics for stats
   const unassignedTopics = allTopics.filter(topic => !assignedTopicIds.has(topic.id));
+
+  // Calculate current ISO week boundaries for "Assigned This Week" stat
+  const currentWeekStart = new Date();
+  const dayOfWeek = currentWeekStart.getDay();
+  const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  currentWeekStart.setDate(currentWeekStart.getDate() + diffToMonday);
+  currentWeekStart.setHours(0, 0, 0, 0);
+  const currentWeekEnd = new Date(currentWeekStart);
+  currentWeekEnd.setDate(currentWeekEnd.getDate() + 7);
+  const thisWeekAssignments = assignments.filter(a => {
+    const d = new Date(a.date);
+    return d >= currentWeekStart && d < currentWeekEnd;
+  });
   
   // Filter all topics by search query (for modal - show all topics)
   const filteredTopics = allTopics.filter(topic =>
@@ -511,7 +524,7 @@ export function ContentProductionPlanner() {
         <Card className="py-2">
           <CardContent className="p-3 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Assigned This Week</span>
-            <span className="text-xl font-bold text-green-600 dark:text-green-400">{assignments.length}</span>
+            <span className="text-xl font-bold text-green-600 dark:text-green-400">{thisWeekAssignments.length}</span>
           </CardContent>
         </Card>
         <Card className="py-2">

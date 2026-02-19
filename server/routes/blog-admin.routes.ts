@@ -33,7 +33,7 @@ import {
   reinsertImages
 } from './translation-service';
 import { db } from '../db';
-import { blogPosts, blogGalleries, contentTopics, contentDailyAssignments } from '@shared/schema';
+import { blogPosts, blogGalleries, contentTopics, contentDailyAssignments, imageBank } from '@shared/schema';
 import { eq, and, desc, sql } from 'drizzle-orm';
 
 const router = Router();
@@ -711,12 +711,28 @@ router.get('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Resp
 router.put('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
+    const rawUpdates = req.body;
+
+    // Field allowlist to prevent mass assignment
+    const ALLOWED_FIELDS = new Set([
+      'title', 'slug', 'description', 'content', 'hero_url', 'heroUrl',
+      'language', 'status', 'published_at', 'publishedAt',
+      'is_featured', 'isFeatured', 'primary_keyword', 'primaryKeyword',
+      'secondary_keywords', 'secondaryKeywords', 'source_topic_id', 'sourceTopicId',
+      'category', 'reading_time', 'readingTime',
+    ]);
+    const updates: Record<string, any> = {};
+    for (const [key, value] of Object.entries(rawUpdates)) {
+      if (ALLOWED_FIELDS.has(key)) {
+        updates[key] = value;
+      }
+    }
 
     // Get current post to check if status actually changes
     const [oldPost] = await db.select({
       status: blogPosts.status,
-      sourceTopicId: blogPosts.sourceTopicId
+      sourceTopicId: blogPosts.sourceTopicId,
+      heroUrl: blogPosts.heroUrl,
     })
       .from(blogPosts)
       .where(eq(blogPosts.id, id))
@@ -743,6 +759,25 @@ router.put('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Resp
     }
 
     console.log(`Blog post updated: ${id}`);
+
+    // Track image bank usage when heroUrl changes
+    const newHeroUrl = updates.heroUrl || updates.hero_url;
+    if (newHeroUrl && oldPost?.heroUrl !== newHeroUrl) {
+      try {
+        // Decrement old hero image usage
+        if (oldPost?.heroUrl) {
+          await db.update(imageBank)
+            .set({ usageCount: sql`GREATEST(${imageBank.usageCount} - 1, 0)` })
+            .where(eq(imageBank.publicUrl, oldPost.heroUrl));
+        }
+        // Increment new hero image usage
+        await db.update(imageBank)
+          .set({ usageCount: sql`${imageBank.usageCount} + 1`, lastUsedAt: new Date() })
+          .where(eq(imageBank.publicUrl, newHeroUrl));
+      } catch (imgError) {
+        console.error('Image bank usage tracking error:', imgError);
+      }
+    }
 
     // Sync topic and assignment status ONLY when status actually changes
     if (post.sourceTopicId && updates.status && oldPost?.status !== updates.status) {
@@ -782,11 +817,27 @@ router.put('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Resp
 router.patch('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
+    const rawUpdates = req.body;
+
+    // Field allowlist to prevent mass assignment
+    const ALLOWED_FIELDS = new Set([
+      'title', 'slug', 'description', 'content', 'hero_url', 'heroUrl',
+      'language', 'status', 'published_at', 'publishedAt',
+      'is_featured', 'isFeatured', 'primary_keyword', 'primaryKeyword',
+      'secondary_keywords', 'secondaryKeywords', 'source_topic_id', 'sourceTopicId',
+      'category', 'reading_time', 'readingTime',
+    ]);
+    const updates: Record<string, any> = {};
+    for (const [key, value] of Object.entries(rawUpdates)) {
+      if (ALLOWED_FIELDS.has(key)) {
+        updates[key] = value;
+      }
+    }
 
     const [oldPost] = await db.select({
       status: blogPosts.status,
-      sourceTopicId: blogPosts.sourceTopicId
+      sourceTopicId: blogPosts.sourceTopicId,
+      heroUrl: blogPosts.heroUrl,
     })
       .from(blogPosts)
       .where(eq(blogPosts.id, id))
@@ -812,6 +863,23 @@ router.patch('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Re
     }
 
     console.log(`Blog post patched: ${id}`);
+
+    // Track image bank usage when heroUrl changes
+    const newHeroUrl = updates.heroUrl || updates.hero_url;
+    if (newHeroUrl && oldPost?.heroUrl !== newHeroUrl) {
+      try {
+        if (oldPost?.heroUrl) {
+          await db.update(imageBank)
+            .set({ usageCount: sql`GREATEST(${imageBank.usageCount} - 1, 0)` })
+            .where(eq(imageBank.publicUrl, oldPost.heroUrl));
+        }
+        await db.update(imageBank)
+          .set({ usageCount: sql`${imageBank.usageCount} + 1`, lastUsedAt: new Date() })
+          .where(eq(imageBank.publicUrl, newHeroUrl));
+      } catch (imgError) {
+        console.error('Image bank usage tracking error:', imgError);
+      }
+    }
 
     if (post.sourceTopicId && updates.status && oldPost?.status !== updates.status) {
       try {
@@ -845,7 +913,10 @@ router.delete('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: R
     const { id } = req.params;
 
     // Get post before deleting
-    const [postToDelete] = await db.select({ sourceTopicId: blogPosts.sourceTopicId })
+    const [postToDelete] = await db.select({
+      sourceTopicId: blogPosts.sourceTopicId,
+      heroUrl: blogPosts.heroUrl,
+    })
       .from(blogPosts)
       .where(eq(blogPosts.id, id))
       .limit(1);
@@ -853,6 +924,17 @@ router.delete('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: R
     await db.delete(blogPosts).where(eq(blogPosts.id, id));
 
     console.log(`Blog post deleted: ${id}`);
+
+    // Decrement image bank usageCount for hero image
+    if (postToDelete?.heroUrl) {
+      try {
+        await db.update(imageBank)
+          .set({ usageCount: sql`GREATEST(${imageBank.usageCount} - 1, 0)` })
+          .where(eq(imageBank.publicUrl, postToDelete.heroUrl));
+      } catch (imgError) {
+        console.error('Image bank cleanup error:', imgError);
+      }
+    }
 
     // Revert topic status if no other posts exist
     if (postToDelete?.sourceTopicId) {

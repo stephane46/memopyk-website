@@ -416,8 +416,6 @@ export function ImageBankManager() {
             <SelectItem value="all">All Images</SelectItem>
             <SelectItem value="unused">Unused Only</SelectItem>
             <SelectItem value="used">Used in Posts</SelectItem>
-            <SelectItem value="hero">Hero Images</SelectItem>
-            <SelectItem value="body">Body Images</SelectItem>
           </SelectContent>
         </Select>
 

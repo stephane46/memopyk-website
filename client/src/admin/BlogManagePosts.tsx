@@ -60,12 +60,14 @@ export function BlogManagePosts() {
   const [filterKeyword, setFilterKeyword] = useState<string | null>(null);
   const [tagManagementOpen, setTagManagementOpen] = useState(false);
   const [isCreatingNewPost, setIsCreatingNewPost] = useState(false);
+  const [newPostLanguage, setNewPostLanguage] = useState<'fr-FR' | 'en-US'>('fr-FR');
+  const [showNewPostLangPicker, setShowNewPostLangPicker] = useState(false);
 
   // Translation dialog state
   const [translateDialogPost, setTranslateDialogPost] = useState<BlogPost | null>(null);
   const [translateMethod, setTranslateMethod] = useState<'ai' | 'manual' | null>(null);
 
-  // Create new blank post (defaults to fr-FR, changeable in editor)
+  // Create new blank post with selected language
   const handleCreateNewPost = async () => {
     if (isCreatingNewPost) return;
     setIsCreatingNewPost(true);
@@ -73,7 +75,7 @@ export function BlogManagePosts() {
       const response = await adminFetch('/api/admin/blog/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ language: 'fr-FR' })
+        body: JSON.stringify({ language: newPostLanguage })
       });
 
       if (!response.ok) throw new Error('Failed to create post');
@@ -94,17 +96,22 @@ export function BlogManagePosts() {
     }
   };
 
-  // Check URL params for topic filtering
+  // Check URL params for topic and keyword filtering
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const topicParam = params.get('filterTopic');
     if (topicParam) {
       setFilterTopic(topicParam);
     }
+    const keywordParam = params.get('filterKeyword');
+    if (keywordParam) {
+      setFilterKeyword(keywordParam);
+    }
   }, []);
 
   // Build query params
   const queryParams = new URLSearchParams();
+  queryParams.set('limit', '200');
   if (statusFilter !== 'all') queryParams.set('status', statusFilter);
   if (languageFilter !== 'all') queryParams.set('language', languageFilter);
 
@@ -336,7 +343,16 @@ export function BlogManagePosts() {
             Manage and organize your blog content
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <Select value={newPostLanguage} onValueChange={(val: any) => setNewPostLanguage(val)}>
+            <SelectTrigger className="w-28" data-testid="select-new-post-language">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="fr-FR">FR</SelectItem>
+              <SelectItem value="en-US">EN</SelectItem>
+            </SelectContent>
+          </Select>
           <Button
             onClick={handleCreateNewPost}
             disabled={isCreatingNewPost}
@@ -407,7 +423,9 @@ export function BlogManagePosts() {
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Total Results</label>
               <div className="h-10 flex items-center px-3 bg-gray-100 rounded-md font-semibold text-gray-900">
-                {totalCount} {totalCount === 1 ? 'post' : 'posts'}
+                {postsData?.total && postsData.total > totalCount
+                  ? `Showing ${totalCount} of ${postsData.total} posts`
+                  : `${totalCount} ${totalCount === 1 ? 'post' : 'posts'}`}
               </div>
             </div>
           </div>

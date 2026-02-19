@@ -95,6 +95,7 @@ export const BlogAICreator: React.FC = () => {
       const postData = {
         ...generatedPost,
         content: sanitizedContent,
+        language,
         status,
         published_at: publishedAt ? publishedAt.toISOString() : null
       };

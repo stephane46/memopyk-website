@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Rocket, Calendar, FileText, Search, BookOpen, Image, Brain } from 'lucide-react';
+import { Rocket, Calendar, FileText, Search, BookOpen, Image, Brain, Sparkles } from 'lucide-react';
 import { ContentProductionPlanner } from './ContentProductionPlanner';
 import { ContentProductionTopics } from './ContentProductionTopics';
 import { ContentProductionKeywords } from './ContentProductionKeywords';
@@ -105,7 +105,8 @@ export default function ContentProductionHub() {
     { id: 'topics', num: 2, label: 'Planned Posts', desc: 'What to write', icon: FileText, testId: 'tab-topics' },
     { id: 'planner', num: 3, label: 'Planner', desc: 'Schedule when', icon: Calendar, testId: 'tab-planner' },
     { id: 'posts', num: 4, label: 'Posts', desc: 'Write & publish', icon: BookOpen, testId: 'tab-posts' },
-    { id: 'images', num: 5, label: 'Image Bank', desc: 'Store media', icon: Image, testId: 'tab-images' },
+    { id: 'ai-creator', num: 5, label: 'AI Creator', desc: 'Generate posts', icon: Sparkles, testId: 'tab-ai-creator' },
+    { id: 'images', num: 6, label: 'Image Bank', desc: 'Store media', icon: Image, testId: 'tab-images' },
   ];
 
   return (
@@ -139,7 +140,7 @@ export default function ContentProductionHub() {
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         {/* Desktop: Full-width grid layout with workflow arrows */}
-        <TabsList className="hidden md:grid md:grid-cols-5 w-full bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+        <TabsList className="hidden md:grid md:grid-cols-6 w-full bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
           {tabConfig.map((tab, index) => {
             const IconComponent = tab.icon;
             const isActive = activeTab === tab.id;
@@ -206,6 +207,14 @@ export default function ContentProductionHub() {
           >
             <BookOpen className="h-4 w-4 mr-1" />
             Posts
+          </TabsTrigger>
+          <TabsTrigger
+            value="ai-creator"
+            data-testid="tab-ai-creator-mobile"
+            className="flex-shrink-0 data-[state=active]:bg-[#D67C4A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+          >
+            <Sparkles className="h-4 w-4 mr-1" />
+            AI Creator
           </TabsTrigger>
           <TabsTrigger
             value="images"

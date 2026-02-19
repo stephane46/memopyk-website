@@ -94,7 +94,7 @@ router.get('/admin/blog/tags', requireAdmin, async (req: Request, res: Response)
           ilike(blogTags.name, pattern),
           ilike(blogTags.slug, pattern)
         ))
-        .orderBy(desc(blogTags.usageCount))
+        .orderBy(asc(blogTags.name))
         .limit(20);
     } else {
       tags = await db

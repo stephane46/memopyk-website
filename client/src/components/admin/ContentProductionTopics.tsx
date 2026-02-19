@@ -247,7 +247,8 @@ export function ContentProductionTopics() {
 
   const totalTopics = topics.length;
   const readyToWriteCount = topics.filter(t => t.status === 'backlog').length;
-  const inProgressCount = topics.filter(t => t.status === 'in_progress' || t.status === 'planned').length;
+  const plannedCount = topics.filter(t => t.status === 'planned').length;
+  const inProgressCount = topics.filter(t => t.status === 'in_progress').length;
   const publishedCount = topics.filter(t => t.status === 'published').length;
 
   const getCategoryColor = (category: string) => {
@@ -600,7 +601,7 @@ export function ContentProductionTopics() {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Topics</CardTitle>
@@ -611,10 +612,18 @@ export function ContentProductionTopics() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Ready to Write</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">In Backlog</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">{readyToWriteCount}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Planned</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{plannedCount}</div>
           </CardContent>
         </Card>
         <Card>
