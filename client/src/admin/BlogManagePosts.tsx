@@ -60,8 +60,6 @@ export function BlogManagePosts() {
   const [filterKeyword, setFilterKeyword] = useState<string | null>(null);
   const [tagManagementOpen, setTagManagementOpen] = useState(false);
   const [isCreatingNewPost, setIsCreatingNewPost] = useState(false);
-  const [newPostLanguage, setNewPostLanguage] = useState<'fr-FR' | 'en-US'>('fr-FR');
-  const [showNewPostLangPicker, setShowNewPostLangPicker] = useState(false);
 
   // Translation dialog state
   const [translateDialogPost, setTranslateDialogPost] = useState<BlogPost | null>(null);
@@ -75,7 +73,7 @@ export function BlogManagePosts() {
       const response = await adminFetch('/api/admin/blog/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ language: newPostLanguage })
+        body: JSON.stringify({ language: 'fr-FR' })
       });
 
       if (!response.ok) throw new Error('Failed to create post');
@@ -344,36 +342,24 @@ export function BlogManagePosts() {
           </p>
         </div>
         <div className="flex gap-3 items-center">
-          {/* New Post group: language picker + create button */}
-          <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-1 bg-gray-50">
-            <Select value={newPostLanguage} onValueChange={(val: any) => setNewPostLanguage(val)}>
-              <SelectTrigger className="w-[4.5rem] h-9 border-0 bg-transparent" data-testid="select-new-post-language">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="fr-FR">FR</SelectItem>
-                <SelectItem value="en-US">EN</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button
-              onClick={handleCreateNewPost}
-              disabled={isCreatingNewPost}
-              className="bg-[#D67C4A] hover:bg-[#C56B39] text-white h-9"
-              data-testid="button-new-post"
-            >
-              {isCreatingNewPost ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Post
-                </>
-              )}
-            </Button>
-          </div>
+          <Button
+            onClick={handleCreateNewPost}
+            disabled={isCreatingNewPost}
+            className="bg-[#D67C4A] hover:bg-[#C56B39] text-white"
+            data-testid="button-new-post"
+          >
+            {isCreatingNewPost ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              <>
+                <Plus className="w-4 h-4 mr-2" />
+                New Post
+              </>
+            )}
+          </Button>
           <Button
             onClick={() => setTagManagementOpen(true)}
             variant="outline"

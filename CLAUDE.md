@@ -73,6 +73,9 @@ READ THESE FIRST:
 
 - 2026-02-19: Blog Hub deep audit — 15 fixes (P1/P2/P3) across 11 files from BLOG_HUB_AUDIT.md. P1: AI Creator language field + visible tab, Posts limit=200 with "Showing X of Y", image bank hero/body filter removed. P2: Planner "Assigned This Week" fixed to current ISO week, "Ready to Write" → "In Backlog", Keywords Posts column navigates correctly, Planner limit=200, "In Progress" split into Planned + In Progress. P3: tag autocomplete sort by name, image bank usageCount tracking, new post language selector, volume range shared constants
 - 2026-02-19: Hero image picker fix — BlogHeroImageUpload was calling non-existent `/api/admin/blog/images`, fixed to `/api/image-bank`
+- 2026-02-19: Blog Editor Topic field — searchable combobox (TopicCombobox.tsx) to link posts to planned topics via sourceTopicId. Loads all topics client-side, shows category/status badges
+- 2026-02-19: Posts tab cleanup — removed language picker from header (redundant, language set in editor). New Post always creates fr-FR draft
+- 2026-02-19: Topics tab fixes — grouped view as default, dynamic filter values from DB (fixed broken Category/Type/Role filters), workflow strip reduced to 5 steps
 - 2026-02-19: SEO keyword fields — replaced plain text inputs with searchable combobox (KeywordCombobox.tsx, MultiKeywordCombobox) for primary and secondary keywords in BlogEditor
 - 2026-02-19: Blog post allowlist data loss fix — PUT/PATCH allowlist was missing 7 fields (contentHtml, seo, heroCaption, featuredOrder, includeInSitemap, enableFaqSchema, readTimeMinutes). Content never saved, sitemap/FAQ toggles silently dropped. Fixed with both camelCase and snake_case variants
 - 2026-02-19: publishedAt toISOString 500 fix — Drizzle's PgTimestamp.mapToDriverValue() crashed on string values. Added Date coercion guard + debug logging in both PUT and PATCH handlers

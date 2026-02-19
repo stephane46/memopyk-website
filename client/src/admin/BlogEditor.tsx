@@ -17,6 +17,7 @@ import { PublishedAtPicker } from './PublishedAtPicker';
 import { BlogHeroImageUpload } from './BlogHeroImageUpload';
 import { BlogTagSelector } from './BlogTagSelector';
 import { KeywordCombobox, MultiKeywordCombobox } from './KeywordCombobox';
+import { TopicCombobox } from './TopicCombobox';
 import { createTinyMCEConfig, getAdminToken } from './tinymce/config';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -45,6 +46,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
   const [language, setLanguage] = useState<'fr-FR' | 'en-US'>('fr-FR');
   const [includeInSitemap, setIncludeInSitemap] = useState(true);
   const [enableFaqSchema, setEnableFaqSchema] = useState(true);
+  const [sourceTopicId, setSourceTopicId] = useState<string | null>(null);
 
   // AI Assist state
   const [isAIAssistOpen, setIsAIAssistOpen] = useState(false);
@@ -139,6 +141,7 @@ export function BlogEditor({ postId }: BlogEditorProps) {
       setLanguage(post.language as 'fr-FR' | 'en-US' || 'fr-FR');
       setIncludeInSitemap(post.includeInSitemap !== false);
       setEnableFaqSchema(post.enableFaqSchema !== false);
+      setSourceTopicId(post.sourceTopicId || null);
     }
   }, [post]);
 
@@ -194,7 +197,8 @@ export function BlogEditor({ postId }: BlogEditorProps) {
       secondaryKeywords: secondaryKeywords.length > 0 ? secondaryKeywords : null,
       language,
       includeInSitemap: includeInSitemap,
-      enableFaqSchema: enableFaqSchema
+      enableFaqSchema: enableFaqSchema,
+      sourceTopicId: sourceTopicId
     });
 
     // Save tags
@@ -469,6 +473,16 @@ export function BlogEditor({ postId }: BlogEditorProps) {
                 <SelectItem value="en-US">English (en-US)</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Source Topic */}
+          <div className="flex items-center gap-2">
+            <Label className="whitespace-nowrap">Source Topic:</Label>
+            <TopicCombobox
+              value={sourceTopicId}
+              onChange={setSourceTopicId}
+              data-testid="select-source-topic"
+            />
           </div>
 
           {/* Title */}
