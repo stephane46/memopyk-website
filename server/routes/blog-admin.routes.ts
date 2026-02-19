@@ -713,13 +713,21 @@ router.put('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Resp
     const { id } = req.params;
     const rawUpdates = req.body;
 
-    // Field allowlist to prevent mass assignment
+    // Field allowlist to prevent mass assignment (both camelCase and snake_case accepted)
     const ALLOWED_FIELDS = new Set([
-      'title', 'slug', 'description', 'content', 'hero_url', 'heroUrl',
-      'language', 'status', 'published_at', 'publishedAt',
-      'is_featured', 'isFeatured', 'primary_keyword', 'primaryKeyword',
-      'secondary_keywords', 'secondaryKeywords', 'source_topic_id', 'sourceTopicId',
-      'category', 'reading_time', 'readingTime',
+      'title', 'slug', 'description', 'content', 'category', 'language', 'status', 'seo',
+      'contentHtml', 'content_html',
+      'heroUrl', 'hero_url',
+      'heroCaption', 'hero_caption',
+      'publishedAt', 'published_at',
+      'isFeatured', 'is_featured',
+      'featuredOrder', 'featured_order',
+      'readTimeMinutes', 'read_time_minutes', 'readingTime', 'reading_time',
+      'includeInSitemap', 'include_in_sitemap',
+      'enableFaqSchema', 'enable_faq_schema',
+      'primaryKeyword', 'primary_keyword',
+      'secondaryKeywords', 'secondary_keywords',
+      'sourceTopicId', 'source_topic_id',
     ]);
     const updates: Record<string, any> = {};
     for (const [key, value] of Object.entries(rawUpdates)) {
@@ -754,6 +762,9 @@ router.put('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Resp
     if (drizzleUpdates.publishedAt && !(drizzleUpdates.publishedAt instanceof Date)) {
       drizzleUpdates.publishedAt = new Date(drizzleUpdates.publishedAt);
     }
+
+    console.log('[Blog Update PUT] drizzleUpdates keys:', Object.keys(drizzleUpdates));
+    console.log('[Blog Update PUT] publishedAt type:', typeof drizzleUpdates.publishedAt, drizzleUpdates.publishedAt instanceof Date);
 
     const [post] = await db.update(blogPosts).set(drizzleUpdates)
       .where(eq(blogPosts.id, id))
@@ -824,13 +835,21 @@ router.patch('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Re
     const { id } = req.params;
     const rawUpdates = req.body;
 
-    // Field allowlist to prevent mass assignment
+    // Field allowlist to prevent mass assignment (both camelCase and snake_case accepted)
     const ALLOWED_FIELDS = new Set([
-      'title', 'slug', 'description', 'content', 'hero_url', 'heroUrl',
-      'language', 'status', 'published_at', 'publishedAt',
-      'is_featured', 'isFeatured', 'primary_keyword', 'primaryKeyword',
-      'secondary_keywords', 'secondaryKeywords', 'source_topic_id', 'sourceTopicId',
-      'category', 'reading_time', 'readingTime',
+      'title', 'slug', 'description', 'content', 'category', 'language', 'status', 'seo',
+      'contentHtml', 'content_html',
+      'heroUrl', 'hero_url',
+      'heroCaption', 'hero_caption',
+      'publishedAt', 'published_at',
+      'isFeatured', 'is_featured',
+      'featuredOrder', 'featured_order',
+      'readTimeMinutes', 'read_time_minutes', 'readingTime', 'reading_time',
+      'includeInSitemap', 'include_in_sitemap',
+      'enableFaqSchema', 'enable_faq_schema',
+      'primaryKeyword', 'primary_keyword',
+      'secondaryKeywords', 'secondary_keywords',
+      'sourceTopicId', 'source_topic_id',
     ]);
     const updates: Record<string, any> = {};
     for (const [key, value] of Object.entries(rawUpdates)) {
@@ -863,6 +882,9 @@ router.patch('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Re
     if (drizzleUpdates.publishedAt && !(drizzleUpdates.publishedAt instanceof Date)) {
       drizzleUpdates.publishedAt = new Date(drizzleUpdates.publishedAt);
     }
+
+    console.log('[Blog Update PATCH] drizzleUpdates keys:', Object.keys(drizzleUpdates));
+    console.log('[Blog Update PATCH] publishedAt type:', typeof drizzleUpdates.publishedAt, drizzleUpdates.publishedAt instanceof Date);
 
     const [post] = await db.update(blogPosts).set(drizzleUpdates)
       .where(eq(blogPosts.id, id))
