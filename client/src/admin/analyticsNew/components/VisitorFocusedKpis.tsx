@@ -640,7 +640,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
               <div>
                 <span className="font-medium text-gray-700">GA4 (Google Analytics):</span> Data from Google's tracking system. Known bots are automatically filtered by GA4, but some unrecognized automated traffic may still appear. IP filters configured in your GA4 settings only apply to new data going forward, not historical data.
                 {(() => {
-                  const activeExclusion = ipExclusions?.find((e: any) => e.active && e.label && e.appliesFrom);
+                  const activeExclusion = ipExclusions?.find((e: any) => e.active && e.label && e.appliesFrom && e.ipCidr !== '0.0.0.0/32');
                   if (activeExclusion) {
                     const appliesDate = new Date(activeExclusion.appliesFrom).toLocaleDateString('fr-FR', {
                       day: 'numeric', month: 'long', year: 'numeric'

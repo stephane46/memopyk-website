@@ -6,6 +6,15 @@
 
 All critical issues (C1-C5), warnings (W1-W8), hardcoded risks (H1-H3), and recommendations (R1-R12) addressed.
 
+### Additional Text Block Fixes (2026-02-18, commit 05912d0)
+
+See `docs/audits/ANALYTICS_TEXT_BLOCKS_REVIEW.md` for full details.
+
+- **DB fix:** "Capadenac" → "Capdenac" spelling, `appliesFrom` → 2025-11-04
+- **Grammar:** Singular/plural for "session(s)", "visitor(s)", "This/These" in summary and Key Insight
+- **Data source mixing:** Added amber note when GA4 selected, explaining breakdown data is from MEMOPYK (Option A)
+- **Block 2 text:** Removed "Raw" from GA4 description, rewrote MEMOPYK description, fixed misleading bot claim, improved toggle instruction
+
 | Item | Status | Notes |
 |------|--------|-------|
 | C1 | FIXED | `/analytics/recent-visitors` now accepts `dateFrom`, `dateTo`, `country` params. `getRecentVisitors()` extended to accept date range and country. |
