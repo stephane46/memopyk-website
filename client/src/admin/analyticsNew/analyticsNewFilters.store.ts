@@ -124,16 +124,10 @@ export const useAnalyticsNewFilters = create<AnalyticsNewFiltersStore>()(
       },
       setSinceDateEnabled: (enabled) => set({ sinceDateEnabled: enabled }),
 
-      setLanguage: (language) => {
-        console.log('🔧 LANGUAGE CHANGED:', language, '→', (language || 'all').toLowerCase());
-        set({ language: (language || 'all').toLowerCase() });
-      },
+      setLanguage: (language) => set({ language: (language || 'all').toLowerCase() }),
       setCountry: (country) => set({ country }),
       setVideoId: (videoId) => set({ videoId }),
-      setDataSource: (source) => {
-        console.log('🔧 DATA SOURCE CHANGED:', source);
-        set({ dataSource: source });
-      },
+      setDataSource: (source) => set({ dataSource: source }),
       setLoading: (loading) => set({ isLoading: loading }),
       setError: (error) => set({ error }),
 

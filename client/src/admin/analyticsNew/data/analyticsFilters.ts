@@ -84,16 +84,7 @@ export function buildAnalyticsParams(
     locale: language === 'all' ? 'all' : language,
   };
 
-  // 🔍 CRITICAL DEBUG: Verify locale parameter handling
-  console.log('🔍 LOCALE PARAM:', language, '→', params.locale);
-  console.log('🟢 FRONTEND DEBUG:', {
-    'input_language': language,
-    'output_locale': params.locale,
-    'filterState': filterState,
-    'reportType': reportType
-  });
-  
-  // ✅ CRITICAL FIX: ALWAYS include explicit dates for endpoints that require them (like /api/ga4/geo)
+  // Always include explicit dates for endpoints that require them
   // Also include preset for endpoints that support it (backward compatibility)
   params.startDate = start;
   params.endDate = end;
@@ -160,25 +151,8 @@ export function buildAnalyticsUrl(baseUrl: string, params: FilteredAnalyticsPara
 }
 
 /**
- * Debug logging for filter application.
- * Helps troubleshoot exclusion filter issues.
+ * Filter application logging (no-op in production).
  */
-export function logFilterApplication(reportType: string, params: FilteredAnalyticsParams) {
-  console.log(`🔍 ANALYTICS FILTER [${reportType.toUpperCase()}]:`, {
-    queryKey: params.queryKey,
-    appliedFilters: params.appliedFilters,
-    apiParams: {
-      preset: params.preset,
-      startDate: params.startDate,
-      endDate: params.endDate,
-      since: params.since,
-      locale: params.locale
-    }
-  });
-  
-  if (params.appliedFilters.exclusions.dateEnabled) {
-    console.log(`✅ EXCLUSION FILTER ACTIVE: Excluding data before ${params.appliedFilters.exclusions.sinceDate}`);
-  } else {
-    console.log(`❌ EXCLUSION FILTER DISABLED: Showing all data`);
-  }
+export function logFilterApplication(_reportType: string, _params: FilteredAnalyticsParams) {
+  // Debug logging removed for production
 }

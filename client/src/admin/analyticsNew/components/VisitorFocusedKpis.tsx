@@ -232,8 +232,6 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
       const dateRange = getGlobalDateRange();
       const calcStartDate = dateRange.startDate;
       const calcEndDate = dateRange.endDate;
-      console.log('📊 TOTAL VIEWS: Using global store dates (with exclusion filter):', calcStartDate, 'to', calcEndDate);
-
       // Build URL with country filter if one is selected
       const url = new URL('/api/analytics/recent-visitors', window.location.origin);
       url.searchParams.set('dateFrom', calcStartDate);
@@ -241,7 +239,6 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
       url.searchParams.set('skipEnrichment', 'true');
       if (country && country !== 'all') {
         url.searchParams.set('country', country);
-        console.log('🌍 TOTAL VIEWS: Including country filter:', country);
       }
       
       const response = await fetch(url.toString());
@@ -265,8 +262,6 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
       const dateRange = getGlobalDateRange();
       const calcStartDate = dateRange.startDate;
       const calcEndDate = dateRange.endDate;
-      console.log('👥 UNIQUE VISITORS: Using global store dates (with exclusion filter):', calcStartDate, 'to', calcEndDate);
-
       // Build URL with country filter if one is selected
       const url = new URL('/api/analytics/recent-visitors', window.location.origin);
       url.searchParams.set('dateFrom', calcStartDate);
@@ -275,7 +270,6 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
       url.searchParams.set('uniqueOnly', 'true');
       if (country && country !== 'all') {
         url.searchParams.set('country', country);
-        console.log('🌍 UNIQUE VISITORS: Including country filter:', country);
       }
       
       // Call UNIQUE visitors endpoint (different from total sessions)
@@ -313,8 +307,6 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
       const dateRange = getGlobalDateRange();
       const calcStartDate = dateRange.startDate;
       const calcEndDate = dateRange.endDate;
-      console.log('🔄 RETURN VISITORS: Using global store dates (with exclusion filter):', calcStartDate, 'to', calcEndDate);
-
       // Build URL with country filter if one is selected
       const url = new URL('/api/analytics/recent-visitors', window.location.origin);
       url.searchParams.set('dateFrom', calcStartDate);
@@ -322,7 +314,6 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
       url.searchParams.set('skipEnrichment', 'true');
       if (country && country !== 'all') {
         url.searchParams.set('country', country);
-        console.log('🌍 RETURN VISITORS: Including country filter:', country);
       }
       
       const response = await fetch(url.toString());
