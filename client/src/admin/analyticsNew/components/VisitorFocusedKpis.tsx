@@ -663,13 +663,21 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                 <span className="font-medium text-gray-700">MEMOPYK (Local Logs):</span> Your website's own visitor logs with IP exclusions applied. Filters out traffic from your excluded IPs{ipExclusions && ipExclusions.length > 0 && ` (currently ${ipExclusions.filter((e: any) => e.active).length} IP ${ipExclusions.filter((e: any) => e.active).length === 1 ? 'address' : 'addresses'} excluded)`}.
               </div>
 
-              <div className="pt-1 border-t border-gray-300">
-                <span className="font-medium text-gray-700">💡 Why the difference?</span> MEMOPYK typically shows fewer sessions because it:
-                <ul className="ml-4 mt-1 space-y-0.5 list-disc">
-                  <li>Excludes your configured IP addresses (your office, home, etc.)</li>
-                  <li>Filters out sessions without a valid IP address from visitor counts</li>
-                  <li>Focuses on production traffic — excludes your own visits and invalid IPs, but cannot detect all automated traffic</li>
-                </ul>
+              <div className="pt-1 border-t border-gray-300 space-y-1.5">
+                <div>
+                  <span className="font-medium text-gray-700">💡 Why the difference?</span> GA4 and MEMOPYK count traffic differently:
+                </div>
+                <div>
+                  GA4 relies on client-side JavaScript tracking. Visitors using ad blockers, rejecting cookies, or using privacy-focused browsers may not be counted. GA4 also filters known bots automatically.
+                </div>
+                <div>
+                  MEMOPYK uses server-side logging and captures every session that reaches your server, then applies your IP exclusions. This means:
+                  <ul className="ml-4 mt-1 space-y-0.5 list-disc">
+                    <li>Excludes your configured IP addresses (your office, home, etc.)</li>
+                    <li>Filters out sessions without a valid IP address from visitor counts</li>
+                    <li>May show more or fewer sessions than GA4 depending on your traffic mix</li>
+                  </ul>
+                </div>
               </div>
 
               <div className="text-gray-500 italic">
