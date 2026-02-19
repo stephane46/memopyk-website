@@ -642,7 +642,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
             
             <div className="space-y-1.5">
               <div>
-                <span className="font-medium text-gray-700">GA4 (Google Analytics):</span> Data from Google's tracking system, using cookies and device identifiers. Known bots are automatically filtered, but some automated traffic may still appear. IP filters only apply to new data going forward, not historical data.
+                <span className="font-medium text-gray-700">GA4 (Google Analytics):</span> Google's client-side tracking — requires the visitor's browser to load and execute a JavaScript tracking script. Many real visitors are invisible to GA4 because their browsers block tracking scripts (Firefox Enhanced Tracking Protection, Safari Intelligent Tracking Prevention, Brave, content blockers).
               </div>
               {(() => {
                 const activeExclusion = ipExclusions?.find((e: any) => e.active && e.label && e.appliesFrom && e.ipCidr !== '0.0.0.0/32');
@@ -660,22 +660,21 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
               })()}
 
               <div>
-                <span className="font-medium text-gray-700">MEMOPYK (Local Logs):</span> Your website's own visitor logs with IP exclusions applied. Filters out traffic from your excluded IPs{ipExclusions && ipExclusions.length > 0 && ` (currently ${ipExclusions.filter((e: any) => e.active).length} IP ${ipExclusions.filter((e: any) => e.active).length === 1 ? 'address' : 'addresses'} excluded)`}.
+                <span className="font-medium text-gray-700">MEMOPYK (Local Logs):</span> Server-side tracking that captures every real visitor to your website. Automated traffic (search engine crawlers, bots, scrapers) is automatically detected and excluded{ipExclusions && ipExclusions.length > 0 && ` (currently ${ipExclusions.filter((e: any) => e.active).length} IP ${ipExclusions.filter((e: any) => e.active).length === 1 ? 'address' : 'addresses'} excluded)`}.
               </div>
 
               <div className="pt-1 border-t border-gray-300 space-y-1.5">
                 <div>
-                  <span className="font-medium text-gray-700">💡 Why the difference?</span> GA4 and MEMOPYK count traffic differently:
+                  <span className="font-medium text-gray-700">💡 Why the difference?</span> The gap represents real visitors whose browsers block GA4.
                 </div>
                 <div>
-                  GA4 relies on client-side JavaScript tracking. Visitors using ad blockers, rejecting cookies, or using privacy-focused browsers may not be counted. GA4 also filters known bots automatically.
+                  MEMOPYK automatically filters out crawlers and bots. The remaining difference comes from genuine human visitors whose browsers prevent GA4's tracking script from loading. Server-side tracking captures these visitors because HTTP requests cannot be blocked by browser privacy features.
                 </div>
                 <div>
-                  MEMOPYK uses server-side logging and captures every session that reaches your server, then applies your IP exclusions. This means:
                   <ul className="ml-4 mt-1 space-y-0.5 list-disc">
-                    <li>Excludes your configured IP addresses (your office, home, etc.)</li>
-                    <li>Filters out sessions without a valid IP address from visitor counts</li>
-                    <li>May show more or fewer sessions than GA4 depending on your traffic mix</li>
+                    <li>In France, 30-40% of internet users have some form of tracking protection enabled</li>
+                    <li>Firefox, Safari, and Brave block third-party tracking scripts by default</li>
+                    <li>MEMOPYK shows a more complete picture of your real audience</li>
                   </ul>
                 </div>
               </div>

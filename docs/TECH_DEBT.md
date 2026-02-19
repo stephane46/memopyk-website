@@ -7,7 +7,13 @@
 
 ## Active Items
 
-No active tech debt items.
+### Cookie Consent Banner (GDPR)
+- The cookie consent banner is decorative — GA4 fires unconditionally regardless of user choice
+- localStorage key `memopyk-consent-demo` stores preferences that nothing reads
+- `analytics_storage` is hardcoded to `"granted"` in the GA4 initialization
+- This is not GDPR-compliant for a French company targeting French consumers (CNIL risk)
+- **Priority**: Address after analytics dashboard stabilization is complete
+- **Files**: `client/src/App.tsx` (GA4 init), `client/src/components/ui/CookieBanner.tsx`, `client/src/analytics/ga.ts`
 
 ---
 
