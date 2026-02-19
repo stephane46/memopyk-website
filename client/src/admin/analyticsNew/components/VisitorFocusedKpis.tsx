@@ -404,8 +404,8 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
           onDetailClick={handleTotalViewsModalOpen}
           change={totalViews?.change || 0}
           description={
-            dataSource === 'memopyk' 
-              ? 'Visitor sessions from MEMOPYK logs (IP-filtered)' 
+            dataSource === 'memopyk'
+              ? 'Individual visits recorded by MEMOPYK'
               : 'Visitor sessions from Google Analytics'
           }
           data-testid="kpi-total-views"
@@ -420,7 +420,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
           change={uniqueVisitors?.change || 0}
           description={
             dataSource === 'memopyk'
-              ? 'Distinct IP-filtered visitors from MEMOPYK'
+              ? 'Unique visitors recorded by MEMOPYK'
               : 'Distinct visitors (GA4 cookie-based)'
           }
           data-testid="kpi-unique-visitors"
@@ -435,7 +435,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
           change={returnVisitors?.change || 0}
           description={
             dataSource === 'memopyk'
-              ? 'Returning visitors from MEMOPYK logs'
+              ? 'Visitors who came back during this period'
               : 'Returning visitors'
           }
           data-testid="kpi-return-visitors"
@@ -642,7 +642,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
             
             <div className="space-y-1.5">
               <div>
-                <span className="font-medium text-gray-700">GA4 (Google Analytics):</span> Google's client-side tracking — requires the visitor's browser to load and execute a JavaScript tracking script. Many real visitors are invisible to GA4 because their browsers block tracking scripts (Firefox Enhanced Tracking Protection, Safari Intelligent Tracking Prevention, Brave, content blockers).
+                <span className="font-medium text-gray-700">GA4 (Google Analytics):</span> Google Analytics tracks visitors by loading a script in their browser. Many real visitors are invisible to GA4 because their browser blocks that script — Firefox, Safari, Brave, and content blockers all do this by default.
               </div>
               {(() => {
                 const activeExclusion = ipExclusions?.find((e: any) => e.active && e.label && e.appliesFrom && e.ipCidr !== '0.0.0.0/32');
@@ -660,7 +660,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
               })()}
 
               <div>
-                <span className="font-medium text-gray-700">MEMOPYK (Local Logs):</span> Server-side tracking that captures every real visitor to your website. Automated traffic (search engine crawlers, bots, scrapers) is automatically detected and excluded{ipExclusions && ipExclusions.length > 0 && ` (currently ${ipExclusions.filter((e: any) => e.active).length} IP ${ipExclusions.filter((e: any) => e.active).length === 1 ? 'address' : 'addresses'} excluded)`}.
+                <span className="font-medium text-gray-700">MEMOPYK (Local Logs):</span> Server-side tracking that captures every real visitor to your site. Bot and crawler traffic is automatically detected and excluded, so these numbers reflect real human visitors only{ipExclusions && ipExclusions.length > 0 && ` (currently ${ipExclusions.filter((e: any) => e.active).length} IP ${ipExclusions.filter((e: any) => e.active).length === 1 ? 'address' : 'addresses'} excluded)`}.
               </div>
 
               <div className="pt-1 border-t border-gray-300 space-y-1.5">
@@ -777,7 +777,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                         <div>
                           <div className="flex items-center gap-2 mb-2">
                             <Clock className="h-4 w-4 text-orange-600" />
-                            <span className="text-xs text-gray-600">Visit Time</span>
+                            <span className="text-xs text-gray-600">Last Seen</span>
                           </div>
                           <div className="text-base font-semibold text-gray-900">
                             {getRelativeTime(visitor.lastVisit || visitor.createdAt)}
@@ -852,9 +852,11 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                   <div className="text-gray-900">
                     📊 Showing {uniqueVisitorsData?.length || 0} detailed records from MEMOPYK logs
                   </div>
-                  <div className="text-gray-900">
-                    ⚠️ GA4 reports {uniqueVisitors?.value || 0} total
-                  </div>
+                  {(uniqueVisitors?.value || 0) !== (uniqueVisitorsData?.length || 0) && (
+                    <div className="text-gray-900">
+                      ⚠️ GA4 reports {uniqueVisitors?.value || 0} total
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -978,11 +980,13 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
               <div className="-mx-6 mb-6 -mt-4 p-4 bg-purple-50 border border-purple-200 rounded-b-lg border-t-0">
                 <div className="space-y-0 text-sm">
                   <div className="text-gray-900">
-                    📊 Showing {returningVisitors?.length || 0} detailed records from MEMOPYK logs
+                    📊 Showing {returningVisitors?.length || 0} detailed {(returningVisitors?.length || 0) === 1 ? 'record' : 'records'} from MEMOPYK logs
                   </div>
-                  <div className="text-gray-900">
-                    ⚠️ GA4 reports {returnVisitors?.value || 0} total
-                  </div>
+                  {(returnVisitors?.value || 0) !== (returningVisitors?.length || 0) && (
+                    <div className="text-gray-900">
+                      ⚠️ GA4 reports {returnVisitors?.value || 0} total
+                    </div>
+                  )}
                 </div>
               </div>
 
