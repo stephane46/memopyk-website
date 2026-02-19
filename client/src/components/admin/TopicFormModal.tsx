@@ -16,7 +16,7 @@ interface ContentTopic {
   slug: string;
   category: string;
   type: string;
-  market: string;
+  market: string | null;
   targetWordCount: number;
   primaryKeyword: string;
   secondaryKeywords: string[];
@@ -103,7 +103,6 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [type, setType] = useState('');
-  const [market, setMarket] = useState('fr');
   const [status, setStatus] = useState('backlog');
   const [priority, setPriority] = useState('3');
   const [targetWordCount, setTargetWordCount] = useState('900');
@@ -157,7 +156,6 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
       setTitle(topic.title || '');
       setCategory(topic.category || '');
       setType(topic.type || '');
-      setMarket(topic.market || 'fr');
       setStatus(topic.status || 'backlog');
       setPriority(topic.priority?.toString() || '3');
       setTargetWordCount(topic.targetWordCount?.toString() || '900');
@@ -179,7 +177,6 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
       setTitle('');
       setCategory('');
       setType('');
-      setMarket('fr');
       setStatus('backlog');
       setPriority('3');
       setTargetWordCount('900');
@@ -229,7 +226,6 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
         slug,
         category,
         type,
-        market,
         status,
         priority: parseInt(priority),
         target_word_count: parseInt(targetWordCount) || 900,
@@ -334,20 +330,6 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-
-              <div>
-                <Label className="text-gray-900 dark:text-white">Market</Label>
-                <Select value={market} onValueChange={setMarket}>
-                  <SelectTrigger data-testid="select-market">
-                    <SelectValue placeholder="Select market" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="fr">🇫🇷 France</SelectItem>
-                    <SelectItem value="en">🇺🇸 English</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-gray-500 mt-0.5">Target market/language</p>
               </div>
 
               <div>

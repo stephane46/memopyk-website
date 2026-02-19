@@ -524,25 +524,29 @@ router.get('/topics', requireAdmin, async (req: Request, res: Response) => {
       .where(whereClause)
       .orderBy(desc(contentTopics.priority));
 
-    // Get post counts in a single query (fixes N+1 problem)
-    const postCounts = await db.select({
+    // Get post counts and languages in a single query (fixes N+1 problem)
+    const linkedPosts = await db.select({
       sourceTopicId: blogPosts.sourceTopicId,
+      language: blogPosts.language,
     }).from(blogPosts)
       .where(not(isNull(blogPosts.sourceTopicId)));
 
-    // Build count map
+    // Build count and language maps
     const countMap = new Map<string, number>();
-    for (const post of postCounts) {
+    const langMap = new Map<string, Set<string>>();
+    for (const post of linkedPosts) {
       if (post.sourceTopicId) {
-        const current = countMap.get(post.sourceTopicId) || 0;
-        countMap.set(post.sourceTopicId, current + 1);
+        countMap.set(post.sourceTopicId, (countMap.get(post.sourceTopicId) || 0) + 1);
+        if (!langMap.has(post.sourceTopicId)) langMap.set(post.sourceTopicId, new Set());
+        if (post.language) langMap.get(post.sourceTopicId)!.add(post.language);
       }
     }
 
-    // Merge counts into topics
+    // Merge counts and languages into topics
     const topicsWithCounts = topics.map((topic) => ({
       ...topic,
-      postCount: countMap.get(topic.id) || 0
+      postCount: countMap.get(topic.id) || 0,
+      postLanguages: Array.from(langMap.get(topic.id) || []),
     }));
 
     res.json(topicsWithCounts);

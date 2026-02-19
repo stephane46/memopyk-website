@@ -25,7 +25,8 @@ interface ContentTopic {
   slug: string;
   category: string;
   type: string;
-  market: string;
+  market: string | null;
+  postLanguages?: string[];
   targetWordCount: number;
   primaryKeyword: string;
   secondaryKeywords: string[];
@@ -168,7 +169,9 @@ export function ContentProductionTopics() {
     const matchesPriority = selectedPriority === 'all' || topic.priority.toString() === selectedPriority;
     const matchesStatus = selectedStatus === 'all' || topic.status === selectedStatus;
     const matchesType = selectedType === 'all' || topic.type === selectedType;
-    const matchesMarket = selectedMarket === 'all' || topic.market === selectedMarket;
+    const matchesMarket = selectedMarket === 'all' || (topic.postLanguages || []).some(lang =>
+      selectedMarket === 'fr' ? lang.startsWith('fr') : lang.startsWith('en')
+    );
     const matchesRole = selectedRole === 'all' || topic.role === selectedRole;
     const matchesCluster = selectedCluster === 'all' || (topic.cluster || 'other') === selectedCluster;
 
@@ -377,9 +380,17 @@ export function ContentProductionTopics() {
               <Badge variant="custom" className={getStatusColor(topic.status)}>
                 {formatStatusLabel(topic.status)}
               </Badge>
-              <Badge variant="custom" className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                {topic.market === 'fr' ? '🇫🇷' : '🇺🇸'}
-              </Badge>
+              {(topic.postLanguages || []).length > 0 ? (
+                (topic.postLanguages || []).map(lang => (
+                  <Badge key={lang} variant="custom" className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                    {lang.startsWith('fr') ? '🇫🇷' : '🇺🇸'}
+                  </Badge>
+                ))
+              ) : (
+                <Badge variant="custom" className="bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500">
+                  —
+                </Badge>
+              )}
               <Badge variant="custom" className={getCategoryColor(topic.category)}>
                 {getCategoryShortLabel(topic.category)}
               </Badge>
@@ -781,9 +792,9 @@ export function ContentProductionTopics() {
             </div>
           </div>
 
-          {/* Market Filter */}
+          {/* Language Filter (by linked blog post language) */}
           <div className="mt-4">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Market</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Post Language</label>
             <div className="flex gap-2">
               <Button
                 variant="outline"
@@ -801,7 +812,7 @@ export function ContentProductionTopics() {
                 className={selectedMarket === 'fr' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                 data-testid="button-market-fr"
               >
-                🇫🇷 France
+                🇫🇷 French Posts
               </Button>
               <Button
                 variant="outline"
@@ -810,7 +821,7 @@ export function ContentProductionTopics() {
                 className={selectedMarket === 'en' ? 'bg-[#D67C4A] text-white border-[#D67C4A] hover:bg-[#C06B3A] hover:text-white' : ''}
                 data-testid="button-market-en"
               >
-                🇺🇸 English
+                🇺🇸 English Posts
               </Button>
             </div>
           </div>

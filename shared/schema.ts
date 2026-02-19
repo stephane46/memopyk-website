@@ -642,7 +642,7 @@ export const contentTopics = pgTable("content_topics", {
   slug: text("slug").notNull().unique(),
   category: text("category").notNull(),
   type: text("type").notNull(),
-  market: text("market").default("fr").notNull(), // 'fr' | 'en'
+  market: text("market").default("fr"), // 'fr' | 'en' | null (language-agnostic)
   targetWordCount: integer("target_word_count").default(900),
   
   // SEO Data

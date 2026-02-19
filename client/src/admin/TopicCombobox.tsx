@@ -12,7 +12,6 @@ type TopicSuggestion = {
   title: string;
   category: string | null;
   status: string;
-  market: string;
 };
 
 function formatStatus(status: string): string {
