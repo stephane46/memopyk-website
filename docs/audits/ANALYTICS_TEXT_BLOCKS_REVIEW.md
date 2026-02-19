@@ -77,8 +77,16 @@ The MEMOPYK breakdown data (`fetchVisitorInsights`) passes `dateFrom` and `dateT
 ### Part 5: Verification
 
 **TypeScript:** Zero errors (`npx tsc --noEmit` clean).
-**Commit:** `05912d0` pushed to `staging`.
+**Commits:** `05912d0` (main fixes) + `0eaaa90` (exclusion `.find()` fix + docs) pushed to `staging`.
 **Deployment:** Auto-deploy via Coolify to https://memopyk.memopyk.com.
+
+**Additional fix (commit 0eaaa90):** The `.find()` for the GA4 exclusion sentence was picking "Local development traffic" (0.0.0.0/32) instead of "Capdenac home network". Fixed by adding `e.ipCidr !== '0.0.0.0/32'` filter — 0.0.0.0 is a MEMOPYK-only exclusion, not a GA4 IP filter.
+
+**Staging verification (2026-02-19):** All fixes confirmed live:
+- "1 visitor session" / "1 unique visitor" (singular ✓)
+- Amber note visible in GA4 mode: "Note: Geographic, language, and behavioral breakdowns below are from MEMOPYK local tracking logs (50 sessions)..." ✓
+- "Capdenac home network was excluded from GA4 starting 4 novembre 2025." ✓
+- All Block 2 text improvements rendering correctly ✓
 
 ---
 
