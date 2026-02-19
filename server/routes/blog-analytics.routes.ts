@@ -8,7 +8,7 @@
 
 import { Router, Request, Response } from 'express';
 import { db } from '../db';
-import { analyticsViews, analyticsExclusions, blogPosts, contentTopics } from '@shared/schema';
+import { analyticsViews, analyticsExclusions, analyticsSessions, blogPosts, contentTopics } from '@shared/schema';
 import { eq, and, gte, sql, desc } from 'drizzle-orm';
 
 const router = Router();
@@ -37,6 +37,8 @@ function buildConditions(days: number, language?: string, excludedIPs: string[] 
     sql`${analyticsViews.pageUrl} LIKE '%/blog/%'`,
     eq(analyticsViews.isTestData, false),
     gte(analyticsViews.createdAt, cutoff),
+    // Exclude views from bot sessions
+    sql`NOT EXISTS (SELECT 1 FROM ${analyticsSessions} WHERE ${analyticsSessions.sessionId} = ${analyticsViews.sessionId} AND ${analyticsSessions.isBot} = true)`,
   ];
 
   if (language) {
@@ -110,6 +112,7 @@ router.get('/analytics/blog/trends', async (req: Request, res: Response) => {
       sql`${analyticsViews.pageUrl} LIKE '%/blog/%'`,
       eq(analyticsViews.isTestData, false),
       gte(analyticsViews.createdAt, cutoff),
+      sql`NOT EXISTS (SELECT 1 FROM ${analyticsSessions} WHERE ${analyticsSessions.sessionId} = ${analyticsViews.sessionId} AND ${analyticsSessions.isBot} = true)`,
     ];
 
     // Language filter requires subquery since we don't want a full JOIN for trends
@@ -161,6 +164,7 @@ router.get('/analytics/blog/topics', async (req: Request, res: Response) => {
       sql`${analyticsViews.pageUrl} LIKE '%/blog/%'`,
       eq(analyticsViews.isTestData, false),
       gte(analyticsViews.createdAt, cutoff),
+      sql`NOT EXISTS (SELECT 1 FROM ${analyticsSessions} WHERE ${analyticsSessions.sessionId} = ${analyticsViews.sessionId} AND ${analyticsSessions.isBot} = true)`,
     ];
 
     if (language) {
@@ -221,6 +225,7 @@ router.get('/analytics/blog/keywords', async (req: Request, res: Response) => {
       sql`${analyticsViews.pageUrl} LIKE '%/blog/%'`,
       eq(analyticsViews.isTestData, false),
       gte(analyticsViews.createdAt, cutoff),
+      sql`NOT EXISTS (SELECT 1 FROM ${analyticsSessions} WHERE ${analyticsSessions.sessionId} = ${analyticsViews.sessionId} AND ${analyticsSessions.isBot} = true)`,
       sql`${blogPosts.primaryKeyword} IS NOT NULL AND ${blogPosts.primaryKeyword} != ''`,
     ];
 
@@ -277,6 +282,8 @@ router.get('/analytics/blog/categories', async (req: Request, res: Response) => 
       sql`${analyticsViews.pageUrl} LIKE '%/blog/%'`,
       eq(analyticsViews.isTestData, false),
       gte(analyticsViews.createdAt, cutoff),
+      // Exclude views from bot sessions
+      sql`NOT EXISTS (SELECT 1 FROM ${analyticsSessions} WHERE ${analyticsSessions.sessionId} = ${analyticsViews.sessionId} AND ${analyticsSessions.isBot} = true)`,
     ];
 
     if (language) {

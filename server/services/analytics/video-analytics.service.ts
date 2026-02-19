@@ -45,19 +45,15 @@ function parseDate(dateStr: string): Date {
 }
 
 /**
- * Get sessionIds matching locale/country filters.
- * Returns null if no filtering needed, empty array if no sessions match.
+ * Get sessionIds for non-bot sessions matching date range and optional locale/country filters.
+ * Always filters out bots. Returns empty array if no sessions match.
  */
 async function getFilteredSessionIds(
   startDate: Date,
   endDate: Date,
   locale?: string,
   country?: string
-): Promise<string[] | null> {
-  if ((!locale || locale === 'all') && (!country || country === 'all')) {
-    return null; // no filtering needed
-  }
-
+): Promise<string[]> {
   const conditions: any[] = [
     gte(analyticsSessions.createdAt, startDate),
     lte(analyticsSessions.createdAt, endDate),
@@ -140,9 +136,9 @@ export async function getVideoStats(
 
     console.log(`📊 [Video Stats] Fetching from ${startDate.toISOString()} to ${endDate.toISOString()}, locale=${locale || 'all'}, country=${country || 'all'}`);
 
-    // Get filtered session IDs if locale/country specified
+    // Get non-bot session IDs (always filters bots + optional locale/country)
     const sessionIds = await getFilteredSessionIds(startDate, endDate, locale, country);
-    if (sessionIds !== null && sessionIds.length === 0) {
+    if (sessionIds.length === 0) {
       console.log(`📊 [Video Stats] No sessions match filters — returning empty`);
       return [];
     }
@@ -153,10 +149,8 @@ export async function getVideoStats(
       gte(analyticsViews.viewTimestamp, startDate),
       lte(analyticsViews.viewTimestamp, endDate),
       eq(analyticsViews.isTestData, false),
+      inArray(analyticsViews.sessionId, sessionIds),
     ];
-    if (sessionIds !== null) {
-      conditions.push(inArray(analyticsViews.sessionId, sessionIds));
-    }
 
     // Query video views
     const videoViews = await db
@@ -310,9 +304,9 @@ export async function getVideoEngagement(
       .from(analyticsSessions)
       .where(and(...sessionConditions));
 
-    // Get filtered session IDs for video views query
+    // Get non-bot session IDs for video views query
     const sessionIds = sessions.map(s => s.sessionId);
-    if (sessionIds.length === 0 && (locale && locale !== 'all' || country && country !== 'all')) {
+    if (sessionIds.length === 0) {
       return {
         totalVideoViews: 0,
         totalWatchTimeSeconds: 0,
@@ -323,16 +317,14 @@ export async function getVideoEngagement(
       };
     }
 
-    // Build view conditions
+    // Build view conditions (always filter by non-bot sessions)
     const viewConditions: any[] = [
       isNotNull(analyticsViews.videoId),
       gte(analyticsViews.viewTimestamp, startDate),
       lte(analyticsViews.viewTimestamp, endDate),
       eq(analyticsViews.isTestData, false),
+      inArray(analyticsViews.sessionId, sessionIds),
     ];
-    if (locale && locale !== 'all' || country && country !== 'all') {
-      viewConditions.push(inArray(analyticsViews.sessionId, sessionIds));
-    }
 
     // Get video views
     const videoViews = await db
@@ -396,9 +388,9 @@ export async function getVideoFunnel(
       endDate = range.endDate;
     }
 
-    // Get filtered session IDs if locale/country specified
+    // Get non-bot session IDs (always filters bots + optional locale/country)
     const sessionIds = await getFilteredSessionIds(startDate, endDate, locale, country);
-    if (sessionIds !== null && sessionIds.length === 0) {
+    if (sessionIds.length === 0) {
       return [10, 25, 50, 75, 90].map((bucket) => ({ bucket, count: 0 }));
     }
 
@@ -408,10 +400,8 @@ export async function getVideoFunnel(
       gte(analyticsViews.viewTimestamp, startDate),
       lte(analyticsViews.viewTimestamp, endDate),
       eq(analyticsViews.isTestData, false),
+      inArray(analyticsViews.sessionId, sessionIds),
     ];
-    if (sessionIds !== null) {
-      conditions.push(inArray(analyticsViews.sessionId, sessionIds));
-    }
 
     // Query video views for this video
     const videoViews = await db

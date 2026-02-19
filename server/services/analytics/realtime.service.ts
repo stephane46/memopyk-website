@@ -315,7 +315,28 @@ export async function getCurrentlyWatching(): Promise<CurrentlyWatchingData> {
 
     console.log(`📊 [Realtime] Fetching video views since ${cutoffTime.toISOString()}`);
 
-    // Query recent video views
+    // Get non-bot session IDs for the time window
+    const nonBotSessions = await db
+      .select({ sessionId: analyticsSessions.sessionId })
+      .from(analyticsSessions)
+      .where(
+        and(
+          gte(analyticsSessions.createdAt, cutoffTime),
+          eq(analyticsSessions.isTestData, false),
+          eq(analyticsSessions.isBot, false)
+        )
+      );
+    const nonBotSessionIds = nonBotSessions.map(s => s.sessionId);
+
+    if (nonBotSessionIds.length === 0) {
+      return {
+        totalActive: 0,
+        sessions: [],
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    // Query recent video views (only from non-bot sessions)
     const views = await db
       .select()
       .from(analyticsViews)
@@ -323,7 +344,8 @@ export async function getCurrentlyWatching(): Promise<CurrentlyWatchingData> {
         and(
           isNotNull(analyticsViews.videoId),
           gte(analyticsViews.viewTimestamp, cutoffTime),
-          eq(analyticsViews.isTestData, false)
+          eq(analyticsViews.isTestData, false),
+          inArray(analyticsViews.sessionId, nonBotSessionIds)
         )
       )
       .orderBy(desc(analyticsViews.viewTimestamp));
