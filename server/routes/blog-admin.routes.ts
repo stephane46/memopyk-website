@@ -750,6 +750,11 @@ router.put('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Resp
       drizzleUpdates[camelKey] = value;
     }
 
+    // Ensure publishedAt is a Date object (client may send ISO string)
+    if (drizzleUpdates.publishedAt && !(drizzleUpdates.publishedAt instanceof Date)) {
+      drizzleUpdates.publishedAt = new Date(drizzleUpdates.publishedAt);
+    }
+
     const [post] = await db.update(blogPosts).set(drizzleUpdates)
       .where(eq(blogPosts.id, id))
       .returning();
@@ -852,6 +857,11 @@ router.patch('/admin/blog/posts/:id', requireAdmin, async (req: Request, res: Re
     for (const [key, value] of Object.entries(updates)) {
       const camelKey = key.replace(/_([a-z])/g, (_: string, c: string) => c.toUpperCase());
       drizzleUpdates[camelKey] = value;
+    }
+
+    // Ensure publishedAt is a Date object (client may send ISO string)
+    if (drizzleUpdates.publishedAt && !(drizzleUpdates.publishedAt instanceof Date)) {
+      drizzleUpdates.publishedAt = new Date(drizzleUpdates.publishedAt);
     }
 
     const [post] = await db.update(blogPosts).set(drizzleUpdates)
