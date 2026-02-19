@@ -1,11 +1,19 @@
 # Technical Debt & Deferred Work
 
 **Purpose**: Track technical improvements, skipped tests, and deferred tasks
-**Last Updated**: 2026-02-17
+**Last Updated**: 2026-02-19
 
 ---
 
 ## Active Items
+
+### Trends Tab — "Video Engagement" Card Mislabeled
+- The "Video Engagement" KPI card in the Trends tab actually displays bounce rate from `analytics_sessions.is_bounce`
+- Field mapping chain: server `bounceRate` → hook renames to `completionRate` → UI displays as "Video Engagement" with video icon
+- Correct metric should be: unique visitors who played at least one gallery video / total unique visitors
+- Data is available: `analytics_sessions` (visitors) + `analytics_views WHERE video_id IS NOT NULL` (video plays)
+- **Priority**: Medium — misleading but not breaking
+- **Files**: `server/routes/analytics.routes.ts:668`, `client/src/admin/analyticsNew/hooks/useFilteredReports.ts:377`, `client/src/admin/analyticsNew/AnalyticsNewTrends.tsx:440`
 
 ### Cookie Consent Banner (GDPR)
 - The cookie consent banner is decorative — GA4 fires unconditionally regardless of user choice
