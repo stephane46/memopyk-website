@@ -52,6 +52,7 @@ interface ContentTopic {
 const formatRole = (role: string): string => {
   if (role === 'pillar') return 'Main Guide';
   if (role === 'spoke') return 'Supporting Article';
+  if (role === 'standalone') return 'Standalone';
   return role || 'Unassigned';
 };
 
@@ -73,14 +74,7 @@ const getRoleIcon = (role: string): string => {
   return role === 'pillar' ? '\u{1F4C4}' : '\u21B3'; // 📄 and ↳
 };
 
-const CATEGORIES = [
-  'PHOTO ORGANIZATION & PRESERVATION',
-  'VIDEO MEMORY & LEGACY',
-  'FAMILY STORYTELLING & TRADITIONS',
-  'DIGITAL ORGANIZATION & TECHNOLOGY',
-  'MEMORY PRODUCTS & CRAFTS',
-  'SEASONAL & HOLIDAY CONTENT',
-];
+// Categories and types are derived dynamically from topic data (see uniqueCategories/uniqueTypes below)
 
 const STATUSES = ['backlog', 'planned', 'in_progress', 'published'];
 
@@ -91,26 +85,7 @@ const STATUS_SORT_ORDER: Record<string, number> = {
   'published': 3,
 };
 
-const TYPES = [
-  'Beginner/How-To Topics',
-  'Storytelling Techniques',
-  'VHS & Legacy Media',
-  'Video Storytelling',
-  'Multi-Generational Projects',
-  'Physical Products',
-  'Holiday-Specific',
-  'Phone & Cloud Organization',
-  'File Management',
-  'Emotional/Legacy Topics',
-  'Celebration & Milestones',
-  'Advanced/Technical Topics',
-  'Modern Video Memories',
-  'Problem-Solving Topics',
-  'Security & Privacy',
-  'Special Occasions',
-  'Digital Products',
-  'Special Projects',
-];
+// (TYPES removed — derived dynamically from data)
 
 export function ContentProductionTopics() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -123,7 +98,7 @@ export function ContentProductionTopics() {
   const [selectedCluster, setSelectedCluster] = useState<string>('all');
   const [selectedTopicForPost, setSelectedTopicForPost] = useState<ContentTopic | null>(null);
   const [highlightedTopicId, setHighlightedTopicId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'list' | 'grouped'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'grouped'>('grouped');
 
   // CRUD modal state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -200,11 +175,29 @@ export function ContentProductionTopics() {
     return matchesSearch && matchesCategory && matchesPriority && matchesStatus && matchesType && matchesMarket && matchesRole && matchesCluster;
   });
 
-  // Unique clusters from all topics for the filter dropdown
+  // Unique values derived from actual data for filter dropdowns
   const uniqueClusters = useMemo(() => {
     const clusters = new Set<string>();
     topics.forEach(t => clusters.add(t.cluster || 'other'));
     return Array.from(clusters).sort();
+  }, [topics]);
+
+  const uniqueCategories = useMemo(() => {
+    const cats = new Set<string>();
+    topics.forEach(t => { if (t.category) cats.add(t.category); });
+    return Array.from(cats).sort();
+  }, [topics]);
+
+  const uniqueTypes = useMemo(() => {
+    const types = new Set<string>();
+    topics.forEach(t => { if (t.type) types.add(t.type); });
+    return Array.from(types).sort();
+  }, [topics]);
+
+  const uniqueRoles = useMemo(() => {
+    const roles = new Set<string>();
+    topics.forEach(t => { if (t.role) roles.add(t.role); });
+    return Array.from(roles).sort();
   }, [topics]);
 
   // Group filtered topics by cluster, sorted by total search volume descending
@@ -253,24 +246,20 @@ export function ContentProductionTopics() {
 
   const getCategoryColor = (category: string) => {
     const categoryMap: Record<string, string> = {
-      'PHOTO ORGANIZATION & PRESERVATION': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-      'VIDEO MEMORY & LEGACY': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-      'FAMILY STORYTELLING & TRADITIONS': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-      'DIGITAL ORGANIZATION & TECHNOLOGY': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-      'MEMORY PRODUCTS & CRAFTS': 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200',
-      'SEASONAL & HOLIDAY CONTENT': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+      'MEMORY & PRESERVATION': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+      'VHS & LEGACY': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+      'MONTAGE & CREATION': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+      'GIFT IDEAS': 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200',
     };
     return categoryMap[category] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
   };
 
   const getCategoryShortLabel = (category: string) => {
     const labelMap: Record<string, string> = {
-      'PHOTO ORGANIZATION & PRESERVATION': 'Photo',
-      'VIDEO MEMORY & LEGACY': 'Video',
-      'FAMILY STORYTELLING & TRADITIONS': 'Family',
-      'DIGITAL ORGANIZATION & TECHNOLOGY': 'Digital',
-      'MEMORY PRODUCTS & CRAFTS': 'Crafts',
-      'SEASONAL & HOLIDAY CONTENT': 'Seasonal',
+      'MEMORY & PRESERVATION': 'Memory',
+      'VHS & LEGACY': 'VHS',
+      'MONTAGE & CREATION': 'Montage',
+      'GIFT IDEAS': 'Gift',
     };
     return labelMap[category] || category.split(' ')[0];
   };
@@ -688,8 +677,9 @@ export function ContentProductionTopics() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Roles</SelectItem>
-                  <SelectItem value="pillar">Main Guide</SelectItem>
-                  <SelectItem value="spoke">Supporting Article</SelectItem>
+                  {uniqueRoles.map(role => (
+                    <SelectItem key={role} value={role}>{formatRole(role)}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -725,7 +715,7 @@ export function ContentProductionTopics() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  {CATEGORIES.map(cat => (
+                  {uniqueCategories.map(cat => (
                     <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                   ))}
                 </SelectContent>
@@ -763,7 +753,7 @@ export function ContentProductionTopics() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Types</SelectItem>
-                  {TYPES.map(type => (
+                  {uniqueTypes.map(type => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
                 </SelectContent>
@@ -844,19 +834,8 @@ export function ContentProductionTopics() {
               {/* View Toggle */}
               <div className="flex border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
                 <button
-                  onClick={() => setViewMode('list')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
-                    viewMode === 'list'
-                      ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
-                      : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
-                  }`}
-                >
-                  <List className="h-3.5 w-3.5" />
-                  List
-                </button>
-                <button
                   onClick={() => setViewMode('grouped')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors border-l border-gray-200 dark:border-gray-700 ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
                     viewMode === 'grouped'
                       ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
                       : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
@@ -864,6 +843,17 @@ export function ContentProductionTopics() {
                 >
                   <FolderOpen className="h-3.5 w-3.5" />
                   Grouped
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors border-l border-gray-200 dark:border-gray-700 ${
+                    viewMode === 'list'
+                      ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                      : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <List className="h-3.5 w-3.5" />
+                  List
                 </button>
               </div>
               {/* Expand/Collapse (grouped view only) */}

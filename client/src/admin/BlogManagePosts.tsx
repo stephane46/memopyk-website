@@ -343,34 +343,37 @@ export function BlogManagePosts() {
             Manage and organize your blog content
           </p>
         </div>
-        <div className="flex gap-2 items-center">
-          <Select value={newPostLanguage} onValueChange={(val: any) => setNewPostLanguage(val)}>
-            <SelectTrigger className="w-28" data-testid="select-new-post-language">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="fr-FR">FR</SelectItem>
-              <SelectItem value="en-US">EN</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button
-            onClick={handleCreateNewPost}
-            disabled={isCreatingNewPost}
-            className="bg-[#D67C4A] hover:bg-[#C56B39] text-white"
-            data-testid="button-new-post"
-          >
-            {isCreatingNewPost ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Creating...
-              </>
-            ) : (
-              <>
-                <Plus className="w-4 h-4 mr-2" />
-                New Post
-              </>
-            )}
-          </Button>
+        <div className="flex gap-3 items-center">
+          {/* New Post group: language picker + create button */}
+          <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-1 bg-gray-50">
+            <Select value={newPostLanguage} onValueChange={(val: any) => setNewPostLanguage(val)}>
+              <SelectTrigger className="w-[4.5rem] h-9 border-0 bg-transparent" data-testid="select-new-post-language">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="fr-FR">FR</SelectItem>
+                <SelectItem value="en-US">EN</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              onClick={handleCreateNewPost}
+              disabled={isCreatingNewPost}
+              className="bg-[#D67C4A] hover:bg-[#C56B39] text-white h-9"
+              data-testid="button-new-post"
+            >
+              {isCreatingNewPost ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Post
+                </>
+              )}
+            </Button>
+          </div>
           <Button
             onClick={() => setTagManagementOpen(true)}
             variant="outline"
