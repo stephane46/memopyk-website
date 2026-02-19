@@ -28,6 +28,12 @@
 ## Resolved (Feb 2026)
 
 | Date | Item | Solution |
+| Feb 19 | Blog Hub deep audit — 15 fixes | AI Creator language field + visible tab, Posts limit=200 + pagination indicator, Planner stats fixed, Keywords navigation fixed, image bank filters cleaned up, tag autocomplete, language selector, shared volume constants |
+| Feb 19 | Hero image picker broken endpoint | BlogHeroImageUpload called non-existent `/api/admin/blog/images` → fixed to `/api/image-bank` |
+| Feb 19 | SEO keyword combobox | Plain text inputs replaced with searchable KeywordCombobox + MultiKeywordCombobox in BlogEditor |
+| Feb 19 | Blog post allowlist data loss | PUT/PATCH allowlist missing 7 fields (contentHtml, seo, heroCaption, featuredOrder, includeInSitemap, enableFaqSchema, readTimeMinutes). Content never saved. Fixed with both camelCase and snake_case variants. |
+| Feb 19 | publishedAt toISOString 500 | Drizzle PgTimestamp.mapToDriverValue() crashed on string. Added Date coercion guard in PUT/PATCH + debug logging. |
+|------|------|----------|
 | Feb 17 | Schema alignment — 19 warnings → 0 | 15 text→varchar fixes + 4 nullable fixes in Drizzle schema. Audit now 0 CRITICAL / 0 WARNING / 0 INFO. |
 | Feb 17 | Contact form rate limiting | Per-IP: 3/hr, 10/day. Global: 50/hr. Honeypot field catches bots silently. Middleware at `server/middleware/rate-limit.ts`. |
 | Feb 17 | Web Vitals collection removed | Collection code removed (unnecessary DB writes with no UI). performance_metrics table retained (13,669 historical rows). |

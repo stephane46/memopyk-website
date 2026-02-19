@@ -6,7 +6,7 @@ MEMOPYK creates professional "Films Souvenirs" (souvenir/memory films) from clie
 
 ## Current Status
 
-**Last updated:** February 17, 2026
+**Last updated:** February 19, 2026
 **Staging:** https://memopyk.memopyk.com (auto-deploys on push to `staging`)
 **Production:** https://memopyk.com (auto-deploys on push to `main`)
 
@@ -71,6 +71,11 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-19: Blog Hub deep audit — 15 fixes (P1/P2/P3) across 11 files from BLOG_HUB_AUDIT.md. P1: AI Creator language field + visible tab, Posts limit=200 with "Showing X of Y", image bank hero/body filter removed. P2: Planner "Assigned This Week" fixed to current ISO week, "Ready to Write" → "In Backlog", Keywords Posts column navigates correctly, Planner limit=200, "In Progress" split into Planned + In Progress. P3: tag autocomplete sort by name, image bank usageCount tracking, new post language selector, volume range shared constants
+- 2026-02-19: Hero image picker fix — BlogHeroImageUpload was calling non-existent `/api/admin/blog/images`, fixed to `/api/image-bank`
+- 2026-02-19: SEO keyword fields — replaced plain text inputs with searchable combobox (KeywordCombobox.tsx, MultiKeywordCombobox) for primary and secondary keywords in BlogEditor
+- 2026-02-19: Blog post allowlist data loss fix — PUT/PATCH allowlist was missing 7 fields (contentHtml, seo, heroCaption, featuredOrder, includeInSitemap, enableFaqSchema, readTimeMinutes). Content never saved, sitemap/FAQ toggles silently dropped. Fixed with both camelCase and snake_case variants
+- 2026-02-19: publishedAt toISOString 500 fix — Drizzle's PgTimestamp.mapToDriverValue() crashed on string values. Added Date coercion guard + debug logging in both PUT and PATCH handlers
 - 2026-02-17: Overnight hardening — Contact form rate limiting (3/hr per IP + honeypot), schema alignment (19 warnings → 0), Web Vitals collection removed (unnecessary DB writes, no UI), production smoke test (49 screens), schema audit now 0 CRITICAL / 0 WARNING
 - 2026-02-17: Database cleanup — 88→35 tables. Dropped 50 empty legacy tables (Payload CMS + quoting system), dropped 2 empty unreferenced tables, truncated 102K test contacts (28 MB), added analytics_events to Drizzle. All application tables now in Drizzle schema.
 - 2026-02-17: Schema audit automation — `tests/e2e/schema-audit.ts` (654 lines), compares 34 Drizzle tables (482 cols) vs actual DB. Found 19 issues manual audit missed.
