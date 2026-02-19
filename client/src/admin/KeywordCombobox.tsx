@@ -40,13 +40,17 @@ export function KeywordCombobox({ value, onChange, placeholder = 'Search keyword
   useEffect(() => {
     if (!open) return;
 
+    if (!search.trim()) {
+      setSuggestions([]);
+      return;
+    }
+
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     debounceRef.current = setTimeout(async () => {
       setLoading(true);
       try {
-        const params = new URLSearchParams({ limit: '15' });
-        if (search.trim()) params.set('search', search.trim());
+        const params = new URLSearchParams({ limit: '15', search: search.trim() });
         const res = await adminFetch(`/api/admin/content/keywords?${params}`);
         if (res.ok) {
           const data = await res.json();
@@ -84,9 +88,11 @@ export function KeywordCombobox({ value, onChange, placeholder = 'Search keyword
             onValueChange={setSearch}
           />
           <CommandList>
-            {loading ? (
+            {!search.trim() ? (
+              <div className="py-6 text-center text-sm text-muted-foreground">Type to search keywords...</div>
+            ) : loading ? (
               <div className="py-4 text-center text-sm text-muted-foreground">Searching...</div>
-            ) : suggestions.length === 0 && search.trim() ? (
+            ) : suggestions.length === 0 ? (
               <CommandEmpty>
                 No keywords found.
                 <button
@@ -154,13 +160,17 @@ export function MultiKeywordCombobox({ values, onChange, excludeKeyword, placeho
   useEffect(() => {
     if (!open) return;
 
+    if (!search.trim()) {
+      setSuggestions([]);
+      return;
+    }
+
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     debounceRef.current = setTimeout(async () => {
       setLoading(true);
       try {
-        const params = new URLSearchParams({ limit: '15' });
-        if (search.trim()) params.set('search', search.trim());
+        const params = new URLSearchParams({ limit: '15', search: search.trim() });
         const res = await adminFetch(`/api/admin/content/keywords?${params}`);
         if (res.ok) {
           const data = await res.json();
@@ -234,9 +244,11 @@ export function MultiKeywordCombobox({ values, onChange, excludeKeyword, placeho
               onValueChange={setSearch}
             />
             <CommandList>
-              {loading ? (
+              {!search.trim() ? (
+                <div className="py-6 text-center text-sm text-muted-foreground">Type to search keywords...</div>
+              ) : loading ? (
                 <div className="py-4 text-center text-sm text-muted-foreground">Searching...</div>
-              ) : filtered.length === 0 && search.trim() ? (
+              ) : filtered.length === 0 ? (
                 <CommandEmpty>
                   No keywords found.
                   <button
