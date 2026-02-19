@@ -204,18 +204,6 @@ export const AnalyticsNewLiveView: React.FC = () => {
     );
   }
   
-  // Debug: Add console logging to see what's failing
-  if (hasAnyErrors) {
-    console.log('Live View - Some services failing:', {
-      privateError: privateError?.message,
-      watchingError: watchingError?.message,
-      visitorsError: visitorsError?.message,
-      privateData,
-      watchingData,
-      recentVisitors
-    });
-  }
-
   // Loading state - show loading only if ALL are loading
   if ((privateLoading && !privateData) && (watchingLoading && !watchingData) && (visitorsLoading && !recentVisitors)) {
     return (

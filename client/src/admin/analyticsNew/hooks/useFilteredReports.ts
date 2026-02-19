@@ -327,13 +327,6 @@ export function useFilteredTrends(): FilteredAnalyticsResult<TrendsResponse> {
       
       const rawData = await response.json();
       
-      console.log('🔍 TRENDS HOOK: Received backend response structure:', {
-        hasDailyData: !!rawData.dailyData,
-        hasPeriodAggregates: !!rawData.periodAggregates,
-        legacyStructure: !rawData.dailyData && Array.isArray(rawData),
-        keys: Object.keys(rawData)
-      });
-      
       // Helper function to format dates
       const formatDate = (dateStr: string): string => {
         // Handle GA4 YYYYMMDD format (e.g., "20250906")
@@ -360,11 +353,8 @@ export function useFilteredTrends(): FilteredAnalyticsResult<TrendsResponse> {
         });
       };
       
-      // ✅ CRITICAL FIX: Handle new backend structure with period aggregates
+      // Handle backend structure with period aggregates
       if (rawData.dailyData && rawData.periodAggregates) {
-        console.log('📊 TRENDS HOOK: Using NEW backend structure with period aggregates');
-        console.log('📊 PERIOD AGGREGATES:', rawData.periodAggregates);
-        
         // Process daily data
         const processedDailyData = rawData.dailyData.map((item: any) => {
           const rawDate = item.date || item.day;
@@ -397,8 +387,7 @@ export function useFilteredTrends(): FilteredAnalyticsResult<TrendsResponse> {
         };
       }
       
-      // ✅ FALLBACK: Handle legacy structure (array format) for backward compatibility
-      console.log('⚠️ TRENDS HOOK: Using LEGACY backend structure - daily data only');
+      // Fallback: Handle legacy structure (array format) for backward compatibility
       const trends = rawData.trends || rawData.daily || rawData;
       const processedData = (Array.isArray(trends) ? trends : []).map((item: any) => {
         const rawDate = item.date || item.day;
@@ -443,80 +432,6 @@ export function useFilteredTrends(): FilteredAnalyticsResult<TrendsResponse> {
     enabled: true,
     refetchOnWindowFocus: false,
     staleTime: 60 * 1000, // 1 minute
-  });
-
-  return {
-    data,
-    isLoading,
-    error: error as Error | null,
-    appliedFilters: filterParams.appliedFilters,
-    refetch
-  };
-}
-
-/**
- * Advanced hook for Trends data with custom metric selection
- * Provides additional configuration for specific trend analysis
- */
-export function useFilteredTrendsAdvanced(options?: {
-  metric?: 'views' | 'visitors' | 'watchTime' | 'completion';
-  endpoint?: string;
-  staleTime?: number;
-}): FilteredAnalyticsResult<TrendsData> {
-  const { metric = 'views', endpoint = '/api/ga4/trend', staleTime = 60 * 1000 } = options || {};
-  
-  // Get filter state from store
-  const {
-    datePreset,
-    getDateRange,
-    sinceDate,
-    sinceDateEnabled,
-    language,
-    country,
-    videoId
-  } = useAnalyticsNewFilters();
-  
-  // Get date range
-  const { start, end } = getDateRange();
-  
-  // Build standardized filter parameters with metric
-  const filterParams = buildAnalyticsParams('trends', {
-    datePreset,
-    start,
-    end,
-    sinceDate,
-    sinceDateEnabled,
-    language,
-    country,
-    videoId
-  });
-  
-  // Use TanStack Query with enhanced queryKey including metric
-  const { data, isLoading, error, refetch } = useQuery<TrendsData>({
-    queryKey: [...filterParams.queryKey, metric], // Include metric in cache key
-    queryFn: async () => {
-      // Debug logging
-      logFilterApplication(`trends-${metric}`, filterParams);
-      
-      // Build filtered URL with metric parameter
-      const url = buildAnalyticsUrl(endpoint, filterParams);
-      const urlObj = new URL(url);
-      urlObj.searchParams.set('metric', metric);
-      
-      const response = await fetch(urlObj.toString());
-      if (!response.ok) {
-        throw new Error(`Advanced Trends data request failed: ${response.status}`);
-      }
-      
-      const rawData = await response.json();
-      
-      // Use the same transformation logic as the base trends hook
-      const baseHook = useFilteredTrends();
-      return rawData; // Could be enhanced to process metric-specific transformations
-    },
-    enabled: true,
-    refetchOnWindowFocus: false,
-    staleTime,
   });
 
   return {

@@ -13,7 +13,6 @@ import {
   MapPin,
   Activity,
   BarChart3,
-  Download,
   RefreshCw,
   RotateCcw
 } from 'lucide-react';
@@ -232,8 +231,8 @@ export const AnalyticsNewGeo: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <h2 className="text-xl font-bold text-gray-900">Geographic Market Analysis</h2>
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 text-xs">
-            Centralized Filters
+          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+            MEMOPYK
           </Badge>
           <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 text-xs">
             🟠 IP Filtered
@@ -243,10 +242,6 @@ export const AnalyticsNewGeo: React.FC = () => {
           <Badge variant="secondary" className="bg-blue-50 text-blue-700">
             🌍 {coverageCount} Markets
           </Badge>
-          <Button size="sm" variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
         </div>
       </div>
 

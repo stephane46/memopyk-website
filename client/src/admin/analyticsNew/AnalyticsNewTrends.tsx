@@ -119,12 +119,6 @@ export const AnalyticsNewTrends: React.FC = () => {
   // Fetch trend data using centralized filtering hook
   const { data: trendsResponse, isLoading, error, appliedFilters } = useFilteredTrends();
 
-  console.log('📈 TRENDS: Using centralized filtering:', {
-    appliedFilters,
-    dataPoints: trendsResponse?.dailyData?.length || 0,
-    hasPeriodAggregates: !!trendsResponse?.periodAggregates
-  });
-
   // ✅ CRITICAL FIX: Use period aggregates for cards, daily data for charts
   const calculateTrendMetrics = () => {
     if (!trendsResponse || !trendsResponse.dailyData || trendsResponse.dailyData.length === 0) {
@@ -145,16 +139,6 @@ export const AnalyticsNewTrends: React.FC = () => {
 
     // ✅ CRITICAL FIX: Use period aggregates for cards (matches Overview tab exactly)
     if (periodAggregates && (periodAggregates.periodSessions > 0 || periodAggregates.periodUsers > 0)) {
-      console.log('📊 TRENDS: Using PERIOD AGGREGATES for cards (consistent with Overview tab)');
-      console.log('📊 PERIOD DATA:', {
-        sessions: periodAggregates.periodSessions,
-        users: periodAggregates.periodUsers,
-        avgWatchTime: periodAggregates.periodAverageWatchTime,
-        prevSessions: periodAggregates.prevPeriodSessions,
-        prevUsers: periodAggregates.prevPeriodUsers,
-        prevAvgWatchTime: periodAggregates.prevPeriodAverageWatchTime
-      });
-
       // Calculate completion rate from daily averages (since it's a rate metric)
       const currentCompletion = dailyData.length > 0
         ? dailyData.reduce((sum, item) => sum + item.completionRate, 0) / dailyData.length
@@ -184,7 +168,6 @@ export const AnalyticsNewTrends: React.FC = () => {
     }
 
     // ✅ FALLBACK: Legacy calculation for backward compatibility
-    console.log('⚠️ TRENDS: Using LEGACY summing for cards (fallback mode)');
     const calculatePeriodSum = (period: typeof dailyData, metric: keyof TrendDataPoint) => {
       return period.reduce((sum, item) => sum + (item[metric] as number), 0);
     };
@@ -281,11 +264,8 @@ export const AnalyticsNewTrends: React.FC = () => {
   };
 
   const getChartData = () => {
-    // ✅ CRITICAL FIX: Use dailyData for charts (line visualizations)
     const dailyData = trendsResponse?.dailyData;
     if (!dailyData || dailyData.length === 0) return [];
-    
-    console.log('📈 CHART DATA: Using dailyData for line charts');
     
     switch (selectedMetric) {
       case 'visitors':
@@ -407,8 +387,11 @@ export const AnalyticsNewTrends: React.FC = () => {
           </div>
           
           <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
-            {datePreset === '7d' ? 'Last 7 days' : 
-             datePreset === '30d' ? 'Last 30 days' : 'Last 90 days'}
+            {datePreset === 'today' ? 'Today' :
+             datePreset === 'yesterday' ? 'Yesterday' :
+             datePreset === '7d' ? 'Last 7 days' :
+             datePreset === '30d' ? 'Last 30 days' :
+             datePreset === '90d' ? 'Last 90 days' : 'Custom range'}
           </Badge>
         </div>
       </div>

@@ -4,7 +4,7 @@ import { useLocation } from 'wouter';
 import { useAnalyticsNewFilters } from './analyticsNewFilters.store';
 import { AnalyticsNewLoadingStates } from './AnalyticsNewLoadingStates';
 import { formatDistanceToNow } from 'date-fns';
-import { fr, enUS } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
 import { Eye, TrendingUp, FileText, Hash, Folder } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -97,16 +97,11 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 export const AnalyticsNewBlog: React.FC = () => {
   const [, setLocation] = useLocation();
-  const { datePreset, language, country, dataSource, setDataSource } = useAnalyticsNewFilters();
-  
-  // Blog tab defaults to MEMOPYK (GA4 endpoints stubbed, return empty data)
-  // Set on mount to ensure users always see data when loading Blog tab
-  React.useEffect(() => {
-    if (dataSource === 'ga4') {
-      setDataSource('memopyk');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run on mount
+  const { datePreset, language, country } = useAnalyticsNewFilters();
+
+  // Blog tab uses local data source state (defaults to MEMOPYK)
+  // This avoids overriding the global data source filter that affects other tabs
+  const [dataSource, setDataSource] = React.useState<'memopyk' | 'ga4'>('memopyk');
   
   // Map period to days
   const days = datePreset === '7d' ? 7 : datePreset === '30d' ? 30 : 90;
@@ -283,8 +278,7 @@ export const AnalyticsNewBlog: React.FC = () => {
 
   const formatLastViewed = (dateString: string) => {
     const date = new Date(dateString);
-    const locale = fr;
-    return formatDistanceToNow(date, { addSuffix: true, locale });
+    return formatDistanceToNow(date, { addSuffix: true, locale: enUS });
   };
 
   return (
