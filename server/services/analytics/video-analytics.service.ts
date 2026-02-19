@@ -62,6 +62,7 @@ async function getFilteredSessionIds(
     gte(analyticsSessions.createdAt, startDate),
     lte(analyticsSessions.createdAt, endDate),
     eq(analyticsSessions.isTestData, false),
+    eq(analyticsSessions.isBot, false),
   ];
 
   if (locale && locale !== 'all') {
@@ -294,6 +295,7 @@ export async function getVideoEngagement(
       gte(analyticsSessions.createdAt, startDate),
       lte(analyticsSessions.createdAt, endDate),
       eq(analyticsSessions.isTestData, false),
+      eq(analyticsSessions.isBot, false),
     ];
     if (locale && locale !== 'all') {
       sessionConditions.push(eq(analyticsSessions.language, locale));

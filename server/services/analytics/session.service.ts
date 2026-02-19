@@ -11,6 +11,7 @@ import { analyticsSessions, analyticsExclusions } from "@shared/schema";
 import { eq, and, gte, lte, desc, sql, notInArray, isNull, or } from "drizzle-orm";
 import { isExcludedIP } from "./ip-exclusion.service";
 import { lookupIP } from "./geo.service";
+import { isBotUserAgent } from "../../utils/bot-detection";
 
 /**
  * Get list of excluded IP addresses from analytics_exclusions table
@@ -225,6 +226,7 @@ export async function getOrCreateSession(
       pageCount: 1,
       isBounce: true, // Initially true, will be updated on second page view
       isReturning,
+      isBot: isBotUserAgent(userAgent),
       isTestData: isTestDataIP(ip),
     });
 
@@ -308,6 +310,9 @@ export async function getSessions(filters: SessionFilters = {}): Promise<Session
       conditions.push(eq(analyticsSessions.isTestData, false));
     }
 
+    // Exclude bots
+    conditions.push(eq(analyticsSessions.isBot, false));
+
     // Exclude IPs from analytics_exclusions table
     const excludedIPs = await getExcludedIPs();
     if (excludedIPs.length > 0) {
@@ -344,7 +349,7 @@ export async function getSessionStats(period: "7d" | "30d" | "90d" = "30d"): Pro
     // Get excluded IPs for filtering
     const excludedIPs = await getExcludedIPs();
 
-    // Get all sessions in period (excluding test data and excluded IPs)
+    // Get all sessions in period (excluding test data, bots, and excluded IPs)
     const sessions = await db
       .select()
       .from(analyticsSessions)
@@ -352,6 +357,7 @@ export async function getSessionStats(period: "7d" | "30d" | "90d" = "30d"): Pro
         and(
           gte(analyticsSessions.createdAt, startDate),
           eq(analyticsSessions.isTestData, false),
+          eq(analyticsSessions.isBot, false),
           excludedIPs.length > 0
             ? or(
                 isNull(analyticsSessions.ipAddress),

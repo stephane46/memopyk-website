@@ -292,7 +292,8 @@ router.get('/ga4/report', async (req: Request, res: Response) => {
             and(
               gte(analyticsSessions.createdAt, parsedStartDate),
               lte(analyticsSessions.createdAt, parsedEndDate),
-              eq(analyticsSessions.isTestData, false)
+              eq(analyticsSessions.isTestData, false),
+              eq(analyticsSessions.isBot, false)
             )
           )
           .orderBy(desc(analyticsSessions.createdAt));
@@ -610,7 +611,7 @@ router.get('/ga4/trend', async (req: Request, res: Response) => {
     // Get excluded IPs for filtering
     const excludedIPs = await getExcludedIPs();
 
-    // Query sessions in the date range (exclude test data and excluded IPs)
+    // Query sessions in the date range (exclude test data, bots, and excluded IPs)
     const sessions = await db
       .select()
       .from(analyticsSessions)
@@ -619,6 +620,7 @@ router.get('/ga4/trend', async (req: Request, res: Response) => {
           gte(analyticsSessions.createdAt, startDate),
           lte(analyticsSessions.createdAt, endDateEnd),
           eq(analyticsSessions.isTestData, false),
+          eq(analyticsSessions.isBot, false),
           excludedIPs.length > 0
             ? or(
                 isNull(analyticsSessions.ipAddress),
@@ -689,6 +691,7 @@ router.get('/ga4/trend', async (req: Request, res: Response) => {
           gte(analyticsSessions.createdAt, prevPeriodStart),
           lte(analyticsSessions.createdAt, prevPeriodEnd),
           eq(analyticsSessions.isTestData, false),
+          eq(analyticsSessions.isBot, false),
           excludedIPs.length > 0
             ? or(
                 isNull(analyticsSessions.ipAddress),
@@ -838,7 +841,7 @@ router.get('/ga4/kpis', async (req: Request, res: Response) => {
     // Get excluded IPs for filtering
     const excludedIPs = await getExcludedIPs();
 
-    // Query current period sessions (exclude test data and excluded IPs)
+    // Query current period sessions (exclude test data, bots, and excluded IPs)
     const sessions = await db
       .select()
       .from(analyticsSessions)
@@ -847,6 +850,7 @@ router.get('/ga4/kpis', async (req: Request, res: Response) => {
           gte(analyticsSessions.createdAt, startDate),
           lte(analyticsSessions.createdAt, endDateEnd),
           eq(analyticsSessions.isTestData, false),
+          eq(analyticsSessions.isBot, false),
           excludedIPs.length > 0
             ? or(
                 isNull(analyticsSessions.ipAddress),
@@ -877,6 +881,7 @@ router.get('/ga4/kpis', async (req: Request, res: Response) => {
           gte(analyticsSessions.createdAt, prevPeriodStart),
           lte(analyticsSessions.createdAt, prevPeriodEnd),
           eq(analyticsSessions.isTestData, false),
+          eq(analyticsSessions.isBot, false),
           excludedIPs.length > 0
             ? or(
                 isNull(analyticsSessions.ipAddress),
@@ -1169,6 +1174,7 @@ router.get('/ga4/geo', async (req: Request, res: Response) => {
       gte(analyticsSessions.createdAt, startDate),
       lte(analyticsSessions.createdAt, endDateEnd),
       eq(analyticsSessions.isTestData, false),
+      eq(analyticsSessions.isBot, false),
       excludedIPs.length > 0
         ? or(
             isNull(analyticsSessions.ipAddress),

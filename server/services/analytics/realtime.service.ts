@@ -105,7 +105,8 @@ export async function getLiveTracking(timeWindowMinutes: number = 30): Promise<L
       .where(
         and(
           gte(analyticsSessions.createdAt, cutoffTime),
-          eq(analyticsSessions.isTestData, false)
+          eq(analyticsSessions.isTestData, false),
+          eq(analyticsSessions.isBot, false)
         )
       );
 
@@ -217,6 +218,7 @@ export async function getRecentVisitors(
     const conditions = [
       gte(analyticsSessions.createdAt, startDate),
       eq(analyticsSessions.isTestData, false),
+      eq(analyticsSessions.isBot, false),
     ];
 
     if (endDate) {
@@ -251,7 +253,8 @@ export async function getRecentVisitors(
           .where(
             and(
               inArray(analyticsSessions.ipAddress, ipAddresses),
-              eq(analyticsSessions.isTestData, false)
+              eq(analyticsSessions.isTestData, false),
+              eq(analyticsSessions.isBot, false)
             )
           )
           .groupBy(analyticsSessions.ipAddress);
