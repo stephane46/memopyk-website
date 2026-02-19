@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { CountryFlag } from '@/components/admin/CountryFlag';
 import { DateTime } from 'luxon';
+import { useLanguage } from '@/contexts/LanguageContext';
 interface VisitorFocusedKpisProps {
   preset?: "today" | "yesterday" | "7d" | "30d" | "90d";
   className?: string;
@@ -28,7 +29,10 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
   const { data: ipExclusions = [] } = useQuery<any[]>({
     queryKey: ['/api/admin/analytics/exclusions'],
   });
-  
+
+  // Get page locale for date formatting
+  const { language: pageLocale } = useLanguage();
+
   // Modal states
   const [isTotalViewsModalOpen, setIsTotalViewsModalOpen] = useState(false);
   const [isUniqueVisitorsModalOpen, setIsUniqueVisitorsModalOpen] = useState(false);
@@ -638,32 +642,36 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
             
             <div className="space-y-1.5">
               <div>
-                <span className="font-medium text-gray-700">GA4 (Google Analytics):</span> Data from Google's tracking system. Known bots are automatically filtered by GA4, but some unrecognized automated traffic may still appear. IP filters configured in your GA4 settings only apply to new data going forward, not historical data.
-                {(() => {
-                  const activeExclusion = ipExclusions?.find((e: any) => e.active && e.label && e.appliesFrom && e.ipCidr !== '0.0.0.0/32');
-                  if (activeExclusion) {
-                    const appliesDate = new Date(activeExclusion.appliesFrom).toLocaleDateString('fr-FR', {
-                      day: 'numeric', month: 'long', year: 'numeric'
-                    });
-                    return <span> {activeExclusion.label} was excluded from GA4 starting {appliesDate}.</span>;
-                  }
-                  return null;
-                })()}
+                <span className="font-medium text-gray-700">GA4 (Google Analytics):</span> Data from Google's tracking system, using cookies and device identifiers. Known bots are automatically filtered, but some automated traffic may still appear. IP filters only apply to new data going forward, not historical data.
               </div>
+              {(() => {
+                const activeExclusion = ipExclusions?.find((e: any) => e.active && e.label && e.appliesFrom && e.ipCidr !== '0.0.0.0/32');
+                if (activeExclusion) {
+                  const appliesDate = new Date(activeExclusion.appliesFrom).toLocaleDateString(pageLocale, {
+                    day: 'numeric', month: 'long', year: 'numeric'
+                  });
+                  return (
+                    <div className="italic text-gray-500">
+                      Your {activeExclusion.label} was excluded from GA4 starting {appliesDate}.
+                    </div>
+                  );
+                }
+                return null;
+              })()}
 
               <div>
-                <span className="font-medium text-gray-700">MEMOPYK (Local Logs):</span> Tracks sessions on your website with IP exclusions applied. Filters out traffic from your excluded IPs{ipExclusions && ipExclusions.length > 0 && ` (currently ${ipExclusions.filter((e: any) => e.active).length} IP ${ipExclusions.filter((e: any) => e.active).length === 1 ? 'address' : 'addresses'} excluded)`}.
+                <span className="font-medium text-gray-700">MEMOPYK (Local Logs):</span> Your website's own visitor logs with IP exclusions applied. Filters out traffic from your excluded IPs{ipExclusions && ipExclusions.length > 0 && ` (currently ${ipExclusions.filter((e: any) => e.active).length} IP ${ipExclusions.filter((e: any) => e.active).length === 1 ? 'address' : 'addresses'} excluded)`}.
               </div>
 
               <div className="pt-1 border-t border-gray-300">
                 <span className="font-medium text-gray-700">💡 Why the difference?</span> MEMOPYK typically shows fewer sessions because it:
                 <ul className="ml-4 mt-1 space-y-0.5 list-disc">
                   <li>Excludes your configured IP addresses (your office, home, etc.)</li>
-                  <li>Filters out sessions with invalid/missing IP addresses from unique visitor counts. Session totals may include some null-IP entries.</li>
+                  <li>Filters out sessions without a valid IP address from visitor counts</li>
                   <li>Focuses on production traffic — excludes your own visits and invalid IPs, but cannot detect all automated traffic</li>
                 </ul>
               </div>
-              
+
               <div className="text-gray-500 italic">
                 Toggle the data source switch above to compare GA4 (Google's tracking) vs MEMOPYK (your local filtered logs).
               </div>
