@@ -11,7 +11,7 @@ import express from 'express';
 import { randomUUID } from 'crypto';
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
 import { db } from '../db';
-import { analyticsSessions, analyticsExclusions, analyticsViews } from '@shared/schema';
+import { analyticsSessions, analyticsExclusions, analyticsViews, realtimeVisitors } from '@shared/schema';
 import { gte, lte, eq, and, sql, desc, notInArray, isNull, or } from 'drizzle-orm';
 import videoAnalyticsService from '../services/analytics/video-analytics.service';
 import realtimeService from '../services/analytics/realtime.service';
@@ -1377,6 +1377,58 @@ router.get('/ga4/cta', async (req: Request, res: Response) => {
 // ============================================================================
 // Tracker Currently Watching Endpoint (Live video viewers)
 // ============================================================================
+
+/**
+ * POST /tracker/heartbeat
+ * Receives periodic heartbeats from the VideoOverlay player.
+ * Updates realtime_visitors so the "Currently Watching" dashboard stays fresh.
+ */
+router.post('/tracker/heartbeat', async (req: Request, res: Response) => {
+  try {
+    const { sessionId, videoId, videoTitle, progressPct, currentTime } = req.body;
+    if (!sessionId) {
+      return res.status(400).json({ success: false, error: 'sessionId required' });
+    }
+
+    const ipAddress = extractClientIP(req.headers as Record<string, string | string[] | undefined>)
+      || req.socket.remoteAddress || 'unknown';
+
+    // Check if session already has a realtime_visitors row
+    const currentPage = videoId ? `/video/${videoId}` : '/gallery';
+    const existing = await db
+      .select({ id: realtimeVisitors.id })
+      .from(realtimeVisitors)
+      .where(eq(realtimeVisitors.sessionId, sessionId))
+      .limit(1);
+
+    if (existing.length > 0) {
+      await db
+        .update(realtimeVisitors)
+        .set({
+          lastSeen: new Date(),
+          isActive: true,
+          currentPage,
+        })
+        .where(eq(realtimeVisitors.sessionId, sessionId));
+    } else {
+      await db
+        .insert(realtimeVisitors)
+        .values({
+          sessionId,
+          ipAddress,
+          currentPage,
+          userAgent: req.headers['user-agent'] || '',
+          isActive: true,
+          isTestData: false,
+        });
+    }
+
+    res.json({ success: true });
+  } catch (error: any) {
+    console.error('❌ [Heartbeat] Error:', error);
+    res.json({ success: true }); // Don't fail the client
+  }
+});
 
 router.get('/tracker/currently-watching', async (_req: Request, res: Response) => {
   try {

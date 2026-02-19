@@ -90,12 +90,8 @@ export default function VideoOverlay({
     [],
   );
 
-  // Analytics tracking
+  // Analytics tracking (flag lives in the hook — always enabled)
   const { trackVideoView } = useVideoAnalytics();
-
-  // Feature flag
-  const VIDEO_ANALYTICS_ENABLED =
-    import.meta.env.VITE_VIDEO_ANALYTICS_ENABLED === "true" || false;
 
   // Stable video ID extraction - memoized
   const videoId = useMemo(() => {
@@ -307,9 +303,7 @@ export default function VideoOverlay({
       videoStartSentRef.current = true;
     }
 
-    if (VIDEO_ANALYTICS_ENABLED && trackVideoView) {
-      trackVideoView(videoId, 0, false, Math.round(duration || 0));
-    }
+    trackVideoView(videoId, 0, false, Math.round(duration || 0));
 
     startHeartbeat();
   }, [
@@ -319,7 +313,6 @@ export default function VideoOverlay({
     duration,
     currentTime,
     language,
-    VIDEO_ANALYTICS_ENABLED,
     trackVideoView,
     startHeartbeat,
   ]);
@@ -346,7 +339,7 @@ export default function VideoOverlay({
       }).catch(console.warn);
     }
 
-    if (VIDEO_ANALYTICS_ENABLED) {
+    {
       const watchedDuration = Math.round(currentTime);
       const completionRate =
         duration > 0 ? Math.round((currentTime / duration) * 100) : 0;
@@ -362,7 +355,6 @@ export default function VideoOverlay({
     stableProps.title,
     language,
     trackVideoView,
-    VIDEO_ANALYTICS_ENABLED,
     stopHeartbeat,
   ]);
 
@@ -480,7 +472,7 @@ export default function VideoOverlay({
       }
     }
 
-    if (VIDEO_ANALYTICS_ENABLED) {
+    {
       const watchedDuration = Math.round(actualCurrentTime);
       const completionRate =
         actualDuration > 0
@@ -497,7 +489,6 @@ export default function VideoOverlay({
     language,
     trackVideoView,
     onClose,
-    VIDEO_ANALYTICS_ENABLED,
   ]);
 
   const handleOverlayClick = useCallback(
@@ -576,7 +567,7 @@ export default function VideoOverlay({
   useEffect(() => {
     return () => {
       const video = videoRef.current;
-      if (!video || !VIDEO_ANALYTICS_ENABLED) return;
+      if (!video) return;
 
       const ct = video.currentTime;
       const dur = video.duration;
