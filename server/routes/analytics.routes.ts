@@ -1293,6 +1293,7 @@ router.get('/ga4/cta', async (req: Request, res: Response) => {
        WHERE ae.event_name = 'cta_click'
          AND ae.created_at >= $1
          AND ae.created_at <= $2
+         AND NOT EXISTS (SELECT 1 FROM analytics_sessions s WHERE s.session_id = ae.session_id AND s.is_bot = true)
          ${localeFilter}
          ${countryFilter}
        ORDER BY ae.created_at DESC`,
@@ -1698,14 +1699,27 @@ router.post('/event', async (req: Request, res: Response) => {
       session_id: eventData.session_id || null,
     };
 
-    // Persist CTA click events to analytics_events table
+    // Persist CTA click events to analytics_events table (skip bot sessions)
     if (eventData.event_name === 'cta_click' && process.env.DATABASE_URL) {
       try {
         const { Pool } = await import('pg');
         const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+        // Skip persistence if session belongs to a bot
+        if (enrichedEventData.session_id) {
+          const botCheck = await pool.query(
+            `SELECT is_bot FROM analytics_sessions WHERE session_id = $1 LIMIT 1`,
+            [enrichedEventData.session_id]
+          );
+          if (botCheck.rows.length > 0 && botCheck.rows[0].is_bot === true) {
+            await pool.end();
+            return res.json({ success: true });
+          }
+        }
+
         await pool.query(
-          `INSERT INTO analytics_events (event_name, cta_id, page_path, page_location, language, user_agent, referrer, created_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
+          `INSERT INTO analytics_events (event_name, cta_id, page_path, page_location, language, user_agent, referrer, session_id, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())`,
           [
             'cta_click',
             eventData.cta_id || null,
@@ -1714,6 +1728,7 @@ router.post('/event', async (req: Request, res: Response) => {
             eventData.language || null,
             enrichedEventData.user_agent,
             enrichedEventData.referrer,
+            enrichedEventData.session_id,
           ]
         );
         await pool.end();
