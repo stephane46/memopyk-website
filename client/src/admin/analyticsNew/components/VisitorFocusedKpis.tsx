@@ -754,12 +754,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                           <div className="flex items-center gap-2">
                             <CountryFlag country={visitor.countryCode || visitor.country} size={20} />
                             <div>
-                              <div className="text-base font-semibold text-gray-900">{visitor.country || 'Unknown'}</div>
-                              {visitor.city && visitor.region && (
-                                <div className="text-xs text-gray-600">
-                                  {visitor.city}, {visitor.region}
-                                </div>
-                              )}
+                              <div className="text-base font-semibold text-gray-900">{visitor.city ? `${visitor.city}, ${visitor.country || 'Unknown'}` : (visitor.country || 'Unknown')}</div>
                             </div>
                           </div>
                         </div>
@@ -810,8 +805,8 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
               ) : (
                 <div className="text-center py-8">
                   <div className="flex flex-col items-center gap-3">
-                    <Eye style={{ 
-                      width: '48px', 
+                    <Eye style={{
+                      width: '48px',
                       height: '48px',
                       color: '#d1d5db'
                     }} />
@@ -884,12 +879,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                           <div className="flex items-center gap-2">
                             <CountryFlag country={visitor.countryCode || visitor.country} size={20} />
                             <div>
-                              <div className="text-base font-semibold text-gray-900">{visitor.country || 'Unknown'}</div>
-                              {visitor.city && visitor.region && (
-                                <div className="text-xs text-gray-600">
-                                  {visitor.city}, {visitor.region}
-                                </div>
-                              )}
+                              <div className="text-base font-semibold text-gray-900">{visitor.city ? `${visitor.city}, ${visitor.country || 'Unknown'}` : (visitor.country || 'Unknown')}</div>
                             </div>
                           </div>
                         </div>
@@ -940,8 +930,8 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
               ) : (
                 <div className="text-center py-8">
                   <div className="flex flex-col items-center gap-3">
-                    <Users style={{ 
-                      width: '48px', 
+                    <Users style={{
+                      width: '48px',
                       height: '48px',
                       color: '#d1d5db'
                     }} />
@@ -1014,12 +1004,7 @@ export function VisitorFocusedKpis({ preset = "7d", className = "", startDate, e
                           <div className="flex items-center gap-2">
                             <CountryFlag country={visitor.countryCode || visitor.country} size={20} />
                             <div>
-                              <div className="text-base font-semibold text-gray-900">{visitor.country || 'Unknown'}</div>
-                              {visitor.city && visitor.region && (
-                                <div className="text-xs text-gray-600">
-                                  {visitor.city}, {visitor.region}
-                                </div>
-                              )}
+                              <div className="text-base font-semibold text-gray-900">{visitor.city ? `${visitor.city}, ${visitor.country || 'Unknown'}` : (visitor.country || 'Unknown')}</div>
                             </div>
                           </div>
                         </div>
