@@ -6,6 +6,7 @@
 
 import { Router, type Request, type Response } from "express";
 import { getDatabaseHealth } from "../config/database";
+import { client as ga4Client, PROPERTY as ga4Property } from "../services/analytics/ga4.service";
 
 const router = Router();
 
@@ -54,13 +55,32 @@ router.get("/api/ready", async (req: Request, res: Response) => {
 
 /**
  * Analytics health check — used by the Diagnostics tab (AnalyticsNewFallback.tsx)
+ * DB: live database ping. GA4: real API call with 3s timeout.
  */
 router.get("/api/analytics/health", async (_req: Request, res: Response) => {
   const dbHealth = await getDatabaseHealth();
+
+  let ga4Ok = false;
+  try {
+    const today = new Date().toISOString().split("T")[0];
+    await Promise.race([
+      ga4Client.runReport({
+        property: ga4Property,
+        dateRanges: [{ startDate: today, endDate: today }],
+        metrics: [{ name: "activeUsers" }],
+        limit: 1,
+      }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 3000)),
+    ]);
+    ga4Ok = true;
+  } catch {
+    // GA4 unreachable or timed out
+  }
+
   res.json({
     success: true,
     analytics_db_enabled: dbHealth.connected,
-    ga4_configured: !!process.env.GA4_PROPERTY_ID,
+    ga4_configured: ga4Ok,
   });
 });
 

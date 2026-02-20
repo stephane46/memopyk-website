@@ -10,7 +10,6 @@ import { AnalyticsNewTrends } from './AnalyticsNewTrends';
 import { AnalyticsNewGeo } from './AnalyticsNewGeo';
 import { AnalyticsNewCta } from './AnalyticsNewCta';
 import { AnalyticsNewBlog } from './AnalyticsNewBlog';
-import { AnalyticsNewFallback } from './AnalyticsNewFallback';
 import DataSourceBadge from './components/DataSourceBadge';
 import { useAnalyticsNewFilters } from './analyticsNewFilters.store';
 import { Badge } from '@/components/ui/badge';
@@ -151,8 +150,6 @@ export const AnalyticsNewDashboard: React.FC<AnalyticsNewDashboardProps> = ({
         return <AnalyticsNewTrends />;
       case 'clarity':
         return <AnalyticsNewClarity />;
-      case 'fallback':
-        return <AnalyticsNewFallback />;
       case 'exclusions':
         return <IpExclusionsManager />;
       default:

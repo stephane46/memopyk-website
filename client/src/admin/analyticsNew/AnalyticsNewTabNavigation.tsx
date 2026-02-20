@@ -7,7 +7,6 @@ import {
   MousePointer,
   TrendingUp,
   Activity,
-  AlertTriangle,
   Shield,
   FileText,
 } from 'lucide-react';
@@ -68,12 +67,6 @@ export const ANALYTICS_NEW_TABS: AnalyticsNewTab[] = [
     id: 'clarity',
     label: 'Clarity',
     icon: Activity,
-    description: '',
-  },
-  {
-    id: 'fallback',
-    label: 'Diagnostics',
-    icon: AlertTriangle,
     description: '',
   },
   {

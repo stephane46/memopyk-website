@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense } from 'react';
-import { BarChart3, Video, Play, HardDrive, Users, MessageSquare, FileText, LogOut, ChevronRight, Upload, Search, Zap, Layers, UserCheck, Settings, PenTool, Brain, Handshake } from 'lucide-react';
+import { BarChart3, Video, Play, HardDrive, Users, MessageSquare, FileText, LogOut, ChevronRight, Upload, Search, Zap, Layers, UserCheck, Settings, PenTool, Brain, Handshake, Activity } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { HelpButton } from '@/components/admin/HelpButton';
 import { HelpDrawer } from '@/components/admin/HelpDrawer';
@@ -19,6 +19,7 @@ const CacheManagementSection = React.lazy(() => import('@/components/admin/Cache
 
 // Lazy-loaded admin sections (named exports)
 const AnalyticsNewDashboard = React.lazy(() => import('@/admin/analyticsNew/AnalyticsNewDashboard').then(m => ({ default: m.AnalyticsNewDashboard })));
+const SystemDiagnostics = React.lazy(() => import('@/admin/analyticsNew/AnalyticsNewFallback').then(m => ({ default: m.AnalyticsNewFallback })));
 const LegalDocumentManagement = React.lazy(() => import('@/components/admin/LegalDocumentManagement').then(m => ({ default: m.LegalDocumentManagement })));
 const CtaManagement = React.lazy(() => import('@/components/admin/CtaManagement').then(m => ({ default: m.CtaManagement })));
 const WhyMemopykManagement = React.lazy(() => import('@/components/admin/WhyMemopykManagement').then(m => ({ default: m.WhyMemopykManagement })));
@@ -166,6 +167,7 @@ function AdminPageContent() {
       children: [
         { id: 'ai-context', label: 'AI Context', icon: Brain },
         { id: 'cache', label: 'Cache', icon: HardDrive },
+        { id: 'diagnostics', label: 'Diagnostics', icon: Activity },
       ]
     },
   ];
@@ -448,6 +450,11 @@ function AdminPageContent() {
               <div className="space-y-6">
                 <LegalDocumentManagement />
               </div>
+            )}
+
+            {/* System Diagnostics */}
+            {activeSection === 'diagnostics' && (
+              <SystemDiagnostics />
             )}
 
             {/* AI Context (Brand Brain) */}

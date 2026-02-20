@@ -7,7 +7,6 @@ import { AnalyticsNewLoadingStates } from './AnalyticsNewLoadingStates';
 import {
   Activity,
   Database,
-  HardDrive,
   RefreshCw,
   CheckCircle2,
   XCircle,
@@ -30,12 +29,6 @@ interface HealthDetailed {
   };
 }
 
-interface CacheBreakdown {
-  videos?: { fileCount: number; totalSize: number };
-  images?: { fileCount: number; totalSize: number };
-  total?: { fileCount: number; totalSize: number; sizeMB: number; limitMB: number; usagePercent: number };
-}
-
 function formatUptime(seconds: number): string {
   const days = Math.floor(seconds / 86400);
   const hours = Math.floor((seconds % 86400) / 3600);
@@ -43,14 +36,6 @@ function formatUptime(seconds: number): string {
   if (days > 0) return `${days}d ${hours}h ${mins}m`;
   if (hours > 0) return `${hours}h ${mins}m`;
   return `${mins}m`;
-}
-
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 }
 
 export const AnalyticsNewFallback: React.FC = () => {
@@ -65,15 +50,6 @@ export const AnalyticsNewFallback: React.FC = () => {
   });
 
   const {
-    data: cache,
-    isLoading: cacheLoading,
-    refetch: refetchCache,
-  } = useQuery<CacheBreakdown>({
-    queryKey: ['/api/cache/breakdown'],
-    refetchInterval: 60000,
-  });
-
-  const {
     data: analyticsHealth,
     refetch: refetchAnalytics,
   } = useQuery<{ success: boolean; analytics_db_enabled: boolean; ga4_configured: boolean }>({
@@ -84,7 +60,6 @@ export const AnalyticsNewFallback: React.FC = () => {
 
   const handleRefreshAll = () => {
     refetchHealth();
-    refetchCache();
     refetchAnalytics();
   };
 
@@ -205,52 +180,6 @@ export const AnalyticsNewFallback: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-
-      {/* Cache Stats */}
-      {cache && (
-        <Card className="bg-white border border-gray-200">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <HardDrive className="h-5 w-5 text-[#D67C4A]" />
-              Cache Storage
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {cache.videos && (
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Video Cache</p>
-                  <p className="text-2xl font-bold text-gray-900">{cache.videos.fileCount}</p>
-                  <p className="text-xs text-gray-500">files ({formatBytes(cache.videos.totalSize)})</p>
-                </div>
-              )}
-              {cache.images && (
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Image Cache</p>
-                  <p className="text-2xl font-bold text-gray-900">{cache.images.fileCount}</p>
-                  <p className="text-xs text-gray-500">files ({formatBytes(cache.images.totalSize)})</p>
-                </div>
-              )}
-              {cache.total && (
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Total Usage</p>
-                  <p className="text-2xl font-bold text-gray-900">{cache.total.usagePercent}%</p>
-                  <p className="text-xs text-gray-500">
-                    {cache.total.sizeMB} MB / {cache.total.limitMB} MB
-                  </p>
-                  {/* Usage bar */}
-                  <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full ${cache.total.usagePercent > 80 ? 'bg-red-500' : cache.total.usagePercent > 50 ? 'bg-yellow-500' : 'bg-green-500'}`}
-                      style={{ width: `${Math.min(cache.total.usagePercent, 100)}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Last Updated */}
       <div className="text-xs text-gray-400 text-right">
