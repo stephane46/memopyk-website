@@ -10,6 +10,8 @@ import { client as ga4Client, PROPERTY as ga4Property } from "../services/analyt
 
 const router = Router();
 
+// Version label set manually during the Replit → Coolify clean rebuild (Feb 2026).
+// Not auto-incremented. Update manually when making major architectural changes.
 const VERSION = "2.0.0-clean-rebuild";
 
 /**

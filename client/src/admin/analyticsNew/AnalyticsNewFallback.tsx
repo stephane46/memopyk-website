@@ -183,7 +183,7 @@ export const AnalyticsNewFallback: React.FC = () => {
 
       {/* Last Updated */}
       <div className="text-xs text-gray-400 text-right">
-        Last checked: {health?.timestamp ? new Date(health.timestamp).toLocaleString() : '—'}
+        Last checked: {health?.timestamp ? (() => { const d = new Date(health.timestamp); return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); })() : '—'}
       </div>
     </div>
   );
