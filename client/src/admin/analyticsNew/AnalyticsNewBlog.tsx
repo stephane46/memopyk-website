@@ -7,7 +7,6 @@ import { formatDistanceToNow } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import { Eye, TrendingUp, FileText, Hash, Folder } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
 
@@ -99,13 +98,12 @@ export const AnalyticsNewBlog: React.FC = () => {
   const [, setLocation] = useLocation();
   const { datePreset, language, country } = useAnalyticsNewFilters();
 
-  // Blog tab uses local data source state (defaults to MEMOPYK)
-  // This avoids overriding the global data source filter that affects other tabs
-  const [dataSource, setDataSource] = React.useState<'memopyk' | 'ga4'>('memopyk');
-  
+  // Blog tab always uses GA4 data source
+  const dataSource = 'ga4' as const;
+
   // Map period to days
   const days = datePreset === '7d' ? 7 : datePreset === '30d' ? 30 : 90;
-  
+
   // Map language filter to blog language format
   const blogLanguage = language === 'en' ? 'en-US' : language === 'fr' ? 'fr-FR' : undefined;
 
@@ -144,7 +142,7 @@ export const AnalyticsNewBlog: React.FC = () => {
     return `/api/analytics/blog${baseEndpoint}`; // memopyk default
   };
 
-  const { data: popularPosts, isLoading: postsLoading, error: postsError } = useQuery<PopularBlogPost[]>({
+  const { data: popularPosts, isLoading: postsLoading, error: postsError, refetch: refetchPosts } = useQuery<PopularBlogPost[]>({
     queryKey: ['/api/analytics/blog/popular', { days, blogLanguage, dataSource }],
     queryFn: async () => {
       const params = new URLSearchParams({ days: days.toString() });
@@ -155,7 +153,7 @@ export const AnalyticsNewBlog: React.FC = () => {
     }
   });
 
-  const { data: trendsData, isLoading: trendsLoading, error: trendsError } = useQuery<BlogTrendData[]>({
+  const { data: trendsData, isLoading: trendsLoading, error: trendsError, refetch: refetchTrends } = useQuery<BlogTrendData[]>({
     queryKey: ['/api/analytics/blog/trends', { days, blogLanguage, dataSource }],
     queryFn: async () => {
       const params = new URLSearchParams({ days: days.toString() });
@@ -202,24 +200,53 @@ export const AnalyticsNewBlog: React.FC = () => {
   const isLoading = postsLoading || trendsLoading || topicsLoading || keywordsLoading || categoriesLoading;
   const error = postsError || trendsError;
 
+  const handleRetry = () => {
+    refetchPosts();
+    refetchTrends();
+  };
+
   if (isLoading) {
     return (
       <div className="analytics-new-container space-y-6">
-        <h2 className="text-xl font-bold text-gray-900">Blog Analytics</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-900">Blog Analytics</h2>
+          <div className="text-sm text-gray-600">Last {days} days</div>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">GA4</Badge>
+          <span>Source: Google Analytics (GA4)</span>
+        </div>
         <AnalyticsNewLoadingStates mode="loading" />
       </div>
     );
   }
 
   if (error) {
+    const errorMessage = (error as any)?.message || 'Unknown error';
     return (
       <div className="analytics-new-container space-y-6">
-        <h2 className="text-xl font-bold text-gray-900">Blog Analytics</h2>
-        <AnalyticsNewLoadingStates 
-          mode="error" 
-          title="Failed to load blog analytics"
-          description="There was an error loading blog post views"
-        />
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-900">Blog Analytics</h2>
+          <div className="text-sm text-gray-600">Last {days} days</div>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">GA4</Badge>
+          <span>Source: Google Analytics (GA4)</span>
+        </div>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-red-800 mb-2">Failed to load blog analytics</h3>
+          <p className="text-sm text-red-700 mb-4">
+            The GA4 API returned an error. This may be temporary.
+          </p>
+          <p className="text-xs text-red-600 mb-4 font-mono">{errorMessage}</p>
+          <button
+            onClick={handleRetry}
+            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium"
+            data-testid="blog-retry-button"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
@@ -227,50 +254,20 @@ export const AnalyticsNewBlog: React.FC = () => {
   const totalViews = popularPosts?.reduce((sum, post) => sum + post.viewCount, 0) || 0;
 
   if (!popularPosts || popularPosts.length === 0) {
-    const emptyTitle = dataSource === 'ga4'
-      ? 'No GA4 blog data yet'
-      : 'No blog post views yet';
-
-    const emptyDescription = dataSource === 'ga4'
-      ? 'GA4 blog analytics integration is coming soon. Switch to MEMOPYK to see internal tracking data.'
-      : `No blog posts have been viewed in the last ${days} days`;
-
     return (
       <div className="analytics-new-container space-y-6">
         <h2 className="text-xl font-bold text-gray-900">Blog Analytics</h2>
-        
-        {/* Data Source Toggle */}
-        <div className="flex items-center gap-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-          <span className="text-sm font-medium text-gray-700">Data Source:</span>
-          <div className="flex gap-2">
-            <Button
-              variant={dataSource === 'memopyk' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setDataSource('memopyk')}
-              className={dataSource === 'memopyk' ? 'bg-[#D67C4A] hover:bg-[#C16B39] text-white' : ''}
-              data-testid="blog-toggle-memopyk"
-            >
-              MEMOPYK
-            </Button>
-            <Button
-              variant={dataSource === 'ga4' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setDataSource('ga4')}
-              data-testid="blog-toggle-ga4"
-            >
-              GA4
-            </Button>
-          </div>
-          <span className="text-xs text-gray-600">
-            {dataSource === 'memopyk' && '(Internal tracking, admin IPs excluded)'}
-            {dataSource === 'ga4' && '(Google Analytics 4 data)'}
-          </span>
+
+        {/* GA4 Source Info */}
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">GA4</Badge>
+          <span>Source: Google Analytics (GA4)</span>
         </div>
 
-        <AnalyticsNewLoadingStates 
-          mode="empty" 
-          title={emptyTitle}
-          description={emptyDescription}
+        <AnalyticsNewLoadingStates
+          mode="empty"
+          title="No blog data yet"
+          description={`No blog posts have been viewed in the last ${days} days`}
         />
       </div>
     );
@@ -290,32 +287,10 @@ export const AnalyticsNewBlog: React.FC = () => {
         </div>
       </div>
 
-      {/* Data Source Toggle */}
-      <div className="flex items-center gap-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-        <span className="text-sm font-medium text-gray-700">Data Source:</span>
-        <div className="flex gap-2">
-          <Button
-            variant={dataSource === 'memopyk' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setDataSource('memopyk')}
-            className={dataSource === 'memopyk' ? 'bg-[#D67C4A] hover:bg-[#C16B39] text-white' : ''}
-            data-testid="blog-toggle-memopyk"
-          >
-            MEMOPYK
-          </Button>
-          <Button
-            variant={dataSource === 'ga4' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setDataSource('ga4')}
-            data-testid="blog-toggle-ga4"
-          >
-            GA4
-          </Button>
-        </div>
-        <span className="text-xs text-gray-600">
-          {dataSource === 'memopyk' && '(Internal tracking, admin IPs excluded)'}
-          {dataSource === 'ga4' && '(Google Analytics 4 data)'}
-        </span>
+      {/* GA4 Source Info */}
+      <div className="flex items-center gap-2 text-sm text-gray-500">
+        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">GA4</Badge>
+        <span>Source: Google Analytics (GA4)</span>
       </div>
 
       {/* Blog Views Trend Chart */}
@@ -387,14 +362,11 @@ export const AnalyticsNewBlog: React.FC = () => {
               <FileText className="h-5 w-5 text-[#D67C4A]" />
               Popular Blog Posts
             </h3>
-            <Badge 
-              variant="outline" 
-              className={
-                dataSource === 'memopyk' ? 'bg-orange-50 text-orange-700 border-orange-200' :
-                'bg-blue-50 text-blue-700 border-blue-200'
-              }
+            <Badge
+              variant="outline"
+              className="bg-blue-50 text-blue-700 border-blue-200"
             >
-              {dataSource === 'memopyk' ? '🟠 MEMOPYK' : '📊 GA4'}
+              GA4
             </Badge>
           </div>
           <p className="text-sm text-gray-600 mt-1">
@@ -503,15 +475,11 @@ export const AnalyticsNewBlog: React.FC = () => {
                 <Folder className="h-5 w-5 text-[#D67C4A]" />
                 Top Content Topics
               </h3>
-              <Badge 
-                variant="outline" 
-                className={
-                  dataSource === 'memopyk' ? 'bg-orange-50 text-orange-700 border-orange-200' :
-                  dataSource === 'ga4' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                  'bg-gray-50 text-gray-700 border-gray-200'
-                }
+              <Badge
+                variant="outline"
+                className="bg-blue-50 text-blue-700 border-blue-200"
               >
-                {dataSource === 'memopyk' ? '🟠 MEMOPYK' : dataSource === 'ga4' ? '📊 GA4' : '🔓 Unfiltered'}
+                GA4
               </Badge>
             </div>
             <p className="text-sm text-gray-600 mt-1">
@@ -575,15 +543,11 @@ export const AnalyticsNewBlog: React.FC = () => {
                 <Hash className="h-5 w-5 text-[#D67C4A]" />
                 Top SEO Keywords
               </h3>
-              <Badge 
-                variant="outline" 
-                className={
-                  dataSource === 'memopyk' ? 'bg-orange-50 text-orange-700 border-orange-200' :
-                  dataSource === 'ga4' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                  'bg-gray-50 text-gray-700 border-gray-200'
-                }
+              <Badge
+                variant="outline"
+                className="bg-blue-50 text-blue-700 border-blue-200"
               >
-                {dataSource === 'memopyk' ? '🟠 MEMOPYK' : dataSource === 'ga4' ? '📊 GA4' : '🔓 Unfiltered'}
+                GA4
               </Badge>
             </div>
             <p className="text-sm text-gray-600 mt-1">
@@ -648,14 +612,11 @@ export const AnalyticsNewBlog: React.FC = () => {
               <TrendingUp className="h-5 w-5 text-[#D67C4A]" />
               Category Performance
             </CardTitle>
-            <Badge 
-              variant="outline" 
-              className={
-                dataSource === 'memopyk' ? 'bg-orange-50 text-orange-700 border-orange-200' :
-                'bg-blue-50 text-blue-700 border-blue-200'
-              }
+            <Badge
+              variant="outline"
+              className="bg-blue-50 text-blue-700 border-blue-200"
             >
-              {dataSource === 'memopyk' ? '🟠 MEMOPYK' : '📊 GA4'}
+              GA4
             </Badge>
           </div>
           <CardDescription className="text-sm text-gray-600 mt-1">

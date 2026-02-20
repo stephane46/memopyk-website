@@ -18,24 +18,32 @@ export function TopVideosTable({ onSelect, liveView = false, className = "" }: T
   const [direction, setDirection] = useState<"asc" | "desc">("desc");
 
   const sortedRows = useMemo(() => {
-    // Handle topVideos structure
-    const videos = data?.topVideos || [];
-    if (!videos.length) return [];
-    
+    // Handle topVideos structure (backend returns both 'topVideos' and 'videos' arrays)
+    const raw = data?.topVideos || (data as any)?.videos || [];
+    if (!raw.length) return [];
+
+    // Normalize rows: ensure 'plays' is always populated from 'views' if missing
+    const videos: TopVideoRow[] = raw.map((item: any) => ({
+      ...item,
+      plays: item.plays ?? item.views ?? 0,
+      completions: item.completions ?? 0,
+      completionRate: item.completionRate ?? item.completePct ?? 0,
+    }));
+
     const sorted = [...videos].sort((a, b) => {
       const aVal = a[sortBy];
       const bVal = b[sortBy];
-      
+
       if (typeof aVal === 'number' && typeof bVal === 'number') {
         return direction === "asc" ? aVal - bVal : bVal - aVal;
       }
-      
+
       // For string fields
-      return direction === "asc" 
+      return direction === "asc"
         ? String(aVal || '').localeCompare(String(bVal || ''))
         : String(bVal || '').localeCompare(String(aVal || ''));
     });
-    
+
     return sorted;
   }, [data, sortBy, direction, liveView]);
 
@@ -226,16 +234,29 @@ export function TopVideosTable({ onSelect, liveView = false, className = "" }: T
                     <td className="py-4 px-4 text-right text-sm text-[var(--analytics-new-text)]">
                       <div className="flex items-center justify-end space-x-2">
                         {(() => {
-                          // Handle completion rate formatting: convert 0..1 ratio to percentage
-                          const rawRate = row.completionRate || 0;
-                          const pct = Number.isFinite(rawRate) ? Math.round(rawRate * 100) : 0;
-                          const displayPct = Math.min(pct, 100); // Cap at 100%
+                          const plays = row.plays ?? row.views ?? 0;
+                          // No plays means no meaningful completion rate
+                          if (plays === 0) {
+                            return (
+                              <>
+                                <span data-testid={`completion-rate-${row.videoId}`} className="text-[var(--analytics-new-text-muted)]">&mdash;</span>
+                                <div className="w-12 bg-gray-200 rounded-full h-1.5">
+                                  <div className="bg-gray-300 h-1.5 rounded-full" style={{ width: '0%' }} />
+                                </div>
+                              </>
+                            );
+                          }
+                          // completionRate from backend is 0..100 (integer percentage)
+                          const rawRate = row.completionRate ?? 0;
+                          // If the value looks like a 0..1 ratio, convert to percentage
+                          const pct = rawRate > 0 && rawRate <= 1 ? Math.round(rawRate * 100) : Math.round(rawRate);
+                          const displayPct = Math.min(Math.max(pct, 0), 100);
                           return (
                             <>
                               <span data-testid={`completion-rate-${row.videoId}`}>{displayPct}%</span>
                               <div className="w-12 bg-gray-200 rounded-full h-1.5">
-                                <div 
-                                  className="bg-[var(--analytics-new-accent)] h-1.5 rounded-full transition-all duration-300" 
+                                <div
+                                  className="bg-[var(--analytics-new-accent)] h-1.5 rounded-full transition-all duration-300"
                                   style={{ width: `${displayPct}%` }}
                                 />
                               </div>

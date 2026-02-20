@@ -705,6 +705,49 @@ router.get('/ga4/trend', async (req: Request, res: Response) => {
     const prevUniqueUsers = new Set(prevSessions.map(s => s.ipAddress).filter(Boolean)).size;
     const prevTotalDuration = prevSessions.reduce((sum, s) => sum + (s.sessionDuration || 0), 0);
 
+    // Group previous period sessions by date for chart comparison line
+    const prevDailyMap = new Map<string, {
+      sessions: number;
+      uniqueIPs: Set<string>;
+      totalDuration: number;
+      bounces: number;
+    }>();
+
+    for (const session of prevSessions) {
+      const dateKey = formatDateToYYYYMMDD(session.createdAt || new Date());
+      if (!prevDailyMap.has(dateKey)) {
+        prevDailyMap.set(dateKey, { sessions: 0, uniqueIPs: new Set(), totalDuration: 0, bounces: 0 });
+      }
+      const day = prevDailyMap.get(dateKey)!;
+      day.sessions++;
+      if (session.ipAddress) day.uniqueIPs.add(session.ipAddress);
+      day.totalDuration += session.sessionDuration || 0;
+      if (session.isBounce) day.bounces++;
+    }
+
+    // Convert previous period to sorted array (aligned by index with current period)
+    const prevDailyData = Array.from(prevDailyMap.entries())
+      .map(([date, data]) => ({
+        date,
+        sessions: data.sessions,
+        users: data.uniqueIPs.size,
+        avgSessionDuration: data.sessions > 0 ? Math.round(data.totalDuration / data.sessions) : 0,
+        bounceRate: data.sessions > 0 ? Math.round((data.bounces / data.sessions) * 100) : 0,
+        totalEngagementSeconds: data.totalDuration,
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    // Merge previous period data into dailyData by index alignment
+    // (day 0 of current period matches day 0 of previous period)
+    const mergedDailyData = dailyData.map((cur, i) => ({
+      ...cur,
+      previousSessions: prevDailyData[i]?.sessions ?? 0,
+      previousUsers: prevDailyData[i]?.users ?? 0,
+      previousAvgDuration: prevDailyData[i]?.avgSessionDuration ?? 0,
+      previousBounceRate: prevDailyData[i]?.bounceRate ?? 0,
+      previousTotalEngagementSeconds: prevDailyData[i]?.totalEngagementSeconds ?? 0,
+    }));
+
     const periodAggregates = {
       periodSessions: totalSessions,
       periodUsers: uniqueUsers,
@@ -717,10 +760,10 @@ router.get('/ga4/trend', async (req: Request, res: Response) => {
       prevPeriodTotalEngagement: prevTotalDuration,
     };
 
-    console.log(`✅ [Trends/Memopyk] Returning ${dailyData.length} days of data, ${totalSessions} total sessions`);
+    console.log(`✅ [Trends/Memopyk] Returning ${mergedDailyData.length} days of data, ${totalSessions} total sessions`);
 
     res.json({
-      dailyData,
+      dailyData: mergedDailyData,
       periodAggregates,
       dataSource: 'memopyk',
     });

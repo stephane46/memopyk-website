@@ -6,8 +6,57 @@
  */
 
 import { db } from "../../db";
-import { analyticsViews, analyticsSessions } from "@shared/schema";
+import { analyticsViews, analyticsSessions, galleryItems } from "@shared/schema";
 import { eq, and, gte, lte, isNotNull, sql, desc, inArray } from "drizzle-orm";
+
+/**
+ * Build a map of video filename -> friendly title from gallery_items.
+ * Matches on both exact filename and full URL containing the filename.
+ */
+async function buildVideoTitleMap(): Promise<Map<string, string>> {
+  const items = await db
+    .select({
+      videoFilename: galleryItems.videoFilename,
+      titleEn: galleryItems.titleEn,
+    })
+    .from(galleryItems)
+    .where(isNotNull(galleryItems.videoFilename));
+
+  const map = new Map<string, string>();
+  for (const item of items) {
+    if (!item.videoFilename) continue;
+    const title = item.titleEn; // Use English title as the canonical name
+    // Store by exact filename
+    map.set(item.videoFilename, title);
+    // Also extract just the filename from full URLs
+    const parts = item.videoFilename.split("/");
+    const basename = parts[parts.length - 1];
+    if (basename && basename !== item.videoFilename) {
+      map.set(basename, title);
+    }
+  }
+  return map;
+}
+
+/**
+ * Resolve a friendly title for a video ID (filename).
+ * Priority: gallery_items title > strip extension > raw ID.
+ */
+function resolveVideoTitle(
+  videoId: string,
+  storedTitle: string | null | undefined,
+  titleMap: Map<string, string>
+): string {
+  // 1. Check gallery_items map
+  const galleryTitle = titleMap.get(videoId);
+  if (galleryTitle) return galleryTitle;
+
+  // 2. Use stored title if non-empty
+  if (storedTitle && storedTitle.trim()) return storedTitle;
+
+  // 3. Strip extension as fallback
+  return videoId.replace(/\.\w+$/, "");
+}
 
 /**
  * Parse period string to date range
@@ -160,10 +209,13 @@ export async function getVideoStats(
 
     console.log(`📊 [Video Stats] Found ${videoViews.length} video view records`);
 
+    // Build title lookup from gallery_items
+    const titleMap = await buildVideoTitleMap();
+
     // Aggregate by videoId
     const videoMap = new Map<string, {
       videoId: string;
-      title: string;
+      rawTitle: string | null;
       videoType: string;
       views: number;
       uniqueIPs: Set<string>;
@@ -179,7 +231,7 @@ export async function getVideoStats(
       if (!videoMap.has(videoId)) {
         videoMap.set(videoId, {
           videoId,
-          title: view.videoTitle || videoId,
+          rawTitle: view.videoTitle || null,
           videoType: view.videoType || "gallery",
           views: 0,
           uniqueIPs: new Set(),
@@ -211,7 +263,7 @@ export async function getVideoStats(
 
       return {
         videoId: v.videoId,
-        title: v.title,
+        title: resolveVideoTitle(v.videoId, v.rawTitle, titleMap),
         videoType: v.videoType,
         views: v.views,
         uniqueViewers: v.uniqueIPs.size,
