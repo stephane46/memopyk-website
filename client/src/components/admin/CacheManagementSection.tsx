@@ -115,7 +115,7 @@ export default function CacheManagementSection() {
   // Smart gallery cache refresh mutation - syncs cache with current database
   const smartCacheRefreshMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest('/api/video-cache/refresh-gallery', 'POST');
+      const response = await apiRequest('/api/video-cache/refresh', 'POST');
       return await response.json() as {
         success: boolean;
         message: string;

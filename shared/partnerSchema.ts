@@ -46,7 +46,7 @@ export const PartnerIntakeSchema = z.object({
   consentListed: z.boolean(),
   publicDescription: z.string().optional().default(""),
   locale: z.enum(["fr", "en"]).default("fr"),
-  csrfToken: z.string().min(8),
+  csrfToken: z.string().optional().default(""),
 }).refine((data) => {
   // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

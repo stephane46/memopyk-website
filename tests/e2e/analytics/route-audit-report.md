@@ -1,12 +1,12 @@
 ## Route Audit Report — 2026-02-20
 
 **Backend routes found:** 216
-**Frontend API calls found:** 180
+**Frontend API calls found:** 177
 **Shape checks performed:** 5
 
 ---
 
-### ✅ Matched routes (159)
+### ✅ Matched routes (162)
 
 - `/api/admin/ai-context` → `/api/admin/ai-context` *(client\src\admin\AIContextManager.tsx:32)*
 - `/api/admin/ai-context/:param` → `/api/admin/ai-context/:key` *(client\src\admin\AIContextManager.tsx:44)*
@@ -85,7 +85,10 @@
 - `/api/hero-videos/upload` → `/api/hero-videos/upload` *(client\src\components\admin\HeroManagement.tsx:79)*
 - `/api/hero-videos/:param/reorder` → `/api/hero-videos/:id/reorder` *(client\src\components\admin\HeroManagement.tsx:140)*
 - `/api/hero-videos/:param/toggle` → `/api/hero-videos/:id/toggle` *(client\src\components\admin\HeroManagement.tsx:159)*
+- `/api/hero-videos/text/:param` → `/api/hero-videos/:id/reorder` *(client\src\components\admin\HeroManagement.tsx:174)*
+- `/api/hero-videos/text/:param/apply` → `/api/hero-videos/text/:id/apply` *(client\src\components\admin\HeroManagement.tsx:199)*
 - `/api/hero-text` → `/api/hero-text` *(client\src\components\admin\HeroManagement.tsx:222)*
+- `/api/hero-videos/text/:param` → `/api/hero-videos/text/:id` *(client\src\components\admin\HeroManagement.tsx:245)*
 - `/api/hero-videos` → `/api/hero-videos` *(client\src\components\admin\HeroManagement.tsx:361)*
 - `/api/hero-videos/:param` → `/api/hero-videos/:id` *(client\src\components\admin\HeroManagement.tsx:556)*
 - `/api/hero-videos/:param` → `/api/hero-videos/:id` *(client\src\components\admin\HeroManagement.tsx:1253)*
@@ -162,7 +165,7 @@
 - `/api/event` → `/api/event` *(client\src\lib\analytics.ts:209)*
 - `/api/blog/posts/:param` → `/api/blog/posts/search` *(client\src\pages\BlogPostPage.tsx:81)*
 - `/api/partners` → `/api/partners` *(client\src\pages\PartnerDirectoryFR.tsx:63)*
-- `/api/partners/intake` → `/api/partners/intake` *(client\src\pages\PartnerIntakeEN.tsx:112)*
+- `/api/partners/intake` → `/api/partners/intake` *(client\src\pages\PartnerIntakeEN.tsx:93)*
 - `/api/blog/posts/search` → `/api/blog/posts/search` *(client\src\pages\SearchResultsPage.tsx:27)*
 - `/api/travel-agency-codes/validate/:param` → `/api/travel-agency-codes/validate/:code` *(client\src\pages\TravelUploadPortalPage.tsx:92)*
 - `/api/travel-upload/submit` → `/api/travel-upload/submit` *(client\src\pages\TravelUploadPortalPage.tsx:167)*
@@ -170,17 +173,13 @@
 
 ---
 
-### ❌ Mismatches — ERRORS (21)
+### ❌ Mismatches — ERRORS (15)
 
 - **ERROR** Frontend calls `/api/admin/blog/images` but no matching backend route found *(client\src\admin\HtmlEditor.tsx:72)*
 - **ERROR** Frontend calls `/api/admin/upload` but no matching backend route found *(client\src\admin\HtmlEditor.tsx:91)*
 - **ERROR** Frontend calls `/api/admin/blog/images` but no matching backend route found *(client\src\admin\HtmlEditor.tsx:177)*
 - **ERROR** Frontend calls `/api/admin/fetch-external` but no matching backend route found *(client\src\admin\HtmlEditor.tsx:228)*
-- **ERROR** Frontend calls `/api/video-cache/refresh-gallery` but no matching backend route found *(client\src\components\admin\CacheManagementSection.tsx:118)*
 - **ERROR** Frontend calls `/api/ga4/cache` but no matching backend route found *(client\src\components\admin\ClearCacheButton.tsx:20)*
-- **ERROR** Frontend calls `/api/hero-text/:param` but no matching backend route found *(client\src\components\admin\HeroManagement.tsx:174)*
-- **ERROR** Frontend calls `/api/hero-text/:param/apply` but no matching backend route found *(client\src\components\admin\HeroManagement.tsx:199)*
-- **ERROR** Frontend calls `/api/hero-text/:param` but no matching backend route found *(client\src\components\admin\HeroManagement.tsx:245)*
 - **ERROR** Frontend calls `/api/ga4/trends` but no matching backend route found *(client\src\components\admin\IpExclusionsManager.tsx:201)*
 - **ERROR** Frontend calls `/api/ga4/video-funnel` but no matching backend route found *(client\src\components\admin\IpExclusionsManager.tsx:203)*
 - **ERROR** Frontend calls `/api/analytics/sessions` but no matching backend route found *(client\src\components\admin\IpExclusionsManager.tsx:204)*
@@ -191,12 +190,10 @@
 - **ERROR** Frontend calls `/api/blog/related` but no matching backend route found *(client\src\components\blog\RelatedPostsSection.tsx:24)*
 - **ERROR** Frontend calls `/api/analytics/export/pdf` but no matching backend route found *(client\src\lib\export-utils.ts:30)*
 - **ERROR** Frontend calls `/api/blog/post` but no matching backend route found *(client\src\pages\BlogPostPage.tsx:78)*
-- **ERROR** Frontend calls `/api/analytics/blog/view` but no matching backend route found *(client\src\pages\BlogPostPage.tsx:145)*
-- **ERROR** Frontend calls `/api/csrf` but no matching backend route found *(client\src\pages\PartnerIntakeEN.tsx:94)*
 
 ---
 
-### ⚠️ Unused backend routes — WARNINGS (64)
+### ⚠️ Unused backend routes — WARNINGS (62)
 
 - `GET /health` *(server/index.ts:65)*
 - `GET /api/ready` *(server\routes\health.routes.ts:48)*
@@ -204,8 +201,6 @@
 - `GET /api/hero-videos/text` *(server\routes\hero.routes.ts:265)*
 - `POST /api/hero-videos/text` *(server\routes\hero.routes.ts:282)*
 - `PATCH /api/hero-videos/text/:id` *(server\routes\hero.routes.ts:327)*
-- `PATCH /api/hero-videos/text/:id/apply` *(server\routes\hero.routes.ts:345)*
-- `DELETE /api/hero-videos/text/:id` *(server\routes\hero.routes.ts:377)*
 - `GET /api/gallery/admin` *(server\routes\gallery.routes.ts:175)*
 - `PATCH /api/gallery/:id/reorder` *(server\routes\gallery.routes.ts:254)*
 - `GET /api/faq` *(server\routes\faq.routes.ts:269)*

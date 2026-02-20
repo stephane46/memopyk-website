@@ -1,0 +1,10 @@
+{
+  "_comment": "Routes flagged by static analysis but confirmed as false positives. See ROUTE_AUDIT_TRIAGE.md for evidence.",
+  "ignoredMismatches": [
+    { "url": "/api/ga4/trends", "reason": "React Query cache key (queryClient.invalidateQueries), not API call. Real route is /api/ga4/trend (singular)" },
+    { "url": "/api/ga4/video-funnel", "reason": "React Query cache key, not API call. Real route is /api/ga4/funnel" },
+    { "url": "/api/analytics/sessions", "reason": "React Query cache key, not API call" },
+    { "url": "/api/analytics/visitors", "reason": "React Query cache key, not API call" },
+    { "url": "/api/blog/post", "reason": "React Query cache key in BlogPostPage.tsx. Actual fetch uses /api/blog/posts/:slug" }
+  ]
+}

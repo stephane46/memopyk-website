@@ -109,50 +109,9 @@ export default function BlogPostPage() {
   const languageCode = (post?.language as 'fr-FR' | 'en-US') || urlLanguageCode;
   const language = languageCode === 'fr-FR' ? 'fr' : 'en';
 
-  // Track blog post view for analytics (exclude admin and development)
-  useEffect(() => {
-    if (!post || !slug) return;
-    
-    // Don't track if in admin mode
-    const isAdmin = window.location.pathname.includes('/admin');
-    if (isAdmin) return;
-    
-    // Don't track if in development/preview environment
-    const isDevelopment = window.location.hostname.includes('replit.dev') || 
-                         window.location.hostname.includes('localhost') ||
-                         window.location.hostname === '127.0.0.1';
-    if (isDevelopment) {
-      console.log('📊 Blog view tracking skipped: development environment');
-      return;
-    }
-    
-    // Get or create session ID
-    let baseSessionId = localStorage.getItem('memopyk-base-session-id');
-    if (!baseSessionId) {
-      baseSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      localStorage.setItem('memopyk-base-session-id', baseSessionId);
-    }
-    
-    let tabId = sessionStorage.getItem('memopyk-tab-id');
-    if (!tabId) {
-      tabId = Math.random().toString(36).substr(2, 9);
-      sessionStorage.setItem('memopyk-tab-id', tabId);
-    }
-    
-    const sessionId = `${baseSessionId}_${tabId}`;
-    
-    // Track view
-    fetch('/api/analytics/blog/view', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        post_slug: slug,
-        post_title: post.title,
-        language: languageCode,
-        session_id: sessionId
-      })
-    }).catch(err => console.warn('Blog view tracking failed:', err));
-  }, [post, slug, languageCode]);
+  // Blog view tracking removed — views are tracked via the session analytics pipeline
+  // (useVideoAnalytics.ts → /api/analytics/session-page-view). The old POST to
+  // /api/analytics/blog/view was a dead endpoint (silent 404 on every blog page visit).
 
   // Reading progress tracker + GA4 scroll engagement tracking
   useEffect(() => {

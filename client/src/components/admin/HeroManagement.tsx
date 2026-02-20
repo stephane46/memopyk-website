@@ -171,7 +171,7 @@ export default function HeroManagement() {
   // Hero text update mutation
   const updateTextMutation = useMutation({
     mutationFn: async ({ textId, data }: { textId: number; data: any }) => {
-      const response = await apiRequest(`/api/hero-text/${textId}`, 'PATCH', data);
+      const response = await apiRequest(`/api/hero-videos/text/${textId}`, 'PATCH', data);
       return await response.json();
     },
     onSuccess: () => {
@@ -196,7 +196,7 @@ export default function HeroManagement() {
         legacy?: number;
       }
     }) => {
-      const response = await apiRequest(`/api/hero-text/${textId}/apply`, 'PATCH', {
+      const response = await apiRequest(`/api/hero-videos/text/${textId}/apply`, 'PATCH', {
         fontSize: fontSizes.legacy || fontSizes.desktop,
         fontSizeDesktop: fontSizes.desktop,
         fontSizeTablet: fontSizes.tablet,
@@ -242,7 +242,7 @@ export default function HeroManagement() {
   // Delete text mutation
   const deleteTextMutation = useMutation({
     mutationFn: async (textId: number) => {
-      const response = await apiRequest(`/api/hero-text/${textId}`, 'DELETE');
+      const response = await apiRequest(`/api/hero-videos/text/${textId}`, 'DELETE');
       return await response.json();
     },
     onSuccess: () => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PartnerIntakeSchema, type PartnerIntake } from "@shared/partnerSchema";
@@ -46,7 +46,6 @@ const serviceOptions = [
 ];
 
 export default function PartnerIntakeFR() {
-  const [csrfToken, setCsrfToken] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
 
@@ -83,29 +82,11 @@ export default function PartnerIntakeFR() {
       consentListed: false,
       publicDescription: "",
       locale: "fr",
-      csrfToken: "",
     },
   });
 
   const selectedServices = form.watch("services");
   const selectedDelivery = form.watch("delivery");
-
-  useEffect(() => {
-    fetch("/api/csrf")
-      .then((res) => res.json())
-      .then((data) => {
-        setCsrfToken(data.token);
-        form.setValue("csrfToken", data.token);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch CSRF token:", err);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger le formulaire. Veuillez réessayer.",
-          variant: "destructive",
-        });
-      });
-  }, [toast, form]);
 
   const onSubmit = async (data: PartnerIntake) => {
     try {

@@ -29,7 +29,23 @@ const CLIENT_SRC_DIR = path.join(ROOT, 'client/src');
 const ROUTES_TS = path.join(ROOT, 'server/routes.ts');
 const REPORT_PATH = path.join(__dirname, 'route-audit-report.md');
 const STAGING_BASE = 'https://memopyk.memopyk.com';
+const IGNORE_PATH = path.join(__dirname, 'route-audit-ignore.json');
 const TODAY = new Date().toISOString().split('T')[0];
+
+interface IgnoreEntry {
+  url: string;
+  reason: string;
+}
+
+function loadIgnoreList(): IgnoreEntry[] {
+  if (!fs.existsSync(IGNORE_PATH)) return [];
+  try {
+    const data = JSON.parse(fs.readFileSync(IGNORE_PATH, 'utf-8'));
+    return Array.isArray(data.ignoredMismatches) ? data.ignoredMismatches : [];
+  } catch {
+    return [];
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Types
@@ -705,12 +721,30 @@ async function main(): Promise<void> {
   console.log(`  Mismatched (ERRORS): ${mismatches.length}`);
   console.log(`  Unused backend routes (WARNINGS): ${unmatchedBackend.length}\n`);
 
-  if (mismatches.length > 0) {
-    console.log('  ❌ MISMATCHES:');
-    for (const m of mismatches) {
+  // Load ignore list and split mismatches into real vs ignored
+  const ignoreList = loadIgnoreList();
+  const ignoredUrls = new Set(ignoreList.map(e => e.url));
+  const ignoredMap = new Map(ignoreList.map(e => [e.url, e.reason]));
+  const realMismatches = mismatches.filter(m => !ignoredUrls.has(m.frontendUrl));
+  const ignoredMismatches = mismatches.filter(m => ignoredUrls.has(m.frontendUrl));
+
+  if (ignoredMismatches.length > 0) {
+    console.log(`  ⚪ IGNORED (${ignoredMismatches.length} known false positives):`);
+    for (const m of ignoredMismatches) {
+      const reason = ignoredMap.get(m.frontendUrl) || 'no reason';
+      console.log(`     ⚪ IGNORED (known false positive): ${m.frontendUrl} — ${reason}`);
+    }
+    console.log('');
+  }
+
+  if (realMismatches.length > 0) {
+    console.log(`  ❌ MISMATCHES (${realMismatches.length} real errors):`);
+    for (const m of realMismatches) {
       console.log(`     ${m.frontendUrl} (${m.file}:${m.line})`);
     }
     console.log('');
+  } else if (mismatches.length > 0) {
+    console.log('  ✅ All mismatches are in the ignore list — no real errors\n');
   }
 
   // STEP 6
@@ -745,13 +779,15 @@ async function main(): Promise<void> {
 
   // STEP 5
   const shapeFailed = shapeResults.filter(r => r.status === 'fail');
-  const hasErrors = mismatches.length > 0 || shapeFailed.length > 0;
+  const hasErrors = realMismatches.length > 0 || shapeFailed.length > 0;
 
   console.log('\n=== Summary ===');
   console.log(`Backend routes:     ${backendRoutes.length}`);
   console.log(`Frontend calls:     ${frontendCalls.length}`);
   console.log(`Matched:            ${matched.length}`);
-  console.log(`Mismatches:         ${mismatches.length} ${mismatches.length > 0 ? '❌' : '✅'}`);
+  console.log(`Mismatches (total): ${mismatches.length}`);
+  console.log(`  Ignored (FP):     ${ignoredMismatches.length}`);
+  console.log(`  Real errors:      ${realMismatches.length} ${realMismatches.length > 0 ? '❌' : '✅'}`);
   console.log(`Unused backend:     ${unmatchedBackend.length} (warnings)`);
   console.log(`Shape checks:       ${shapeResults.length}`);
   console.log(`Shape passed:       ${shapeResults.filter(r => r.status === 'pass').length}`);
