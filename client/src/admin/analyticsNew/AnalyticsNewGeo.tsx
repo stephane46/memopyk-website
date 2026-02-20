@@ -66,7 +66,7 @@ interface CountryRowProps {
 }
 
 const CountryRow: React.FC<CountryRowProps> = ({ country, sessions, visitors, rank, engagement }) => {
-  const engagementRate = engagement || Math.round((sessions / visitors) * 100);
+  const engagementRate = engagement || Math.round((sessions / (visitors || 1)) * 100);
   
   return (
     <div className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
@@ -275,7 +275,7 @@ export const AnalyticsNewGeo: React.FC = () => {
                 <span className="font-bold">{bestEngagement?.country || 'N/A'}</span>
               </div>
               <div className="text-xl font-semibold text-orange-600">
-                {Math.round((bestEngagement?.sessions / bestEngagement?.visitors) * 100) || 0}% return rate
+                {Math.round((bestEngagement?.sessions / (bestEngagement?.visitors || 1)) * 100)}% return rate
               </div>
             </div>
           }
@@ -404,7 +404,7 @@ export const AnalyticsNewGeo: React.FC = () => {
                             }}
                             onMouseEnter={(event: React.MouseEvent) => {
                               if (sessions > 0 && countryData) {
-                                const engagementRate = Math.round((countryData.sessions / countryData.visitors) * 100);
+                                const engagementRate = Math.round((countryData.sessions / (countryData.visitors || 1)) * 100);
                                 setTooltip({
                                   show: true,
                                   content: `${countryData.country}\n${countryData.sessions.toLocaleString()} sessions\n${countryData.visitors.toLocaleString()} visitors\n${engagementRate}% engagement`,
