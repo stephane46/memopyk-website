@@ -6,8 +6,8 @@
 |---------------|-------|
 | Confirmed bugs | 4 |
 | False positives | 5 |
-| Dead code | 10 |
-| Uncertain | 2 |
+| Dead code | 11 |
+| Uncertain | 1 |
 | **Total** | **21** |
 
 ## Details
@@ -166,11 +166,18 @@ But the frontend calls `/api/hero-text/${textId}` — this does NOT match `/api/
 
 ### 15. `/api/video-cache/cache-gallery-videos` (VideoCacheStatus.tsx:186)
 
-**Status: UNCERTAIN**
+**Status: DEAD CODE (SILENT FAILURE) — P3**
 
-**Evidence:** VideoCacheStatus.tsx has a "Cache Gallery Videos" button that calls `POST /api/video-cache/cache-gallery-videos`. No such route exists in media.routes.ts. The closest routes are `POST /api/video-cache/force-all` (line 1076) and `POST /api/video-cache/force-all-media` (line 1061). The button is rendered in the CacheManagementSection UI. Clicking it will 404.
+**Evidence (live-tested 2026-02-20):**
+- Live cache admin page at https://memopyk.memopyk.com/admin (Cache section) was inspected via Puppeteer.
+- **No button exists in the current UI** that calls this endpoint. The `forceCacheGalleryMutation` is defined at `VideoCacheStatus.tsx:185` but its trigger button was deliberately removed — see comment at line 574: `{/* Removed redundant "Smart Gallery Refresh" - use individual cache buttons or All Media Cache instead */}`.
+- The live cache page shows: individual per-file "Refresh Cache" buttons (working), plus global "All Media Cache", "Smart Cleanup", and "Images Orphelines" buttons (all calling different, existing routes).
+- No backend route exists for `/api/video-cache/cache-gallery-videos` (confirmed: no match in server/).
+- Screenshots taken: cache page loaded with "Vidéos Hero" + "Vidéos Galerie" sections, "Actions Globales du Cache" section — no cache-gallery-videos button visible.
 
-**Action:** Needs investigation — was this route removed during a refactor, or was the endpoint name changed? The "Force All" buttons work. This is likely a P3 — admin cache tool, non-critical.
+**Classification: SILENT FAILURE** — The mutation function is dead client code. No admin user can trigger it through the UI. No error is visible; the route is simply unreachable.
+
+**Action:** Clean up dead mutation in VideoCacheStatus.tsx (remove `forceCacheGalleryMutation` at lines 184–203). **Priority: P3** — no user-facing impact, cosmetic code cleanup only.
 
 ---
 
@@ -266,6 +273,7 @@ Items #6, #7, #8 are the same root cause (hero-text mount point mismatch), count
 | 5 | `/api/ga4/cache` | ClearCacheButton.tsx | Orphaned component, never rendered |
 | 13 | `/api/test/video-cache` | SystemTestDashboard.tsx | Orphaned component, never rendered |
 | 14 | `/api/unified-cache/stats` | VideoCacheStatus.tsx | Dead query, component works without it |
+| 15 | `/api/video-cache/cache-gallery-videos` | VideoCacheStatus.tsx | Dead mutation, button was removed — no user-facing impact |
 | 16 | `/api/blog/related` | RelatedPostsSection.tsx | Orphaned duplicate component |
 | 17 | `/api/analytics/export/pdf` | export-utils.ts | Dead function, never called |
 
@@ -283,7 +291,7 @@ Items #6, #7, #8 are the same root cause (hero-text mount point mismatch), count
 
 | # | Route | File | Issue |
 |---|-------|------|-------|
-| 15 | `/api/video-cache/cache-gallery-videos` | VideoCacheStatus.tsx | Button exists in UI, route missing. May be renamed. |
+| — | — | — | All uncertain items resolved. Item 15 reclassified to Silent Failure P3 (live-tested 2026-02-20). |
 
 ## CI Whitelist Recommendation
 
