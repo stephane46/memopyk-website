@@ -132,6 +132,7 @@ export interface VideoStats {
   views: number;
   uniqueViewers: number;
   averageWatchTime: number;
+  completions: number;
   completionRate: number;
   engagement: number;
   // Legacy aliases
@@ -145,6 +146,7 @@ export interface TopVideoRow {
   video_id: string;
   title: string;
   plays: number;
+  completions: number;
   avgWatchSeconds: number;
   reach50Pct: number;
   completePct: number;
@@ -268,6 +270,7 @@ export async function getVideoStats(
         views: v.views,
         uniqueViewers: v.uniqueIPs.size,
         averageWatchTime: avgWatchTime,
+        completions: v.completions,
         completionRate,
         engagement,
         // Legacy aliases
@@ -306,6 +309,7 @@ export async function getTopVideos(
     video_id: s.videoId,
     title: s.title,
     plays: s.views,
+    completions: s.completions,
     avgWatchSeconds: s.averageWatchTime,
     reach50Pct: s.reach50Pct || 0,
     completePct: s.completionRate,

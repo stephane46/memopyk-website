@@ -108,14 +108,16 @@ export const useVideoAnalytics = () => {
       localStorage.setItem(completionKey, 'true');
     }
 
-    // Duplicate prevention — 60 second window for non-completion events
-    const lastTracked = localStorage.getItem(`last-tracked-${videoId}`);
-    const now = Date.now();
-    if (lastTracked && now - parseInt(lastTracked) < 60000) {
-      return;
+    // Duplicate prevention — 60 second window for non-completion events only
+    // Completion events bypass this check (they have their own dedup above)
+    if (!completed) {
+      const lastTracked = localStorage.getItem(`last-tracked-${videoId}`);
+      const now = Date.now();
+      if (lastTracked && now - parseInt(lastTracked) < 60000) {
+        return;
+      }
+      localStorage.setItem(`last-tracked-${videoId}`, now.toString());
     }
-
-    localStorage.setItem(`last-tracked-${videoId}`, now.toString());
 
     const viewData = {
       video_id: videoId,

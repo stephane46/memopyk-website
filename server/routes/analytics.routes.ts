@@ -215,6 +215,7 @@ router.get('/ga4/report', async (req: Request, res: Response) => {
             views: v.views,
             uniqueViewers: v.uniqueViewers,
             averageWatchTime: v.averageWatchTime,
+            completions: v.completions,
             completionRate: v.completionRate,
             engagement: v.engagement,
             // Legacy aliases for backward compatibility
@@ -229,6 +230,7 @@ router.get('/ga4/report', async (req: Request, res: Response) => {
             views: v.views,
             uniqueViewers: v.uniqueViewers,
             averageWatchTime: v.averageWatchTime,
+            completions: v.completions,
             completionRate: v.completionRate,
             engagement: v.engagement,
           })),
@@ -1089,6 +1091,7 @@ router.get('/ga4/top-videos', async (req: Request, res: Response) => {
         views: v.plays,
         uniqueViewers: 0, // Would need session tracking
         averageWatchTime: v.avgWatchSeconds,
+        completions: v.completions,
         completionRate: v.completePct,
         engagement: Math.min(100, Math.round((v.avgWatchSeconds / 60) * 10)),
         // Legacy fields for backward compatibility
