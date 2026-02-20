@@ -115,8 +115,17 @@ export async function recordPageView(data: PageViewData): Promise<RecordResult> 
       return { success: false, reason: "ip_excluded" };
     }
 
+    // Normalize pageUrl: strip origin so dedup works regardless of full URL vs path
+    let normalizedUrl = data.pageUrl;
+    try {
+      const parsed = new URL(data.pageUrl);
+      normalizedUrl = parsed.pathname + parsed.search;
+    } catch {
+      // Already a relative path — use as-is
+    }
+
     // Deduplicate: same IP + same page within window
-    const dedupKey = `pageview:${data.ipAddress}:${data.pageUrl}`;
+    const dedupKey = `pageview:${data.ipAddress}:${normalizedUrl}`;
     if (isDuplicate(dedupKey)) {
       return { success: false, reason: "duplicate" };
     }
@@ -145,7 +154,7 @@ export async function recordPageView(data: PageViewData): Promise<RecordResult> 
       .values({
         viewId,
         sessionId,
-        pageUrl: data.pageUrl,
+        pageUrl: normalizedUrl,
         pageTitle: data.pageTitle || null,
         referrer: data.referrer || null,
         language: data.language || null,

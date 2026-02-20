@@ -1751,7 +1751,7 @@ router.post('/analytics/event', async (req: Request, res: Response) => {
         ipAddress,
         userAgent,
       });
-    } else if (type === 'pageview' || body.page || body.pageUrl || body.page_path) {
+    } else if (type === 'pageview') {
       result = await eventRecorder.recordPageView({
         sessionId: body.sessionId || body.session_id,
         pageUrl: body.page || body.pageUrl || body.page_path || '/',
