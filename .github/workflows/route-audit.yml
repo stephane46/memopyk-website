@@ -1,0 +1,19 @@
+name: Route Audit
+on:
+  push:
+    branches: [staging, main]
+jobs:
+  route-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npx tsx tests/e2e/analytics/layer6-route-audit.ts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: route-audit-report
+          path: tests/e2e/analytics/route-audit-report.md

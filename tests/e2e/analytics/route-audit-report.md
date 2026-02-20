@@ -1,0 +1,497 @@
+## Route Audit Report — 2026-02-20
+
+**Backend routes found:** 216
+**Frontend API calls found:** 180
+**Shape checks performed:** 5
+
+---
+
+### ✅ Matched routes (159)
+
+- `/api/admin/ai-context` → `/api/admin/ai-context` *(client\src\admin\AIContextManager.tsx:32)*
+- `/api/admin/ai-context/:param` → `/api/admin/ai-context/:key` *(client\src\admin\AIContextManager.tsx:44)*
+- `/api/analytics/blog/popular` → `/api/analytics/blog/popular` *(client\src\admin\analyticsNew\AnalyticsNewBlog.tsx:137)*
+- `/api/analytics/blog/trends` → `/api/analytics/blog/trends` *(client\src\admin\analyticsNew\AnalyticsNewBlog.tsx:148)*
+- `/api/analytics/blog/topics` → `/api/analytics/blog/topics` *(client\src\admin\analyticsNew\AnalyticsNewBlog.tsx:159)*
+- `/api/analytics/blog/keywords` → `/api/analytics/blog/keywords` *(client\src\admin\analyticsNew\AnalyticsNewBlog.tsx:170)*
+- `/api/analytics/blog/categories` → `/api/analytics/blog/categories` *(client\src\admin\analyticsNew\AnalyticsNewBlog.tsx:181)*
+- `/api/admin/analytics/exclusions` → `/api/admin/analytics/exclusions` *(client\src\admin\analyticsNew\AnalyticsNewDashboard.tsx:78)*
+- `/api/health/detailed` → `/api/health/detailed` *(client\src\admin\analyticsNew\AnalyticsNewFallback.tsx:48)*
+- `/api/analytics/health` → `/api/analytics/health` *(client\src\admin\analyticsNew\AnalyticsNewFallback.tsx:56)*
+- `/api/analytics/live-tracking` → `/api/analytics/live-tracking` *(client\src\admin\analyticsNew\AnalyticsNewLiveView.tsx:131)*
+- `/api/analytics/recent-visitors` → `/api/analytics/recent-visitors` *(client\src\admin\analyticsNew\AnalyticsNewLiveView.tsx:139)*
+- `/api/tracker/currently-watching` → `/api/tracker/currently-watching` *(client\src\admin\analyticsNew\AnalyticsNewLiveView.tsx:151)*
+- `/api/ga4/realtime` → `/api/ga4/realtime` *(client\src\admin\analyticsNew\AnalyticsNewOverview.tsx:57)*
+- `/api/admin/blog/generate-content` → `/api/admin/blog/generate-content` *(client\src\admin\BlogAICreator.tsx:45)*
+- `/api/admin/blog/create-from-ai` → `/api/admin/blog/create-from-ai` *(client\src\admin\BlogAICreator.tsx:103)*
+- `/api/admin/blog/posts/:param/tags` → `/api/admin/blog/posts/:id/tags` *(client\src\admin\BlogAICreator.tsx:119)*
+- `/api/admin/blog/posts/:param` → `/api/admin/blog/posts/:id` *(client\src\admin\BlogEditor.tsx:74)*
+- `/api/image-bank` → `/api/image-bank` *(client\src\admin\BlogEditor.tsx:86)*
+- `/api/admin/blog/posts/:param/tags` → `/api/admin/blog/posts/:id/tags` *(client\src\admin\BlogEditor.tsx:112)*
+- `/api/admin/blog/posts/:param` → `/api/admin/blog/posts/:id` *(client\src\admin\BlogEditor.tsx:151)*
+- `/api/admin/blog/posts` → `/api/admin/blog/posts` *(client\src\admin\BlogEditor.tsx:154)*
+- `/api/blog-tags` → `/api/blog-tags` *(client\src\admin\BlogEditor.tsx:156)*
+- `/api/image-bank/upload` → `/api/image-bank/upload` *(client\src\admin\BlogEditor.tsx:272)*
+- `/api/admin/blog/posts/:param` → `/api/admin/blog/posts/:id` *(client\src\admin\BlogEditor.tsx:393)*
+- `/api/admin/blog/posts` → `/api/admin/blog/posts` *(client\src\admin\BlogManagePosts.tsx:73)*
+- `/api/admin/blog/posts/:param` → `/api/admin/blog/posts/:id` *(client\src\admin\BlogManagePosts.tsx:147)*
+- `/api/admin/blog/posts/:param/translate` → `/api/admin/blog/posts/:id/translate` *(client\src\admin\BlogManagePosts.tsx:228)*
+- `/api/admin/blog/tags` → `/api/admin/blog/tags` *(client\src\admin\BlogTagSelector.tsx:22)*
+- `/api/admin/blog/tags` → `/api/admin/blog/tags` *(client\src\admin\hooks\useTagMutations.ts:24)*
+- `/api/admin/blog/tags/:param` → `/api/admin/blog/tags/:id` *(client\src\admin\hooks\useTagMutations.ts:48)*
+- `/api/admin/blog/tags/:param` → `/api/admin/blog/tags/:id` *(client\src\admin\hooks\useTagMutations.ts:73)*
+- `/api/admin/content/keywords` → `/api/admin/content/keywords` *(client\src\admin\KeywordCombobox.tsx:54)*
+- `/api/admin/content/topics` → `/api/admin/content/topics` *(client\src\admin\TopicCombobox.tsx:58)*
+- `/api/admin/content/topics/:param` → `/api/admin/content/topics/:id` *(client\src\admin\TopicCombobox.tsx:87)*
+- `/api/admin/translate` → `/api/admin/translate` *(client\src\admin\TranslationAssistant.tsx:96)*
+- `/api/ga4/mp` → `/api/ga4/mp` *(client\src\analytics\mp.ts:39)*
+- `/api/hero-videos` → `/api/hero-videos` *(client\src\components\admin\CacheManagementSection.tsx:53)*
+- `/api/gallery` → `/api/gallery` *(client\src\components\admin\CacheManagementSection.tsx:58)*
+- `/api/cache/breakdown` → `/api/cache/breakdown` *(client\src\components\admin\CacheManagementSection.tsx:93)*
+- `/api/video-cache/refresh` → `/api/video-cache/refresh` *(client\src\components\admin\CacheManagementSection.tsx:100)*
+- `/api/video-cache/stats` → `/api/video-cache/stats` *(client\src\components\admin\CacheManagementSection.tsx:104)*
+- `/api/video-cache/clear` → `/api/video-cache/clear` *(client\src\components\admin\CacheManagementSection.tsx:144)*
+- `/api/cache/cleanup-orphaned-static-images` → `/api/cache/cleanup-orphaned-static-images` *(client\src\components\admin\CacheManagementSection.tsx:314)*
+- `/api/admin/content/keywords/stats` → `/api/admin/content/keywords/stats` *(client\src\components\admin\ContentProductionKeywords.tsx:138)*
+- `/api/admin/content/assignments` → `/api/admin/content/assignments` *(client\src\components\admin\ContentProductionPlanner.tsx:99)*
+- `/api/admin/blog/posts-by-date` → `/api/admin/blog/posts-by-date` *(client\src\components\admin\ContentProductionPlanner.tsx:185)*
+- `/api/admin/content/assignments` → `/api/admin/content/assignments` *(client\src\components\admin\ContentProductionPlanner.tsx:203)*
+- `/api/admin/content/topics/:param` → `/api/admin/content/topics/:id` *(client\src\components\admin\ContentProductionPlanner.tsx:211)*
+- `/api/admin/content/assignments/:param` → `/api/admin/content/assignments/:id` *(client\src\components\admin\ContentProductionPlanner.tsx:237)*
+- `/api/admin/content/assignments/:param` → `/api/admin/content/assignments/:id` *(client\src\components\admin\ContentProductionPlanner.tsx:271)*
+- `/api/cta` → `/api/cta` *(client\src\components\admin\CtaManagement.tsx:20)*
+- `/api/cta/:param` → `/api/cta/:id` *(client\src\components\admin\CtaManagement.tsx:25)*
+- `/api/cta` → `/api/cta` *(client\src\components\admin\CtaManagement.tsx:46)*
+- `/api/upload/generate-signed-url` → `/api/upload/generate-signed-url` *(client\src\components\admin\DirectUpload.tsx:89)*
+- `/api/upload/server-side-upload` → `/api/upload/server-side-upload` *(client\src\components\admin\DirectUpload.tsx:150)*
+- `/api/upload/complete-direct-upload` → `/api/upload/complete-direct-upload` *(client\src\components\admin\DirectUpload.tsx:169)*
+- `/api/faqs` → `/api/faqs` *(client\src\components\admin\FAQManagementWorking.tsx:69)*
+- `/api/faq-sections` → `/api/faq-sections` *(client\src\components\admin\FAQManagementWorking.tsx:73)*
+- `/api/faqs` → `/api/faqs` *(client\src\components\admin\FAQManagementWorking.tsx:102)*
+- `/api/faqs/:param` → `/api/faqs/:id` *(client\src\components\admin\FAQManagementWorking.tsx:119)*
+- `/api/faqs/:param` → `/api/faqs/:id` *(client\src\components\admin\FAQManagementWorking.tsx:152)*
+- `/api/faq-sections` → `/api/faq-sections` *(client\src\components\admin\FAQManagementWorking.tsx:167)*
+- `/api/faq-sections/:param` → `/api/faq-sections/:id` *(client\src\components\admin\FAQManagementWorking.tsx:184)*
+- `/api/faq-sections/:param` → `/api/faq-sections/:id` *(client\src\components\admin\FAQManagementWorking.tsx:201)*
+- `/api/faq-sections/:param/reorder` → `/api/faq-sections/:id/reorder` *(client\src\components\admin\FAQManagementWorking.tsx:216)*
+- `/api/faqs/:param/reorder` → `/api/faqs/:id/reorder` *(client\src\components\admin\FAQManagementWorking.tsx:231)*
+- `/api/gallery/upload-static-image` → `/api/gallery/upload-static-image` *(client\src\components\admin\gallery\GalleryImageCropper.tsx:60)*
+- `/api/gallery/:param` → `/api/gallery/:id` *(client\src\components\admin\gallery\GalleryImageCropper.tsx:72)*
+- `/api/gallery` → `/api/gallery` *(client\src\components\admin\GalleryManagementNew.tsx:125)*
+- `/api/gallery/:param/swap/:param` → `/api/gallery/:id1/swap/:id2` *(client\src\components\admin\GalleryManagementNew.tsx:163)*
+- `/api/gallery/:param` → `/api/gallery/:id` *(client\src\components\admin\GalleryManagementNew.tsx:180)*
+- `/api/gallery` → `/api/gallery` *(client\src\components\admin\GalleryManagementNew.tsx:283)*
+- `/api/hero-text` → `/api/hero-text` *(client\src\components\admin\HeroManagement.tsx:57)*
+- `/api/hero-videos/upload` → `/api/hero-videos/upload` *(client\src\components\admin\HeroManagement.tsx:79)*
+- `/api/hero-videos/:param/reorder` → `/api/hero-videos/:id/reorder` *(client\src\components\admin\HeroManagement.tsx:140)*
+- `/api/hero-videos/:param/toggle` → `/api/hero-videos/:id/toggle` *(client\src\components\admin\HeroManagement.tsx:159)*
+- `/api/hero-text` → `/api/hero-text` *(client\src\components\admin\HeroManagement.tsx:222)*
+- `/api/hero-videos` → `/api/hero-videos` *(client\src\components\admin\HeroManagement.tsx:361)*
+- `/api/hero-videos/:param` → `/api/hero-videos/:id` *(client\src\components\admin\HeroManagement.tsx:556)*
+- `/api/hero-videos/:param` → `/api/hero-videos/:id` *(client\src\components\admin\HeroManagement.tsx:1253)*
+- `/api/image-labels` → `/api/image-labels` *(client\src\components\admin\ImageBankManager.tsx:60)*
+- `/api/image-bank/:param` → `/api/image-bank/:id` *(client\src\components\admin\ImageBankManager.tsx:177)*
+- `/api/image-bank/:param` → `/api/image-bank/:id` *(client\src\components\admin\ImageBankManager.tsx:199)*
+- `/api/image-labels` → `/api/image-labels` *(client\src\components\admin\ImageBankManager.tsx:932)*
+- `/api/image-labels/:param` → `/api/image-labels/:id` *(client\src\components\admin\ImageBankManager.tsx:952)*
+- `/api/image-labels/:param` → `/api/image-labels/:id` *(client\src\components\admin\ImageBankManager.tsx:974)*
+- `/api/analytics/current-ip` → `/api/analytics/current-ip` *(client\src\components\admin\IpExclusionsManager.tsx:75)*
+- `/api/admin/analytics/exclusions` → `/api/admin/analytics/exclusions` *(client\src\components\admin\IpExclusionsManager.tsx:86)*
+- `/api/admin/analytics/exclusions/:param` → `/api/admin/analytics/exclusions/:id` *(client\src\components\admin\IpExclusionsManager.tsx:120)*
+- `/api/admin/analytics/exclusions/:param` → `/api/admin/analytics/exclusions/:id` *(client\src\components\admin\IpExclusionsManager.tsx:155)*
+- `/api/ga4/kpis` → `/api/ga4/kpis` *(client\src\components\admin\IpExclusionsManager.tsx:199)*
+- `/api/ga4/geo` → `/api/ga4/geo` *(client\src\components\admin\IpExclusionsManager.tsx:200)*
+- `/api/ga4/top-videos` → `/api/ga4/top-videos` *(client\src\components\admin\IpExclusionsManager.tsx:202)*
+- `/api/admin/content/keywords/:param` → `/api/admin/content/keywords/:id` *(client\src\components\admin\KeywordDeleteDialog.tsx:38)*
+- `/api/admin/content/keywords/:param` → `/api/admin/content/keywords/:id` *(client\src\components\admin\KeywordFormModal.tsx:106)*
+- `/api/admin/content/keywords` → `/api/admin/content/keywords` *(client\src\components\admin\KeywordFormModal.tsx:110)*
+- `/api/legal` → `/api/legal` *(client\src\components\admin\LegalDocumentManagement.tsx:54)*
+- `/api/legal` → `/api/legal` *(client\src\components\admin\LegalDocumentManagement.tsx:60)*
+- `/api/legal/:param` → `/api/legal/:id` *(client\src\components\admin\LegalDocumentManagement.tsx:77)*
+- `/api/legal/:param` → `/api/legal/:id` *(client\src\components\admin\LegalDocumentManagement.tsx:94)*
+- `/api/partners/:param/update` → `/api/partners/:id/update` *(client\src\components\admin\PartnersManagementEnhanced.tsx:156)*
+- `/api/partners/create` → `/api/partners/create` *(client\src\components\admin\PartnersManagementEnhanced.tsx:172)*
+- `/api/partners/:param` → `/api/partners/:id` *(client\src\components\admin\PartnersManagementEnhanced.tsx:188)*
+- `/api/partners/import-tsv` → `/api/partners/import-tsv` *(client\src\components\admin\PartnersManagementEnhanced.tsx:227)*
+- `/api/video-proxy` → `/api/video-proxy` *(client\src\components\admin\PerformanceTestDashboard.tsx:116)*
+- `/api/image-proxy` → `/api/image-proxy` *(client\src\components\admin\PerformanceTestDashboard.tsx:152)*
+- `/api/admin/seo` → `/api/admin/seo` *(client\src\components\admin\SeoManagement.tsx:120)*
+- `/api/admin/seo` → `/api/admin/seo` *(client\src\components\admin\SeoManagement.tsx:202)*
+- `/api/admin/seo/preview` → `/api/admin/seo/preview` *(client\src\components\admin\SeoManagement.tsx:231)*
+- `/api/admin/seo/history` → `/api/admin/seo/history` *(client\src\components\admin\SeoManagement.tsx:253)*
+- `/api/admin/seo/publish` → `/api/admin/seo/publish` *(client\src\components\admin\SeoManagement.tsx:276)*
+- `/api/health` → `/api/health` *(client\src\components\admin\SystemTestDashboard.tsx:75)*
+- `/api/admin/content/topics/:param` → `/api/admin/content/topics/:id` *(client\src\components\admin\TopicDeleteDialog.tsx:38)*
+- `/api/admin/content/topics` → `/api/admin/content/topics` *(client\src\components\admin\TopicFormModal.tsx:257)*
+- `/api/travel-agency-codes` → `/api/travel-agency-codes` *(client\src\components\admin\TravelAgencyCodesAdmin.tsx:57)*
+- `/api/travel-agency-codes` → `/api/travel-agency-codes` *(client\src\components\admin\TravelAgencyCodesAdmin.tsx:67)*
+- `/api/travel-agency-codes/:param` → `/api/travel-agency-codes/:id` *(client\src\components\admin\TravelAgencyCodesAdmin.tsx:83)*
+- `/api/travel-agency-codes/:param` → `/api/travel-agency-codes/:id` *(client\src\components\admin\TravelAgencyCodesAdmin.tsx:99)*
+- `/api/travel-upload/submissions` → `/api/travel-upload/submissions` *(client\src\components\admin\TravelUploadsAdmin.tsx:64)*
+- `/api/travel-upload/submissions/:param` → `/api/travel-upload/submissions/:id` *(client\src\components\admin\TravelUploadsAdmin.tsx:131)*
+- `/api/travel-upload/submissions/:param/resend-email` → `/api/travel-upload/submissions/:id/resend-email` *(client\src\components\admin\TravelUploadsAdmin.tsx:154)*
+- `/api/travel-upload/bulk-folder-stats` → `/api/travel-upload/bulk-folder-stats` *(client\src\components\admin\TravelUploadsAdmin.tsx:178)*
+- `/api/video-cache/status` → `/api/video-cache/status` *(client\src\components\admin\VideoCacheStatus.tsx:76)*
+- `/api/video-cache/status` → `/api/video-cache/status` *(client\src\components\admin\VideoCacheStatus.tsx:79)*
+- `/api/video-cache/force` → `/api/video-cache/force` *(client\src\components\admin\VideoCacheStatus.tsx:127)*
+- `/api/video-cache/force-all` → `/api/video-cache/force-all` *(client\src\components\admin\VideoCacheStatus.tsx:163)*
+- `/api/video-cache/force-all-media` → `/api/video-cache/force-all-media` *(client\src\components\admin\VideoCacheStatus.tsx:265)*
+- `/api/why-memopyk-cards` → `/api/why-memopyk-cards` *(client\src\components\admin\WhyMemopykManagement.tsx:78)*
+- `/api/why-memopyk-cards/:param` → `/api/why-memopyk-cards/:id` *(client\src\components\admin\WhyMemopykManagement.tsx:149)*
+- `/api/why-memopyk-cards/:param` → `/api/why-memopyk-cards/:id` *(client\src\components\admin\WhyMemopykManagement.tsx:185)*
+- `/api/blog/featured` → `/api/blog/featured` *(client\src\components\blog\FeaturedPostsSection.tsx:31)*
+- `/api/blog/posts` → `/api/blog/posts` *(client\src\components\blog\GalleryComponent.tsx:27)*
+- `/api/blog/posts/:param/gallery` → `/api/blog/posts/:slug/gallery` *(client\src\components\blog\GalleryComponent.tsx:29)*
+- `/api/newsletter/subscribe` → `/api/newsletter/subscribe` *(client\src\components\blog\NewsletterSignup.tsx:36)*
+- `/api/blog/tags` → `/api/blog/tags` *(client\src\components\blog\TagCloud.tsx:24)*
+- `/api/contacts` → `/api/contacts` *(client\src\components\forms\ContactForm.tsx:51)*
+- `/api/contacts` → `/api/contacts` *(client\src\components\forms\ContactForm.tsx:53)*
+- `/api/tracker/heartbeat` → `/api/tracker/heartbeat` *(client\src\components\gallery\VideoOverlay.tsx:212)*
+- `/api/blog/posts/:param/related` → `/api/blog/posts/:slug/related` *(client\src\components\RelatedPosts.tsx:28)*
+- `/api/seo-config` → `/api/seo-config` *(client\src\components\SEO.tsx:49)*
+- `/api/ga4/funnel` → `/api/ga4/funnel` *(client\src\hooks\useFunnel.ts:20)*
+- `/api/help/screens/:param` → `/api/help/screens/:route` *(client\src\hooks\useHelp.ts:44)*
+- `/api/help/flows` → `/api/help/flows` *(client\src\hooks\useHelp.ts:59)*
+- `/api/help/flows/:param` → `/api/help/flows/:id` *(client\src\hooks\useHelp.ts:73)*
+- `/api/ga4/trend` → `/api/ga4/trend` *(client\src\hooks\useTrend.ts:20)*
+- `/api/analytics/video-view` → `/api/analytics/video-view` *(client\src\hooks\useVideoAnalytics.ts:35)*
+- `/api/analytics/video-view` → `/api/analytics/video-view` *(client\src\hooks\useVideoAnalytics.ts:51)*
+- `/api/analytics/session` → `/api/analytics/session` *(client\src\hooks\useVideoAnalytics.ts:62)*
+- `/api/analytics/session-update` → `/api/analytics/session-update` *(client\src\hooks\useVideoAnalytics.ts:221)*
+- `/api/analytics/session-page-view` → `/api/analytics/session-page-view` *(client\src\hooks\useVideoAnalytics.ts:270)*
+- `/api/event` → `/api/event` *(client\src\lib\analytics.ts:209)*
+- `/api/blog/posts/:param` → `/api/blog/posts/search` *(client\src\pages\BlogPostPage.tsx:81)*
+- `/api/partners` → `/api/partners` *(client\src\pages\PartnerDirectoryFR.tsx:63)*
+- `/api/partners/intake` → `/api/partners/intake` *(client\src\pages\PartnerIntakeEN.tsx:112)*
+- `/api/blog/posts/search` → `/api/blog/posts/search` *(client\src\pages\SearchResultsPage.tsx:27)*
+- `/api/travel-agency-codes/validate/:param` → `/api/travel-agency-codes/validate/:code` *(client\src\pages\TravelUploadPortalPage.tsx:92)*
+- `/api/travel-upload/submit` → `/api/travel-upload/submit` *(client\src\pages\TravelUploadPortalPage.tsx:167)*
+- `/api/analytics/event` → `/api/analytics/event` *(client\src\utils\analytics.ts:66)*
+
+---
+
+### ❌ Mismatches — ERRORS (21)
+
+- **ERROR** Frontend calls `/api/admin/blog/images` but no matching backend route found *(client\src\admin\HtmlEditor.tsx:72)*
+- **ERROR** Frontend calls `/api/admin/upload` but no matching backend route found *(client\src\admin\HtmlEditor.tsx:91)*
+- **ERROR** Frontend calls `/api/admin/blog/images` but no matching backend route found *(client\src\admin\HtmlEditor.tsx:177)*
+- **ERROR** Frontend calls `/api/admin/fetch-external` but no matching backend route found *(client\src\admin\HtmlEditor.tsx:228)*
+- **ERROR** Frontend calls `/api/video-cache/refresh-gallery` but no matching backend route found *(client\src\components\admin\CacheManagementSection.tsx:118)*
+- **ERROR** Frontend calls `/api/ga4/cache` but no matching backend route found *(client\src\components\admin\ClearCacheButton.tsx:20)*
+- **ERROR** Frontend calls `/api/hero-text/:param` but no matching backend route found *(client\src\components\admin\HeroManagement.tsx:174)*
+- **ERROR** Frontend calls `/api/hero-text/:param/apply` but no matching backend route found *(client\src\components\admin\HeroManagement.tsx:199)*
+- **ERROR** Frontend calls `/api/hero-text/:param` but no matching backend route found *(client\src\components\admin\HeroManagement.tsx:245)*
+- **ERROR** Frontend calls `/api/ga4/trends` but no matching backend route found *(client\src\components\admin\IpExclusionsManager.tsx:201)*
+- **ERROR** Frontend calls `/api/ga4/video-funnel` but no matching backend route found *(client\src\components\admin\IpExclusionsManager.tsx:203)*
+- **ERROR** Frontend calls `/api/analytics/sessions` but no matching backend route found *(client\src\components\admin\IpExclusionsManager.tsx:204)*
+- **ERROR** Frontend calls `/api/analytics/visitors` but no matching backend route found *(client\src\components\admin\IpExclusionsManager.tsx:205)*
+- **ERROR** Frontend calls `/api/test/video-cache` but no matching backend route found *(client\src\components\admin\SystemTestDashboard.tsx:297)*
+- **ERROR** Frontend calls `/api/unified-cache/stats` but no matching backend route found *(client\src\components\admin\VideoCacheStatus.tsx:94)*
+- **ERROR** Frontend calls `/api/video-cache/cache-gallery-videos` but no matching backend route found *(client\src\components\admin\VideoCacheStatus.tsx:186)*
+- **ERROR** Frontend calls `/api/blog/related` but no matching backend route found *(client\src\components\blog\RelatedPostsSection.tsx:24)*
+- **ERROR** Frontend calls `/api/analytics/export/pdf` but no matching backend route found *(client\src\lib\export-utils.ts:30)*
+- **ERROR** Frontend calls `/api/blog/post` but no matching backend route found *(client\src\pages\BlogPostPage.tsx:78)*
+- **ERROR** Frontend calls `/api/analytics/blog/view` but no matching backend route found *(client\src\pages\BlogPostPage.tsx:145)*
+- **ERROR** Frontend calls `/api/csrf` but no matching backend route found *(client\src\pages\PartnerIntakeEN.tsx:94)*
+
+---
+
+### ⚠️ Unused backend routes — WARNINGS (64)
+
+- `GET /health` *(server/index.ts:65)*
+- `GET /api/ready` *(server\routes\health.routes.ts:48)*
+- `GET /api/live` *(server\routes\health.routes.ts:92)*
+- `GET /api/hero-videos/text` *(server\routes\hero.routes.ts:265)*
+- `POST /api/hero-videos/text` *(server\routes\hero.routes.ts:282)*
+- `PATCH /api/hero-videos/text/:id` *(server\routes\hero.routes.ts:327)*
+- `PATCH /api/hero-videos/text/:id/apply` *(server\routes\hero.routes.ts:345)*
+- `DELETE /api/hero-videos/text/:id` *(server\routes\hero.routes.ts:377)*
+- `GET /api/gallery/admin` *(server\routes\gallery.routes.ts:175)*
+- `PATCH /api/gallery/:id/reorder` *(server\routes\gallery.routes.ts:254)*
+- `GET /api/faq` *(server\routes\faq.routes.ts:269)*
+- `GET /api/contact` *(server\routes\contact.routes.ts:62)*
+- `GET /api/contacts` *(server\routes\contact.routes.ts:110)*
+- `PATCH /api/contacts/:id` *(server\routes\contact.routes.ts:124)*
+- `DELETE /api/contacts/:id` *(server\routes\contact.routes.ts:149)*
+- `POST /api/why-memopyk-cards` *(server\routes\cta.routes.ts:114)*
+- `GET /api/legal/:type` *(server\routes\legal.routes.ts:40)*
+- `GET /api/ga4/report` *(server\routes\analytics.routes.ts:187)*
+- `GET /api/ga4/realtime/top-videos` *(server\routes\analytics.routes.ts:357)*
+- `GET /api/ga4/realtime/video-progress` *(server\routes\analytics.routes.ts:428)*
+- `GET /api/ga4/videos` *(server\routes\analytics.routes.ts:1119)*
+- `GET /api/ga4/cta` *(server\routes\analytics.routes.ts:1290)*
+- `GET /api/partners/download` *(server\routes\partners.routes.ts:269)*
+- `GET /api/admin/country-names/download` *(server\routes\admin.routes.ts:124)*
+- `POST /api/admin/country-names/sync-from-library` *(server\routes\admin.routes.ts:152)*
+- `GET /api/admin/content/keywords/:id` *(server\routes\content.routes.ts:418)*
+- `GET /api/admin/content/plans` *(server\routes\content.routes.ts:675)*
+- `GET /api/admin/content/plans/:id` *(server\routes\content.routes.ts:700)*
+- `POST /api/admin/content/plans` *(server\routes\content.routes.ts:719)*
+- `PATCH /api/admin/content/plans/:id` *(server\routes\content.routes.ts:744)*
+- `DELETE /api/admin/content/plans/:id` *(server\routes\content.routes.ts:771)*
+- `GET /api/admin/content/assignments/:id` *(server\routes\content.routes.ts:817)*
+- `GET /api/seo` *(server\routes\seo.routes.ts:38)*
+- `POST /api/seo` *(server\routes\seo.routes.ts:52)*
+- `PATCH /api/seo/:id` *(server\routes\seo.routes.ts:67)*
+- `GET /api/seo/test-timeout` *(server\routes\seo.routes.ts:112)*
+- `GET /api/blog/posts/:slug` *(server\routes\blog.routes.ts:453)*
+- `GET /api/admin/blog/posts/:id/tags` *(server\routes\blog-tags.routes.ts:277)*
+- `GET /api/admin/blog/posts` *(server\routes\blog-admin.routes.ts:599)*
+- `GET /api/admin/blog/posts/:id/gallery` *(server\routes\blog-admin.routes.ts:1019)*
+- `POST /api/admin/blog/posts/:id/gallery` *(server\routes\blog-admin.routes.ts:1042)*
+- `PUT /api/admin/blog/posts/:id/gallery/:imageId` *(server\routes\blog-admin.routes.ts:1084)*
+- `DELETE /api/admin/blog/posts/:id/gallery/:imageId` *(server\routes\blog-admin.routes.ts:1119)*
+- `PUT /api/admin/blog/posts/:id/gallery/reorder` *(server\routes\blog-admin.routes.ts:1142)*
+- `POST /api/gallery/upload-video` *(server\routes\media.routes.ts:488)*
+- `POST /api/upload/image` *(server\routes\media.routes.ts:583)*
+- `POST /api/gallery/upload-image` *(server\routes\media.routes.ts:646)*
+- `GET /api/video-debug` *(server\routes\media.routes.ts:1348)*
+- `GET /api/gallery-video-proxy` *(server\routes\media.routes.ts:1552)*
+- `GET /api/cache/status` *(server\routes\media.routes.ts:1672)*
+- `POST /api/cache/cleanup` *(server\routes\media.routes.ts:1722)*
+- `GET /api/travel-upload/test-connection` *(server\routes\travel-upload.routes.ts:625)*
+- `GET /api/travel-upload/submissions/:id/folder-stats` *(server\routes\travel-upload.routes.ts:968)*
+- `GET /api/travel-agency-codes/:id` *(server\routes\travel-upload.routes.ts:1217)*
+- `GET /api/help/screens` *(server\routes\help.routes.ts:76)*
+- `POST /api/help/screens` *(server\routes\help.routes.ts:90)*
+- `PATCH /api/help/screens/:id` *(server\routes\help.routes.ts:124)*
+- `DELETE /api/help/screens/:id` *(server\routes\help.routes.ts:158)*
+- `POST /api/help/flows` *(server\routes\help.routes.ts:231)*
+- `PATCH /api/help/flows/:id` *(server\routes\help.routes.ts:260)*
+- `DELETE /api/help/flows/:id` *(server\routes\help.routes.ts:292)*
+- `GET /api/admin/ai-context/:key` *(server\routes\ai-context.routes.ts:46)*
+- `GET /api/internal/ai-context/full` *(server\routes\ai-context.routes.ts:109)*
+- `GET /sitemap.xml` *(server\routes\sitemap.routes.ts:35)*
+
+---
+
+### 🔍 Response Shape Validation (staging: https://memopyk.memopyk.com)
+
+**Passed:** 5  **Failed:** 0  **Blocked (auth):** 0
+
+✅ `/api/analytics/health` [HTTP 200] — all checks passed
+✅ `/api/analytics/blog/popular?days=30` [HTTP 200] — all checks passed
+✅ `/api/analytics/blog/categories?days=30` [HTTP 200] — all checks passed
+✅ `/api/ga4/trend?startDate=20260201&endDate=20260220&dataSource=memopyk` [HTTP 200] — all checks passed
+✅ `/api/ga4/top-videos?period=30d` [HTTP 200] — all checks passed
+
+---
+
+### Full Backend Route List
+
+- `GET /health` *(server/index.ts:65)*
+- `GET /api/health` *(server/index.ts:73)*
+- `GET /api/health/detailed` *(server\routes\health.routes.ts:28)*
+- `GET /api/ready` *(server\routes\health.routes.ts:48)*
+- `GET /api/analytics/health` *(server\routes\health.routes.ts:62)*
+- `GET /api/live` *(server\routes\health.routes.ts:92)*
+- `GET /api/hero-videos` *(server\routes\hero.routes.ts:89)*
+- `POST /api/hero-videos/upload` *(server\routes\hero.routes.ts:105)*
+- `POST /api/hero-videos` *(server\routes\hero.routes.ts:138)*
+- `PATCH /api/hero-videos/:id/reorder` *(server\routes\hero.routes.ts:170)*
+- `PATCH /api/hero-videos/:id/toggle` *(server\routes\hero.routes.ts:191)*
+- `PATCH /api/hero-videos/:id` *(server\routes\hero.routes.ts:212)*
+- `DELETE /api/hero-videos/:id` *(server\routes\hero.routes.ts:239)*
+- `GET /api/hero-videos/text` *(server\routes\hero.routes.ts:265)*
+- `POST /api/hero-videos/text` *(server\routes\hero.routes.ts:282)*
+- `PATCH /api/hero-videos/text/:id` *(server\routes\hero.routes.ts:327)*
+- `PATCH /api/hero-videos/text/:id/apply` *(server\routes\hero.routes.ts:345)*
+- `DELETE /api/hero-videos/text/:id` *(server\routes\hero.routes.ts:377)*
+- `GET /api/hero-text` *(server\routes\hero.routes.ts:69)*
+- `GET /api/gallery` *(server\routes\gallery.routes.ts:122)*
+- `POST /api/gallery` *(server\routes\gallery.routes.ts:161)*
+- `GET /api/gallery/admin` *(server\routes\gallery.routes.ts:175)*
+- `PATCH /api/gallery/:id` *(server\routes\gallery.routes.ts:189)*
+- `DELETE /api/gallery/:id` *(server\routes\gallery.routes.ts:218)*
+- `PATCH /api/gallery/:id/reorder` *(server\routes\gallery.routes.ts:254)*
+- `PATCH /api/gallery/:id1/swap/:id2` *(server\routes\gallery.routes.ts:278)*
+- `POST /api/gallery/upload-static-image` *(server\routes\gallery.routes.ts:301)*
+- `GET /api/faq-sections` *(server\routes\faq.routes.ts:60)*
+- `POST /api/faq-sections` *(server\routes\faq.routes.ts:74)*
+- `PATCH /api/faq-sections/:id` *(server\routes\faq.routes.ts:101)*
+- `DELETE /api/faq-sections/:id` *(server\routes\faq.routes.ts:118)*
+- `PATCH /api/faq-sections/:id/reorder` *(server\routes\faq.routes.ts:134)*
+- `GET /api/faqs` *(server\routes\faq.routes.ts:160)*
+- `POST /api/faqs` *(server\routes\faq.routes.ts:174)*
+- `PATCH /api/faqs/:id` *(server\routes\faq.routes.ts:203)*
+- `DELETE /api/faqs/:id` *(server\routes\faq.routes.ts:226)*
+- `PATCH /api/faqs/:id/reorder` *(server\routes\faq.routes.ts:243)*
+- `GET /api/faq` *(server\routes\faq.routes.ts:269)*
+- `GET /api/contact` *(server\routes\contact.routes.ts:62)*
+- `POST /api/contacts` *(server\routes\contact.routes.ts:76)*
+- `GET /api/contacts` *(server\routes\contact.routes.ts:110)*
+- `PATCH /api/contacts/:id` *(server\routes\contact.routes.ts:124)*
+- `DELETE /api/contacts/:id` *(server\routes\contact.routes.ts:149)*
+- `GET /api/cta` *(server\routes\cta.routes.ts:32)*
+- `POST /api/cta` *(server\routes\cta.routes.ts:46)*
+- `PATCH /api/cta/:id` *(server\routes\cta.routes.ts:74)*
+- `GET /api/why-memopyk-cards` *(server\routes\cta.routes.ts:100)*
+- `POST /api/why-memopyk-cards` *(server\routes\cta.routes.ts:114)*
+- `PATCH /api/why-memopyk-cards/:id` *(server\routes\cta.routes.ts:155)*
+- `DELETE /api/why-memopyk-cards/:id` *(server\routes\cta.routes.ts:177)*
+- `GET /api/legal` *(server\routes\legal.routes.ts:26)*
+- `GET /api/legal/:type` *(server\routes\legal.routes.ts:40)*
+- `POST /api/legal` *(server\routes\legal.routes.ts:65)*
+- `PATCH /api/legal/:id` *(server\routes\legal.routes.ts:87)*
+- `DELETE /api/legal/:id` *(server\routes\legal.routes.ts:104)*
+- `POST /api/ga4/mp` *(server\routes\analytics.routes.ts:106)*
+- `GET /api/ga4/report` *(server\routes\analytics.routes.ts:187)*
+- `GET /api/ga4/realtime/top-videos` *(server\routes\analytics.routes.ts:357)*
+- `GET /api/ga4/realtime/video-progress` *(server\routes\analytics.routes.ts:428)*
+- `GET /api/ga4/trend` *(server\routes\analytics.routes.ts:565)*
+- `GET /api/ga4/kpis` *(server\routes\analytics.routes.ts:785)*
+- `GET /api/ga4/realtime` *(server\routes\analytics.routes.ts:989)*
+- `GET /api/ga4/top-videos` *(server\routes\analytics.routes.ts:1066)*
+- `GET /api/ga4/videos` *(server\routes\analytics.routes.ts:1119)*
+- `GET /api/ga4/funnel` *(server\routes\analytics.routes.ts:1153)*
+- `GET /api/ga4/geo` *(server\routes\analytics.routes.ts:1197)*
+- `GET /api/ga4/cta` *(server\routes\analytics.routes.ts:1290)*
+- `POST /api/tracker/heartbeat` *(server\routes\analytics.routes.ts:1432)*
+- `GET /api/tracker/currently-watching` *(server\routes\analytics.routes.ts:1479)*
+- `GET /api/analytics/current-ip` *(server\routes\analytics.routes.ts:1502)*
+- `GET /api/analytics/live-tracking` *(server\routes\analytics.routes.ts:1513)*
+- `GET /api/analytics/recent-visitors` *(server\routes\analytics.routes.ts:1531)*
+- `POST /api/analytics/session` *(server\routes\analytics.routes.ts:1561)*
+- `POST /api/analytics/session-update` *(server\routes\analytics.routes.ts:1592)*
+- `POST /api/analytics/session-page-view` *(server\routes\analytics.routes.ts:1616)*
+- `POST /api/analytics/video-view` *(server\routes\analytics.routes.ts:1645)*
+- `POST /api/analytics/event` *(server\routes\analytics.routes.ts:1727)*
+- `POST /api/event` *(server\routes\analytics.routes.ts:1785)*
+- `POST /api/newsletter/subscribe` *(server\routes\newsletter.routes.ts:19)*
+- `POST /api/partners/intake` *(server\routes\partners.routes.ts:179)*
+- `GET /api/partners` *(server\routes\partners.routes.ts:240)*
+- `GET /api/partners/download` *(server\routes\partners.routes.ts:269)*
+- `POST /api/partners/import-tsv` *(server\routes\partners.routes.ts:316)*
+- `POST /api/partners/create` *(server\routes\partners.routes.ts:387)*
+- `PATCH /api/partners/:id/update` *(server\routes\partners.routes.ts:428)*
+- `DELETE /api/partners/:id` *(server\routes\partners.routes.ts:455)*
+- `GET /api/admin/country-names/download` *(server\routes\admin.routes.ts:124)*
+- `POST /api/admin/country-names/sync-from-library` *(server\routes\admin.routes.ts:152)*
+- `GET /api/admin/analytics/exclusions` *(server\routes\admin.routes.ts:207)*
+- `POST /api/admin/analytics/exclusions` *(server\routes\admin.routes.ts:218)*
+- `PUT /api/admin/analytics/exclusions/:id` *(server\routes\admin.routes.ts:240)*
+- `DELETE /api/admin/analytics/exclusions/:id` *(server\routes\admin.routes.ts:273)*
+- `GET /api/admin/content/keywords/stats` *(server\routes\content.routes.ts:175)*
+- `GET /api/admin/content/keywords` *(server\routes\content.routes.ts:255)*
+- `GET /api/admin/content/keywords/:id` *(server\routes\content.routes.ts:418)*
+- `POST /api/admin/content/keywords` *(server\routes\content.routes.ts:437)*
+- `PATCH /api/admin/content/keywords/:id` *(server\routes\content.routes.ts:463)*
+- `DELETE /api/admin/content/keywords/:id` *(server\routes\content.routes.ts:491)*
+- `GET /api/admin/content/topics` *(server\routes\content.routes.ts:511)*
+- `GET /api/admin/content/topics/:id` *(server\routes\content.routes.ts:563)*
+- `POST /api/admin/content/topics` *(server\routes\content.routes.ts:582)*
+- `PATCH /api/admin/content/topics/:id` *(server\routes\content.routes.ts:607)*
+- `DELETE /api/admin/content/topics/:id` *(server\routes\content.routes.ts:634)*
+- `GET /api/admin/content/plans` *(server\routes\content.routes.ts:675)*
+- `GET /api/admin/content/plans/:id` *(server\routes\content.routes.ts:700)*
+- `POST /api/admin/content/plans` *(server\routes\content.routes.ts:719)*
+- `PATCH /api/admin/content/plans/:id` *(server\routes\content.routes.ts:744)*
+- `DELETE /api/admin/content/plans/:id` *(server\routes\content.routes.ts:771)*
+- `GET /api/admin/content/assignments` *(server\routes\content.routes.ts:790)*
+- `GET /api/admin/content/assignments/:id` *(server\routes\content.routes.ts:817)*
+- `POST /api/admin/content/assignments` *(server\routes\content.routes.ts:837)*
+- `PATCH /api/admin/content/assignments/:id` *(server\routes\content.routes.ts:867)*
+- `DELETE /api/admin/content/assignments/:id` *(server\routes\content.routes.ts:900)*
+- `GET /api/seo` *(server\routes\seo.routes.ts:38)*
+- `POST /api/seo` *(server\routes\seo.routes.ts:52)*
+- `PATCH /api/seo/:id` *(server\routes\seo.routes.ts:67)*
+- `GET /api/seo-config` *(server\routes\seo.routes.ts:89)*
+- `GET /api/seo/test-timeout` *(server\routes\seo.routes.ts:112)*
+- `GET /api/admin/seo` *(server\routes\seo.routes.ts:144)*
+- `POST /api/admin/seo` *(server\routes\seo.routes.ts:167)*
+- `GET /api/admin/seo/preview` *(server\routes\seo.routes.ts:207)*
+- `GET /api/admin/seo/history` *(server\routes\seo.routes.ts:235)*
+- `POST /api/admin/seo/publish` *(server\routes\seo.routes.ts:264)*
+- `GET /api/blog/posts` *(server\routes\blog.routes.ts:32)*
+- `GET /api/blog/featured` *(server\routes\blog.routes.ts:99)*
+- `GET /api/blog/posts/search` *(server\routes\blog.routes.ts:148)*
+- `GET /api/blog/posts/:slug/related` *(server\routes\blog.routes.ts:201)*
+- `GET /api/blog/posts/:slug/gallery` *(server\routes\blog.routes.ts:326)*
+- `GET /api/blog/tags` *(server\routes\blog.routes.ts:399)*
+- `GET /api/blog/posts/:slug` *(server\routes\blog.routes.ts:453)*
+- `GET /api/blog-tags` *(server\routes\blog-tags.routes.ts:35)*
+- `GET /api/admin/blog/tags` *(server\routes\blog-tags.routes.ts:83)*
+- `POST /api/admin/blog/tags` *(server\routes\blog-tags.routes.ts:121)*
+- `PUT /api/admin/blog/tags/:id` *(server\routes\blog-tags.routes.ts:151)*
+- `DELETE /api/admin/blog/tags/:id` *(server\routes\blog-tags.routes.ts:188)*
+- `POST /api/admin/blog/posts/:id/tags` *(server\routes\blog-tags.routes.ts:213)*
+- `GET /api/admin/blog/posts/:id/tags` *(server\routes\blog-tags.routes.ts:277)*
+- `POST /api/admin/blog/posts` *(server\routes\blog-admin.routes.ts:97)*
+- `POST /api/admin/blog/generate-content` *(server\routes\blog-admin.routes.ts:136)*
+- `POST /api/admin/blog/create-from-ai` *(server\routes\blog-admin.routes.ts:287)*
+- `POST /api/admin/blog/posts/:id/translate` *(server\routes\blog-admin.routes.ts:468)*
+- `GET /api/admin/blog/posts` *(server\routes\blog-admin.routes.ts:599)*
+- `GET /api/admin/blog/posts-by-date` *(server\routes\blog-admin.routes.ts:643)*
+- `GET /api/admin/blog/posts/:id` *(server\routes\blog-admin.routes.ts:725)*
+- `PUT /api/admin/blog/posts/:id` *(server\routes\blog-admin.routes.ts:751)*
+- `PATCH /api/admin/blog/posts/:id` *(server\routes\blog-admin.routes.ts:861)*
+- `DELETE /api/admin/blog/posts/:id` *(server\routes\blog-admin.routes.ts:964)*
+- `GET /api/admin/blog/posts/:id/gallery` *(server\routes\blog-admin.routes.ts:1019)*
+- `POST /api/admin/blog/posts/:id/gallery` *(server\routes\blog-admin.routes.ts:1042)*
+- `PUT /api/admin/blog/posts/:id/gallery/:imageId` *(server\routes\blog-admin.routes.ts:1084)*
+- `DELETE /api/admin/blog/posts/:id/gallery/:imageId` *(server\routes\blog-admin.routes.ts:1119)*
+- `PUT /api/admin/blog/posts/:id/gallery/reorder` *(server\routes\blog-admin.routes.ts:1142)*
+- `POST /api/upload/generate-signed-url` *(server\routes\media.routes.ts:259)*
+- `POST /api/upload/server-side-upload` *(server\routes\media.routes.ts:307)*
+- `POST /api/upload/complete-direct-upload` *(server\routes\media.routes.ts:367)*
+- `POST /api/gallery/upload-video` *(server\routes\media.routes.ts:488)*
+- `POST /api/upload/image` *(server\routes\media.routes.ts:583)*
+- `POST /api/gallery/upload-image` *(server\routes\media.routes.ts:646)*
+- `GET /api/cache/breakdown` *(server\routes\media.routes.ts:967)*
+- `GET /api/video-cache/status` *(server\routes\media.routes.ts:978)*
+- `POST /api/video-cache/status` *(server\routes\media.routes.ts:995)*
+- `GET /api/video-cache/stats` *(server\routes\media.routes.ts:1025)*
+- `POST /api/video-cache/force` *(server\routes\media.routes.ts:1036)*
+- `POST /api/video-cache/force-all-media` *(server\routes\media.routes.ts:1061)*
+- `POST /api/video-cache/force-all` *(server\routes\media.routes.ts:1076)*
+- `POST /api/video-cache/clear` *(server\routes\media.routes.ts:1089)*
+- `POST /api/video-cache/refresh` *(server\routes\media.routes.ts:1101)*
+- `POST /api/cache/cleanup-orphaned-static-images` *(server\routes\media.routes.ts:1126)*
+- `GET /api/video-debug` *(server\routes\media.routes.ts:1348)*
+- `GET /api/video-proxy` *(server\routes\media.routes.ts:1480)*
+- `GET /api/image-proxy` *(server\routes\media.routes.ts:1485)*
+- `GET /api/gallery-video-proxy` *(server\routes\media.routes.ts:1552)*
+- `GET /api/cache/status` *(server\routes\media.routes.ts:1672)*
+- `POST /api/cache/cleanup` *(server\routes\media.routes.ts:1722)*
+- `POST /api/travel-upload/submit` *(server\routes\travel-upload.routes.ts:67)*
+- `GET /api/travel-upload/test-connection` *(server\routes\travel-upload.routes.ts:625)*
+- `GET /api/travel-upload/submissions` *(server\routes\travel-upload.routes.ts:674)*
+- `DELETE /api/travel-upload/submissions/:id` *(server\routes\travel-upload.routes.ts:699)*
+- `POST /api/travel-upload/submissions/:id/resend-email` *(server\routes\travel-upload.routes.ts:728)*
+- `GET /api/travel-upload/submissions/:id/folder-stats` *(server\routes\travel-upload.routes.ts:968)*
+- `POST /api/travel-upload/bulk-folder-stats` *(server\routes\travel-upload.routes.ts:1076)*
+- `GET /api/travel-agency-codes` *(server\routes\travel-upload.routes.ts:1181)*
+- `GET /api/travel-agency-codes/validate/:code` *(server\routes\travel-upload.routes.ts:1200)*
+- `GET /api/travel-agency-codes/:id` *(server\routes\travel-upload.routes.ts:1217)*
+- `POST /api/travel-agency-codes` *(server\routes\travel-upload.routes.ts:1237)*
+- `PATCH /api/travel-agency-codes/:id` *(server\routes\travel-upload.routes.ts:1268)*
+- `DELETE /api/travel-agency-codes/:id` *(server\routes\travel-upload.routes.ts:1294)*
+- `GET /api/help/screens/:route` *(server\routes\help.routes.ts:38)*
+- `GET /api/help/screens` *(server\routes\help.routes.ts:76)*
+- `POST /api/help/screens` *(server\routes\help.routes.ts:90)*
+- `PATCH /api/help/screens/:id` *(server\routes\help.routes.ts:124)*
+- `DELETE /api/help/screens/:id` *(server\routes\help.routes.ts:158)*
+- `GET /api/help/flows` *(server\routes\help.routes.ts:186)*
+- `GET /api/help/flows/:id` *(server\routes\help.routes.ts:206)*
+- `POST /api/help/flows` *(server\routes\help.routes.ts:231)*
+- `PATCH /api/help/flows/:id` *(server\routes\help.routes.ts:260)*
+- `DELETE /api/help/flows/:id` *(server\routes\help.routes.ts:292)*
+- `GET /api/admin/ai-context` *(server\routes\ai-context.routes.ts:27)*
+- `GET /api/admin/ai-context/:key` *(server\routes\ai-context.routes.ts:46)*
+- `PUT /api/admin/ai-context/:key` *(server\routes\ai-context.routes.ts:71)*
+- `GET /api/internal/ai-context/full` *(server\routes\ai-context.routes.ts:109)*
+- `POST /api/admin/translate` *(server\routes\ai-context.routes.ts:208)*
+- `GET /api/image-bank` *(server\routes\image-bank.routes.ts:118)*
+- `POST /api/image-bank/upload` *(server\routes\image-bank.routes.ts:181)*
+- `PATCH /api/image-bank/:id` *(server\routes\image-bank.routes.ts:270)*
+- `DELETE /api/image-bank/:id` *(server\routes\image-bank.routes.ts:306)*
+- `GET /api/image-labels` *(server\routes\image-bank.routes.ts:360)*
+- `POST /api/image-labels` *(server\routes\image-bank.routes.ts:396)*
+- `PATCH /api/image-labels/:id` *(server\routes\image-bank.routes.ts:443)*
+- `DELETE /api/image-labels/:id` *(server\routes\image-bank.routes.ts:507)*
+- `GET /api/analytics/blog/popular` *(server\routes\blog-analytics.routes.ts:62)*
+- `GET /api/analytics/blog/trends` *(server\routes\blog-analytics.routes.ts:104)*
+- `GET /api/analytics/blog/topics` *(server\routes\blog-analytics.routes.ts:156)*
+- `GET /api/analytics/blog/keywords` *(server\routes\blog-analytics.routes.ts:217)*
+- `GET /api/analytics/blog/categories` *(server\routes\blog-analytics.routes.ts:274)*
+- `GET /sitemap.xml` *(server\routes\sitemap.routes.ts:35)*
