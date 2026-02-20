@@ -188,6 +188,25 @@ npx playwright test tests/e2e/help-flow-validation.spec.ts
 
 ---
 
+## Analytics Systems
+
+The admin dashboard has 10 analytics tabs powered by two data sources:
+
+**GA4** (Google Analytics 4): Client-side tracking via gtag.js. Powers Blog tab. Available as toggle for Overview and Trends.
+**MEMOPYK** (Custom): Server-side session tracking in Supabase `analytics_sessions` table. Powers Video, CTA, Geo, Live tabs. Default for Overview and Trends.
+
+Key rules:
+- Blog tab = GA4 only (no toggle)
+- Video/CTA = MEMOPYK only (server-side events)
+- Overview/Trends = both sources available via toggle (MEMOPYK default)
+- All MEMOPYK queries exclude bots, test data, and admin-excluded IPs
+- Global filters (date, language, country) apply to ALL tabs via the centralized filter system in `analyticsNewFilters.store.ts`
+- ALL analytics API requests must go through `buildAnalyticsParams()` in `data/analyticsFilters.ts` — no manual URL building
+
+After analytics UI changes: verify the tab renders correctly on staging, check that data source badges match the actual source.
+
+---
+
 ## Testing
 
 | What | How |

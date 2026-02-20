@@ -161,3 +161,44 @@ Two background jobs are lazily loaded after server startup (non-blocking):
 2. **Universal Sync Service** (`server/jobs/sync.job.ts`): Background data synchronization tasks.
 
 Both are optional and log warnings if they fail to initialize, without blocking the server.
+
+## Analytics Architecture: GA4 vs MEMOPYK
+
+MEMOPYK runs a dual analytics system. Understanding which data source powers each tab is critical.
+
+### Data Sources
+
+| Source | How It Works | Strengths | Limitations |
+|--------|-------------|-----------|-------------|
+| **GA4** (Google Analytics 4) | Client-side gtag.js + server-side Data API | Industry standard, rich dimensions | Blocked by ad blockers, 24-48h delay for some reports |
+| **MEMOPYK** (Custom) | Server-side session tracking in `analytics_sessions` table | Unblockable, real-time, excludes admin IPs | Less dimensional depth than GA4 |
+
+### Tab → Data Source Mapping
+
+| Tab | Data Source | Why |
+|-----|-------------|-----|
+| Overview | Both (toggle) | KPIs from either source |
+| Trends | Both (toggle) | Session trends from either source |
+| Geo | MEMOPYK | Server-side IP geolocation |
+| Blog | GA4 only | Blog page views tracked by gtag.js |
+| Video | MEMOPYK | Server-side video event recording |
+| CTA | MEMOPYK | Server-side click event recording |
+| Live | MEMOPYK + GA4 Realtime | Combined real-time data |
+| Clarity | External | Microsoft Clarity heatmaps (iframe) |
+| Exclusions | MEMOPYK | IP exclusion management |
+| Diagnostics | N/A | System health checks |
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `client/src/admin/analyticsNew/analyticsNewFilters.store.ts` | Zustand store — global filter state (date, language, country, data source) |
+| `client/src/admin/analyticsNew/data/analyticsFilters.ts` | Centralized query parameter builder — ALL analytics requests go through this |
+| `server/routes/analytics.routes.ts` | All analytics API endpoints (GA4, MEMOPYK, video, CTA, geo, trends) |
+| `server/services/analytics/video-analytics.service.ts` | Video metrics aggregation from `analytics_views` table |
+| `server/services/analytics/ga4.service.ts` | GA4 Data API wrapper functions |
+| `server/services/analytics/realtime.service.ts` | Live tracking data from `realtime_visitors` table |
+
+### Bot & IP Filtering
+
+All MEMOPYK queries filter out bots (`is_bot = false`) and test data (`is_test_data = false`). The Exclusions tab lets admins add IP addresses to exclude from analytics. Excluded IPs are checked via `getExcludedIPs()` in `analytics.routes.ts`.
