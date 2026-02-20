@@ -98,9 +98,6 @@ export const AnalyticsNewBlog: React.FC = () => {
   const [, setLocation] = useLocation();
   const { datePreset, language, country } = useAnalyticsNewFilters();
 
-  // Blog tab always uses GA4 data source
-  const dataSource = 'ga4' as const;
-
   // Map period to days
   const days = datePreset === '7d' ? 7 : datePreset === '30d' ? 30 : 90;
 
@@ -134,16 +131,10 @@ export const AnalyticsNewBlog: React.FC = () => {
     setLocation(`/admin?${params.toString()}`);
   };
 
-  // Determine endpoint based on data source
-  const getEndpoint = (baseEndpoint: string) => {
-    if (dataSource === 'ga4') {
-      return `/api/analytics/blog/ga4${baseEndpoint}`;
-    }
-    return `/api/analytics/blog${baseEndpoint}`; // memopyk default
-  };
+  const getEndpoint = (baseEndpoint: string) => `/api/analytics/blog${baseEndpoint}`;
 
   const { data: popularPosts, isLoading: postsLoading, error: postsError, refetch: refetchPosts } = useQuery<PopularBlogPost[]>({
-    queryKey: ['/api/analytics/blog/popular', { days, blogLanguage, dataSource }],
+    queryKey: ['/api/analytics/blog/popular', { days, blogLanguage }],
     queryFn: async () => {
       const params = new URLSearchParams({ days: days.toString() });
       if (blogLanguage) params.append('language', blogLanguage);
@@ -154,7 +145,7 @@ export const AnalyticsNewBlog: React.FC = () => {
   });
 
   const { data: trendsData, isLoading: trendsLoading, error: trendsError, refetch: refetchTrends } = useQuery<BlogTrendData[]>({
-    queryKey: ['/api/analytics/blog/trends', { days, blogLanguage, dataSource }],
+    queryKey: ['/api/analytics/blog/trends', { days, blogLanguage }],
     queryFn: async () => {
       const params = new URLSearchParams({ days: days.toString() });
       if (blogLanguage) params.append('language', blogLanguage);
@@ -165,7 +156,7 @@ export const AnalyticsNewBlog: React.FC = () => {
   });
 
   const { data: topTopics, isLoading: topicsLoading } = useQuery<TopTopic[]>({
-    queryKey: ['/api/analytics/blog/topics', { days, blogLanguage, dataSource }],
+    queryKey: ['/api/analytics/blog/topics', { days, blogLanguage }],
     queryFn: async () => {
       const params = new URLSearchParams({ days: days.toString() });
       if (blogLanguage) params.append('language', blogLanguage);
@@ -176,7 +167,7 @@ export const AnalyticsNewBlog: React.FC = () => {
   });
 
   const { data: topKeywords, isLoading: keywordsLoading } = useQuery<TopKeyword[]>({
-    queryKey: ['/api/analytics/blog/keywords', { days, blogLanguage, dataSource }],
+    queryKey: ['/api/analytics/blog/keywords', { days, blogLanguage }],
     queryFn: async () => {
       const params = new URLSearchParams({ days: days.toString() });
       if (blogLanguage) params.append('language', blogLanguage);
@@ -187,7 +178,7 @@ export const AnalyticsNewBlog: React.FC = () => {
   });
 
   const { data: categories, isLoading: categoriesLoading } = useQuery<CategoryPerformance[]>({
-    queryKey: ['/api/analytics/blog/categories', { days, blogLanguage, dataSource }],
+    queryKey: ['/api/analytics/blog/categories', { days, blogLanguage }],
     queryFn: async () => {
       const params = new URLSearchParams({ days: days.toString() });
       if (blogLanguage) params.append('language', blogLanguage);
@@ -213,8 +204,8 @@ export const AnalyticsNewBlog: React.FC = () => {
           <div className="text-sm text-gray-600">Last {days} days</div>
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-500">
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">GA4</Badge>
-          <span>Source: Google Analytics (GA4)</span>
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">MEMOPYK</Badge>
+          <span>Source: MEMOPYK Analytics</span>
         </div>
         <AnalyticsNewLoadingStates mode="loading" />
       </div>
@@ -230,13 +221,13 @@ export const AnalyticsNewBlog: React.FC = () => {
           <div className="text-sm text-gray-600">Last {days} days</div>
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-500">
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">GA4</Badge>
-          <span>Source: Google Analytics (GA4)</span>
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">MEMOPYK</Badge>
+          <span>Source: MEMOPYK Analytics</span>
         </div>
         <div className="bg-red-50 border border-red-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-red-800 mb-2">Failed to load blog analytics</h3>
           <p className="text-sm text-red-700 mb-4">
-            The GA4 API returned an error. This may be temporary.
+            Could not load blog analytics data. This may be temporary.
           </p>
           <p className="text-xs text-red-600 mb-4 font-mono">{errorMessage}</p>
           <button
@@ -258,10 +249,10 @@ export const AnalyticsNewBlog: React.FC = () => {
       <div className="analytics-new-container space-y-6">
         <h2 className="text-xl font-bold text-gray-900">Blog Analytics</h2>
 
-        {/* GA4 Source Info */}
+        {/* Source Info */}
         <div className="flex items-center gap-2 text-sm text-gray-500">
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">GA4</Badge>
-          <span>Source: Google Analytics (GA4)</span>
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">MEMOPYK</Badge>
+          <span>Source: MEMOPYK Analytics</span>
         </div>
 
         <AnalyticsNewLoadingStates
@@ -287,10 +278,10 @@ export const AnalyticsNewBlog: React.FC = () => {
         </div>
       </div>
 
-      {/* GA4 Source Info */}
+      {/* Source Info */}
       <div className="flex items-center gap-2 text-sm text-gray-500">
-        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">GA4</Badge>
-        <span>Source: Google Analytics (GA4)</span>
+        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">MEMOPYK</Badge>
+        <span>Source: MEMOPYK Analytics</span>
       </div>
 
       {/* Blog Views Trend Chart */}
@@ -364,9 +355,9 @@ export const AnalyticsNewBlog: React.FC = () => {
             </h3>
             <Badge
               variant="outline"
-              className="bg-blue-50 text-blue-700 border-blue-200"
+              className="bg-green-50 text-green-700 border-green-200"
             >
-              GA4
+              MEMOPYK
             </Badge>
           </div>
           <p className="text-sm text-gray-600 mt-1">
@@ -477,9 +468,9 @@ export const AnalyticsNewBlog: React.FC = () => {
               </h3>
               <Badge
                 variant="outline"
-                className="bg-blue-50 text-blue-700 border-blue-200"
+                className="bg-green-50 text-green-700 border-green-200"
               >
-                GA4
+                MEMOPYK
               </Badge>
             </div>
             <p className="text-sm text-gray-600 mt-1">
@@ -545,9 +536,9 @@ export const AnalyticsNewBlog: React.FC = () => {
               </h3>
               <Badge
                 variant="outline"
-                className="bg-blue-50 text-blue-700 border-blue-200"
+                className="bg-green-50 text-green-700 border-green-200"
               >
-                GA4
+                MEMOPYK
               </Badge>
             </div>
             <p className="text-sm text-gray-600 mt-1">
@@ -614,9 +605,9 @@ export const AnalyticsNewBlog: React.FC = () => {
             </CardTitle>
             <Badge
               variant="outline"
-              className="bg-blue-50 text-blue-700 border-blue-200"
+              className="bg-green-50 text-green-700 border-green-200"
             >
-              GA4
+              MEMOPYK
             </Badge>
           </div>
           <CardDescription className="text-sm text-gray-600 mt-1">
