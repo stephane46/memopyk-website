@@ -423,13 +423,18 @@ export const AnalyticsNewGlobalFilters: React.FC<AnalyticsNewGlobalFiltersProps>
 
                 {/* Active Window Display - Blue pill - Always visible when date filters shown */}
                 <div className="flex items-center gap-2 shrink-0">
-                  <Badge 
-                    variant="outline" 
+                  <Badge
+                    variant="outline"
                     className="bg-blue-50 border-blue-300 text-blue-800 text-sm font-medium px-3 py-1 whitespace-nowrap"
                     data-testid="active-window-badge"
                   >
                     <div className="text-center">
-                      <div>{windowDisplay}</div>
+                      <div>
+                        {windowDisplay}
+                        <span className="text-xs text-blue-500 ml-1.5 font-normal">
+                          ({DateTime.now().setZone('Europe/Paris').toFormat('ZZZZ')})
+                        </span>
+                      </div>
                       {sinceDateEnabled && sinceDate && (
                         <div className="text-orange-700 text-xs mt-0.5">
                           ⚠️ Excluding data before: {formatEnglishDate(sinceDate)}
