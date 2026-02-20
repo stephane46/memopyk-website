@@ -53,6 +53,18 @@ router.get("/api/ready", async (req: Request, res: Response) => {
 });
 
 /**
+ * Analytics health check — used by the Diagnostics tab (AnalyticsNewFallback.tsx)
+ */
+router.get("/api/analytics/health", async (_req: Request, res: Response) => {
+  const dbHealth = await getDatabaseHealth();
+  res.json({
+    success: true,
+    analytics_db_enabled: dbHealth.connected,
+    ga4_configured: !!process.env.GA4_PROPERTY_ID,
+  });
+});
+
+/**
  * Liveness probe - simple response
  */
 router.get("/api/live", (req: Request, res: Response) => {
