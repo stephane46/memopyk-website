@@ -71,6 +71,7 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-20: Analytics Video/Blog/Trends fixes (agent team) — 6 bugs fixed: Video plays=0 (normalized plays from views + friendly names from gallery_items), Video division-by-zero guard, Blog tab now GA4-only (removed MEMOPYK/GA4 toggle), Blog error handling with retry button, Trends comparison period now queries previous period for MEMOPYK data source. Docs updated: OVERVIEW.md analytics architecture section, WORKING_WITH_CLAUDE.md analytics systems section, help_flows updated (Write Manually + AI Creator clarification), Blog help screen updated for GA4-only. 3 division-by-zero bugs fixed in Geo tab. All verified on staging with Puppeteer.
 - 2026-02-19: Blog Hub deep audit — 15 fixes (P1/P2/P3) across 11 files from BLOG_HUB_AUDIT.md. P1: AI Creator language field + visible tab, Posts limit=200 with "Showing X of Y", image bank hero/body filter removed. P2: Planner "Assigned This Week" fixed to current ISO week, "Ready to Write" → "In Backlog", Keywords Posts column navigates correctly, Planner limit=200, "In Progress" split into Planned + In Progress. P3: tag autocomplete sort by name, image bank usageCount tracking, new post language selector, volume range shared constants
 - 2026-02-19: Hero image picker fix — BlogHeroImageUpload was calling non-existent `/api/admin/blog/images`, fixed to `/api/image-bank`
 - 2026-02-19: Blog Editor Topic field — searchable combobox (TopicCombobox.tsx) to link posts to planned topics via sourceTopicId. Loads all topics client-side, shows category/status badges
