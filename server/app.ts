@@ -88,10 +88,10 @@ function detectLanguage(req: Request): "fr-FR" | "en-US" {
   // Check URL path FIRST (social crawlers don't send Accept-Language)
   if (req.path.startsWith("/en-US") || req.path.includes("/en-US/")) return "en-US";
   if (req.path.startsWith("/fr-FR") || req.path.includes("/fr-FR/")) return "fr-FR";
-  // Fall back to Accept-Language header
+  // Fall back to Accept-Language header: French → fr-FR, everything else → en-US
   const acceptLang = req.headers["accept-language"] || "";
-  if (/^en/i.test(acceptLang)) return "en-US";
-  return "fr-FR";
+  if (/\bfr\b/i.test(acceptLang)) return "fr-FR";
+  return "en-US";
 }
 
 function extractBlogSlug(path: string): string | null {
