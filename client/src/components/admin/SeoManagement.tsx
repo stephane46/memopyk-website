@@ -651,6 +651,10 @@ const SeoManagement: React.FC = () => {
                     {form.formState.errors['openGraph.image'] && (
                       <p className="text-sm text-red-500">{form.formState.errors['openGraph.image']?.message}</p>
                     )}
+                    <p className="text-xs text-amber-600 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      Note: The OG image is shared between FR and EN. The server automatically serves the EN variant by replacing 'og-home-fr.jpg' with 'og-home-en.jpg' in the URL. If you change this image, ensure the EN variant (same URL with 'og-home-en.jpg') also exists in Supabase Storage.
+                    </p>
                   </div>
 
                   <div className="space-y-2">
@@ -731,6 +735,10 @@ const SeoManagement: React.FC = () => {
                     {form.formState.errors['twitter.image'] && (
                       <p className="text-sm text-red-500">{form.formState.errors['twitter.image']?.message}</p>
                     )}
+                    <p className="text-xs text-amber-600 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      Note: The OG image is shared between FR and EN. The server automatically serves the EN variant by replacing 'og-home-fr.jpg' with 'og-home-en.jpg' in the URL. If you change this image, ensure the EN variant (same URL with 'og-home-en.jpg') also exists in Supabase Storage.
+                    </p>
                   </div>
                 </CardContent>
               </Card>
