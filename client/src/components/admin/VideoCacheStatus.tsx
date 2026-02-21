@@ -167,27 +167,6 @@ export const VideoCacheStatus: React.FC<VideoCacheStatusProps> = ({
     }
   });
 
-  // Force cache gallery videos mutation
-  const forceCacheGalleryMutation = useMutation({
-    mutationFn: () => apiRequest('/api/video-cache/cache-gallery-videos', 'POST'),
-    onSuccess: (data) => {
-      toast({
-        title: "Gallery Videos Cached",
-        description: "All gallery videos are now cached for instant playback",
-      });
-      queryClient.invalidateQueries({ queryKey: ['/api/video-cache/status'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/video-cache/stats'] });
-    },
-    onError: (error: any) => {
-      console.error('Force cache gallery error:', error);
-      toast({
-        title: "Cache Error",
-        description: error.message || "Failed to cache gallery videos",
-        variant: "destructive",
-      });
-    },
-  });
-
   // Environment safety check with debug logging
   const currentHostname = window.location.hostname;
   const isProduction = currentHostname.includes('replit.app') || currentHostname.includes('memopyk');
