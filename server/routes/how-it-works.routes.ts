@@ -86,7 +86,8 @@ router.post('/how-it-works-steps', requireAdmin, async (req: Request, res: Respo
 router.patch('/how-it-works-steps/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const stepId = req.params.id;
-    const updates = req.body;
+    const { id, createdAt, updatedAt, ...fields } = req.body;
+    const updates = { ...fields, updatedAt: new Date() };
 
     const updatedStep = await storage.updateHowItWorksStep(stepId, updates);
 
