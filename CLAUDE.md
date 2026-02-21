@@ -6,7 +6,7 @@ MEMOPYK creates professional "Films Souvenirs" (souvenir/memory films) from clie
 
 ## Current Status
 
-**Last updated:** February 20, 2026
+**Last updated:** February 21, 2026
 **Staging:** https://memopyk.memopyk.com (auto-deploys on push to `staging`)
 **Production:** https://memopyk.com (auto-deploys on push to `main`)
 
@@ -18,7 +18,7 @@ MEMOPYK creates professional "Films Souvenirs" (souvenir/memory films) from clie
 | Analytics | ✅ GA4 + custom Supabase (blog analytics endpoints added Feb 11) |
 | Partner Directory | ✅ Mapbox GL JS with clustering (migrated Feb 14) |
 | Auto-deploy | ✅ Push → GitHub webhook → Coolify |
-| Help System | ✅ Complete (30 screens, 2 flows, V8 validated 28/28 CLEAR, Blog Editor 11/11) |
+| Help System | ✅ Complete (31 screens, 2 flows, V8 validated 28/28 CLEAR, Blog Editor 11/11) |
 | Blog Hub | ✅ 5 workflow tabs, 107 keywords, 25 clusters |
 | Production | ✅ Live on Coolify (Replit fully replaced Feb 2) |
 
@@ -71,6 +71,7 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-21: Homepage audit fixes (XSS, cache, dead code, preloading, tooltips, accessibility, alt text). New 'Comment ça marche' admin section built. DB updates for hero video titles, gallery filename, tablet font.
 - 2026-02-21: Removed dead forceCacheGalleryMutation from VideoCacheStatus.tsx — route audit now 0 real errors
 - 2026-02-21: Cache button fixes — Button 2 "Smart Cleanup" rewired to new POST /api/video-cache/smart-cleanup (age-based, was deleting everything), dual-firing fixed via handleGlobalEvents prop, 4 dead mutations removed (3 from CacheManagementSection, 1 from VideoCacheStatus)
 - 2026-02-21: Cache buttons audit + help encoding fix — CACHE_BUTTONS_AUDIT.md (3 buttons traced end-to-end, HIGH: Button 2 "Smart Cleanup" actually deletes ALL cache), help_screens cache row fixed (10 broken UTF-8 chars: 8 em dashes + 2 accented chars + 3 broken emojis)
