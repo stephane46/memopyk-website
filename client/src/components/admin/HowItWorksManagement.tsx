@@ -15,7 +15,6 @@ import {
   ChevronDown,
   X
 } from "lucide-react";
-import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, adminFetch } from '@/lib/queryClient';
 
@@ -25,8 +24,6 @@ interface HowItWorksStep {
   titleFr: string;
   descriptionEn: string;
   descriptionFr: string;
-  backTitleEn?: string;
-  backTitleFr?: string;
   backDescriptionEn?: string;
   backDescriptionFr?: string;
   imagePath?: string;
@@ -176,8 +173,6 @@ export function HowItWorksManagement() {
       titleEn: '',
       descriptionFr: '',
       descriptionEn: '',
-      backTitleFr: '',
-      backTitleEn: '',
       backDescriptionFr: '',
       backDescriptionEn: '',
       imagePath: '',
@@ -317,7 +312,8 @@ export function HowItWorksManagement() {
                 {/* Title - French and English columns */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="title-fr">Titre (Français)</Label>
+                    <Label htmlFor="title-fr">Titre — Recto & Verso (Français)</Label>
+                    <p className="text-xs text-gray-500">Affiché en bas de la carte, recto et verso</p>
                     <Input
                       id="title-fr"
                       value={formData.titleFr || ''}
@@ -326,7 +322,8 @@ export function HowItWorksManagement() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="title-en">Title (English)</Label>
+                    <Label htmlFor="title-en">Title — Front & Back (English)</Label>
+                    <p className="text-xs text-gray-500">Displayed at the bottom of the card, front and back</p>
                     <Input
                       id="title-en"
                       value={formData.titleEn || ''}
@@ -336,69 +333,59 @@ export function HowItWorksManagement() {
                   </div>
                 </div>
 
-                {/* Description (front card) */}
+                <Separator />
+
+                {/* Description - back card top zone */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="desc-fr">Description Avant (Français)</Label>
-                    <RichTextEditor
+                    <Label htmlFor="desc-fr">Description — Verso, zone haut (Français)</Label>
+                    <p className="text-xs text-gray-500">Utilisez Entrée pour séparer les paragraphes</p>
+                    <textarea
+                      id="desc-fr"
                       value={formData.descriptionFr || ''}
-                      onChange={(value) => setFormData(prev => ({ ...prev, descriptionFr: value }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, descriptionFr: e.target.value }))}
                       placeholder="Description en français"
+                      rows={4}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-memopyk-orange resize-none"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="desc-en">Description Front (English)</Label>
-                    <RichTextEditor
+                    <Label htmlFor="desc-en">Description — Back, top zone (English)</Label>
+                    <p className="text-xs text-gray-500">Use Enter to separate paragraphs</p>
+                    <textarea
+                      id="desc-en"
                       value={formData.descriptionEn || ''}
-                      onChange={(value) => setFormData(prev => ({ ...prev, descriptionEn: value }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, descriptionEn: e.target.value }))}
                       placeholder="Description in English"
+                      rows={4}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-memopyk-orange resize-none"
                     />
                   </div>
                 </div>
 
-                <Separator />
-
-                {/* Back card content */}
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-3">Contenu Dos de Carte (flip)</p>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="back-title-fr">Titre Dos (Français)</Label>
-                      <Input
-                        id="back-title-fr"
-                        value={formData.backTitleFr || ''}
-                        onChange={(e) => setFormData(prev => ({ ...prev, backTitleFr: e.target.value }))}
-                        placeholder="Titre dos en français"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="back-title-en">Back Title (English)</Label>
-                      <Input
-                        id="back-title-en"
-                        value={formData.backTitleEn || ''}
-                        onChange={(e) => setFormData(prev => ({ ...prev, backTitleEn: e.target.value }))}
-                        placeholder="Back title in English"
-                      />
-                    </div>
+                {/* Back description - back card bottom zone (bold) */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="back-desc-fr">Résumé en gras — Verso, zone bas (Français)</Label>
+                    <textarea
+                      id="back-desc-fr"
+                      value={formData.backDescriptionFr || ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, backDescriptionFr: e.target.value }))}
+                      placeholder="Résumé en français"
+                      rows={2}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-memopyk-orange resize-none"
+                    />
                   </div>
-
-                  <div className="grid grid-cols-2 gap-4 mt-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="back-desc-fr">Description Dos (Français)</Label>
-                      <RichTextEditor
-                        value={formData.backDescriptionFr || ''}
-                        onChange={(value) => setFormData(prev => ({ ...prev, backDescriptionFr: value }))}
-                        placeholder="Description dos en français"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="back-desc-en">Back Description (English)</Label>
-                      <RichTextEditor
-                        value={formData.backDescriptionEn || ''}
-                        onChange={(value) => setFormData(prev => ({ ...prev, backDescriptionEn: value }))}
-                        placeholder="Back description in English"
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="back-desc-en">Summary bold — Back, bottom zone (English)</Label>
+                    <textarea
+                      id="back-desc-en"
+                      value={formData.backDescriptionEn || ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, backDescriptionEn: e.target.value }))}
+                      placeholder="Summary in English"
+                      rows={2}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-memopyk-orange resize-none"
+                    />
                   </div>
                 </div>
 
@@ -431,6 +418,13 @@ export function HowItWorksManagement() {
                     onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isActive: checked }))}
                   />
                   <Label htmlFor="active">Active</Label>
+                </div>
+
+                {/* Visual layout hint */}
+                <div className="text-xs text-gray-500 font-mono bg-gray-50 rounded p-3 border">
+                  <div className="font-semibold mb-1">Structure de la carte :</div>
+                  <div>RECTO : [Image] + Titre</div>
+                  <div>VERSO : Description (haut) / Résumé en gras (bas) + Titre</div>
                 </div>
 
                 {/* Action Buttons */}
