@@ -27,8 +27,6 @@ interface VideoOverlayProps {
   orientation: "portrait" | "landscape";
   width: number;
   height: number;
-  isInstantReady?: boolean;
-  preloadedElement?: HTMLVideoElement | null;
   thumbnailUrl?: string;
 }
 
@@ -41,8 +39,6 @@ export default function VideoOverlay({
   orientation,
   width,
   height,
-  isInstantReady = false,
-  preloadedElement = null,
   thumbnailUrl,
 }: VideoOverlayProps) {
   // State

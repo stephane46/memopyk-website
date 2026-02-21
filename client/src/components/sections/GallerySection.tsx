@@ -46,8 +46,6 @@ interface GalleryItem {
   isActive: boolean;
   lightboxVideoUrl?: string; // Infrastructure workaround URL for lightbox display
   thumbnailUrl?: string; // Thumbnail URL for instant display during video loading
-  isInstantReady?: boolean; // Indicates if video uses preloaded element for instant playbook
-  preloadedElement?: HTMLVideoElement; // The actual preloaded video element
   // Memoized values to prevent remounting in VideoOverlay
   memoizedTitle?: string;
   memoizedSource?: string;
@@ -69,7 +67,6 @@ export default function GallerySection() {
     const isMobileViewport = typeof window !== 'undefined' && window.innerWidth < 768;
     return isMobileViewport;
   });
-  const preloadedVideos = useRef<Set<string>>(new Set());
   // 🚨 CRITICAL FIX: Remove unused hooks that might cause re-renders
   // const networkStatus = useNetworkStatus();
   // const { orientation } = useDeviceOrientation();
@@ -467,10 +464,9 @@ export default function GallerySection() {
       const dimensions = getAuthenticVideoDimensions(item);
       
       setLightboxVideo({
-        ...item, 
+        ...item,
         lightboxVideoUrl: videoUrl,
         thumbnailUrl: thumbnailUrl,
-        isInstantReady: false,
         // Pre-calculated memoized values to prevent remounting
         memoizedTitle: getItemTitle(item),
         memoizedSource: getItemSource(item),
@@ -514,16 +510,6 @@ export default function GallerySection() {
   const closeLightbox = useCallback(() => {
     setLightboxVideo(null);
     document.body.style.overflow = savedOverflow.current;
-  }, []);
-
-  const preloadVideo = useCallback((videoUrl: string) => {
-    if (!videoUrl || preloadedVideos.current.has(videoUrl)) return;
-    preloadedVideos.current.add(videoUrl);
-    const vid = document.createElement('video');
-    vid.preload = 'auto';
-    vid.src = videoUrl;
-    vid.style.display = 'none';
-    vid.load();
   }, []);
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -606,11 +592,6 @@ export default function GallerySection() {
                 data-card-id={item.id}
                 data-gallery-card
                 className={`card-flip-container ${isFlipped ? 'flipped' : ''} rounded-2xl`}
-                onMouseEnter={() => {
-                  if (item.videoFilename) {
-                    preloadVideo(getVideoUrl(item, index));
-                  }
-                }}
               >
                 <div className="card-flip-inner">
                   {/* FRONT SIDE - Normal Gallery Card */}
@@ -827,11 +808,6 @@ export default function GallerySection() {
                 data-card-id={item.id}
                 data-gallery-card
                 className={`card-flip-container ${isFlipped ? 'flipped' : ''} rounded-2xl`}
-                onMouseEnter={() => {
-                  if (item.videoFilename) {
-                    preloadVideo(getVideoUrl(item, actualIndex));
-                  }
-                }}
               >
                 <div className="card-flip-inner">
                   {/* FRONT SIDE - Normal Gallery Card */}
@@ -1121,8 +1097,6 @@ export default function GallerySection() {
           height={lightboxVideo.memoizedHeight || 1080}
           orientation={lightboxVideo.memoizedOrientation || 'landscape'}
           onClose={closeLightbox}
-          isInstantReady={lightboxVideo.isInstantReady}
-          preloadedElement={lightboxVideo.preloadedElement}
           thumbnailUrl={lightboxVideo.thumbnailUrl}
         />
       )}
