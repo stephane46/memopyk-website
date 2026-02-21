@@ -72,6 +72,7 @@ READ THESE FIRST:
 ## Recent Work
 
 - 2026-02-21: Homepage audit fixes (XSS, cache, dead code, preloading, tooltips, accessibility, alt text). New 'Comment ça marche' admin section built. DB updates for hero video titles, gallery filename, tablet font.
+- 2026-02-21: Fixed language detection fallback — non-French browsers now default to English (was French). Server-side detectLanguage in app.ts flipped from "not-English→French" to "not-French→English". Client fallback already correct (en-US). Verified with 5 Playwright tests (fr-FR, fr-CA, en-US, de-DE, ja-JP all pass).
 - 2026-02-21: Removed dead forceCacheGalleryMutation from VideoCacheStatus.tsx — route audit now 0 real errors
 - 2026-02-21: Cache button fixes — Button 2 "Smart Cleanup" rewired to new POST /api/video-cache/smart-cleanup (age-based, was deleting everything), dual-firing fixed via handleGlobalEvents prop, 4 dead mutations removed (3 from CacheManagementSection, 1 from VideoCacheStatus)
 - 2026-02-21: Cache buttons audit + help encoding fix — CACHE_BUTTONS_AUDIT.md (3 buttons traced end-to-end, HIGH: Button 2 "Smart Cleanup" actually deletes ALL cache), help_screens cache row fixed (10 broken UTF-8 chars: 8 em dashes + 2 accented chars + 3 broken emojis)
