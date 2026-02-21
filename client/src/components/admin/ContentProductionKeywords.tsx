@@ -76,7 +76,7 @@ interface QuickFilterPreset {
 const QUICK_FILTERS: Record<string, QuickFilterPreset> = {
   quickWins: {
     label: 'Quick Wins',
-    filters: { tier: ['1', '2'], competition: ['low'], intent: ['high'] },
+    filters: { tier: ['1', '2'], competition: ['low'], volume: ['medium', 'high', 'mega'] },
   },
   trafficDrivers: {
     label: 'Traffic Drivers',
@@ -84,7 +84,7 @@ const QUICK_FILTERS: Record<string, QuickFilterPreset> = {
   },
   moneyKeywords: {
     label: 'Money Keywords',
-    filters: { tier: ['1', '2'], intent: ['high'] },
+    filters: { tier: ['1', '2'], intent: ['commercial', 'transactional'] },
   },
   francePriority: {
     label: 'France Priority',
@@ -92,7 +92,7 @@ const QUICK_FILTERS: Record<string, QuickFilterPreset> = {
   },
   blogIdeas: {
     label: 'Blog Ideas',
-    filters: { tier: ['1', '2'], intent: ['medium'], competition: ['low', 'medium'] },
+    filters: { tier: ['1', '2'], intent: ['informational'], competition: ['low', 'medium'] },
   },
 };
 
@@ -101,7 +101,7 @@ export function ContentProductionKeywords() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedMarkets, setSelectedMarkets] = useState<Set<string>>(new Set(['fr', 'en']));
   const [selectedTiers, setSelectedTiers] = useState<Set<string>>(new Set(['1', '2', '3']));
-  const [selectedIntents, setSelectedIntents] = useState<Set<string>>(new Set(['high', 'medium', 'low']));
+  const [selectedIntents, setSelectedIntents] = useState<Set<string>>(new Set(['commercial', 'informational', 'transactional']));
   const [selectedCompetitions, setSelectedCompetitions] = useState<Set<string>>(new Set(['low', 'medium', 'high']));
   const [selectedVolumes, setSelectedVolumes] = useState<Set<string>>(new Set(['mega', 'high', 'medium', 'low', 'minimal']));
   const [selectedClusters, setSelectedClusters] = useState<Set<string>>(new Set());
@@ -167,9 +167,9 @@ export function ContentProductionKeywords() {
   const intentOptions: FilterOption[] = useMemo(() => {
     if (!stats?.byIntent) return [];
     return [
-      { value: 'high', label: 'High', count: stats.byIntent.high || 0 },
-      { value: 'medium', label: 'Medium', count: stats.byIntent.medium || 0 },
-      { value: 'low', label: 'Low', count: stats.byIntent.low || 0 },
+      { value: 'commercial', label: 'Commercial', count: stats.byIntent.commercial || 0 },
+      { value: 'informational', label: 'Informational', count: stats.byIntent.informational || 0 },
+      { value: 'transactional', label: 'Transactional', count: stats.byIntent.transactional || 0 },
     ];
   }, [stats?.byIntent]);
 
@@ -347,15 +347,15 @@ export function ContentProductionKeywords() {
   const showingStart = loadedCount > 0 ? (currentPage - 1) * PAGE_SIZE + 1 : 0;
   const showingEnd = Math.min(currentPage * PAGE_SIZE, totalFromServer);
 
-  // Intent colors: High intent (ready to buy) = green, Medium = blue, Low = gray
+  // Intent colors: commercial (ready to buy) = green, transactional = purple, informational = blue
   const getIntentColor = (intent: string) => {
     switch (intent?.toLowerCase()) {
-      case 'high':
+      case 'commercial':
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'medium':
+      case 'transactional':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+      case 'informational':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'low':
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
     }
@@ -486,7 +486,7 @@ export function ContentProductionKeywords() {
 
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription className="text-gray-600 dark:text-gray-400">High Intent</CardDescription>
+            <CardDescription className="text-gray-600 dark:text-gray-400">Purchase Intent</CardDescription>
             <CardTitle className="text-3xl text-purple-600 dark:text-purple-400">
               {(stats?.highIntentCount || 0).toLocaleString()}
             </CardTitle>

@@ -219,10 +219,10 @@ router.get('/keywords/stats', requireAdmin, async (req: Request, res: Response) 
       stats.byTier[tier] = (stats.byTier[tier] || 0) + 1;
       if (k.tier === 1) stats.tier1Count++;
 
-      // Intent counts
+      // Intent counts (DB stores: commercial, informational, transactional)
       const intent = (k.intent || 'unknown').toLowerCase();
       stats.byIntent[intent] = (stats.byIntent[intent] || 0) + 1;
-      if (intent === 'high') stats.highIntentCount++;
+      if (intent === 'commercial' || intent === 'transactional') stats.highIntentCount++;
 
       // Market counts
       const market = k.market || 'fr';
@@ -279,7 +279,8 @@ router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
       if (intents.length === 1) {
         conditions.push(ilike(contentKeywords.intent, intents[0]));
       } else {
-        conditions.push(inArray(contentKeywords.intent, intents));
+        // Use ilike for each value to handle case differences
+        conditions.push(or(...intents.map(i => ilike(contentKeywords.intent, i)))!);
       }
     }
     if (market) {
@@ -306,7 +307,8 @@ router.get('/keywords', requireAdmin, async (req: Request, res: Response) => {
       if (comps.length === 1) {
         conditions.push(ilike(contentKeywords.competition, comps[0]));
       } else {
-        conditions.push(inArray(contentKeywords.competition, comps));
+        // Use ilike for each value to handle case differences (DB stores Low/Medium/High)
+        conditions.push(or(...comps.map(c => ilike(contentKeywords.competition, c)))!);
       }
     }
     if (volume_range) {
