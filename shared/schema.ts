@@ -181,6 +181,24 @@ export const whyMemopykCards = pgTable("why_memopyk_cards", {
   updatedAt: timestamp("updated_at").defaultNow()
 });
 
+// How It Works step cards - bilingual with flip card content
+export const howItWorksSteps = pgTable("how_it_works_steps", {
+  id: varchar("id").primaryKey(),
+  titleEn: text("title_en").notNull(),
+  titleFr: text("title_fr").notNull(),
+  descriptionEn: text("description_en").notNull(),
+  descriptionFr: text("description_fr").notNull(),
+  backTitleEn: text("back_title_en"),
+  backTitleFr: text("back_title_fr"),
+  backDescriptionEn: text("back_description_en"),
+  backDescriptionFr: text("back_description_fr"),
+  imagePath: varchar("image_path"),
+  orderIndex: integer("order_index").default(0),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
 // SEO settings table - comprehensive SEO management
 export const seoSettings = pgTable("seo_settings", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -375,6 +393,7 @@ export const insertCtaSettingsSchema = createInsertSchema(ctaSettings).omit({ cr
 export const insertSeoSettingsSchema = createInsertSchema(seoSettings).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertSeoAuditLogSchema = createInsertSchema(seoAuditLogs).omit({ id: true, createdAt: true });
 export const insertWhyMemopykCardsSchema = createInsertSchema(whyMemopykCards).omit({ createdAt: true, updatedAt: true });
+export const insertHowItWorksStepSchema = createInsertSchema(howItWorksSteps).omit({ createdAt: true, updatedAt: true });
 export const insertAnalyticsExclusionSchema = createInsertSchema(analyticsExclusions).omit({ id: true, createdAt: true, appliesFrom: true });
 export const insertAnalyticsSessionSchema = createInsertSchema(analyticsSessions).omit({ id: true, createdAt: true });
 export const insertAnalyticsViewSchema = createInsertSchema(analyticsViews).omit({ id: true, createdAt: true });
@@ -397,6 +416,7 @@ export type AnalyticsView = typeof analyticsViews.$inferSelect;
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 export type RealtimeVisitor = typeof realtimeVisitors.$inferSelect;
 export type WhyMemopykCards = typeof whyMemopykCards.$inferSelect;
+export type HowItWorksStep = typeof howItWorksSteps.$inferSelect;
 export type AnalyticsExclusion = typeof analyticsExclusions.$inferSelect;
 
 

@@ -33,6 +33,7 @@ import aiContextRoutes from "./routes/ai-context.routes";
 import imageBankRoutes from "./routes/image-bank.routes";
 import blogAnalyticsRoutes from "./routes/blog-analytics.routes";
 import sitemapRoutes from "./routes/sitemap.routes";
+import howItWorksRoutes from "./routes/how-it-works.routes";
 
 /**
  * Register all API routes on the Express app
@@ -55,6 +56,7 @@ export async function registerRoutes(app: Express): Promise<void> {
   app.use("/api", faqRoutes);               // /api/faq-sections, /api/faqs, /api/faq
   app.use("/api", contactRoutes);           // /api/contact, /api/contacts
   app.use("/api", ctaRoutes);               // /api/cta, /api/why-memopyk-cards
+  app.use("/api", howItWorksRoutes);        // /api/how-it-works-steps
   app.use("/api", legalRoutes);             // /api/legal, /api/legal/:type
 
   // Analytics routes (GA4 MP proxy, realtime, basic events)

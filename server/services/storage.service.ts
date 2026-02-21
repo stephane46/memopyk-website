@@ -245,6 +245,29 @@ async function deleteWhyMemopykCard(id: string) {
 }
 
 // ---------------------------------------------------------------------------
+// How It Works Steps
+// ---------------------------------------------------------------------------
+
+async function getHowItWorksSteps() {
+  return db.select().from(schema.howItWorksSteps).orderBy(asc(schema.howItWorksSteps.orderIndex));
+}
+
+async function createHowItWorksStep(data: Record<string, unknown>) {
+  const rows = await db.insert(schema.howItWorksSteps).values(data as any).returning();
+  return rows[0];
+}
+
+async function updateHowItWorksStep(id: string, data: Record<string, unknown>) {
+  const rows = await db.update(schema.howItWorksSteps).set(data as any).where(eq(schema.howItWorksSteps.id, id)).returning();
+  return rows[0];
+}
+
+async function deleteHowItWorksStep(id: string) {
+  const rows = await db.delete(schema.howItWorksSteps).where(eq(schema.howItWorksSteps.id, id)).returning();
+  return rows.length > 0;
+}
+
+// ---------------------------------------------------------------------------
 // SEO Settings
 // ---------------------------------------------------------------------------
 
@@ -313,6 +336,11 @@ export const storage = {
   createWhyMemopykCard,
   updateWhyMemopykCard,
   deleteWhyMemopykCard,
+  // How It Works
+  getHowItWorksSteps,
+  createHowItWorksStep,
+  updateHowItWorksStep,
+  deleteHowItWorksStep,
   // SEO
   getSeoSettings,
   createSeoSettings,

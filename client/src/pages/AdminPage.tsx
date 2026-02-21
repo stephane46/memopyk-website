@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense } from 'react';
-import { BarChart3, Video, Play, HardDrive, Users, MessageSquare, FileText, LogOut, ChevronRight, Upload, Search, Zap, Layers, UserCheck, Settings, PenTool, Brain, Handshake, Activity } from 'lucide-react';
+import { BarChart3, Video, Play, HardDrive, Users, MessageSquare, FileText, LogOut, ChevronRight, Upload, Search, Zap, Layers, UserCheck, Settings, PenTool, Brain, Handshake, Activity, ListOrdered } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { HelpButton } from '@/components/admin/HelpButton';
 import { HelpDrawer } from '@/components/admin/HelpDrawer';
@@ -23,6 +23,7 @@ const SystemDiagnostics = React.lazy(() => import('@/admin/analyticsNew/Analytic
 const LegalDocumentManagement = React.lazy(() => import('@/components/admin/LegalDocumentManagement').then(m => ({ default: m.LegalDocumentManagement })));
 const CtaManagement = React.lazy(() => import('@/components/admin/CtaManagement').then(m => ({ default: m.CtaManagement })));
 const WhyMemopykManagement = React.lazy(() => import('@/components/admin/WhyMemopykManagement').then(m => ({ default: m.WhyMemopykManagement })));
+const HowItWorksManagement = React.lazy(() => import('@/components/admin/HowItWorksManagement').then(m => ({ default: m.HowItWorksManagement })));
 const AIContextManager = React.lazy(() => import('@/admin/AIContextManager').then(m => ({ default: m.AIContextManager })));
 
 
@@ -156,6 +157,7 @@ function AdminPageContent() {
         { id: 'gallery', label: 'Galerie Vidéos', icon: Play },
         { id: 'faq', label: 'FAQ', icon: MessageSquare },
         { id: 'why-memopyk', label: 'Pourquoi MEMOPYK', icon: Users },
+        { id: 'how-it-works', label: 'Comment ça marche', icon: ListOrdered },
         { id: 'cta', label: 'Boutons CTA', icon: Zap },
         { id: 'legal-docs', label: 'Documents Légaux', icon: FileText },
       ]
@@ -442,6 +444,13 @@ function AdminPageContent() {
             {activeSection === 'why-memopyk' && (
               <div className="space-y-6">
                 <WhyMemopykManagement />
+              </div>
+            )}
+
+            {/* Comment ça marche Steps */}
+            {activeSection === 'how-it-works' && (
+              <div className="space-y-6">
+                <HowItWorksManagement />
               </div>
             )}
 
