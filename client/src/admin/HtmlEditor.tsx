@@ -54,7 +54,7 @@ export function HtmlEditor({ value, onChange }: HtmlEditorProps) {
 }
 
 type BlogImage = {
-  name: string;
+  filename: string;
   url: string;
   size: number;
   createdAt: string;
@@ -69,18 +69,18 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
 
   // Fetch existing blog images for the picker modal
   const { data: imagesData, isLoading: imagesLoading, refetch: refetchImages } = useQuery({
-    queryKey: ['/api/admin/blog/images'],
+    queryKey: ['/api/image-bank?limit=200'],
     queryFn: async () => {
-      const response = await adminFetch('/api/admin/blog/images');
+      const response = await adminFetch('/api/image-bank?limit=200');
       if (!response.ok) throw new Error('Failed to fetch images');
       return response.json();
     },
     enabled: isImagePickerOpen
   });
 
-  const allImages: BlogImage[] = imagesData?.data || [];
+  const allImages: BlogImage[] = imagesData?.images || [];
   const filteredImages = searchTerm
-    ? allImages.filter(img => img.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    ? allImages.filter(img => img.filename.toLowerCase().includes(searchTerm.toLowerCase()))
     : allImages;
 
   // Custom image upload handler - uploads to Directus via our proxy
@@ -88,18 +88,18 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
     const formData = new FormData();
     formData.append('file', blobInfo.blob(), blobInfo.filename());
     
-    const response = await adminFetch('/api/admin/upload', {
+    const response = await adminFetch('/api/image-bank/upload', {
       method: 'POST',
       body: formData
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Upload failed');
     }
-    
+
     const result = await response.json();
-    return result.url; // Returns /assets/{id} URL
+    return result.url;
   };
 
   // Custom file picker - Opens modal for image selection
@@ -131,7 +131,7 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
           const formData = new FormData();
           formData.append('file', file);
           
-          const response = await adminFetch('/api/admin/upload', {
+          const response = await adminFetch('/api/image-bank/upload', {
             method: 'POST',
             body: formData
           });
@@ -172,9 +172,9 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
 
     try {
       const formData = new FormData();
-      formData.append('image', file);
+      formData.append('file', file);
 
-      const response = await adminFetch('/api/admin/blog/images', {
+      const response = await adminFetch('/api/image-bank/upload', {
         method: 'POST',
         body: formData
       });
@@ -187,7 +187,7 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
 
       // Call TinyMCE callback with the uploaded image URL
       if (imagePickerCallbackRef.current) {
-        imagePickerCallbackRef.current(result.data.url, { title: file.name, alt: file.name });
+        imagePickerCallbackRef.current(result.url, { title: file.name, alt: file.name });
       }
       
       // Refresh images list
@@ -208,53 +208,6 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
       imagePickerCallbackRef.current(url, { title: name, alt: name });
     }
     setIsImagePickerOpen(false);
-  };
-
-  // Handle paste events to auto-import external file URLs
-  const handlePaste = async (editor: any, e: any) => {
-    const pastedText = e.clipboardData?.getData('text/plain');
-    if (!pastedText) return;
-
-    // Check if it's an image or video URL
-    const urlPattern = /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|mp4|webm)(\?.*)?$/i;
-    const match = pastedText.trim().match(urlPattern);
-    
-    if (match) {
-      e.preventDefault();
-      
-      try {
-        console.log('🔗 Importing external file URL:', pastedText);
-        
-        const response = await adminFetch('/api/admin/fetch-external', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ url: pastedText.trim() })
-        });
-        
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || 'Failed to import file');
-        }
-        
-        const result = await response.json();
-        const isVideo = result.mimetype?.startsWith('video/');
-        
-        // Insert the imported file into editor
-        if (isVideo) {
-          editor.insertContent(`<video src="${result.url}" controls></video>`);
-        } else {
-          editor.insertContent(`<img src="${result.url}" alt="${result.filename}" loading="lazy" />`);
-        }
-        
-        console.log('✅ External file imported:', result.url);
-      } catch (error) {
-        console.error('❌ Failed to import external file:', error);
-        // Fallback: paste as text
-        editor.insertContent(pastedText);
-      }
-    }
   };
 
   return (
@@ -336,12 +289,12 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
                     <button
                       key={image.url}
                       type="button"
-                      onClick={() => handleImageSelect(image.url, image.name)}
+                      onClick={() => handleImageSelect(image.url, image.filename)}
                       className="relative aspect-video rounded-lg overflow-hidden border-2 border-gray-200 hover:border-[#D67C4A] transition-colors group"
                     >
                       <img 
                         src={image.url} 
-                        alt={image.name}
+                        alt={image.filename}
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
@@ -350,7 +303,7 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
                         </span>
                       </div>
                       <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white text-xs p-1 truncate">
-                        {image.name}
+                        {image.filename}
                       </div>
                     </button>
                   ))}
@@ -370,9 +323,6 @@ function TinyMCEEditor({ value, onChange }: HtmlEditorProps) {
             menubar: true,
             images_upload_handler: handleImageUpload,
             file_picker_callback: handleFilePicker,
-            setup: (editor: any) => {
-              editor.on('paste', (e: any) => handlePaste(editor, e));
-            }
           })}
           onEditorChange={(content) => onChange(content)}
       />

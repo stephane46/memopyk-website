@@ -28,13 +28,6 @@ interface CacheStatsResponse {
   [key: string]: unknown;
 }
 
-interface UnifiedCacheStats {
-  videos: { fileCount: number; totalSize: number; sizeMB: string };
-  images: { fileCount: number; totalSize: number; sizeMB: string };
-  total: { fileCount: number; totalSize: number; sizeMB: string; limitMB: string; usagePercent: number };
-  management: { maxCacheDays: number; autoCleanup: boolean; nextCleanup: string };
-}
-
 interface CacheStatus {
   cached: boolean;
   size?: number;
@@ -89,12 +82,6 @@ export const VideoCacheStatus: React.FC<VideoCacheStatusProps> = ({
     // Removed automatic refresh - use on-demand refresh buttons instead
   });
 
-  // Query unified cache stats with storage management
-  const { data: unifiedStats, refetch: refetchUnified } = useQuery<UnifiedCacheStats>({
-    queryKey: ['/api/unified-cache/stats']
-    // Removed automatic refresh - use on-demand refresh buttons instead
-  });
-
   // Refresh cache status for section (all videos in this component)
   const refreshStatusMutation = useMutation({
     mutationFn: async () => {
@@ -105,7 +92,6 @@ export const VideoCacheStatus: React.FC<VideoCacheStatusProps> = ({
     onSuccess: () => {
       refetchStatus();
       refetchStats();
-      refetchUnified();
       toast({
         title: "Status Updated",
         description: `Updated cache status for ${videoFilenames.length} videos`,
@@ -237,7 +223,6 @@ export const VideoCacheStatus: React.FC<VideoCacheStatusProps> = ({
       refetchStatus();
       refetchStats();
       queryClient.invalidateQueries({ queryKey: ['/api/video-cache/stats'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/unified-cache/stats'] });
     },
     onError: (error: Error & {response?: {data?: {details?: string}}}) => {
       toast({
@@ -303,10 +288,8 @@ export const VideoCacheStatus: React.FC<VideoCacheStatusProps> = ({
       });
       refetchStatus();
       refetchStats();
-      refetchUnified();
       queryClient.invalidateQueries({ queryKey: ['/api/video-cache/stats'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/unified-cache/stats'] });
-      
+
       // Notify AdminPage that bulletproof cache is complete
       window.dispatchEvent(new CustomEvent('bulletproofCacheComplete'));
     },
@@ -328,7 +311,6 @@ export const VideoCacheStatus: React.FC<VideoCacheStatusProps> = ({
       if (isTimeout) {
         setTimeout(() => {
           refetchStats();
-          refetchUnified();
           queryClient.invalidateQueries({ queryKey: ['/api/video-cache/stats'] });
         }, 5000);
       }

@@ -108,9 +108,9 @@ export const IMAGE_CLASS_LIST = [
 export const createImageUploadHandler = () => {
   return async (blobInfo: any, progress: (percent: number) => void) => {
     const formData = new FormData();
-    formData.append('image', blobInfo.blob(), blobInfo.filename());
+    formData.append('file', blobInfo.blob(), blobInfo.filename());
 
-    const response = await adminFetch('/api/admin/blog/images', {
+    const response = await adminFetch('/api/image-bank/upload', {
       method: 'POST',
       body: formData
     });
@@ -120,7 +120,7 @@ export const createImageUploadHandler = () => {
     }
 
     const result = await response.json();
-    return result.data.url;
+    return result.url;
   };
 };
 
