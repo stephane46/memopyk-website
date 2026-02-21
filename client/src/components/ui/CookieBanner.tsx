@@ -142,32 +142,47 @@ export function CookieBanner({ onFooterSettingsClick }: CookieBannerProps) {
     <>
       {/* Cookie Banner */}
       {isVisible && (
-        <div 
+        <div
           className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg"
           role="banner"
           aria-label="Cookie consent banner"
         >
-          <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 w-full">
-              {/* Banner Content */}
-              <div className="flex-1 text-[11px] sm:text-xs text-gray-700 leading-relaxed">
-                <p className="mb-2 font-medium text-gray-900 text-xs sm:text-sm">
-                  {language === 'fr-FR' ? 'Votre vie privée est importante chez MEMOPYK.' : 'Your privacy matters at MEMOPYK.'}
-                </p>
-                <p>
-                  {language === 'fr-FR' 
-                    ? <>Nous utilisons uniquement les cookies essentiels pour faire fonctionner le site, et -si vous le permettez- des cookies analytiques optionnels pour savoir si les visiteurs regardent nos exemples de films. <strong>Nous n'utilisons jamais de cookies à des fins publicitaires, de reciblage, ni pour partager vos données avec des tiers.</strong> Tout le suivi reste limité à MEMOPYK : <strong>vos activités sur le site ne sont ni reliées ni partagées avec d'autres sites</strong>.</>
-                    : <>We use only essential cookies to run the site, and -if you allow- optional analytics to see if people visit or watch our sample films. <strong>We never use cookies for advertising, remarketing, or sharing your data with third parties.</strong> All tracking stays on MEMOPYK—<strong>your activity here isn't connected to or shared with other websites</strong>.</>
-                  }
-                </p>
+          <div className="w-full px-4 sm:px-6 lg:px-8 py-3 lg:py-6">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 lg:gap-4 w-full">
+              {/* Banner Content — compact on mobile, full on desktop */}
+              <div className="flex-1 text-gray-700 leading-relaxed">
+                {/* Mobile: compact summary */}
+                <div className="block lg:hidden">
+                  <p className="text-xs text-gray-700">
+                    <span className="font-medium text-gray-900">
+                      {language === 'fr-FR' ? 'Votre vie privée est importante.' : 'Your privacy matters.'}
+                    </span>
+                    {' '}
+                    {language === 'fr-FR'
+                      ? 'Cookies essentiels uniquement, et analytiques anonymes si vous acceptez.'
+                      : 'Essential cookies only, plus anonymous analytics if you accept.'}
+                  </p>
+                </div>
+                {/* Desktop: full explanation */}
+                <div className="hidden lg:block text-[11px] sm:text-xs">
+                  <p className="mb-2 font-medium text-gray-900 text-xs sm:text-sm">
+                    {language === 'fr-FR' ? 'Votre vie privée est importante chez MEMOPYK.' : 'Your privacy matters at MEMOPYK.'}
+                  </p>
+                  <p>
+                    {language === 'fr-FR'
+                      ? <>Nous utilisons uniquement les cookies essentiels pour faire fonctionner le site, et -si vous le permettez- des cookies analytiques optionnels pour savoir si les visiteurs regardent nos exemples de films. <strong>Nous n'utilisons jamais de cookies à des fins publicitaires, de reciblage, ni pour partager vos données avec des tiers.</strong> Tout le suivi reste limité à MEMOPYK : <strong>vos activités sur le site ne sont ni reliées ni partagées avec d'autres sites</strong>.</>
+                      : <>We use only essential cookies to run the site, and -if you allow- optional analytics to see if people visit or watch our sample films. <strong>We never use cookies for advertising, remarketing, or sharing your data with third parties.</strong> All tracking stays on MEMOPYK—<strong>your activity here isn't connected to or shared with other websites</strong>.</>
+                    }
+                  </p>
+                </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-2 lg:min-w-fit">
-                <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex flex-col gap-1.5 lg:gap-2 lg:min-w-fit">
+                <div className="flex flex-row gap-2">
                   <Button
                     onClick={handleAcceptAll}
-                    className="cookie-accept-btn px-4 sm:px-6 py-1.5 sm:py-2 text-sm"
+                    className="cookie-accept-btn px-4 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm flex-1 lg:flex-none"
                     data-testid="cookie-accept-all"
                   >
                     {language === 'fr-FR' ? 'Tout accepter' : 'Accept all'}
@@ -175,7 +190,7 @@ export function CookieBanner({ onFooterSettingsClick }: CookieBannerProps) {
                   <Button
                     onClick={handleReject}
                     variant="outline"
-                    className="border-gray-300 text-gray-700 hover:bg-gray-50 px-4 sm:px-6 py-1.5 sm:py-2 text-sm"
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50 px-4 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm flex-1 lg:flex-none"
                     data-testid="cookie-reject"
                   >
                     {language === 'fr-FR' ? 'Refuser' : 'Reject'}
@@ -183,24 +198,24 @@ export function CookieBanner({ onFooterSettingsClick }: CookieBannerProps) {
                   <Button
                     onClick={handleSettings}
                     variant="ghost"
-                    className="text-gray-600 hover:bg-gray-100 px-4 sm:px-6 py-1.5 sm:py-2 text-sm"
+                    className="text-gray-600 hover:bg-gray-100 px-4 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm flex-1 lg:flex-none"
                     data-testid="cookie-settings"
                   >
                     {language === 'fr-FR' ? 'Paramètres' : 'Settings'}
                   </Button>
                 </div>
-                
+
                 {/* Policy Links */}
-                <div className="flex justify-end sm:justify-start lg:justify-end gap-4 text-[10px] text-gray-500 mt-2 sm:mt-0 lg:ml-4">
-                  <a 
+                <div className="flex justify-center lg:justify-end gap-4 text-[10px] text-gray-500">
+                  <a
                     href={getLocalizedPath('/legal/cookie-policy')}
                     className="hover:text-gray-700 underline"
                     data-testid="cookie-policy-link"
                   >
                     {language === 'fr-FR' ? 'Politique de cookies' : 'Cookie Policy'}
                   </a>
-                  <a 
-                    href={getLocalizedPath('/legal/privacy-policy')} 
+                  <a
+                    href={getLocalizedPath('/legal/privacy-policy')}
                     className="hover:text-gray-700 underline"
                     data-testid="privacy-policy-link"
                   >
