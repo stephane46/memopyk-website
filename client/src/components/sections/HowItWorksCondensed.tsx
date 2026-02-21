@@ -1,7 +1,6 @@
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Upload, Edit, Heart, Info } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import RoundedPeelCorner from '@/components/ui/RoundedPeelCorner';
 
 export function HowItWorksCondensed() {
   const { language } = useLanguage();
@@ -174,8 +173,10 @@ export function HowItWorksCondensed() {
                         />
                       </div>
                       {/* Clickable Area */}
-                      <div 
+                      <div
                         className="relative cursor-pointer"
+                        role="button"
+                        tabIndex={0}
                         onClick={() => {
                           setFlippedCards(prev => {
                             const newSet = new Set(prev);
@@ -186,6 +187,20 @@ export function HowItWorksCondensed() {
                             }
                             return newSet;
                           });
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            setFlippedCards(prev => {
+                              const newSet = new Set(prev);
+                              if (newSet.has(step.number)) {
+                                newSet.delete(step.number);
+                              } else {
+                                newSet.add(step.number);
+                              }
+                              return newSet;
+                            });
+                          }
                         }}
                       >
                         {/* Step Image */}
@@ -229,15 +244,27 @@ export function HowItWorksCondensed() {
                         <span className="text-sm font-bold" style={{ color: '#D67C4A' }}>{step.number}</span>
                       </div>
                       
-                      <div 
+                      <div
                         className="relative cursor-pointer overflow-hidden rounded-2xl h-full [&_*]:!text-white"
                         style={{ zIndex: 3, color: '#FFFFFF' }}
+                        role="button"
+                        tabIndex={0}
                         onClick={() => {
                           setFlippedCards(prev => {
                             const newSet = new Set(prev);
                             newSet.delete(step.number);
                             return newSet;
                           });
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            setFlippedCards(prev => {
+                              const newSet = new Set(prev);
+                              newSet.delete(step.number);
+                              return newSet;
+                            });
+                          }
                         }}
                       >
                         

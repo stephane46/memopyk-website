@@ -8,17 +8,14 @@ import FAQSection from '../components/sections/FAQSection';
 import { CtaSection } from '../components/sections/CtaSection';
 import { SEO } from '../components/SEO';
 
-import { useLanguage } from '../contexts/LanguageContext';
 import { useVideoAnalytics } from '../hooks/useVideoAnalytics';
 // Session tracking re-implemented properly to avoid infinite re-renders
 
 export function HomePage() {
-  const { language } = useLanguage();
   const { trackSession } = useVideoAnalytics();
   
   // Track visitor session on page load (fixed implementation to prevent infinite loops)
   useEffect(() => {
-    console.log('📊 Tracking visitor session on HomePage load');
     trackSession();
   }, []); // Empty dependency array to only run once on mount
   

@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { useVideoAnalytics } from '../../hooks/useVideoAnalytics';
 import { Button } from '../ui/button';
 
 interface HeroVideo {
@@ -34,7 +33,6 @@ interface HeroText {
 
 export function HeroVideoSection() {
   const { language } = useLanguage();
-  const { trackVideoView } = useVideoAnalytics();
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [screenSize, setScreenSize] = useState<'mobile' | 'tablet' | 'desktop'>(() => {
@@ -133,18 +131,6 @@ export function HeroVideoSection() {
     goToVideo(newIndex);
   };
 
-  const togglePlayPause = () => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    if (isPlaying) {
-      video.pause();
-    } else {
-      video.play();
-    }
-    setIsPlaying(!isPlaying);
-  };
-
   const handleVideoLoad = () => {
     const video = videoRef.current;
     if (video && isPlaying) {
@@ -202,6 +188,7 @@ export function HeroVideoSection() {
           ref={videoRef}
           key={videoUrl}
           className="w-full h-full object-cover"
+          aria-label={language === 'fr-FR' ? 'Vidéo héros' : 'Hero video'}
           autoPlay
           muted
           loop={false}
@@ -372,6 +359,8 @@ export function HeroVideoSection() {
             size="lg"
             className="hidden sm:flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 text-memopyk-orange hover:text-memopyk-orange/80 z-20 p-0 bg-transparent hover:bg-transparent"
             onClick={goToPrevious}
+            title={language === 'fr-FR' ? 'Vidéo précédente' : 'Previous video'}
+            aria-label={language === 'fr-FR' ? 'Vidéo précédente' : 'Previous video'}
           >
             <ChevronLeft className="h-16 w-16 lg:h-24 lg:w-24 drop-shadow-lg" strokeWidth={1.5} />
           </Button>
@@ -381,6 +370,8 @@ export function HeroVideoSection() {
             size="lg"
             className="hidden sm:flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 text-memopyk-orange hover:text-memopyk-orange/80 z-20 p-0 bg-transparent hover:bg-transparent"
             onClick={goToNext}
+            title={language === 'fr-FR' ? 'Vidéo suivante' : 'Next video'}
+            aria-label={language === 'fr-FR' ? 'Vidéo suivante' : 'Next video'}
           >
             <ChevronRight className="h-16 w-16 lg:h-24 lg:w-24 drop-shadow-lg" strokeWidth={1.5} />
           </Button>
@@ -392,7 +383,7 @@ export function HeroVideoSection() {
                 key={index}
                 className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full transition-all duration-300 border-2 border-memopyk-orange ${
                   index === currentVideoIndex 
-                    ? 'bg-memopyk-orange shadow-lg !bg-memopyk-orange' 
+                    ? 'bg-memopyk-orange shadow-lg'
                     : 'bg-transparent hover:bg-memopyk-orange/30'
                 }`}
                 onClick={() => goToVideo(index)}

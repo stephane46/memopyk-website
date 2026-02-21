@@ -3,13 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Play, Eye, Star, ArrowRight, Image as ImageIcon, Film, Users, Clock, Smartphone, Monitor, Instagram, Phone, Edit } from "lucide-react";
+import { ArrowRight, Film, Users, Clock, Smartphone, Monitor, Instagram, Phone, Edit } from "lucide-react";
 import VideoOverlay from "@/components/gallery/VideoOverlay";
-import { MobileEnhancedGallery } from "@/components/mobile/MobileEnhancedGallery";
-import { LazyImage } from "@/components/ui/LazyImage";
-import { useNetworkStatus } from "@/hooks/useNetworkStatus";
-import { useDeviceOrientation } from "@/hooks/useDeviceOrientation";
 import { trackCtaClick } from "@/lib/analytics";
 import { trackEvent } from "@/utils/analytics";
 // Removed useVideoAnalytics import - not used in GallerySection, causing unnecessary re-renders
@@ -74,7 +69,7 @@ export default function GallerySection() {
     const isMobileViewport = typeof window !== 'undefined' && window.innerWidth < 768;
     return isMobileViewport;
   });
-  const [preloadedVideos, setPreloadedVideos] = useState<Set<string>>(new Set());
+  const preloadedVideos = useRef<Set<string>>(new Set());
   // 🚨 CRITICAL FIX: Remove unused hooks that might cause re-renders
   // const networkStatus = useNetworkStatus();
   // const { orientation } = useDeviceOrientation();
@@ -101,50 +96,16 @@ export default function GallerySection() {
   // Mobile detection is now static - no reactive updates needed for gallery
   
 
-  // 🚨 CACHE SYNCHRONIZATION FIX v1.0.111 - Browser storage cache busting
-  useEffect(() => {
-    
-    // Clear any browser-cached gallery data on component mount
-    const clearBrowserCache = () => {
-      try {
-        // Clear localStorage items that might cache gallery data
-        Object.keys(localStorage).forEach(key => {
-          if (key.includes('gallery') || key.includes('react-query')) {
-            localStorage.removeItem(key);
-          }
-        });
-        // Clear sessionStorage as well
-        Object.keys(sessionStorage).forEach(key => {
-          if (key.includes('gallery') || key.includes('react-query')) {
-            sessionStorage.removeItem(key);
-          }
-        });
-      } catch (e) {
-        console.warn("Cache clear failed:", e);
-      }
-    };
-    
-    clearBrowserCache();
-  }, []);
-  
-  // 🚨 REMOVED: refreshKey state that was causing constant re-renders
-  // const [refreshKey, setRefreshKey] = useState(0);
-  
-  const { data: rawData = [], isLoading, refetch } = useQuery<any[]>({
-    queryKey: ['/api/gallery'], // 🚨 CACHE SYNC FIX v1.0.125 - Use same key as admin
-    staleTime: Infinity, // Never consider data stale - this is a company presentation, not YouTube
-    gcTime: Infinity, // Keep cache forever until manual refresh
-    refetchOnMount: false, // Don't refetch on mount - use cached data
-    refetchOnWindowFocus: false, // Never refetch on focus
-    refetchInterval: false, // No automatic polling
-    retry: 2, // Retry on failure
+  const { data: rawData = [] } = useQuery<any[]>({
+    queryKey: ['/api/gallery'],
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: Infinity,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchInterval: false,
+    retry: 2,
   });
   
-  // 🚨 CRITICAL FIX: Disable storage/admin listeners causing constant re-renders
-  // These event listeners were triggering setRefreshKey constantly
-  useEffect(() => {
-    // All storage/admin refresh logic disabled to prevent VideoOverlay remounting
-  }, []);
 
   // Process and transform data
   const galleryItems = React.useMemo(() => {
@@ -195,28 +156,7 @@ export default function GallerySection() {
     }));
   }, [rawData]);
 
-  // 🎬 Animation observers - FIXED: Removed galleryItems dependency to prevent VideoOverlay remounting!
-  const galleryItemsLength = React.useMemo(() => {
-    return Array.isArray(galleryItems) ? galleryItems.length : 0;
-  }, [galleryItems]);
-  
-  // 🚨 CRITICAL FIX: Completely disable animation observers to stop re-renders
-  // These IntersectionObservers were causing constant state updates
-  useEffect(() => {
-    // All animation logic disabled - text always visible
-  }, []);
 
-  // Add gallery video logging similar to hero videos
-  useEffect(() => {
-    // 🚨 CRITICAL FIX: Ensure galleryItems is always an array before calling .map()
-    const safeGalleryItems = Array.isArray(galleryItems) ? galleryItems : [];
-    if (safeGalleryItems.length > 0) {
-      const galleryVideoFilenames = safeGalleryItems.map(item => {
-        const videoUrl = language === 'fr-FR' ? item.videoUrlFr : item.videoUrlEn;
-        return videoUrl && videoUrl.includes('/') ? videoUrl.split('/').pop() : (videoUrl || 'no-video');
-      });
-    }
-  }, [galleryItems, language]);
 
   // Add click-outside detection for flipped cards
   useEffect(() => {
@@ -321,20 +261,16 @@ export default function GallerySection() {
       : (language === 'fr-FR' ? item.staticImageUrlFr : item.staticImageUrlEn);
 
     if (croppedThumb && croppedThumb.trim() !== '') {
-      console.log(`🔍 PUBLIC GALLERY: Using cropped image for ${language}: ${croppedThumb}`);
       return croppedThumb; // Properly cropped user images
     }
-    
+
     // Legacy fallback for old items that only have staticImageUrl
     if (item.staticImageUrl) {
-      console.log(`🔍 PUBLIC GALLERY: Using legacy staticImageUrl: ${item.staticImageUrl}`);
       return item.staticImageUrl;
     }
 
     // Final fallback to original images
-    const originalImage = item.imageUrlEn || "";
-    console.log(`🔍 PUBLIC GALLERY: Using original image fallback: ${originalImage}`);
-    return originalImage;
+    return item.imageUrlEn || "";
   };
 
   const getItemTitle = (item: GalleryItem) => {
@@ -480,11 +416,6 @@ export default function GallerySection() {
     // PRIORITY 1: Use database values if available (from admin panel updates)
     if (item.videoWidth && item.videoHeight) {
       const orientation = item.videoWidth > item.videoHeight ? 'landscape' : 'portrait';
-      console.log(`✅ DATABASE VIDEO DIMENSIONS for ${cleanFilename}:`, {
-        width: item.videoWidth,
-        height: item.videoHeight,
-        orientation
-      });
       return {
         width: item.videoWidth,
         height: item.videoHeight,
@@ -500,12 +431,10 @@ export default function GallerySection() {
     };
 
     if (cleanFilename && videoDimensionsMap[cleanFilename]) {
-      console.log(`✅ FALLBACK VIDEO DIMENSIONS for ${cleanFilename}:`, videoDimensionsMap[cleanFilename]);
       return videoDimensionsMap[cleanFilename];
     }
 
     // PRIORITY 3: Final fallback
-    console.warn(`⚠️ No dimensions found for ${cleanFilename}, using 16:9 landscape fallback`);
     return { width: 1920, height: 1080, orientation: 'landscape' as const };
   };
 
@@ -530,11 +459,6 @@ export default function GallerySection() {
         currency: 'EUR'
       });
       
-      // Analytics tracking moved to VideoOverlay for actual watch time tracking
-      const videoFilename = item.videoFilename || '';
-      const cleanFilename = videoFilename.includes('/') ? videoFilename.split('/').pop() : videoFilename;
-      console.log('🎬 Opening video lightbox:', cleanFilename);
-      
       // Get video URL and thumbnail for instant display
       const videoUrl = getVideoUrl(item, index);
       const thumbnailUrl = getImageUrl(item);
@@ -557,6 +481,7 @@ export default function GallerySection() {
       });
       
       // Prevent body scrolling when lightbox is open
+      savedOverflow.current = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
     } else {
       // Track card flip to GA4
@@ -584,10 +509,21 @@ export default function GallerySection() {
     }
   };
 
+  const savedOverflow = useRef<string>('');
+
   const closeLightbox = useCallback(() => {
     setLightboxVideo(null);
-    // Restore body scrolling
-    document.body.style.overflow = 'unset';
+    document.body.style.overflow = savedOverflow.current;
+  }, []);
+
+  const preloadVideo = useCallback((videoUrl: string) => {
+    if (!videoUrl || preloadedVideos.current.has(videoUrl)) return;
+    preloadedVideos.current.add(videoUrl);
+    const vid = document.createElement('video');
+    vid.preload = 'auto';
+    vid.src = videoUrl;
+    vid.style.display = 'none';
+    vid.load();
   }, []);
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -611,49 +547,6 @@ export default function GallerySection() {
     }
   }, [lightboxVideo]);
 
-  // 🎯 INSTANT GALLERY VIDEO SYSTEM - Store preloaded video elements for instant reuse
-  const [preloadedVideoElements, setPreloadedVideoElements] = useState<Map<string, HTMLVideoElement>>(new Map());
-
-  // 🎯 SMART ON-DEMAND PRELOADING - Fast loading without conflicts
-  // 🚨 CRITICAL FIX: Remove galleryItems dependency to prevent VideoOverlay remounting!
-  const galleryItemsCount = React.useMemo(() => {
-    return Array.isArray(galleryItems) ? galleryItems.length : 0;
-  }, [galleryItems]);
-  
-  useEffect(() => {
-    if (!galleryItemsCount) return;
-
-    console.log(`🎯 SMART PRELOADING SYSTEM: On-demand video loading for instant playback without conflicts`);
-    console.log(`📊 Gallery items available: ${galleryItemsCount} (videos preload on hover/click)`);
-    
-    // Cleanup any existing preloaded elements to start fresh
-    const cleanupPreloadedElements = () => {
-      preloadedVideoElements.forEach((video, filename) => {
-        console.log(`🧹 CLEANING UP: ${filename}`);
-        video.remove();
-      });
-      setPreloadedVideoElements(new Map());
-      setPreloadedVideos(new Set());
-    };
-    
-    cleanupPreloadedElements();
-  }, [galleryItemsCount]); // FIXED: Use stable count instead of galleryItems object
-
-  // Cleanup preloaded video elements on unmount
-  useEffect(() => {
-    return () => {
-      preloadedVideoElements.forEach((video, filename) => {
-        try {
-          if (document.body.contains(video)) {
-            console.log(`🧹 CLEANING UP: ${filename}`);
-            document.body.removeChild(video);
-          }
-        } catch (error) {
-          console.warn(`Cleanup warning for ${filename}:`, error);
-        }
-      });
-    };
-  }, [preloadedVideoElements]);
 
 
 
@@ -689,39 +582,7 @@ export default function GallerySection() {
         {/* Remove animated text from here - will be placed between video grids */}
 
         {/* Gallery Grid */}
-        {(() => {
-          console.log(`📱 MOBILE DETECTION: isMobile=${isMobile}, showing DESKTOP gallery (MobileEnhancedGallery disabled)`);
-          return null;
-        })()}
-        {false ? (
-          <MobileEnhancedGallery
-            items={galleryItems}
-            language={language}
-            onVideoClick={(item) => {
-              // Analytics tracking moved to VideoOverlay - only track actual watch time, not clicks
-              const videoFilename = item.videoFilename || '';
-              const cleanFilename = videoFilename.includes('/') ? videoFilename.split('/').pop() : videoFilename;
-              console.log('🎬 MOBILE VIDEO LIGHTBOX OPENING:', cleanFilename, '- tracking moved to VideoOverlay for actual watch time');
-              
-              const videoUrl = getVideoUrl(item, 0);
-              setLightboxVideo({...item, lightboxVideoUrl: videoUrl});
-              document.body.style.overflow = 'hidden';
-            }}
-            onFlipCard={(id) => {
-              setFlippedCards(prev => {
-                const newSet = new Set(prev);
-                if (newSet.has(id)) {
-                  newSet.delete(id);
-                } else {
-                  newSet.add(id);
-                }
-                return newSet;
-              });
-            }}
-            flippedCards={flippedCards}
-          />
-        ) : (
-          <>
+        (<>
 
           {/* First 3 videos grid */}
           <div 
@@ -733,20 +594,23 @@ export default function GallerySection() {
             const thumbnailUrl = imageUrl;
 
             const itemHasVideo = hasVideo(item, index);
-            
+
             // CRITICAL FIX: Cards with videos should NEVER be flipped by default
             // Only flip if explicitly flipped AND has no video
             const isFlipped = flippedCards.has(item.id) && !itemHasVideo;
-            
 
-            
             return (
-              <div 
-                key={item.id} 
+              <div
+                key={item.id}
                 data-video-id={item.id}
                 data-card-id={item.id}
                 data-gallery-card
                 className={`card-flip-container ${isFlipped ? 'flipped' : ''} rounded-2xl`}
+                onMouseEnter={() => {
+                  if (item.videoFilename) {
+                    preloadVideo(getVideoUrl(item, index));
+                  }
+                }}
               >
                 <div className="card-flip-inner">
                   {/* FRONT SIDE - Normal Gallery Card */}
@@ -761,8 +625,6 @@ export default function GallerySection() {
                             src={thumbnailUrl}
                             alt={getItemTitle(item)}
                             className="w-full h-full object-cover"
-                            onLoad={() => console.log(`🖼️ Image loaded: ${thumbnailUrl}`)}
-                            onError={() => console.log(`❌ Image failed to load: ${thumbnailUrl}`)}
                             loading="eager"
                           />
                           
@@ -791,11 +653,20 @@ export default function GallerySection() {
                           {/* Desktop Play Button - Orange for Video, White for No Video */}
                           <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{zIndex: 999999}}>
                             {/* Dynamic Play Button Based on Video Availability - Reduced diameter by 1/3 */}
-                            <div 
+                            <div
+                              role="button"
+                              tabIndex={0}
                               className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 cursor-pointer pointer-events-auto ${itemHasVideo && !isMobile ? 'animate-pulse-orange' : ''}`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handlePlayClick(item, e, index);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handlePlayClick(item, e as unknown as React.MouseEvent, index);
+                                }
                               }}
                               style={itemHasVideo ? {
                                 // Orange for items WITH video - pulse only on desktop
@@ -944,18 +815,23 @@ export default function GallerySection() {
             const thumbnailUrl = imageUrl;
 
             const itemHasVideo = hasVideo(item, actualIndex);
-            
+
             // CRITICAL FIX: Cards with videos should NEVER be flipped by default
             // Only flip if explicitly flipped AND has no video
             const isFlipped = flippedCards.has(item.id) && !itemHasVideo;
-            
+
             return (
-              <div 
-                key={item.id} 
+              <div
+                key={item.id}
                 data-video-id={item.id}
                 data-card-id={item.id}
                 data-gallery-card
                 className={`card-flip-container ${isFlipped ? 'flipped' : ''} rounded-2xl`}
+                onMouseEnter={() => {
+                  if (item.videoFilename) {
+                    preloadVideo(getVideoUrl(item, actualIndex));
+                  }
+                }}
               >
                 <div className="card-flip-inner">
                   {/* FRONT SIDE - Normal Gallery Card */}
@@ -970,8 +846,6 @@ export default function GallerySection() {
                             src={thumbnailUrl}
                             alt={getItemTitle(item)}
                             className="w-full h-full object-cover"
-                            onLoad={() => console.log(`🖼️ Image loaded: ${thumbnailUrl}`)}
-                            onError={() => console.log(`❌ Image failed to load: ${thumbnailUrl}`)}
                             loading="eager"
                           />
                           
@@ -999,11 +873,20 @@ export default function GallerySection() {
                           {/* Desktop Play Button - Orange for Video, White for No Video */}
                           <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{zIndex: 999999}}>
                             {/* Dynamic Play Button Based on Video Availability - Reduced diameter by 1/3 */}
-                            <div 
+                            <div
+                              role="button"
+                              tabIndex={0}
                               className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 cursor-pointer pointer-events-auto ${itemHasVideo && !isMobile ? 'animate-pulse-orange' : ''}`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handlePlayClick(item, e, actualIndex);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handlePlayClick(item, e as unknown as React.MouseEvent, actualIndex);
+                                }
                               }}
                               style={itemHasVideo ? {
                                 // Orange for items WITH video - pulse only on desktop
@@ -1133,7 +1016,7 @@ export default function GallerySection() {
             </p>
           </div>
           </>
-        )}
+        )
 
 
 

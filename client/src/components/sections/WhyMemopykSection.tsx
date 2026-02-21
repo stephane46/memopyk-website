@@ -2,6 +2,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { Clock, Zap, Users, Settings, Shield, Star, Heart, CheckCircle, Target } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
+import { htmlSanitizer } from '@/lib/sanitize-html';
 
 export function WhyMemopykSection() {
   const { language } = useLanguage();
@@ -32,7 +33,6 @@ export function WhyMemopykSection() {
   // Force refresh mechanism for admin updates
   useEffect(() => {
     const handleStorageChange = () => {
-      console.log("🔄 Storage change detected - refreshing Why MEMOPYK cards");
       setRefreshKey(prev => prev + 1);
     };
     
@@ -40,7 +40,6 @@ export function WhyMemopykSection() {
     
     // Listen for custom admin update events
     const handleAdminUpdate = () => {
-      console.log("🔄 Admin update event - refreshing Why MEMOPYK cards");
       setRefreshKey(prev => prev + 1);
     };
     
@@ -113,8 +112,8 @@ export function WhyMemopykSection() {
                     {/* Description */}
                     <div 
                       className="text-memopyk-dark-blue leading-relaxed text-sm sm:text-base flex-grow text-center [&_ul]:list-disc [&_ul]:list-outside [&_ul]:text-left [&_ul]:space-y-1 [&_ul]:mt-3 [&_ul]:pl-6 [&_li]:leading-relaxed [&_li]:mb-1 [&_strong]:font-semibold [&_a]:underline [&_a]:text-memopyk-dark-blue hover:[&_a]:text-memopyk-orange [&_a]:cursor-pointer"
-                      dangerouslySetInnerHTML={{ 
-                        __html: language === 'fr-FR' ? benefit.descriptionFr : benefit.descriptionEn 
+                      dangerouslySetInnerHTML={{
+                        __html: htmlSanitizer.sanitize(language === 'fr-FR' ? benefit.descriptionFr : benefit.descriptionEn)
                       }}
                     />
                   </div>
@@ -130,9 +129,9 @@ export function WhyMemopykSection() {
             {/* Image Card - Desktop order 2, Mobile order 1 */}
             <div className="group relative h-full order-1 md:order-2">
               <div className="relative bg-gradient-to-br from-memopyk-cream/20 to-memopyk-sky-blue/10 backdrop-blur-sm rounded-2xl shadow-lg md:hover:shadow-2xl transition-[transform,shadow] duration-300 md:transform md:hover:-translate-y-2 border border-white/20 h-full overflow-hidden">
-                <img 
+                <img
                   src="/images/brand/souvenir_film.png"
-                  alt=""
+                  alt={language === 'fr-FR' ? "Illustration du processus MEMOPYK" : "Illustration of the MEMOPYK process"}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -168,8 +167,8 @@ export function WhyMemopykSection() {
                     {/* Description */}
                     <div 
                       className="text-memopyk-dark-blue leading-relaxed text-sm sm:text-base flex-grow text-center [&_ul]:list-disc [&_ul]:list-outside [&_ul]:text-left [&_ul]:space-y-1 [&_ul]:mt-3 [&_ul]:pl-6 [&_li]:leading-relaxed [&_li]:mb-1 [&_strong]:font-semibold [&_a]:underline [&_a]:text-memopyk-dark-blue hover:[&_a]:text-memopyk-orange [&_a]:cursor-pointer"
-                      dangerouslySetInnerHTML={{ 
-                        __html: language === 'fr-FR' ? benefit.descriptionFr : benefit.descriptionEn 
+                      dangerouslySetInnerHTML={{
+                        __html: htmlSanitizer.sanitize(language === 'fr-FR' ? benefit.descriptionFr : benefit.descriptionEn)
                       }}
                     />
                   </div>
@@ -211,8 +210,8 @@ export function WhyMemopykSection() {
                     {/* Description */}
                     <div 
                       className="text-memopyk-dark-blue leading-relaxed text-sm sm:text-base flex-grow text-center [&_ul]:list-disc [&_ul]:list-outside [&_ul]:text-left [&_ul]:space-y-1 [&_ul]:mt-3 [&_ul]:pl-6 [&_li]:leading-relaxed [&_li]:mb-1 [&_strong]:font-semibold [&_a]:underline [&_a]:text-memopyk-dark-blue hover:[&_a]:text-memopyk-orange [&_a]:cursor-pointer"
-                      dangerouslySetInnerHTML={{ 
-                        __html: language === 'fr-FR' ? benefit.descriptionFr : benefit.descriptionEn 
+                      dangerouslySetInnerHTML={{
+                        __html: htmlSanitizer.sanitize(language === 'fr-FR' ? benefit.descriptionFr : benefit.descriptionEn)
                       }}
                     />
                   </div>
@@ -250,8 +249,8 @@ export function WhyMemopykSection() {
                     {/* Description */}
                     <div 
                       className="text-memopyk-dark-blue leading-relaxed text-sm sm:text-base flex-grow text-center [&_ul]:list-disc [&_ul]:list-outside [&_ul]:text-left [&_ul]:space-y-1 [&_ul]:mt-3 [&_ul]:pl-6 [&_li]:leading-relaxed [&_li]:mb-1 [&_strong]:font-semibold [&_a]:underline [&_a]:text-memopyk-dark-blue hover:[&_a]:text-memopyk-orange [&_a]:cursor-pointer"
-                      dangerouslySetInnerHTML={{ 
-                        __html: language === 'fr-FR' ? benefit.descriptionFr : benefit.descriptionEn 
+                      dangerouslySetInnerHTML={{
+                        __html: htmlSanitizer.sanitize(language === 'fr-FR' ? benefit.descriptionFr : benefit.descriptionEn)
                       }}
                     />
                   </div>
@@ -288,8 +287,8 @@ export function WhyMemopykSection() {
                     {/* Description */}
                     <div 
                       className="text-memopyk-dark-blue leading-relaxed text-sm sm:text-base flex-grow text-center [&_ul]:list-disc [&_ul]:list-outside [&_ul]:text-left [&_ul]:space-y-1 [&_ul]:mt-3 [&_ul]:pl-6 [&_li]:leading-relaxed [&_li]:mb-1 [&_strong]:font-semibold [&_a]:underline [&_a]:text-memopyk-dark-blue hover:[&_a]:text-memopyk-orange [&_a]:cursor-pointer"
-                      dangerouslySetInnerHTML={{ 
-                        __html: language === 'fr-FR' ? benefit.descriptionFr : benefit.descriptionEn 
+                      dangerouslySetInnerHTML={{
+                        __html: htmlSanitizer.sanitize(language === 'fr-FR' ? benefit.descriptionFr : benefit.descriptionEn)
                       }}
                     />
                   </div>
