@@ -71,7 +71,13 @@ READ THESE FIRST:
 
 ## Recent Work
 
-- 2026-02-21: Homepage audit fixes (XSS, cache, dead code, preloading, tooltips, accessibility, alt text). New 'Comment ça marche' admin section built. DB updates for hero video titles, gallery filename, tablet font.
+- 2026-02-21: Merged homepage audit sprint to main (commit 604bdb0)
+- 2026-02-21: Comment ça marche admin — fixed form (plain textareas, removed unused backTitle fields, added layout hint, fixed corrupted step-1 data)
+- 2026-02-21: Removed video preloading from GallerySection + VideoOverlay (31 lines) — title page already handles perceived load delay
+- 2026-02-21: Cookie banner mobile — compact bottom bar (~15% viewport height vs 70% before)
+- 2026-02-21: Language detection — non-French browsers now default to English (server app.ts + Playwright verified 5/5)
+- 2026-02-21: Homepage audit fixes — XSS (5x dangerouslySetInnerHTML sanitized), gallery cache (staleTime 5min), dead code cleanup (console.logs, unused imports, empty hooks), lightbox overflow save/restore, hero arrow tooltips bilingual, keyboard accessibility (gallery + HowItWorks flip cards), alt text bilingual, tablet font fix, DB updates (hero video titles, gallery filename)
+- 2026-02-21: Comment ça marche admin section built — full CRUD, DB-driven, help content, seeded 3 steps
 - 2026-02-21: Fixed language detection fallback — non-French browsers now default to English (was French). Server-side detectLanguage in app.ts flipped from "not-English→French" to "not-French→English". Client fallback already correct (en-US). Verified with 5 Playwright tests (fr-FR, fr-CA, en-US, de-DE, ja-JP all pass).
 - 2026-02-21: Removed dead forceCacheGalleryMutation from VideoCacheStatus.tsx — route audit now 0 real errors
 - 2026-02-21: Cache button fixes — Button 2 "Smart Cleanup" rewired to new POST /api/video-cache/smart-cleanup (age-based, was deleting everything), dual-firing fixed via handleGlobalEvents prop, 4 dead mutations removed (3 from CacheManagementSection, 1 from VideoCacheStatus)

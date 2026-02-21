@@ -1,6 +1,6 @@
 # MEMOPYK Migration Progress Report
 
-**Last Updated:** 2026-02-11
+**Last Updated:** 2026-02-21
 **Status:** Migration complete. Production live on Coolify. Now in maintenance/feature mode.
 
 ---
@@ -17,7 +17,7 @@
 | **Blog** | ✅ Working | Blog Hub with 5 workflow tabs |
 | **Contact Form** | ✅ Working | |
 | **Travel Upload Portal** | ✅ Working | Form submission + Nextcloud integration |
-| **Partner Directory** | ✅ Working | Minimal map (Mapbox migration planned) |
+| **Partner Directory** | ✅ Working | Mapbox GL JS with clustering (migrated Feb 14) |
 | **Admin Panel** | ✅ Working | Security hardened, code-split, cleaned up |
 | **Partners API** | ✅ Working | Database queries implemented |
 | **Analytics** | ✅ Functional | P1-P8 rebuild + blog analytics endpoints |
@@ -70,11 +70,32 @@ All support days + language params + IP exclusion. Uses Drizzle ORM with `sql` t
 | Feb 6 | 12,501 keywords imported (FR+EN), 25 clusters, filters, quick presets |
 | Feb 9 | Architecture audit (5 phases), major cleanup |
 | Feb 11 | Blog analytics endpoints, documentation cleanup |
+| Feb 12-13 | Content pipeline (13 FR articles), server-side SEO, infrastructure overhaul |
+| Feb 14 | Mapbox GL JS migration, E2E test fixes, help system V6 |
+| Feb 15-16 | V8 naive user test (28/28 CLEAR), help content enrichment |
+| Feb 17 | Database cleanup (88→35 tables), schema audit, overnight hardening |
+| Feb 19 | Blog Hub deep audit (15 fixes), Blog Editor topic/keyword fields |
+| Feb 20 | Analytics E2E test suite (38 tests), route audit, video/blog/trends fixes |
+| Feb 21 | **Homepage audit sprint merged to production** — see below |
+
+---
+
+## Homepage Audit Sprint (Feb 21, 2026)
+
+Comprehensive homepage audit completed: 19 issues reviewed, 15 fixed, merged to production (commit 604bdb0).
+
+| Area | Changes |
+|------|---------|
+| **New admin section** | Comment ça marche — full CRUD, DB table, plain textarea form, 3 steps seeded |
+| **Security** | 5x dangerouslySetInnerHTML sanitized (XSS), gallery cache staleTime added |
+| **Language detection** | Non-French browsers now default to English (server app.ts fix, 5 Playwright tests) |
+| **Cookie banner** | Mobile compact bottom bar (~15% viewport height, was 70%) |
+| **Accessibility** | Keyboard support for gallery + HowItWorks flip cards, bilingual alt text + tooltips |
+| **Dead code** | Video preloading removed (31 lines), console.logs, unused imports, empty hooks |
+| **DB updates** | Hero video titles, gallery filename column, tablet font size |
 
 ---
 
 ## Remaining Work
 
-- Mapbox GL JS migration for Partner Directory map
-- 36 client TS errors (non-blocking, pre-existing in admin analytics components)
 - Analytics dashboard strategic rebuild decision
