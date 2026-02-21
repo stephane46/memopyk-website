@@ -1097,6 +1097,18 @@ router.post("/api/video-cache/clear", async (req: Request, res: Response) => {
   }
 });
 
+// Smart cleanup — removes only files older than 30 days + enforces size limit
+router.post("/api/video-cache/smart-cleanup", (req: Request, res: Response) => {
+  try {
+    console.log('🧹 Smart cleanup request — removing expired files only');
+    const result = videoCache.smartCleanup();
+    res.json({ success: true, ...result });
+  } catch (error) {
+    console.error('❌ Smart cleanup error:', error);
+    res.status(500).json({ error: "Failed to run smart cleanup" });
+  }
+});
+
 // Video Cache Refresh — dynamic from DB
 router.post("/api/video-cache/refresh", async (req: Request, res: Response) => {
   try {

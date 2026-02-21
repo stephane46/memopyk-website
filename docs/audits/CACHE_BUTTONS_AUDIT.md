@@ -7,6 +7,16 @@
 
 ---
 
+## Fixes Applied (2026-02-21)
+
+| Issue | Fix | Status |
+|-------|-----|--------|
+| **#1 HIGH** Button 2 deletes ALL cache | New `POST /api/video-cache/smart-cleanup` route calls `videoCache.smartCleanup()` (age-based cleanup on both video + image dirs). Button 2 now calls this endpoint directly instead of dispatching `triggerClearCache` event. Toast shows actual removed count + threshold. | **Fixed** |
+| **#2 LOW** Duplicate API calls from dual-firing | Added `handleGlobalEvents?: boolean` prop to `VideoCacheStatus`. Only the Hero instance has `handleGlobalEvents={true}`. Gallery instance no longer listens for global events. | **Fixed** |
+| **#3 LOW** Dead mutations in CacheManagementSection | Deleted 3 unused mutations (`refreshCacheMutation`, `smartCacheRefreshMutation`, `clearCacheMutation`) and removed unused `useMutation` import. Also removed dead `clearCacheMutation` from `VideoCacheStatus`. | **Fixed** |
+
+---
+
 ## Button 1: All Media Cache (purple)
 
 | Aspect | Details |

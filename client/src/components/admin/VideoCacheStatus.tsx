@@ -20,6 +20,7 @@ interface VideoCacheStatusProps {
   title?: string;
   showForceAllButton?: boolean;
   description?: string;
+  handleGlobalEvents?: boolean;
 }
 
 interface CacheStatsResponse {
@@ -35,34 +36,31 @@ interface CacheStatus {
   loadTime?: number;
 }
 
-export const VideoCacheStatus: React.FC<VideoCacheStatusProps> = ({ 
-  videoFilenames, 
+export const VideoCacheStatus: React.FC<VideoCacheStatusProps> = ({
+  videoFilenames,
   title = "Video Cache Status",
   showForceAllButton = false,
-  description
+  description,
+  handleGlobalEvents = false
 }) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [pendingVideos, setPendingVideos] = React.useState<Set<string>>(new Set());
 
-  // Listen for global cache triggers
+  // Listen for global cache triggers (only one instance should handle these)
   React.useEffect(() => {
+    if (!handleGlobalEvents) return;
+
     const handleAllMediaCache = () => {
       forceAllMediaMutation.mutate();
     };
 
-    const handleClearCache = () => {
-      clearCacheMutation.mutate();
-    };
-
     window.addEventListener('triggerAllMediaCache', handleAllMediaCache);
-    window.addEventListener('triggerClearCache', handleClearCache);
-    
+
     return () => {
       window.removeEventListener('triggerAllMediaCache', handleAllMediaCache);
-      window.removeEventListener('triggerClearCache', handleClearCache);
     };
-  }, []);
+  }, [handleGlobalEvents]);
 
   // Query cache status for specific videos
   const { data: cacheStatusData, isLoading: statusLoading, refetch: refetchStatus } = useQuery({
@@ -176,43 +174,7 @@ export const VideoCacheStatus: React.FC<VideoCacheStatusProps> = ({
     // Clean environment detection without log dependencies
   }, [currentHostname, isProduction]);
 
-  // Manual cleanup mutation - removes outdated/orphaned cache files
-  const clearCacheMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest('/api/video-cache/clear', 'POST');
-      return await response.json() as {removed?: {videosRemoved: number; imagesRemoved: number}; message?: string};
-    },
-    onSuccess: (data) => {
-      const result = data.removed || { videosRemoved: 0, imagesRemoved: 0 };
-      const totalRemoved = result.videosRemoved + result.imagesRemoved;
-      
-      if (totalRemoved > 0) {
-        toast({
-          title: "Intelligent Cleanup Complete",
-          description: `Removed ${result.videosRemoved} outdated videos and ${result.imagesRemoved} expired images. Active cache preserved.`,
-        });
-      } else {
-        toast({
-          title: "Cache is Clean",
-          description: "No outdated or orphaned files found. All cache files are current and needed.",
-          variant: "default",
-        });
-      }
-      
-      refetchStatus();
-      refetchStats();
-      queryClient.invalidateQueries({ queryKey: ['/api/video-cache/stats'] });
-    },
-    onError: (error: Error & {response?: {data?: {details?: string}}}) => {
-      toast({
-        title: "Clear Failed",
-        description: `Failed to clear cache: ${error.response?.data?.details || error.message}`,
-        variant: "destructive",
-      });
-    }
-  });
-
-  // Force cache ALL MEDIA (videos + images) mutation  
+  // Force cache ALL MEDIA (videos + images) mutation
   const forceAllMediaMutation = useMutation({
     mutationFn: async () => {
       // Show immediate feedback

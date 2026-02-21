@@ -154,6 +154,17 @@ export class VideoCache {
     this.cleanupDir(this.videoCacheDir);
   }
 
+  /** Smart cleanup: remove expired files (>30 days) from both video and image caches. Returns stats. */
+  smartCleanup(): { videosRemoved: number; imagesRemoved: number; thresholdDays: number } {
+    const v = this.cleanupDirWithStats(this.videoCacheDir);
+    const i = this.cleanupDirWithStats(this.imageCacheDir);
+    return {
+      videosRemoved: v,
+      imagesRemoved: i,
+      thresholdDays: Math.round(this.maxCacheAge / (24 * 60 * 60 * 1000)),
+    };
+  }
+
   // ---------------------------------------------------------------------------
   // Stats (for admin routes)
   // ---------------------------------------------------------------------------
@@ -344,6 +355,11 @@ export class VideoCache {
   }
 
   private cleanupDir(dir: string): void {
+    this.cleanupDirWithStats(dir);
+  }
+
+  /** Like cleanupDir but returns count of removed files. */
+  private cleanupDirWithStats(dir: string): number {
     try {
       const files = readdirSync(dir);
       const entries = files.map((f) => {
@@ -352,9 +368,11 @@ export class VideoCache {
         return { path: p, size: s.size, age: Date.now() - s.mtime.getTime(), mtime: s.mtime.getTime() };
       });
 
+      let removed = 0;
+
       // Remove expired files
       for (const e of entries) {
-        if (e.age > this.maxCacheAge) unlinkSync(e.path);
+        if (e.age > this.maxCacheAge) { unlinkSync(e.path); removed++; }
       }
 
       // Enforce size limit (remove oldest first)
@@ -363,8 +381,11 @@ export class VideoCache {
       for (let i = remaining.length - 1; i >= 0 && total > this.maxCacheSize; i--) {
         unlinkSync(remaining[i].path);
         total -= remaining[i].size;
+        removed++;
       }
-    } catch { /* best-effort */ }
+
+      return removed;
+    } catch { return 0; }
   }
 
   private clearDir(dir: string): number {

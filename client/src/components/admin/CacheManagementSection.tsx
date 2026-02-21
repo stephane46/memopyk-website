@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -94,69 +94,6 @@ export default function CacheManagementSection() {
     refetchInterval: 5000, // Refresh every 5 seconds
   });
 
-  // Cache refresh mutation
-  const refreshCacheMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest('/api/video-cache/refresh', 'POST');
-      return await response.json();
-    },
-    onSuccess: (data: any) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/video-cache/stats'] });
-      toast({
-        title: "Cache Refreshed",
-        description: `Successfully refreshed ${data.cached?.length || 0} critical videos`
-      });
-    },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to refresh video cache", variant: "destructive" });
-    }
-  });
-
-  // Smart gallery cache refresh mutation - syncs cache with current database
-  const smartCacheRefreshMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest('/api/video-cache/refresh', 'POST');
-      return await response.json() as {
-        success: boolean;
-        message: string;
-        removed: string[];
-        cached: string[];
-        stats: any;
-      };
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/video-cache/stats'] });
-      const removedCount = data.removed?.length || 0;
-      const cachedCount = data.cached?.length || 0;
-      toast({
-        title: "Smart Cache Refresh Complete",
-        description: `Removed ${removedCount} outdated files, cached ${cachedCount} new files`
-      });
-    },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to refresh gallery cache", variant: "destructive" });
-    }
-  });
-
-  // Clear cache mutation
-  const clearCacheMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest('/api/video-cache/clear', 'POST');
-      return await response.json() as {removed?: {videosRemoved: number; imagesRemoved: number}; message?: string};
-    },
-    onSuccess: (data) => {
-      const result = data.removed || { videosRemoved: 0, imagesRemoved: 0 };
-      queryClient.invalidateQueries({ queryKey: ['/api/video-cache/stats'] });
-      toast({
-        title: "Cache Completely Cleared",
-        description: `Removed ${result.videosRemoved} videos and ${result.imagesRemoved} images. Cache is now empty.`
-      });
-    },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to clear video cache", variant: "destructive" });
-    }
-  });
-
   return (
     <div className="space-y-6">
       <div className="mb-6">
@@ -226,6 +163,7 @@ export default function CacheManagementSection() {
               description="Critical videos for homepage carousel - preloaded for instant display"
               videoFilenames={heroVideoFilenames}
               showForceAllButton={false}
+              handleGlobalEvents={true}
             />
           </CardContent>
         </Card>
@@ -292,17 +230,40 @@ export default function CacheManagementSection() {
               size="lg"
               variant="outline"
               className="h-20 flex-col gap-2 border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100"
-              onClick={() => {
-                // Smart cleanup functionality - removes only outdated files
-                const event = new CustomEvent('triggerClearCache');
-                window.dispatchEvent(event);
+              onClick={async () => {
+                try {
+                  const response = await apiRequest('/api/video-cache/smart-cleanup', 'POST');
+                  const data = await response.json();
+                  const total = (data.videosRemoved || 0) + (data.imagesRemoved || 0);
+
+                  if (total > 0) {
+                    toast({
+                      title: "Smart Cleanup terminé",
+                      description: `${data.videosRemoved} vidéos et ${data.imagesRemoved} images expirées (>${data.thresholdDays}j) supprimées.`,
+                    });
+                  } else {
+                    toast({
+                      title: "Cache propre",
+                      description: `Aucun fichier expiré (>${data.thresholdDays}j). Tous les fichiers sont récents.`,
+                    });
+                  }
+
+                  queryClient.invalidateQueries({ queryKey: ['/api/cache/breakdown'] });
+                  queryClient.invalidateQueries({ queryKey: ['/api/video-cache/stats'] });
+                } catch (error) {
+                  toast({
+                    title: "Erreur nettoyage",
+                    description: "Impossible d'exécuter le nettoyage intelligent.",
+                    variant: "destructive",
+                  });
+                }
               }}
             >
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5" />
                 <span className="text-lg">🧹 Smart Cleanup</span>
               </div>
-              <span className="text-sm opacity-90">Supprime fichiers expirés (&gt;30j) + orphelins uniquement</span>
+              <span className="text-sm opacity-90">Supprime fichiers expirés (&gt;30j) uniquement</span>
             </Button>
 
             <Button
