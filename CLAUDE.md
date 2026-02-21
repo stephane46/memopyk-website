@@ -72,6 +72,7 @@ READ THESE FIRST:
 ## Recent Work
 
 - 2026-02-21: Removed dead forceCacheGalleryMutation from VideoCacheStatus.tsx — route audit now 0 real errors
+- 2026-02-21: Cache buttons audit + help encoding fix — CACHE_BUTTONS_AUDIT.md (3 buttons traced end-to-end, HIGH: Button 2 "Smart Cleanup" actually deletes ALL cache), help_screens cache row fixed (10 broken UTF-8 chars: 8 em dashes + 2 accented chars + 3 broken emojis)
 - 2026-02-21: SEO housekeeping — OG image admin warning added (Social Media tab), robots.txt sitemap URL fixed (www), DEFAULT_OG constants pointed to actual Supabase CDN URLs, orphan seo_settings row deleted, audit report updated
 - 2026-02-21: Dead code cleanup — 4 orphaned files deleted (ClearCacheButton, SystemTestDashboard, RelatedPostsSection, export-utils), TinyMCE editor rewired from 3 dead /api/admin/* endpoints to /api/image-bank, paste handler removed, unified-cache dead query removed from VideoCacheStatus. Route audit: 10→1 real errors.
 - 2026-02-20: Route audit fixes — hero-text mount point (P1), cache refresh route (P2), dead blog/view POST removed, CSRF logic removed from partner intake, CI whitelist added for 5 false positives. ROUTE_AUDIT_TRIAGE.md + TEST_RUN_REPORT Morning Summary added.
