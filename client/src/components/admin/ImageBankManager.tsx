@@ -360,8 +360,26 @@ export function ImageBankManager() {
     }
   };
 
+  const usedCount = images.filter(img => (img.usageCount ?? 0) > 0).length;
+
   return (
     <div className="space-y-6">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        <Card className="py-2">
+          <CardContent className="p-3 flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-500">Total Images</span>
+            <span className="text-lg font-bold text-gray-900 dark:text-white">{images.length}</span>
+          </CardContent>
+        </Card>
+        <Card className="py-2">
+          <CardContent className="p-3 flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-500">Used in Posts</span>
+            <span className="text-lg font-bold text-green-600 dark:text-green-400">{usedCount}</span>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div />

@@ -330,8 +330,40 @@ export function BlogManagePosts() {
     setFilterKeyword(null);
   };
 
+  const publishedCount = posts.filter(p => p.status === 'published').length;
+  const inReviewCount = posts.filter(p => p.status === 'in_review').length;
+  const draftCount = posts.filter(p => p.status === 'draft').length;
+
   return (
     <div className="space-y-6">
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        <Card className="py-2">
+          <CardContent className="p-3 flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-500">Total Posts</span>
+            <span className="text-lg font-bold text-gray-900 dark:text-white">{totalCount}</span>
+          </CardContent>
+        </Card>
+        <Card className="py-2">
+          <CardContent className="p-3 flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-500">Published</span>
+            <span className="text-lg font-bold text-green-600 dark:text-green-400">{publishedCount}</span>
+          </CardContent>
+        </Card>
+        <Card className="py-2">
+          <CardContent className="p-3 flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-500">In Review</span>
+            <span className="text-lg font-bold text-orange-600 dark:text-orange-400">{inReviewCount}</span>
+          </CardContent>
+        </Card>
+        <Card className="py-2">
+          <CardContent className="p-3 flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-500">Drafts</span>
+            <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{draftCount}</span>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Header with New Post and Manage Tags Buttons */}
       <div className="flex items-center justify-between">

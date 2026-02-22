@@ -450,41 +450,30 @@ export function ContentProductionKeywords() {
   return (
     <div className="space-y-6">
       {/* Stats Overview - from cached /stats endpoint */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardDescription className="text-gray-600 dark:text-gray-400">Total Keywords</CardDescription>
-            <CardTitle className="text-3xl text-gray-900 dark:text-white">
-              {(stats?.totalKeywords || 0).toLocaleString()}
-            </CardTitle>
-          </CardHeader>
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        <Card className="py-2">
+          <CardContent className="p-3 flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-500">Total Keywords</span>
+            <span className="text-lg font-bold text-gray-900 dark:text-white">{(stats?.totalKeywords || 0).toLocaleString()}</span>
+          </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardDescription className="text-gray-600 dark:text-gray-400">Total Monthly Searches</CardDescription>
-            <CardTitle className="text-3xl text-gray-900 dark:text-white">
-              {(stats?.totalVolume || 0).toLocaleString()}
-            </CardTitle>
-          </CardHeader>
+        <Card className="py-2">
+          <CardContent className="p-3 flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-500">Total Monthly Searches</span>
+            <span className="text-lg font-bold text-gray-900 dark:text-white">{(stats?.totalVolume || 0).toLocaleString()}</span>
+          </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardDescription className="text-gray-600 dark:text-gray-400">Tier 1 Keywords</CardDescription>
-            <CardTitle className="text-3xl text-orange-600 dark:text-orange-400">
-              {(stats?.tier1Count || 0).toLocaleString()}
-            </CardTitle>
-          </CardHeader>
+        <Card className="py-2">
+          <CardContent className="p-3 flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-500">Tier 1 Keywords</span>
+            <span className="text-lg font-bold text-orange-600 dark:text-orange-400">{(stats?.tier1Count || 0).toLocaleString()}</span>
+          </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardDescription className="text-gray-600 dark:text-gray-400">Purchase Intent</CardDescription>
-            <CardTitle className="text-3xl text-purple-600 dark:text-purple-400">
-              {(stats?.highIntentCount || 0).toLocaleString()}
-            </CardTitle>
-          </CardHeader>
+        <Card className="py-2">
+          <CardContent className="p-3 flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-500">Purchase Intent</span>
+            <span className="text-lg font-bold text-purple-600 dark:text-purple-400">{(stats?.highIntentCount || 0).toLocaleString()}</span>
+          </CardContent>
         </Card>
       </div>
 
