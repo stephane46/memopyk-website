@@ -365,7 +365,7 @@ export function ImageBankManager() {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-4 gap-4 mt-4 mb-6">
+      <div className="grid grid-cols-4 gap-4 mt-6 mb-6">
         <Card className="py-0">
           <CardContent className="p-2 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-500">Total Images</span>
