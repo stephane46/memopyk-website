@@ -450,29 +450,29 @@ export function ContentProductionKeywords() {
   return (
     <div className="space-y-6">
       {/* Stats Overview - from cached /stats endpoint */}
-      <div className="grid grid-cols-4 gap-4 mt-2 mb-6">
-        <Card className="py-2">
-          <CardContent className="p-3 flex items-center justify-between">
+      <div className="grid grid-cols-4 gap-4 mt-4 mb-6">
+        <Card className="py-0">
+          <CardContent className="p-2 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-500">Total Keywords</span>
-            <span className="text-lg font-bold text-gray-900 dark:text-white">{(stats?.totalKeywords || 0).toLocaleString()}</span>
+            <span className="text-base font-bold text-gray-900 dark:text-white">{(stats?.totalKeywords || 0).toLocaleString()}</span>
           </CardContent>
         </Card>
-        <Card className="py-2">
-          <CardContent className="p-3 flex items-center justify-between">
+        <Card className="py-0">
+          <CardContent className="p-2 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-500">Total Monthly Searches</span>
-            <span className="text-lg font-bold text-gray-900 dark:text-white">{(stats?.totalVolume || 0).toLocaleString()}</span>
+            <span className="text-base font-bold text-gray-900 dark:text-white">{(stats?.totalVolume || 0).toLocaleString()}</span>
           </CardContent>
         </Card>
-        <Card className="py-2">
-          <CardContent className="p-3 flex items-center justify-between">
+        <Card className="py-0">
+          <CardContent className="p-2 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-500">Tier 1 Keywords</span>
-            <span className="text-lg font-bold text-orange-600 dark:text-orange-400">{(stats?.tier1Count || 0).toLocaleString()}</span>
+            <span className="text-base font-bold text-orange-600 dark:text-orange-400">{(stats?.tier1Count || 0).toLocaleString()}</span>
           </CardContent>
         </Card>
-        <Card className="py-2">
-          <CardContent className="p-3 flex items-center justify-between">
+        <Card className="py-0">
+          <CardContent className="p-2 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-500">Purchase Intent</span>
-            <span className="text-lg font-bold text-purple-600 dark:text-purple-400">{(stats?.highIntentCount || 0).toLocaleString()}</span>
+            <span className="text-base font-bold text-purple-600 dark:text-purple-400">{(stats?.highIntentCount || 0).toLocaleString()}</span>
           </CardContent>
         </Card>
       </div>

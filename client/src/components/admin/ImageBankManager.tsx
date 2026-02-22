@@ -365,17 +365,17 @@ export function ImageBankManager() {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-4 gap-4 mt-2 mb-6">
-        <Card className="py-2">
-          <CardContent className="p-3 flex items-center justify-between">
+      <div className="grid grid-cols-4 gap-4 mt-4 mb-6">
+        <Card className="py-0">
+          <CardContent className="p-2 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-500">Total Images</span>
-            <span className="text-lg font-bold text-gray-900 dark:text-white">{images.length}</span>
+            <span className="text-base font-bold text-gray-900 dark:text-white">{images.length}</span>
           </CardContent>
         </Card>
-        <Card className="py-2">
-          <CardContent className="p-3 flex items-center justify-between">
+        <Card className="py-0">
+          <CardContent className="p-2 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-500">Used in Posts</span>
-            <span className="text-lg font-bold text-green-600 dark:text-green-400">{usedCount}</span>
+            <span className="text-base font-bold text-green-600 dark:text-green-400">{usedCount}</span>
           </CardContent>
         </Card>
       </div>

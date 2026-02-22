@@ -514,23 +514,23 @@ export function ContentProductionPlanner() {
   return (
     <div className="space-y-6">
       {/* Stats Cards - Compact Single Row */}
-      <div className="grid grid-cols-3 gap-4 mt-2 mb-6">
-        <Card className="py-2">
-          <CardContent className="p-3 flex items-center justify-between">
+      <div className="grid grid-cols-3 gap-4 mt-4 mb-6">
+        <Card className="py-0">
+          <CardContent className="p-2 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Topics</span>
-            <span className="text-xl font-bold text-gray-900 dark:text-white">{allTopics.length}</span>
+            <span className="text-base font-bold text-gray-900 dark:text-white">{allTopics.length}</span>
           </CardContent>
         </Card>
-        <Card className="py-2">
-          <CardContent className="p-3 flex items-center justify-between">
+        <Card className="py-0">
+          <CardContent className="p-2 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Assigned This Week</span>
-            <span className="text-xl font-bold text-green-600 dark:text-green-400">{thisWeekAssignments.length}</span>
+            <span className="text-base font-bold text-green-600 dark:text-green-400">{thisWeekAssignments.length}</span>
           </CardContent>
         </Card>
-        <Card className="py-2">
-          <CardContent className="p-3 flex items-center justify-between">
+        <Card className="py-0">
+          <CardContent className="p-2 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Unassigned</span>
-            <span className="text-xl font-bold text-orange-600 dark:text-orange-400">{unassignedTopics.length}</span>
+            <span className="text-base font-bold text-orange-600 dark:text-orange-400">{unassignedTopics.length}</span>
           </CardContent>
         </Card>
       </div>

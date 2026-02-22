@@ -601,35 +601,35 @@ export function ContentProductionTopics() {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-5 gap-4 mt-2 mb-6">
-        <Card className="py-2">
-          <CardContent className="p-3 flex items-center justify-between">
+      <div className="grid grid-cols-5 gap-4 mt-4 mb-6">
+        <Card className="py-0">
+          <CardContent className="p-2 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-500">Total Topics</span>
-            <span className="text-lg font-bold text-gray-900 dark:text-white">{totalTopics}</span>
+            <span className="text-base font-bold text-gray-900 dark:text-white">{totalTopics}</span>
           </CardContent>
         </Card>
-        <Card className="py-2">
-          <CardContent className="p-3 flex items-center justify-between">
+        <Card className="py-0">
+          <CardContent className="p-2 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-500">In Backlog</span>
-            <span className="text-lg font-bold text-amber-600 dark:text-amber-400">{readyToWriteCount}</span>
+            <span className="text-base font-bold text-amber-600 dark:text-amber-400">{readyToWriteCount}</span>
           </CardContent>
         </Card>
-        <Card className="py-2">
-          <CardContent className="p-3 flex items-center justify-between">
+        <Card className="py-0">
+          <CardContent className="p-2 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-500">Planned</span>
-            <span className="text-lg font-bold text-yellow-600 dark:text-yellow-400">{plannedCount}</span>
+            <span className="text-base font-bold text-yellow-600 dark:text-yellow-400">{plannedCount}</span>
           </CardContent>
         </Card>
-        <Card className="py-2">
-          <CardContent className="p-3 flex items-center justify-between">
+        <Card className="py-0">
+          <CardContent className="p-2 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-500">In Progress</span>
-            <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{inProgressCount}</span>
+            <span className="text-base font-bold text-blue-600 dark:text-blue-400">{inProgressCount}</span>
           </CardContent>
         </Card>
-        <Card className="py-2">
-          <CardContent className="p-3 flex items-center justify-between">
+        <Card className="py-0">
+          <CardContent className="p-2 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-500">Posts Published</span>
-            <span className="text-lg font-bold text-green-600 dark:text-green-400">{publishedCount}</span>
+            <span className="text-base font-bold text-green-600 dark:text-green-400">{publishedCount}</span>
           </CardContent>
         </Card>
       </div>
