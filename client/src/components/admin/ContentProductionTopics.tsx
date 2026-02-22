@@ -601,7 +601,7 @@ export function ContentProductionTopics() {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-5 gap-4 mt-2 mb-6">
         <Card className="py-2">
           <CardContent className="p-3 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-500">Total Topics</span>
