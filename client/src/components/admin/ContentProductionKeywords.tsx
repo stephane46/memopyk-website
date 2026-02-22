@@ -449,12 +449,6 @@ export function ContentProductionKeywords() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Keyword Research</h2>
-        <p className="text-gray-600 dark:text-gray-400">SEO keyword strategy and targeting framework</p>
-      </div>
-
       {/* Stats Overview - from cached /stats endpoint */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>

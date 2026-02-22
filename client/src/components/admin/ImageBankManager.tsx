@@ -364,12 +364,7 @@ export function ImageBankManager() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Image Bank</h2>
-          <p className="text-gray-600 dark:text-gray-400">
-            Manage royalty-free images for blog posts
-          </p>
-        </div>
+        <div />
         <div className="flex gap-2">
           <Button
             onClick={() => setLabelManagementOpen(true)}

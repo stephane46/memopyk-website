@@ -129,7 +129,7 @@ function AdminPageContent() {
     },
     {
       id: 'blog',
-      label: 'Blog',
+      label: 'Blog Hub',
       icon: PenTool,
       directLink: true, // Direct link to blog (internal tabs handle sub-navigation)
     },
