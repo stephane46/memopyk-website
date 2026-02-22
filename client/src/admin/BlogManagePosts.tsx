@@ -338,7 +338,7 @@ export function BlogManagePosts() {
     <div className="space-y-6">
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-4 gap-4 mt-6 mb-6">
+      <div className="grid grid-cols-4 gap-4 mt-8 mb-3">
         <Card className="py-0">
           <CardContent className="p-2 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-500">Total Posts</span>

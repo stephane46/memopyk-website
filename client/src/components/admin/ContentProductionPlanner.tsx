@@ -514,7 +514,7 @@ export function ContentProductionPlanner() {
   return (
     <div className="space-y-6">
       {/* Stats Cards - Compact Single Row */}
-      <div className="grid grid-cols-3 gap-4 mt-6 mb-6">
+      <div className="grid grid-cols-3 gap-4 mt-8 mb-3">
         <Card className="py-0">
           <CardContent className="p-2 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Topics</span>
