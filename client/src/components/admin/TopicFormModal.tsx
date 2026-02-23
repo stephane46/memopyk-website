@@ -417,12 +417,12 @@ export function TopicFormModal({ isOpen, onClose, topic }: TopicFormModalProps) 
               {role === 'spoke' && (
                 <div>
                   <Label className="text-gray-900 dark:text-white">Parent Guide</Label>
-                  <Select value={parentTopicId} onValueChange={setParentTopicId}>
+                  <Select value={parentTopicId || '__none__'} onValueChange={(val) => setParentTopicId(val === '__none__' ? '' : val)}>
                     <SelectTrigger data-testid="select-parent-topic">
                       <SelectValue placeholder="Select parent guide" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="__none__">None</SelectItem>
                       {availablePillars.map(p => (
                         <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
                       ))}
