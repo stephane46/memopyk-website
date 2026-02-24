@@ -188,7 +188,7 @@ export function EditorialEventsManager() {
   });
 
   const { data: blogPosts = [] } = useQuery<BlogPostOption[]>({
-    queryKey: ['/api/admin/blog/posts-for-linking'],
+    queryKey: ['/api/admin/blog/posts', 'for-linking'],
     queryFn: async () => {
       const response = await adminFetch('/api/admin/blog/posts?limit=200');
       if (!response.ok) return [];
@@ -204,7 +204,7 @@ export function EditorialEventsManager() {
   });
 
   const { data: contentTopics = [] } = useQuery<TopicOption[]>({
-    queryKey: ['/api/admin/content/topics-for-linking'],
+    queryKey: ['/api/admin/content/topics', 'for-linking'],
     queryFn: async () => {
       const response = await adminFetch('/api/admin/content/topics');
       if (!response.ok) return [];

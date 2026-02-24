@@ -49,7 +49,6 @@ export const useVideoAnalytics = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/analytics/video-view'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/analytics/sessions'] });
     },
     onError: (error) => {
       console.error('Video tracking error:', error);
@@ -82,7 +81,6 @@ export const useVideoAnalytics = () => {
       if (sessionId) {
         localStorage.setItem('memopyk-current-session-id', sessionId);
       }
-      queryClient.invalidateQueries({ queryKey: ['/api/analytics/sessions'] });
     },
     onError: (error) => {
       console.error('Session tracking error:', error);
