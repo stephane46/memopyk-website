@@ -71,6 +71,8 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-24: Events button restyled (dashed border, ghost variant, bg-gray-50) to visually distinguish from Topics/Posts toggle pair, "View:" label added, separator margin increased
+- 2026-02-24: Help drawer no longer darkened by modal backdrops (z-index fix, global — affects all admin modals)
 - 2026-02-24: Events button moved to first position in Planner header, visual separator added between Events and Topics/Posts
 - 2026-02-24: New help flow: "Plan content around a seasonal event" (5 steps, 5/5 Naive User test pass)
 - 2026-02-24: Editorial Calendar Events feature — full CRUD admin, 4-market support (France, US, Québec, Canada EN), recurring events, per-market date overrides, completion tracking with linked post/topic dropdowns, calendar markers with hover tooltip and click modal
