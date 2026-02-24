@@ -676,10 +676,10 @@ export function ContentProductionPlanner() {
               </CardDescription>
               <div className="flex items-center gap-2 mt-3">
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={() => setIsEventsOpen(true)}
-                  className="h-auto py-2"
+                  className="h-auto py-2 bg-gray-50 dark:bg-gray-800 border border-dashed border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                   data-testid="button-editorial-events"
                 >
                   <div className="flex flex-col items-center">
@@ -687,10 +687,11 @@ export function ContentProductionPlanner() {
                       <CalendarDays className="h-4 w-4 mr-2" />
                       Events
                     </div>
-                    <span className="text-xs text-gray-500">Editorial calendar</span>
+                    <span className="text-xs text-gray-400 dark:text-gray-500">Editorial calendar</span>
                   </div>
                 </Button>
-                <div className="h-8 border-l border-gray-300 dark:border-gray-600 mx-1" />
+                <div className="h-8 border-l border-gray-300 dark:border-gray-600 mx-3" />
+                <span className="text-xs text-gray-400 dark:text-gray-500 font-medium mr-1">View:</span>
                 <Button
                   variant={viewMode === 'topics' ? 'default' : 'outline'}
                   size="sm"

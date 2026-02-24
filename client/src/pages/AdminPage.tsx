@@ -477,8 +477,8 @@ function AdminPageContent() {
         </div>
       </div>
 
-      {/* Help Drawer - fixed to right, pushes content via margin */}
-      <div className={`fixed right-0 top-0 h-full z-50 transition-transform duration-300 ${isHelpOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      {/* Help Drawer - fixed to right, pushes content via margin. z-[10000] keeps it above dialog backdrop (z-[9999]) */}
+      <div className={`fixed right-0 top-0 h-full z-[10000] transition-transform duration-300 ${isHelpOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <HelpDrawer
           isOpen={isHelpOpen}
           onClose={closeHelp}
