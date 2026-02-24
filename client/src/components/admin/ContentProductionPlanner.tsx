@@ -24,6 +24,7 @@ import { BlogPostCreatorModal } from './BlogPostCreatorModal';
 import {
   EditorialEventsManager,
   MARKET_MAP,
+  MarketFlag,
   STATUS_CONFIG,
   CompletionRow,
   type EditorialEvent,
@@ -206,12 +207,7 @@ export function ContentProductionPlanner() {
     },
   });
 
-  const EVENT_MARKET_SHORT: Record<string, string> = {
-    france: 'FR',
-    us: 'US',
-    quebec: '\u269C\uFE0F',
-    canada_en: 'CA',
-  };
+  // Market flags are rendered via <MarketFlag> component from EditorialEventsManager
 
   // Scroll to today's date within calendar container (not the page)
   useEffect(() => {
@@ -834,7 +830,7 @@ export function ContentProductionPlanner() {
                             return d.toISOString().split('T')[0];
                           })();
                           const fmtDate = (s: string) => new Date(s + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                          const marketLabels = marker.event.markets.map(m => EVENT_MARKET_SHORT[m] || m).join(' \u00b7 ');
+                          // Market flags rendered inline below
 
                           return (
                             <TooltipProvider key={`ev-${marker.event.id}-${marker.type}-${idx}`} delayDuration={200}>
@@ -855,7 +851,14 @@ export function ContentProductionPlanner() {
                                     }}
                                   >
                                     {marker.type === 'reminder' && '\uD83D\uDD14 '}{marker.event.name}
-                                    <span className="ml-1 opacity-60">{marketLabels}</span>
+                                    <span className="ml-1 opacity-60 inline-flex items-center gap-0.5">
+                                      {marker.event.markets.map((m: string, i: number) => (
+                                        <span key={m} className="inline-flex items-center">
+                                          {i > 0 && <span className="mx-px">&middot;</span>}
+                                          <MarketFlag market={m} size={12} />
+                                        </span>
+                                      ))}
+                                    </span>
                                   </div>
                                 </TooltipTrigger>
                                 <TooltipContent side="top" className="max-w-xs text-xs space-y-1 p-2">
@@ -868,8 +871,8 @@ export function ContentProductionPlanner() {
                                       const st = comp?.status || 'not_started';
                                       const cfg = STATUS_CONFIG[st] || STATUS_CONFIG.not_started;
                                       return (
-                                        <div key={m}>
-                                          {MARKET_MAP[m]?.flag} {MARKET_MAP[m]?.label}: <span className={cfg.color}>{cfg.label}</span>
+                                        <div key={m} className="flex items-center gap-1">
+                                          <MarketFlag market={m} size={14} /> {MARKET_MAP[m]?.label}: <span className={cfg.color}>{cfg.label}</span>
                                         </div>
                                       );
                                     })}
@@ -1315,7 +1318,15 @@ export function ContentProductionPlanner() {
                   {completionEvent.name}
                 </DialogTitle>
                 <DialogDescription>
-                  {completionEvent.markets.map(m => EVENT_MARKET_SHORT[m] || m).join(' \u00b7 ')} — Update completion status and linked content
+                  <span className="inline-flex items-center gap-1">
+                    {completionEvent.markets.map((m: string, i: number) => (
+                      <span key={m} className="inline-flex items-center">
+                        {i > 0 && <span className="mx-0.5">&middot;</span>}
+                        <MarketFlag market={m} size={16} />
+                      </span>
+                    ))}
+                  </span>
+                  {' '}— Update completion status and linked content
                 </DialogDescription>
               </DialogHeader>
               <div className="divide-y mt-2">

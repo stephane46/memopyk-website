@@ -33,6 +33,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, ChevronDown, CalendarDays, Check, ChevronsUpDown, X, FileText, BookOpen, Link2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { CountryFlag } from './CountryFlag';
 
 // ── Types ──
 
@@ -89,15 +90,34 @@ interface EventFormData {
 // ── Constants ──
 
 export const MARKETS = [
-  { id: 'france', flag: '\u{1F1EB}\u{1F1F7}', label: 'France' },
-  { id: 'us', flag: '\u{1F1FA}\u{1F1F8}', label: 'USA' },
-  { id: 'quebec', flag: '\u269C\uFE0F', label: 'Qu\u00e9bec' },
-  { id: 'canada_en', flag: '\u{1F1E8}\u{1F1E6}', label: 'Canada EN' },
+  { id: 'france', countryCode: 'FR', label: 'France' },
+  { id: 'us', countryCode: 'US', label: 'USA' },
+  { id: 'quebec', countryCode: null, label: 'Québec' },
+  { id: 'canada_en', countryCode: 'CA', label: 'Canada EN' },
 ] as const;
 
-export const MARKET_MAP: Record<string, { flag: string; label: string }> = Object.fromEntries(
-  MARKETS.map(m => [m.id, { flag: m.flag, label: m.label }])
+export const MARKET_MAP: Record<string, { countryCode: string | null; label: string }> = Object.fromEntries(
+  MARKETS.map(m => [m.id, { countryCode: m.countryCode, label: m.label }])
 );
+
+/** Renders the flag for a market — CountryFlag for FR/US/CA, ⚜️ emoji for Quebec */
+export function MarketFlag({ market, size = 16, className = '' }: { market: string; size?: number; className?: string }) {
+  const info = MARKET_MAP[market];
+  if (!info) return <span>{market}</span>;
+  if (info.countryCode) {
+    return <CountryFlag country={info.countryCode} size={size} className={className} />;
+  }
+  // Quebec: styled ⚜️ to match flag dimensions
+  return (
+    <span
+      className={`inline-flex items-center justify-center ${className}`}
+      style={{ width: `${size}px`, height: `${Math.round(size * 0.75)}px`, fontSize: `${Math.round(size * 0.8)}px`, lineHeight: '1' }}
+      title="Québec"
+    >
+      ⚜️
+    </span>
+  );
+}
 
 const COLOR_PRESETS = [
   '#DC2626', '#EC4899', '#F97316', '#EAB308',
@@ -387,11 +407,9 @@ export function EditorialEventsManager() {
                 <TableRow key={event.id}>
                   <TableCell className="font-medium">{event.name}</TableCell>
                   <TableCell>
-                    <div className="flex gap-1">
+                    <div className="flex items-center gap-1">
                       {event.markets.map(m => (
-                        <span key={m} title={MARKET_MAP[m]?.label || m}>
-                          {MARKET_MAP[m]?.flag || m}
-                        </span>
+                        <MarketFlag key={m} market={m} size={18} />
                       ))}
                     </div>
                   </TableCell>
@@ -443,8 +461,10 @@ export function EditorialEventsManager() {
                   <div className="flex items-center gap-3">
                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: event.color }} />
                     <span className="font-medium">{event.name}</span>
-                    <span className="text-sm text-gray-500">
-                      {event.markets.map(m => MARKET_MAP[m]?.flag || m).join(' ')}
+                    <span className="flex items-center gap-1 text-sm text-gray-500">
+                      {event.markets.map(m => (
+                        <MarketFlag key={m} market={m} size={14} />
+                      ))}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -504,7 +524,10 @@ export function EditorialEventsManager() {
                       checked={formData.markets.includes(m.id)}
                       onCheckedChange={() => toggleMarket(m.id)}
                     />
-                    <span>{m.flag} {m.label}</span>
+                    <span className="flex items-center gap-1.5">
+                      <MarketFlag market={m.id} size={16} />
+                      {m.label}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -527,7 +550,10 @@ export function EditorialEventsManager() {
                 <div className="space-y-2 mt-1">
                   {formData.markets.map(m => (
                     <div key={m} className="flex items-center gap-2">
-                      <span className="w-24 text-sm">{MARKET_MAP[m]?.flag} {MARKET_MAP[m]?.label}</span>
+                      <span className="w-28 text-sm flex items-center gap-1.5">
+                        <MarketFlag market={m} size={16} />
+                        {MARKET_MAP[m]?.label}
+                      </span>
                       <Input
                         type="date"
                         value={formData.date_overrides[m] || ''}
@@ -876,7 +902,7 @@ export function CompletionRow({
       {/* Row 1: Market + Status + Notes */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2 min-w-[120px]">
-          <span className="text-lg">{MARKET_MAP[market]?.flag}</span>
+          <MarketFlag market={market} size={20} />
           <span className="text-sm font-medium">{MARKET_MAP[market]?.label}</span>
         </div>
 
