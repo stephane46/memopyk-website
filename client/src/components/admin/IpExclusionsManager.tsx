@@ -194,17 +194,7 @@ export const IpExclusionsManager: React.FC<IpExclusionsManagerProps> = ({
       // Invalidate IP exclusions list
       queryClient.invalidateQueries({ queryKey: ['/api/admin/analytics/exclusions'] });
       
-      // 🔧 CRITICAL FIX: Invalidate ALL analytics data when IP exclusions change
-      // This ensures analytics numbers update immediately when Hide/Show is toggled
-      queryClient.invalidateQueries({ queryKey: ['/api/ga4/kpis'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/ga4/geo'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/ga4/trends'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/ga4/top-videos'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/ga4/video-funnel'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/analytics/sessions'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/analytics/visitors'] });
-      
-      // Also invalidate any cached analytics data with prefix patterns
+      // Invalidate ALL analytics data when IP exclusions change
       queryClient.invalidateQueries({ predicate: (query) => 
         query.queryKey.some(key => 
           typeof key === 'string' && (

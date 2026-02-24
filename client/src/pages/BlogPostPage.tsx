@@ -75,7 +75,7 @@ export default function BlogPostPage() {
   }, [slug]);
 
   const { data: post, isLoading } = useQuery<Post | null>({
-    queryKey: ['/api/blog/post', slug, urlLanguageCode],
+    queryKey: ['/api/blog/posts', slug, urlLanguageCode],
     queryFn: async () => {
       // Try with the URL's language first
       const response = await fetch(`/api/blog/posts/${slug}?language=${urlLanguageCode}`);
