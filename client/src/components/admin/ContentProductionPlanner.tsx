@@ -676,6 +676,22 @@ export function ContentProductionPlanner() {
               </CardDescription>
               <div className="flex items-center gap-2 mt-3">
                 <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEventsOpen(true)}
+                  className="h-auto py-2"
+                  data-testid="button-editorial-events"
+                >
+                  <div className="flex flex-col items-center">
+                    <div className="flex items-center">
+                      <CalendarDays className="h-4 w-4 mr-2" />
+                      Events
+                    </div>
+                    <span className="text-xs text-gray-500">Editorial calendar</span>
+                  </div>
+                </Button>
+                <div className="h-8 border-l border-gray-300 dark:border-gray-600 mx-1" />
+                <Button
                   variant={viewMode === 'topics' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setViewMode('topics')}
@@ -703,21 +719,6 @@ export function ContentProductionPlanner() {
                       Posts
                     </div>
                     <span className={`text-xs ${viewMode === 'posts' ? 'text-white/70' : 'text-gray-500'}`}>See when they go live</span>
-                  </div>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsEventsOpen(true)}
-                  className="h-auto py-2 ml-2"
-                  data-testid="button-editorial-events"
-                >
-                  <div className="flex flex-col items-center">
-                    <div className="flex items-center">
-                      <CalendarDays className="h-4 w-4 mr-2" />
-                      Events
-                    </div>
-                    <span className="text-xs text-gray-500">Editorial calendar</span>
                   </div>
                 </Button>
               </div>
