@@ -18,7 +18,7 @@ MEMOPYK creates professional "Films Souvenirs" (souvenir/memory films) from clie
 | Analytics | ✅ GA4 + custom Supabase (blog analytics endpoints added Feb 11) |
 | Partner Directory | ✅ Mapbox GL JS with clustering (migrated Feb 14) |
 | Auto-deploy | ✅ Push → GitHub webhook → Coolify |
-| Help System | ✅ Complete (31 screens, 5 flows, V8 validated 28/28 CLEAR, Blog Editor 11/11) |
+| Help System | ✅ Complete (31 screens, 6 flows, V8 validated 28/28 CLEAR, Blog Editor 11/11) |
 | Blog Hub | ✅ 5 workflow tabs, 107 keywords, 25 clusters |
 | Production | ✅ Live on Coolify (Replit fully replaced Feb 2) |
 
@@ -71,6 +71,8 @@ READ THESE FIRST:
 
 ## Recent Work
 
+- 2026-02-24: Events button moved to first position in Planner header, visual separator added between Events and Topics/Posts
+- 2026-02-24: New help flow: "Plan content around a seasonal event" (5 steps, 5/5 Naive User test pass)
 - 2026-02-24: Editorial Calendar Events feature — full CRUD admin, 4-market support (France, US, Québec, Canada EN), recurring events, per-market date overrides, completion tracking with linked post/topic dropdowns, calendar markers with hover tooltip and click modal
 - 2026-02-24: Fixed "Plan New Post" crash bug (Radix UI empty SelectItem value)
 - 2026-02-24: Real SVG flag images via CountryFlag component replacing emoji/text abbreviations in all market displays
