@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest, adminFetch } from '@/lib/queryClient';
+import { fmtDDMMYY } from '@/lib/date-utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -762,7 +763,7 @@ export function ImageBankManager() {
                   </p>
                   {selectedImage.lastUsedAt && (
                     <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                      Last used: {new Date(selectedImage.lastUsedAt).toLocaleDateString()}
+                      Last used: {fmtDDMMYY(selectedImage.lastUsedAt)}
                     </p>
                   )}
                   

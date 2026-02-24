@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { fmtDDMMYY } from '@/lib/date-utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -537,7 +538,7 @@ export function ContentProductionTopics() {
                 <div>
                   <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Last Generated:</span>
                   <span className="ml-2 text-sm font-medium text-gray-900 dark:text-white">
-                    {new Date(topic.lastGeneratedAt).toLocaleDateString()}
+                    {fmtDDMMYY(topic.lastGeneratedAt)}
                   </span>
                 </div>
               )}

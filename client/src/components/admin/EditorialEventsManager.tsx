@@ -34,6 +34,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, ChevronDown, CalendarDays, Check, ChevronsUpDown, X, FileText, BookOpen, Link2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CountryFlag } from './CountryFlag';
+import { fmtDDMMYY } from '@/lib/date-utils';
 
 // ── Types ──
 
@@ -163,8 +164,7 @@ function computeReminderDate(baseDate: string, offsetDays: number): string {
 }
 
 function formatDate(dateStr: string): string {
-  const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return fmtDDMMYY(dateStr);
 }
 
 // ── Component ──

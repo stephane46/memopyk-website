@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest, adminFetch } from '@/lib/queryClient';
+import { fmtDDMMYY, fmtDDMM } from '@/lib/date-utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -671,7 +672,7 @@ export function ContentProductionPlanner() {
                 12-Week Content Calendar
               </CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400 mt-1">
-                {weeks[0][0].toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} - {weeks[11][6].toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                {fmtDDMMYY(weeks[0][0])} - {fmtDDMMYY(weeks[11][6])}
               </CardDescription>
               <div className="flex items-center gap-2 mt-3">
                 <Button
@@ -770,7 +771,7 @@ export function ContentProductionPlanner() {
                 <div key={weekIndex} className="grid grid-cols-8 gap-2">
                   {/* Week label */}
                   <div className="flex items-center text-xs font-medium text-gray-700 dark:text-gray-300">
-                    {weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    {fmtDDMM(weekStart)}
                   </div>
 
                   {/* Day cells */}
@@ -829,7 +830,7 @@ export function ContentProductionPlanner() {
                             d.setDate(d.getDate() - marker.event.reminderOffsetDays);
                             return d.toISOString().split('T')[0];
                           })();
-                          const fmtDate = (s: string) => new Date(s + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                          const fmtDate = (s: string) => fmtDDMMYY(s);
                           // Market flags rendered inline below
 
                           return (
@@ -937,16 +938,16 @@ export function ContentProductionPlanner() {
                                   {/* Date lines */}
                                   {isPublished && post?.publishedAt && (
                                     <div className="text-[10px] text-gray-600 dark:text-gray-400 mb-1">
-                                      Published: {new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                      Published: {fmtDDMMYY(post.publishedAt)}
                                     </div>
                                   )}
                                   {(isDraft || isInReview) && (
                                     <>
                                       <div className="text-[10px] text-gray-600 dark:text-gray-400">
-                                        Assigned: {new Date(assignment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                        Assigned: {fmtDDMMYY(assignment.date)}
                                       </div>
                                       <div className="text-[10px] text-gray-600 dark:text-gray-400 mb-1">
-                                        Publication: {post?.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Not set'}
+                                        Publication: {post?.publishedAt ? fmtDDMMYY(post.publishedAt) : 'Not set'}
                                       </div>
                                     </>
                                   )}
@@ -1112,18 +1113,18 @@ export function ContentProductionPlanner() {
                                   {/* Date lines */}
                                   {isPublished && post.publishedAt && (
                                     <div className="text-[10px] text-gray-600 dark:text-gray-400 mb-1">
-                                      Published: {new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                      Published: {fmtDDMMYY(post.publishedAt)}
                                     </div>
                                   )}
                                   {(isDraft || isInReview) && (
                                     <>
                                       {assignmentDate && (
                                         <div className="text-[10px] text-gray-600 dark:text-gray-400">
-                                          Assigned: {assignmentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                          Assigned: {fmtDDMMYY(assignmentDate)}
                                         </div>
                                       )}
                                       <div className="text-[10px] text-gray-600 dark:text-gray-400 mb-1">
-                                        Publication: {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Not set'}
+                                        Publication: {post.publishedAt ? fmtDDMMYY(post.publishedAt) : 'Not set'}
                                       </div>
                                     </>
                                   )}
@@ -1208,7 +1209,7 @@ export function ContentProductionPlanner() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>
-              Assign Topic to {selectedDate?.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+              Assign Topic to {selectedDate ? fmtDDMMYY(selectedDate) : ''}
             </DialogTitle>
             <DialogDescription>
               Select a topic to assign to this day
@@ -1251,7 +1252,7 @@ export function ContentProductionPlanner() {
                           </div>
                           {isAlreadyPlanned && (
                             <Badge className="bg-[#D67C4A] text-white flex-shrink-0">
-                              Planned: {new Date(assignmentInfo.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              Planned: {fmtDDMM(assignmentInfo.date)}
                             </Badge>
                           )}
                         </div>

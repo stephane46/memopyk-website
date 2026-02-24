@@ -74,6 +74,32 @@ export function getRelativeTime(date: Date | string): string {
 }
 
 /**
+ * Format date as dd/mm/yy (e.g., "25/12/25")
+ * Standard display format across admin UI.
+ * @param date - Date object, ISO string, or YYYY-MM-DD string
+ * @returns Formatted date string like "25/12/25"
+ */
+export function fmtDDMMYY(date: Date | string): string {
+  const d = typeof date === 'string' ? new Date(date.includes('T') ? date : date + 'T00:00:00') : date;
+  if (isNaN(d.getTime())) return '—';
+  const day = d.getDate().toString().padStart(2, '0');
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');
+  const year = d.getFullYear().toString().slice(-2);
+  return `${day}/${month}/${year}`;
+}
+
+/**
+ * Format date as dd/mm (e.g., "25/12") — for compact contexts like week labels.
+ */
+export function fmtDDMM(date: Date | string): string {
+  const d = typeof date === 'string' ? new Date(date.includes('T') ? date : date + 'T00:00:00') : date;
+  if (isNaN(d.getTime())) return '—';
+  const day = d.getDate().toString().padStart(2, '0');
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');
+  return `${day}/${month}`;
+}
+
+/**
  * Format date for legal documents in the required format (e.g., "08 August 2025" or "08 août 2025")
  * @param date - Date object or ISO string
  * @param language - Language code ('en' or 'fr')
