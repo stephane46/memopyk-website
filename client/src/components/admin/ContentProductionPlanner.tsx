@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, CalendarDays, ChevronLeft, ChevronRight, Plus, X, ListTodo, GripVertical, Eye, PenSquare } from 'lucide-react';
+import { Calendar, CalendarDays, ChevronLeft, ChevronRight, Plus, X, ListTodo, GripVertical, Eye, PenSquare, Pencil } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -13,9 +13,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
+import {
+  Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { BlogPostCreatorModal } from './BlogPostCreatorModal';
-import { EditorialEventsManager } from './EditorialEventsManager';
+import {
+  EditorialEventsManager,
+  MARKET_MAP,
+  STATUS_CONFIG,
+  CompletionRow,
+  type EditorialEvent,
+  type EditorialEventCompletion,
+  type BlogPostOption,
+  type TopicOption,
+} from './EditorialEventsManager';
 import { ContentPlannerSkeleton } from '@/admin/skeletons/ContentPlannerSkeleton';
 
 interface ContentTopic {
@@ -75,6 +90,8 @@ export function ContentProductionPlanner() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreatorModalOpen, setIsCreatorModalOpen] = useState(false);
   const [isEventsOpen, setIsEventsOpen] = useState(false);
+  const [completionEvent, setCompletionEvent] = useState<EditorialEventData | null>(null);
+  const [isEventEditOpen, setIsEventEditOpen] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState<ContentTopic | null>(null);
   const { toast } = useToast();
   const calendarRef = useRef<HTMLDivElement>(null);
@@ -130,6 +147,7 @@ export function ContentProductionPlanner() {
     reminderOffsetDays: number;
     recurring: boolean;
     color: string;
+    completions: EditorialEventCompletion[];
   }
 
   const { data: editorialEvents = [] } = useQuery<EditorialEventData[]>({
@@ -141,11 +159,58 @@ export function ContentProductionPlanner() {
     },
   });
 
-  const EVENT_MARKET_FLAGS: Record<string, string> = {
-    france: '\u{1F1EB}\u{1F1F7}',
-    us: '\u{1F1FA}\u{1F1F8}',
+  // Posts/topics for completion linking dropdowns
+  const { data: linkablePosts = [] } = useQuery<BlogPostOption[]>({
+    queryKey: ['/api/admin/blog/posts-for-linking'],
+    queryFn: async () => {
+      const response = await adminFetch('/api/admin/blog/posts?limit=200');
+      if (!response.ok) return [];
+      const json = await response.json();
+      const posts = json.data || json;
+      return (posts as Array<Record<string, unknown>>).map((p) => ({
+        id: p.id as string,
+        title: (p.title as string) || 'Untitled',
+        status: (p.status as string) || 'draft',
+        language: (p.language as string) || 'fr-FR',
+      }));
+    },
+  });
+
+  const { data: linkableTopics = [] } = useQuery<TopicOption[]>({
+    queryKey: ['/api/admin/content/topics-for-linking'],
+    queryFn: async () => {
+      const response = await adminFetch('/api/admin/content/topics');
+      if (!response.ok) return [];
+      const topics = await response.json();
+      return (topics as Array<Record<string, unknown>>).map((t) => ({
+        id: t.id as string,
+        title: (t.title as string) || 'Untitled',
+        cluster: (t.cluster as string) || null,
+        category: (t.category as string) || null,
+        status: (t.status as string) || 'backlog',
+      }));
+    },
+  });
+
+  // Completion mutation for calendar quick-action panel
+  const calendarCompletionMutation = useMutation({
+    mutationFn: async ({ eventId, market, data }: { eventId: string; market: string; data: Record<string, unknown> }) => {
+      const res = await apiRequest(`/api/editorial-events/${eventId}/completions/${market}`, 'PUT', data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/editorial-events'] });
+    },
+    onError: (err: Error) => {
+      toast({ title: 'Error updating completion', description: err.message, variant: 'destructive' });
+    },
+  });
+
+  const EVENT_MARKET_SHORT: Record<string, string> = {
+    france: 'FR',
+    us: 'US',
     quebec: '\u269C\uFE0F',
-    canada_en: '\u{1F1E8}\u{1F1E6}',
+    canada_en: 'CA',
   };
 
   // Scroll to today's date within calendar container (not the page)
@@ -756,28 +821,64 @@ export function ContentProductionPlanner() {
                         </div>
 
                         {/* Editorial event markers */}
-                        {eventMarkers.get(day.toISOString().split('T')[0])?.map((marker, idx) => (
-                          <div
-                            key={`ev-${marker.event.id}-${marker.type}-${idx}`}
-                            className={`text-[10px] leading-tight px-1.5 py-0.5 rounded mb-1 truncate ${
-                              marker.type === 'event' ? 'font-semibold' : 'font-normal italic'
-                            }`}
-                            style={{
-                              backgroundColor: marker.event.color + (marker.type === 'event' ? '20' : '10'),
-                              color: marker.event.color,
-                              borderLeft: `3px solid ${marker.event.color}`,
-                            }}
-                            title={marker.type === 'event'
-                              ? `${marker.event.name} — ${marker.event.markets.join(', ')}`
-                              : `Reminder: prepare ${marker.event.name} content`
-                            }
-                          >
-                            {marker.type === 'reminder' && '\uD83D\uDD14 '}{marker.event.name}
-                            <span className="ml-1 opacity-60">
-                              {marker.event.markets.map(m => EVENT_MARKET_FLAGS[m] || '').join('')}
-                            </span>
-                          </div>
-                        ))}
+                        {eventMarkers.get(day.toISOString().split('T')[0])?.map((marker, idx) => {
+                          const eventDate = (() => {
+                            const yr = day.getFullYear();
+                            if (marker.event.dateOverrides?.[String(yr)]) return marker.event.dateOverrides[String(yr)];
+                            if (marker.event.recurring) return `${yr}-${marker.event.baseDate.slice(5)}`;
+                            return marker.event.baseDate;
+                          })();
+                          const reminderDate = (() => {
+                            const d = new Date(eventDate + 'T00:00:00');
+                            d.setDate(d.getDate() - marker.event.reminderOffsetDays);
+                            return d.toISOString().split('T')[0];
+                          })();
+                          const fmtDate = (s: string) => new Date(s + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                          const marketLabels = marker.event.markets.map(m => EVENT_MARKET_SHORT[m] || m).join(' \u00b7 ');
+
+                          return (
+                            <TooltipProvider key={`ev-${marker.event.id}-${marker.type}-${idx}`} delayDuration={200}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div
+                                    className={`text-[10px] leading-tight px-1.5 py-0.5 rounded mb-1 truncate cursor-pointer hover:opacity-80 ${
+                                      marker.type === 'event' ? 'font-semibold' : 'font-normal italic'
+                                    }`}
+                                    style={{
+                                      backgroundColor: marker.event.color + (marker.type === 'event' ? '20' : '10'),
+                                      color: marker.event.color,
+                                      borderLeft: `3px solid ${marker.event.color}`,
+                                    }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setCompletionEvent(marker.event);
+                                    }}
+                                  >
+                                    {marker.type === 'reminder' && '\uD83D\uDD14 '}{marker.event.name}
+                                    <span className="ml-1 opacity-60">{marketLabels}</span>
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-xs text-xs space-y-1 p-2">
+                                  <div className="font-bold">{marker.event.name}</div>
+                                  <div>Event: {fmtDate(eventDate)}</div>
+                                  <div>Reminder: {fmtDate(reminderDate)}</div>
+                                  <div className="border-t pt-1 mt-1 space-y-0.5">
+                                    {marker.event.markets.map(m => {
+                                      const comp = marker.event.completions?.find((c: EditorialEventCompletion) => c.market === m);
+                                      const st = comp?.status || 'not_started';
+                                      const cfg = STATUS_CONFIG[st] || STATUS_CONFIG.not_started;
+                                      return (
+                                        <div key={m}>
+                                          {MARKET_MAP[m]?.flag} {MARKET_MAP[m]?.label}: <span className={cfg.color}>{cfg.label}</span>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          );
+                        })}
 
                         {/* Content based on view mode */}
                         {viewMode === 'topics' ? (
@@ -1200,6 +1301,61 @@ export function ContentProductionPlanner() {
             <DialogTitle className="sr-only">Editorial Events</DialogTitle>
           </DialogHeader>
           <EditorialEventsManager />
+        </DialogContent>
+      </Dialog>
+
+      {/* Calendar Event Completion Quick-Action Panel */}
+      <Dialog open={!!completionEvent} onOpenChange={(open) => { if (!open) setCompletionEvent(null); }}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          {completionEvent && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full" style={{ backgroundColor: completionEvent.color }} />
+                  {completionEvent.name}
+                </DialogTitle>
+                <DialogDescription>
+                  {completionEvent.markets.map(m => EVENT_MARKET_SHORT[m] || m).join(' \u00b7 ')} — Update completion status and linked content
+                </DialogDescription>
+              </DialogHeader>
+              <div className="divide-y mt-2">
+                {completionEvent.markets.map(market => {
+                  const completion = completionEvent.completions?.find((c: EditorialEventCompletion) => c.market === market) || null;
+                  return (
+                    <CompletionRow
+                      key={market}
+                      eventId={completionEvent.id}
+                      market={market}
+                      completion={completion}
+                      onUpdate={(data) => calendarCompletionMutation.mutate({ eventId: completionEvent.id, market, data })}
+                      posts={linkablePosts}
+                      topics={linkableTopics}
+                    />
+                  );
+                })}
+              </div>
+              <div className="flex justify-end gap-2 mt-4 pt-2 border-t">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setCompletionEvent(null);
+                    setIsEventsOpen(true);
+                  }}
+                >
+                  <Pencil className="h-3 w-3 mr-1" />
+                  Edit Event
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCompletionEvent(null)}
+                >
+                  Close
+                </Button>
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>

@@ -36,7 +36,7 @@ import { cn } from '@/lib/utils';
 
 // ── Types ──
 
-interface EditorialEvent {
+export interface EditorialEvent {
   id: string;
   name: string;
   markets: string[];
@@ -50,7 +50,7 @@ interface EditorialEvent {
   completions: EditorialEventCompletion[];
 }
 
-interface EditorialEventCompletion {
+export interface EditorialEventCompletion {
   id: string;
   eventId: string;
   market: string;
@@ -61,14 +61,14 @@ interface EditorialEventCompletion {
   updatedAt: string;
 }
 
-interface BlogPostOption {
+export interface BlogPostOption {
   id: string;
   title: string;
   status: string;
   language: string;
 }
 
-interface TopicOption {
+export interface TopicOption {
   id: string;
   title: string;
   cluster: string | null;
@@ -88,14 +88,14 @@ interface EventFormData {
 
 // ── Constants ──
 
-const MARKETS = [
+export const MARKETS = [
   { id: 'france', flag: '\u{1F1EB}\u{1F1F7}', label: 'France' },
   { id: 'us', flag: '\u{1F1FA}\u{1F1F8}', label: 'USA' },
   { id: 'quebec', flag: '\u269C\uFE0F', label: 'Qu\u00e9bec' },
   { id: 'canada_en', flag: '\u{1F1E8}\u{1F1E6}', label: 'Canada EN' },
 ] as const;
 
-const MARKET_MAP: Record<string, { flag: string; label: string }> = Object.fromEntries(
+export const MARKET_MAP: Record<string, { flag: string; label: string }> = Object.fromEntries(
   MARKETS.map(m => [m.id, { flag: m.flag, label: m.label }])
 );
 
@@ -104,7 +104,7 @@ const COLOR_PRESETS = [
   '#16A34A', '#2563EB', '#7C3AED', '#6B7280',
 ];
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
+export const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   not_started: { label: 'Not Started', color: 'text-gray-600', bg: 'bg-gray-100' },
   in_review: { label: 'In Review', color: 'text-orange-600', bg: 'bg-orange-100' },
   published: { label: 'Published', color: 'text-green-600', bg: 'bg-green-100' },
@@ -667,7 +667,7 @@ function LinkedIndicator({ event }: { event: EditorialEvent }) {
   return <span className="text-xs text-gray-400">No links</span>;
 }
 
-function SearchablePostSelect({
+export function SearchablePostSelect({
   value,
   posts,
   onChange,
@@ -759,7 +759,7 @@ function SearchablePostSelect({
   );
 }
 
-function SearchableTopicSelect({
+export function SearchableTopicSelect({
   value,
   topics,
   onChange,
@@ -853,7 +853,7 @@ function SearchableTopicSelect({
   );
 }
 
-function CompletionRow({
+export function CompletionRow({
   eventId,
   market,
   completion,
