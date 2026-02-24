@@ -24,8 +24,15 @@ import {
 import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import {
+  Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList,
+} from '@/components/ui/command';
+import {
+  Popover, PopoverContent, PopoverTrigger,
+} from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, ChevronDown, CalendarDays } from 'lucide-react';
+import { Plus, Pencil, Trash2, ChevronDown, CalendarDays, Check, ChevronsUpDown, X, FileText, BookOpen, Link2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 // ── Types ──
 
@@ -52,6 +59,21 @@ interface EditorialEventCompletion {
   linkedTopicId: string | null;
   notes: string | null;
   updatedAt: string;
+}
+
+interface BlogPostOption {
+  id: string;
+  title: string;
+  status: string;
+  language: string;
+}
+
+interface TopicOption {
+  id: string;
+  title: string;
+  cluster: string | null;
+  category: string | null;
+  status: string;
 }
 
 interface EventFormData {
@@ -86,6 +108,20 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }
   not_started: { label: 'Not Started', color: 'text-gray-600', bg: 'bg-gray-100' },
   in_review: { label: 'In Review', color: 'text-orange-600', bg: 'bg-orange-100' },
   published: { label: 'Published', color: 'text-green-600', bg: 'bg-green-100' },
+};
+
+const POST_STATUS_BADGE: Record<string, string> = {
+  draft: 'bg-gray-100 text-gray-600',
+  in_review: 'bg-yellow-100 text-yellow-700',
+  published: 'bg-green-100 text-green-700',
+  archived: 'bg-red-100 text-red-600',
+};
+
+const TOPIC_STATUS_BADGE: Record<string, string> = {
+  backlog: 'bg-gray-100 text-gray-600',
+  planned: 'bg-yellow-100 text-yellow-700',
+  in_progress: 'bg-blue-100 text-blue-700',
+  published: 'bg-green-100 text-green-700',
 };
 
 const EMPTY_FORM: EventFormData = {
@@ -128,6 +164,38 @@ export function EditorialEventsManager() {
       const response = await adminFetch('/api/editorial-events');
       if (!response.ok) throw new Error('Failed to fetch editorial events');
       return response.json();
+    },
+  });
+
+  const { data: blogPosts = [] } = useQuery<BlogPostOption[]>({
+    queryKey: ['/api/admin/blog/posts-for-linking'],
+    queryFn: async () => {
+      const response = await adminFetch('/api/admin/blog/posts?limit=200');
+      if (!response.ok) return [];
+      const json = await response.json();
+      const posts = json.data || json;
+      return (posts as Array<Record<string, unknown>>).map((p) => ({
+        id: p.id as string,
+        title: (p.title as string) || 'Untitled',
+        status: (p.status as string) || 'draft',
+        language: (p.language as string) || 'fr-FR',
+      }));
+    },
+  });
+
+  const { data: contentTopics = [] } = useQuery<TopicOption[]>({
+    queryKey: ['/api/admin/content/topics-for-linking'],
+    queryFn: async () => {
+      const response = await adminFetch('/api/admin/content/topics');
+      if (!response.ok) return [];
+      const topics = await response.json();
+      return (topics as Array<Record<string, unknown>>).map((t) => ({
+        id: t.id as string,
+        title: (t.title as string) || 'Untitled',
+        cluster: (t.cluster as string) || null,
+        category: (t.category as string) || null,
+        status: (t.status as string) || 'backlog',
+      }));
     },
   });
 
@@ -310,6 +378,7 @@ export function EditorialEventsManager() {
                 <TableHead>Reminder</TableHead>
                 <TableHead>Recurring</TableHead>
                 <TableHead>Color</TableHead>
+                <TableHead>Linked</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -344,6 +413,9 @@ export function EditorialEventsManager() {
                       style={{ backgroundColor: event.color }}
                       title={event.color}
                     />
+                  </TableCell>
+                  <TableCell>
+                    <LinkedIndicator event={event} />
                   </TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="sm" onClick={() => openEditForm(event)}>
@@ -392,6 +464,8 @@ export function EditorialEventsManager() {
                         market={market}
                         completion={completion || null}
                         onUpdate={(data) => completionMutation.mutate({ eventId: event.id, market, data })}
+                        posts={blogPosts}
+                        topics={contentTopics}
                       />
                     );
                   })}
@@ -570,29 +644,242 @@ function CompletionSummary({ event }: { event: EditorialEvent }) {
   return <Badge variant="secondary">{published}/{total} done</Badge>;
 }
 
+function LinkedIndicator({ event }: { event: EditorialEvent }) {
+  const linkedCount = event.completions.filter(c => c.linkedPostId).length;
+  const total = event.markets.length;
+  if (total === 0) return null;
+  if (linkedCount === total) {
+    return (
+      <Badge className="bg-green-100 text-green-700 gap-1">
+        <Link2 className="h-3 w-3" />
+        All linked
+      </Badge>
+    );
+  }
+  if (linkedCount > 0) {
+    return (
+      <Badge className="bg-orange-100 text-orange-700 gap-1">
+        <Link2 className="h-3 w-3" />
+        {linkedCount}/{total}
+      </Badge>
+    );
+  }
+  return <span className="text-xs text-gray-400">No links</span>;
+}
+
+function SearchablePostSelect({
+  value,
+  posts,
+  onChange,
+}: {
+  value: string | null;
+  posts: BlogPostOption[];
+  onChange: (id: string | null) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+
+  const selected = posts.find(p => p.id === value);
+  const filtered = useMemo(() => {
+    if (!search) return posts.slice(0, 50);
+    const q = search.toLowerCase();
+    return posts.filter(p => p.title.toLowerCase().includes(q)).slice(0, 50);
+  }, [posts, search]);
+
+  return (
+    <div className="flex items-center gap-1">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-[220px] justify-between text-xs h-8"
+          >
+            {selected ? (
+              <span className="truncate flex items-center gap-1">
+                <FileText className="h-3 w-3 shrink-0" />
+                {selected.title}
+              </span>
+            ) : (
+              <span className="text-muted-foreground">Link post...</span>
+            )}
+            <ChevronsUpDown className="h-3 w-3 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[320px] p-0" align="start">
+          <Command shouldFilter={false}>
+            <CommandInput
+              placeholder="Search posts..."
+              value={search}
+              onValueChange={setSearch}
+            />
+            <CommandList>
+              <CommandEmpty>No posts found.</CommandEmpty>
+              <CommandGroup>
+                {filtered.map(post => (
+                  <CommandItem
+                    key={post.id}
+                    value={post.id}
+                    onSelect={() => {
+                      onChange(post.id === value ? null : post.id);
+                      setOpen(false);
+                      setSearch('');
+                    }}
+                  >
+                    <Check className={cn("mr-2 h-3 w-3", value === post.id ? "opacity-100" : "opacity-0")} />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs truncate">{post.title}</div>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <Badge variant="outline" className={cn("text-[10px] px-1 py-0", POST_STATUS_BADGE[post.status])}>
+                          {post.status}
+                        </Badge>
+                        <span className="text-[10px] text-muted-foreground">{post.language}</span>
+                      </div>
+                    </div>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+      {value && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 w-6 p-0"
+          onClick={() => onChange(null)}
+          title="Unlink post"
+        >
+          <X className="h-3 w-3" />
+        </Button>
+      )}
+    </div>
+  );
+}
+
+function SearchableTopicSelect({
+  value,
+  topics,
+  onChange,
+}: {
+  value: string | null;
+  topics: TopicOption[];
+  onChange: (id: string | null) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+
+  const selected = topics.find(t => t.id === value);
+  const filtered = useMemo(() => {
+    if (!search) return topics.slice(0, 50);
+    const q = search.toLowerCase();
+    return topics.filter(t => t.title.toLowerCase().includes(q)).slice(0, 50);
+  }, [topics, search]);
+
+  return (
+    <div className="flex items-center gap-1">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-[220px] justify-between text-xs h-8"
+          >
+            {selected ? (
+              <span className="truncate flex items-center gap-1">
+                <BookOpen className="h-3 w-3 shrink-0" />
+                {selected.title}
+              </span>
+            ) : (
+              <span className="text-muted-foreground">Link topic...</span>
+            )}
+            <ChevronsUpDown className="h-3 w-3 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[320px] p-0" align="start">
+          <Command shouldFilter={false}>
+            <CommandInput
+              placeholder="Search topics..."
+              value={search}
+              onValueChange={setSearch}
+            />
+            <CommandList>
+              <CommandEmpty>No topics found.</CommandEmpty>
+              <CommandGroup>
+                {filtered.map(topic => (
+                  <CommandItem
+                    key={topic.id}
+                    value={topic.id}
+                    onSelect={() => {
+                      onChange(topic.id === value ? null : topic.id);
+                      setOpen(false);
+                      setSearch('');
+                    }}
+                  >
+                    <Check className={cn("mr-2 h-3 w-3", value === topic.id ? "opacity-100" : "opacity-0")} />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs truncate">{topic.title}</div>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <Badge variant="outline" className={cn("text-[10px] px-1 py-0", TOPIC_STATUS_BADGE[topic.status])}>
+                          {topic.status}
+                        </Badge>
+                        {topic.category && (
+                          <span className="text-[10px] text-muted-foreground">{topic.category}</span>
+                        )}
+                      </div>
+                    </div>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+      {value && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 w-6 p-0"
+          onClick={() => onChange(null)}
+          title="Unlink topic"
+        >
+          <X className="h-3 w-3" />
+        </Button>
+      )}
+    </div>
+  );
+}
+
 function CompletionRow({
   eventId,
   market,
   completion,
   onUpdate,
+  posts,
+  topics,
 }: {
   eventId: string;
   market: string;
   completion: EditorialEventCompletion | null;
   onUpdate: (data: Record<string, unknown>) => void;
+  posts: BlogPostOption[];
+  topics: TopicOption[];
 }) {
   const status = completion?.status || 'not_started';
   const notes = completion?.notes || '';
-  const statusCfg = STATUS_CONFIG[status] || STATUS_CONFIG.not_started;
 
   return (
-    <div className="p-3 flex items-start gap-4">
-      <div className="flex items-center gap-2 min-w-[120px]">
-        <span className="text-lg">{MARKET_MAP[market]?.flag}</span>
-        <span className="text-sm font-medium">{MARKET_MAP[market]?.label}</span>
-      </div>
+    <div className="p-3 space-y-2">
+      {/* Row 1: Market + Status + Notes */}
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 min-w-[120px]">
+          <span className="text-lg">{MARKET_MAP[market]?.flag}</span>
+          <span className="text-sm font-medium">{MARKET_MAP[market]?.label}</span>
+        </div>
 
-      <div className="flex-1 flex items-center gap-3">
         <Select
           value={status}
           onValueChange={(val) => onUpdate({ status: val })}
@@ -625,12 +912,26 @@ function CompletionRow({
         <Input
           placeholder="Notes..."
           defaultValue={notes}
-          className="text-sm"
+          className="text-sm flex-1"
           onBlur={(e) => {
             if (e.target.value !== notes) {
               onUpdate({ notes: e.target.value || null });
             }
           }}
+        />
+      </div>
+
+      {/* Row 2: Linked Post + Linked Topic */}
+      <div className="flex items-center gap-4 pl-[136px]">
+        <SearchablePostSelect
+          value={completion?.linkedPostId || null}
+          posts={posts}
+          onChange={(id) => onUpdate({ linked_post_id: id })}
+        />
+        <SearchableTopicSelect
+          value={completion?.linkedTopicId || null}
+          topics={topics}
+          onChange={(id) => onUpdate({ linked_topic_id: id })}
         />
       </div>
     </div>
