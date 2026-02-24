@@ -1,4 +1,4 @@
-import { pgTable, text, serial, bigserial, integer, boolean, timestamp, varchar, decimal, numeric, jsonb, uuid, unique, type AnyPgColumn } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, bigserial, integer, boolean, timestamp, varchar, decimal, numeric, jsonb, uuid, unique, date, type AnyPgColumn } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -794,7 +794,50 @@ export const insertContentDailyAssignmentSchema = createInsertSchema(contentDail
 export type ContentDailyAssignment = typeof contentDailyAssignments.$inferSelect;
 export type InsertContentDailyAssignment = z.infer<typeof insertContentDailyAssignmentSchema>;
 
+// ==================== EDITORIAL CALENDAR EVENTS ====================
 
+export const editorialEvents = pgTable("editorial_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  markets: text("markets").array().notNull().default(sql`'{}'::text[]`),
+  baseDate: date("base_date", { mode: "string" }).notNull(),
+  dateOverrides: jsonb("date_overrides").$type<Record<string, string>>(),
+  reminderOffsetDays: integer("reminder_offset_days").notNull().default(30),
+  recurring: boolean("recurring").notNull().default(true),
+  color: text("color").notNull().default('#F97316'),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertEditorialEventSchema = createInsertSchema(editorialEvents).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type EditorialEvent = typeof editorialEvents.$inferSelect;
+export type InsertEditorialEvent = z.infer<typeof insertEditorialEventSchema>;
+
+export const editorialEventCompletions = pgTable("editorial_event_completions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  eventId: uuid("event_id").notNull().references(() => editorialEvents.id, { onDelete: "cascade" }),
+  market: text("market").notNull(),
+  status: text("status").notNull().default("not_started"),
+  linkedPostId: uuid("linked_post_id").references(() => blogPosts.id, { onDelete: "set null" }),
+  linkedTopicId: uuid("linked_topic_id").references(() => contentTopics.id, { onDelete: "set null" }),
+  notes: text("notes"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  eventMarketUnique: unique().on(table.eventId, table.market),
+}));
+
+export const insertEditorialEventCompletionSchema = createInsertSchema(editorialEventCompletions).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export type EditorialEventCompletion = typeof editorialEventCompletions.$inferSelect;
+export type InsertEditorialEventCompletion = z.infer<typeof insertEditorialEventCompletionSchema>;
 
 // Insert types for all tables
 export type InsertHeroVideo = z.infer<typeof insertHeroVideoSchema>;

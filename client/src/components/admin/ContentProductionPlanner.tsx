@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, ChevronLeft, ChevronRight, Plus, X, ListTodo, GripVertical, Eye, PenSquare } from 'lucide-react';
+import { Calendar, CalendarDays, ChevronLeft, ChevronRight, Plus, X, ListTodo, GripVertical, Eye, PenSquare } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { BlogPostCreatorModal } from './BlogPostCreatorModal';
+import { EditorialEventsManager } from './EditorialEventsManager';
 import { ContentPlannerSkeleton } from '@/admin/skeletons/ContentPlannerSkeleton';
 
 interface ContentTopic {
@@ -73,6 +74,7 @@ export function ContentProductionPlanner() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreatorModalOpen, setIsCreatorModalOpen] = useState(false);
+  const [isEventsOpen, setIsEventsOpen] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState<ContentTopic | null>(null);
   const { toast } = useToast();
   const calendarRef = useRef<HTMLDivElement>(null);
@@ -117,6 +119,34 @@ export function ContentProductionPlanner() {
   });
   
   const blogPosts = blogPostsData?.data || [];
+
+  // Fetch editorial events for calendar markers
+  interface EditorialEventData {
+    id: string;
+    name: string;
+    markets: string[];
+    baseDate: string;
+    dateOverrides: Record<string, string> | null;
+    reminderOffsetDays: number;
+    recurring: boolean;
+    color: string;
+  }
+
+  const { data: editorialEvents = [] } = useQuery<EditorialEventData[]>({
+    queryKey: ['/api/editorial-events'],
+    queryFn: async () => {
+      const response = await adminFetch('/api/editorial-events');
+      if (!response.ok) return [];
+      return response.json();
+    },
+  });
+
+  const EVENT_MARKET_FLAGS: Record<string, string> = {
+    france: '\u{1F1EB}\u{1F1F7}',
+    us: '\u{1F1FA}\u{1F1F8}',
+    quebec: '\u269C\uFE0F',
+    canada_en: '\u{1F1E8}\u{1F1E6}',
+  };
 
   // Scroll to today's date within calendar container (not the page)
   useEffect(() => {
@@ -390,7 +420,7 @@ export function ContentProductionPlanner() {
   };
 
   // Generate weeks based on offset and count
-  const weeks = [];
+  const weeks: Date[][] = [];
   for (let weekNum = 0; weekNum < weeksToShow; weekNum++) {
     const weekDays = [];
     for (let dayNum = 0; dayNum < 7; dayNum++) {
@@ -400,6 +430,41 @@ export function ContentProductionPlanner() {
     }
     weeks.push(weekDays);
   }
+
+  // Compute event markers for visible calendar dates
+  const eventMarkers = useMemo(() => {
+    const markers = new Map<string, Array<{ event: EditorialEventData; type: 'event' | 'reminder' }>>();
+    if (editorialEvents.length === 0) return markers;
+
+    const visibleYears = new Set<number>();
+    weeks.forEach(weekDays => weekDays.forEach(d => visibleYears.add(d.getFullYear())));
+
+    for (const event of editorialEvents) {
+      for (const year of visibleYears) {
+        let dateStr: string;
+        if (event.dateOverrides && event.dateOverrides[String(year)]) {
+          dateStr = event.dateOverrides[String(year)];
+        } else if (event.recurring) {
+          dateStr = `${year}-${event.baseDate.slice(5)}`;
+        } else {
+          dateStr = event.baseDate;
+        }
+
+        if (!markers.has(dateStr)) markers.set(dateStr, []);
+        markers.get(dateStr)!.push({ event, type: 'event' });
+
+        if (event.reminderOffsetDays > 0) {
+          const eventDate = new Date(dateStr + 'T00:00:00');
+          const reminderDate = new Date(eventDate);
+          reminderDate.setDate(reminderDate.getDate() - event.reminderOffsetDays);
+          const reminderStr = reminderDate.toISOString().split('T')[0];
+          if (!markers.has(reminderStr)) markers.set(reminderStr, []);
+          markers.get(reminderStr)!.push({ event, type: 'reminder' });
+        }
+      }
+    }
+    return markers;
+  }, [editorialEvents, weeks]);
 
   // Get assignment info for a topic (to show in modal)
   const getTopicAssignmentInfo = (topicId: string) => {
@@ -578,6 +643,21 @@ export function ContentProductionPlanner() {
                     <span className={`text-xs ${viewMode === 'posts' ? 'text-white/70' : 'text-gray-500'}`}>See when they go live</span>
                   </div>
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEventsOpen(true)}
+                  className="h-auto py-2 ml-2"
+                  data-testid="button-editorial-events"
+                >
+                  <div className="flex flex-col items-center">
+                    <div className="flex items-center">
+                      <CalendarDays className="h-4 w-4 mr-2" />
+                      Events
+                    </div>
+                    <span className="text-xs text-gray-500">Editorial calendar</span>
+                  </div>
+                </Button>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -674,6 +754,30 @@ export function ContentProductionPlanner() {
                             </Button>
                           )}
                         </div>
+
+                        {/* Editorial event markers */}
+                        {eventMarkers.get(day.toISOString().split('T')[0])?.map((marker, idx) => (
+                          <div
+                            key={`ev-${marker.event.id}-${marker.type}-${idx}`}
+                            className={`text-[10px] leading-tight px-1.5 py-0.5 rounded mb-1 truncate ${
+                              marker.type === 'event' ? 'font-semibold' : 'font-normal italic'
+                            }`}
+                            style={{
+                              backgroundColor: marker.event.color + (marker.type === 'event' ? '20' : '10'),
+                              color: marker.event.color,
+                              borderLeft: `3px solid ${marker.event.color}`,
+                            }}
+                            title={marker.type === 'event'
+                              ? `${marker.event.name} — ${marker.event.markets.join(', ')}`
+                              : `Reminder: prepare ${marker.event.name} content`
+                            }
+                          >
+                            {marker.type === 'reminder' && '\uD83D\uDD14 '}{marker.event.name}
+                            <span className="ml-1 opacity-60">
+                              {marker.event.markets.map(m => EVENT_MARKET_FLAGS[m] || '').join('')}
+                            </span>
+                          </div>
+                        ))}
 
                         {/* Content based on view mode */}
                         {viewMode === 'topics' ? (
@@ -1088,6 +1192,16 @@ export function ContentProductionPlanner() {
           }}
         />
       )}
+
+      {/* Editorial Events Manager Dialog */}
+      <Dialog open={isEventsOpen} onOpenChange={setIsEventsOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="sr-only">Editorial Events</DialogTitle>
+          </DialogHeader>
+          <EditorialEventsManager />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

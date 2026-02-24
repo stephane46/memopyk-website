@@ -34,6 +34,7 @@ import imageBankRoutes from "./routes/image-bank.routes";
 import blogAnalyticsRoutes from "./routes/blog-analytics.routes";
 import sitemapRoutes from "./routes/sitemap.routes";
 import howItWorksRoutes from "./routes/how-it-works.routes";
+import editorialEventsRoutes from "./routes/editorial-events.routes";
 
 /**
  * Register all API routes on the Express app
@@ -100,7 +101,10 @@ export async function registerRoutes(app: Express): Promise<void> {
   // Blog Analytics routes
   app.use("/api", blogAnalyticsRoutes);     // /api/analytics/blog/*
 
-  console.log("✅ All 23 route modules registered: sitemap, health, hero, gallery, faq, contact, cta, legal, analytics, newsletter, partners, admin, content, seo, blog, blog-tags, blog-admin, media, travel-upload, help, ai-context, image-bank, blog-analytics");
+  // Editorial Calendar Events
+  app.use("/api/editorial-events", editorialEventsRoutes); // /api/editorial-events, /api/editorial-events/:id, /api/editorial-events/:id/completions/:market
+
+  console.log("✅ All 24 route modules registered: sitemap, health, hero, gallery, faq, contact, cta, legal, analytics, newsletter, partners, admin, content, seo, blog, blog-tags, blog-admin, media, travel-upload, help, ai-context, image-bank, blog-analytics, editorial-events");
   console.log("✅ All routes migrated ✅");
 }
 
