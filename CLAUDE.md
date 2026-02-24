@@ -6,7 +6,7 @@ MEMOPYK creates professional "Films Souvenirs" (souvenir/memory films) from clie
 
 ## Current Status
 
-**Last updated:** February 21, 2026
+**Last updated:** February 24, 2026
 **Staging:** https://memopyk.memopyk.com (auto-deploys on push to `staging`)
 **Production:** https://memopyk.com (auto-deploys on push to `main`)
 
@@ -14,11 +14,11 @@ MEMOPYK creates professional "Films Souvenirs" (souvenir/memory films) from clie
 |-----------|--------|
 | Server | ✅ Express.js (port 5000) |
 | Client | ✅ React 18 + Vite |
-| Database | ✅ Supabase PostgreSQL (35 tables, 33 in Drizzle) |
+| Database | ✅ Supabase PostgreSQL (37 tables, 35 in Drizzle) |
 | Analytics | ✅ GA4 + custom Supabase (blog analytics endpoints added Feb 11) |
 | Partner Directory | ✅ Mapbox GL JS with clustering (migrated Feb 14) |
 | Auto-deploy | ✅ Push → GitHub webhook → Coolify |
-| Help System | ✅ Complete (31 screens, 2 flows, V8 validated 28/28 CLEAR, Blog Editor 11/11) |
+| Help System | ✅ Complete (31 screens, 5 flows, V8 validated 28/28 CLEAR, Blog Editor 11/11) |
 | Blog Hub | ✅ 5 workflow tabs, 107 keywords, 25 clusters |
 | Production | ✅ Live on Coolify (Replit fully replaced Feb 2) |
 
@@ -63,14 +63,18 @@ READ THESE FIRST:
 | Layer | Tech | Key Files |
 |-------|------|-----------|
 | Frontend | React 18, TypeScript, Vite, Tailwind, shadcn/ui | `client/src/` |
-| Backend | Express.js, TypeScript | `server/routes/` (23 route modules) |
-| Database | Supabase PostgreSQL, Drizzle ORM | `shared/schema.ts` (34 tables), `docs/architecture/DATABASE.md` |
+| Backend | Express.js, TypeScript | `server/routes/` (24 route modules) |
+| Database | Supabase PostgreSQL, Drizzle ORM | `shared/schema.ts` (36 tables), `docs/architecture/DATABASE.md` |
 | Deployment | Docker, Coolify | `Dockerfile`, `docker-compose.yml` |
 | Email | Resend | Contact form, notifications |
 | Storage | Supabase Storage CDN | Images, videos |
 
 ## Recent Work
 
+- 2026-02-24: Editorial Calendar Events feature — full CRUD admin, 4-market support (France, US, Québec, Canada EN), recurring events, per-market date overrides, completion tracking with linked post/topic dropdowns, calendar markers with hover tooltip and click modal
+- 2026-02-24: Fixed "Plan New Post" crash bug (Radix UI empty SelectItem value)
+- 2026-02-24: Real SVG flag images via CountryFlag component replacing emoji/text abbreviations in all market displays
+- 2026-02-24: 3 help flows created/fixed + Planner help screen fully rewritten (14/14 Naive User test pass)
 - 2026-02-21: Merged homepage audit sprint to main (commit 604bdb0)
 - 2026-02-21: Comment ça marche admin — fixed form (plain textareas, removed unused backTitle fields, added layout hint, fixed corrupted step-1 data)
 - 2026-02-21: Removed video preloading from GallerySection + VideoOverlay (31 lines) — title page already handles perceived load delay
